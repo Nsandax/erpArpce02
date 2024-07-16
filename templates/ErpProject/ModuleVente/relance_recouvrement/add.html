@@ -1,0 +1,101 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %} {%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_vente_tableau_de_bord' %}">Module Client</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_vente_list_relance_recouvrement' %}">Liste des relances</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <div class="col-md-2">
+                            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+                        </div>
+                        <div class="col-md-2">
+                            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_list_relance_recouvrement' %}')" class="theme-btn theme-btn-sm rounded">
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_vente_post_add_relance_recouvrement' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Client</label>
+                                <div class="input-control text full-size">
+                                    <select name="client_id" id="client_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez le client< svp.">
+                                        <option value="0">Sélectionnez le client</option>
+                                        {% for item in clients %}
+                                            <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class='col-sm-6'>
+                                <label>Date de relance</label>
+                                <div id="input-date-relance" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                    <input type="text" name="date_relance" value="{% now "d/m/Y" %}">
+                                    <div class="button"><span class="mif-calendar"></span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Type relance</label>
+                                <div class="input-control text full-size">
+                                    <select name="type_relance" id="type_relance"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez le type svp.">
+                                        <option value="0">Sélectionnez le type</option>
+                                        {% for item in type_relances %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Description</label>
+                                <div class="input-control text full-size" style="min-height: 6.25rem !important;">
+                                    <textarea name="description" id="description"></textarea>
+                                </div>
+                            </div>
+                        </div><br>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    </script>
+{% endblock %}

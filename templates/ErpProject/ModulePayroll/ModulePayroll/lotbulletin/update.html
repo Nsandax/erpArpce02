@@ -1,0 +1,223 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <button onclick="javascript:document.getElementById('submit').click()"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_details_lotbulletin' model.id %}')"  class="theme-btn theme-btn-sm rounded " style="margin-left: 5px">Annuler</button>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br><br>   
+                    <div class="row item-content" style="margin-top: 10px">
+                        <div class="cell">
+							<form id="form" method="POST" action="{% url 'module_payroll_post_update_lotbulletin' %}"
+								data-role="validator" 
+								data-show-required-state="false"
+								data-hint-mode="line"
+								data-hint-background="bg-red"
+								data-hint-color="fg-white"
+								data-hide-error="5000"
+								novalidate="novalidate"
+								data-on-error-input="notifyOnErrorInput"
+								data-show-error-hint="false">
+								{% csrf_token %}
+								<input id="submit" type="submit" style="display: none">
+								<input name="ref" type="hidden" value="{{ model.id }}" >
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Désignation</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="designation" value="{{ model.designation }}" type="text" autocomplete="off"
+                                                data-validate-func="required" 
+                                                data-validate-hint="Entrez la désignation du poste!">
+                                            <span class="input-state-error mif-warning"></span>
+                                            <span class="input-state-success mif-checkmark"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label>Référence</label>
+                                        <div class="input-control text full-size">
+                                            <input type="text" value="{{ model.reference }}" name="reference" id="reference" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">                                    
+                                    <div class="col-md-6">
+                                        <label>Date du début</label>
+                                        <div id="date_debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                            <input value="{{ model.date_debut|date:'d/m/Y' }}" readonly type="text" name="date_debut" readonly
+                                                data-validate-func="required" 
+                                                data-validate-hint="Precisez la date du début du dossier svp.">
+                                            <div class="button"><span class="mif-calendar"></span></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Date de fin</label>
+                                        <div id="date_fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                            <input value="{{ model.date_fin|date:'d/m/Y' }}" readonly type="text" name="date_fin" readonly
+                                                data-validate-func="required" 
+                                                data-validate-hint="Precisez la date de fin du dossier svp.">
+                                            <div class="button"><span class="mif-calendar"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">  
+                                    <div class="col-md-6">
+                                        <label>Type</label>
+                                        <div class="input-control text full-size">
+                                            <select onchange="choixTypeDossier()" type="text" name="type_dossier" id="type_dossier"
+                                                data-validate-func="required" 
+                                                data-validate-hint="Sélectionnez le type svp.">
+                                                <option value="0">Sélectionnez un type</option>
+                                                {% for item in types_lot_bulletins %}
+                                                    <option {% if model.type == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" id="departementShowing">
+                                        <label>Département</label>
+                                        <div class="input-control text full-size">
+                                            <select type="text" name="departement_id" id="departement_id">
+                                                <option value="0">Sélectionnez un département</option>
+												{% for item in departements %}
+													<option {% if model.departement.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item }} </option>
+												{% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Type de modèle bulletin</label>
+                                        <div class="input-control text full-size">
+                                            <select onchange="choixTypeModele()" type="text" name="type_modele" id="type_modele"
+                                                data-validate-func="required" 
+                                                data-validate-hint="Sélectionnez le type de modèle par défaut svp.">
+                                                <option value="0">Sélectionnez un type de modèle</option>
+                                                {% for item in types_modeles_bulletins %}
+                                                    <option {% if model.type_modele == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" id="modeleShowing">
+                                        <label>Modèle Bulletin</label>
+                                        <div class="input-control text full-size">
+                                            <select type="text" name="modele_bulletin_id" id="modele_bulletin_id" onclick="choixModele()">
+                                                <option value="0">Sélectionnez un modèle de bulletin</option>
+                                                {% for item in modele_bulletins %}
+                                                    <option {% if model.modele_bulletin_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item }} </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" id="checkModelePersoShowing">
+                                        <label class="input-control checkbox small-check full-size">
+                                            <input name="modele_personnalisee" id="modele_personnalisee" type="checkbox" onclick="choixModelePersonnalise()">
+                                            <span class="check"></span>
+                                            <span class="caption" style="color: red;">Modèle de bulletin personnalisé ?</span>
+                                        </label>
+                                    </div>
+                                    <div id="divRubriquesShowing" class="col-md-12">
+                                        <label>Rubriques</label>
+                                        <div class="text full-size">
+                                            <select multiple="multiple" class="multi-select" id="multi_select1" name="multi_select_rubriques[]" >
+                                                {% for item in rubriques %}
+                                                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div> 
+                                    </div>
+                                </div>   
+                            </form>
+                        </div>        
+                    </div>
+                </div>        
+            </div>
+        </div> 
+    </div>
+<script>
+    $(document).ready(function(){
+        $('#multi_select1').multiSelect();
+
+		choixTypeDossier();
+        choixTypeModele();
+        choixModele();
+        choixModelePersonnalise();
+    });
+
+    var lesItemsModele = new Array();
+    {% for modele in modele_bulletins %}
+        {% for item in modele.rubriques.all %}
+            lesItemsModele.push({id:"{{ item.id }}", designation:"{{ item.designation }}", modele_id:"{{ modele.id }}"});
+        {% endfor %}
+    {% endfor %}
+    //console.log("lesItemsModele");
+    //console.log(lesItemsModele);
+
+    function choixTypeDossier(){
+        var choixType = $("#type_dossier").val();
+        if (choixType == "DEPARTEMENT"){
+            $("#departementShowing").show();
+        }else{
+            $("#departementShowing").hide();
+        }
+    }
+
+    function choixTypeModele(){
+        var choixType = $("#type_modele").val();
+        if (choixType == "2"){
+            $("#modeleShowing").show();
+        } else {
+            $("#modeleShowing").hide();
+            $("#checkModelePersoShowing").hide();
+            $("#divRubriquesShowing").hide()
+        }
+    }
+
+    function choixModele(){
+        var modele_bulletin_id = $("#modele_bulletin_id").val();
+        $('#multi_select1').multiSelect('deselect_all');
+        var lesRubriques = new Array();
+        if (modele_bulletin_id != "0"){
+            $("#checkModelePersoShowing").show();
+            for(var i = 0; i < lesItemsModele.length; i++){
+                var item = lesItemsModele[i];
+                if(parseInt(item.modele_id) == parseInt(modele_bulletin_id)){
+                    lesRubriques.push(item.id);
+                }
+            }
+            //console.log("lesRubriques");
+            //console.log(lesRubriques);
+            $('#multi_select1').multiSelect('select', lesRubriques);
+        } else {
+            $("#checkModelePersoShowing").hide();
+        }
+    }
+
+    function choixModelePersonnalise() {
+        var checkBox = document.getElementById("modele_personnalisee");
+        if (checkBox.checked == true){
+            $("#divRubriquesShowing").show()
+        }else{
+            $("#divRubriquesShowing").hide()
+        }
+    }
+</script>
+{% endblock %}

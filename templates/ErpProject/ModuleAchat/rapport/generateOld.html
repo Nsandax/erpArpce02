@@ -1,0 +1,102 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_achat_tableau_de_bord' %}">Module Achat</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row only-on-small-screen">
+        <h2 class="text-light no-margin-left">{{ title }}</h2>
+    </div>
+
+    <div class="col-md-2">
+        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" val="Valider"%}
+        </div>
+        <div class="col-md-2">
+            <button onclick="javascript:window.location.assign('{% url 'module_achat_tableau_de_bord' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="width:100%">Annuler</button>
+        </div>
+
+    <div class="row only-on-small-screen">
+        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button large-button rounded primary_color_{{module.name|lower}}" val="Valider"%}
+        <button onclick="javascript:window.location.assign('{% url 'module_achat_tableau_de_bord' %}')" class="button large-button rounded chargement-au-click" style="width:100%">Annuler</button>
+    </div>
+    <br>
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row item-content" style="margin-top: 10px">
+        <form id="form" method="POST" action="{% url 'module_achat_post_generer_analyse_achat' %}"
+            data-role="validator"
+            data-show-required-state="false"
+            data-hint-mode="line"
+            data-hint-background="bg-red"
+            data-hint-color="fg-white"
+            data-hide-error="5000"
+            novalidate="novalidate"
+            data-on-error-input="notifyOnErrorInput"
+            data-show-error-hint="false">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="row">
+                        <div class="col-md-6" >
+                            <label>Type d'Extraction :</label>
+                            <div class="input-control select full-size">
+                                <select name="type_extraction" id="type_extraction"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez la devise svp.">
+                                    <option value="0">Sélectionnez un type d'extraction</option>
+                                    <option value="1">Expression Besoin</option>
+                                    <option value="2">Demande d'achat</option>
+                                    <option value="3">Bons de commande</option>
+                                    <!-- <option value="4">Transactions</option> -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Etat :</label>
+                            <div class="input-control text full-size">
+                                <select name="exercice_bgt">
+                                    <option value="0">Sélectionnez un etat</option>
+                                    <option value="1">Créée</option>
+                                    <option value="2">Livré</option>
+                                    <option value="3">Approuvé</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Date de début :</label>
+                            <div id="input-date-debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" name="date_debut" id="date_debut" readonly
+                                    data-validate-func="required"
+                                    data-validate-hint="Précisez la date de début svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Date de fin :</label>
+                            <div id="input-date-fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" name="date_fin" id="date_fin" readonly
+                                    data-validate-func="required"
+                                    data-validate-hint="Précisez la date de fin svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

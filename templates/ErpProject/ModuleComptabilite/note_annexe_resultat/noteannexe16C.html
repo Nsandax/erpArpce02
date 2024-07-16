@@ -1,0 +1,182 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote16C.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_16B' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 40%">
+          <col style="width: 14%">
+          <col style="width: 16%">
+          <col style="width: 13%">
+          <col style="width: 17%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td class="tg-nqil" colspan="5">NOTE 16C : ACTIFS ET PASSIFS EVENTUELS</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Exercice clos&nbsp;&nbsp;le</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">00/01/1900</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">SIGLE :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Durée (en mois) :</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">0</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-hovb"></td>
+              <td class="tg-hovb"></td>
+            </tr>
+            <tr>
+              <td class="tg-kf42" colspan="3">Libellés</td>
+              <td class="tg-kf42">Année N</td>
+              <td class="tg-kf42">Année N-1</td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8" colspan="3">Actif éventuel</td>
+              <td class="tg-h2g2">-</td>
+              <td class="tg-h2g2">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3">Litiges</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8" colspan="3">Passif éventuel</td>
+              <td class="tg-h2g2">-</td>
+              <td class="tg-h2g2">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3">Litiges</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="3"><br></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8" colspan="3">Excédent/Déficit de régime</td>
+              <td class="tg-h2g2">-</td>
+              <td class="tg-h2g2">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b" colspan="5">Commentaire :</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="5">Décrire les principales caractéristiques des actifs/passifs éventuels. L’horizon de temps auquel les encaissements/décaissements sont attendus et les éventuels remboursements à percevoir</td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+{% endblock %}

@@ -1,0 +1,223 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="report">
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+
+            <center><h1>FICHE DE CARRIERE - ARPCE</h1></center>
+            <center><h3>Etabli à la date du {% now "jS F Y" %}</h3></center>
+            <br>
+            <br>
+
+            <br>
+            <br>
+        <div class="row">
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tbody>
+                    <tr>
+                        <td>Nom : <strong>{{ model.nom }}</strong> </td>
+                        <td>Prénom : <strong>{{ model.prenom }}</strong> </td>
+                        <td>Date de naissance : <strong>{{ model.profilrh.date_naissance }}</strong> </td>
+                        <td>Situation matrimoniale : <strong>{{ model.profilrh.situation_familliale }}</strong> </td>
+                        <td>Nationalité : <strong>{{ model.profilrh.nationalite }}</strong> </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div> <br>
+        <br>
+        <br>
+        <div class="row">
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tbody>
+                    <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                        <td>Qualification: <strong>{{ model.profilrh.grade }}</strong> </td>
+                        <td>Emploi-Type: <strong>{{ model.poste.designation }}</strong> </td>
+                        <td>Matricule : <strong>{{ model.profilrh.matricule }}</strong> </td>
+                    </tr>
+                    <tr class="tr-toggle" style="background-color:#f1f1f1;font-weight:700!important;">
+                        <td>Niveau d'étude: <strong>{{ model.profilrh.education }}</strong> </td>
+                        <td>Catégorie: <strong>{{ model.categorie_employe.categorie }}</strong> </td>
+                        <td>Echelon : <strong>{{ model.categorie_employe.echelon }}</strong> </td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2">Affectation actuelle: <strong>{{ model.poste.designation }}</strong></td>
+                        <td colspan="2">Service: <strong>{{ model.unite_fonctionnelle.libelle }}</strong></td>
+                        <tr>
+                            <td>Direction : <strong>{{ model.unite_fonctionnelle.unite_fonctionnelle.libelle }}</strong> </td>
+                            <td>Ville : <strong>Brazzaville</strong></td>
+                        </tr>
+                    </tr>
+                    <tr  style="background-color:#7c984a;color:#fff!important;">
+                        <td>Téléphone: <strong>{{ model.profilrh.phone_professionnel }}</strong> </td>
+                        <td>Adresse: <strong>{{ model.adresse }}</strong> </td>
+                        <td>E-mail : <strong>{{ model.email.professionnel }}</strong> </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+     <div class="row">
+        <center><h3>RUBRIQUE 1 : DIPLOMES ET FORMATIONS</h3></center>
+        {% if documents %}
+            <div class="row">
+                <div class="row">
+                    {% if documents.count == 0 %}
+                    <p><span class="sub-alt-header fg-dark">Aucun document enregistré</span></p>
+                    {% endif %}
+                    <ol>
+                        {% for item in documents %}
+                        <li style="margin-bottom: 0.25em">
+                                <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+        {% else %}
+        <center><h4><em><strong><span style="color: red;">{{ model.nom_complet }} n'a aucun document.</span></strong></em></h4></center>
+        {% endif %}
+        <br>
+        <br>
+        <center><h3>RUBRIQUE 2 : FORMATIONS ASSUREE PAR L'ARPCE</h3></center>
+        {% if formations %}
+        <div class="row">
+            <table class="display table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Intitulé des formations / stages suivis</th>
+                        <th>Organisme de formation</th>
+                        <th>Lieu</th>
+                        <th>Année</th>
+                        <th>Durée</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in formations %}
+                        <tr>
+                            <td>{{ form.formation.theme }}</td>
+                            <td>{{ form.formation.oragnisme_formation }}</td>
+                            <td>{{ form.formation.localite_organisme }}</td>
+                            <td>{{ form.formation.annee }}</td>
+                            <td>{{ form.formation.nombre_jour_formation }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <center><h4><em><strong><span style="color: red;">{{ model.nom_complet }} n'a suivi aucunes formations à l'ARPCE</span></strong></em></h4></center>
+        {% endif %}
+        <br>
+        <br>
+        <center><h3>RUBRIQUE 3 : EMPLOIS ET FONCTION AVANT / HORS ARPCE</h3></center>
+        {% if emplois %}
+        <div class="row">
+            <table class="display table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Etablissement</th>
+                        <th>Lieu</th>
+                        <th>Fonctions</th>
+                        <th>Catégorie socio-professionnel</th>
+                        <th>Date d'entrée</th>
+                        <th>Date de sortie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empl in emplois %}
+                        <tr>
+                            <td>{{ empl.etablissement }}</td>
+                            <td>{{ empl.lieu }}</td>
+                            <td>{{ empl.fonctions }}</td>
+                            <td>{{ empl.categorie_socio_professionnelle }}</td>
+                            <td>{{ empl.date_entree }}</td>
+                            <td>{{ empl.date_sortie }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <center><h4><em><strong><span style="color: red;">{{ model.nom_complet }} n'a aucun emplois ni de fonctions avant l'ARPCE</span></strong></em></h4></center>
+        {% endif %}
+    </div>
+     </div>
+
+     <br>
+     <br>
+     <center><h3>RUBRIQUE 4 : MOBILITES ET FONCTIONS OCCUPEES A l’ARPCE</h3></center>
+     <div class="row">
+        <table id="rapport" class="table bordered no-margin" style="width: 100%">
+             <thead>
+                <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                     <th style="width: 14%;">Direction</th>
+                     <th style="width: 14%;">Service</th>
+                     <th style="width: 14%;">Fonctions occupées</th>
+                     <th style="width: 14%;">Catégorie socio-professionnel</th>
+                     <th style="width: 14%;">Modalités</th>
+                     <th style="width: 14%;">Date d'entrée</th>
+                     <th style="width: 14%;">Date de sortie</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {% for mob in mobilites %}
+                 <tr style="background-color:#7c984a;color:#fff!important;">
+                         <td>{{ mob.direction }}</td>
+                         <td>{{ mob.service }}</td>
+                         <td>{{ mob.fonctions_occupees }}</td>
+                         <td>{{ mob.categorie_socio_professionnelle }}</td>
+                         <td>{{ mob.modalites }}</td>
+                         <td>{{ mob.date_entree }}</td>
+                         <td>{{ mob.date_sortie }}</td>
+                     </tr>
+                 {% endfor %}
+             </tbody>
+         </table>
+     </div>
+     <br>
+     <br>
+     <center><h3>RUBRIQUE 5 : EVALUATION</h3></center>
+     {% if evaluations %}
+     <div class="row">
+        <table id="rapport" class="table bordered no-margin" style="width: 100%">
+             <thead>
+                 <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                     <th style="width: 14%;">Description</th>
+                     <th style="width: 14%;">Instructions</th>
+                     <th style="width: 14%;">Echelle de notation</th>
+                     <th style="width: 14%;">Echelle de performance</th>
+                     <th style="width: 14%;">Echell de coéfficient</th>
+                     <th style="width: 14%;">Appréciation</th>
+                     <th style="width: 14%;">Date</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {% for eval in evaluations %}
+                     <tr style="background-color:#7c984a;color:#fff!important;">
+                         <td>{{ eval.description }}</td>
+                         <td>{{ eval.instructions }}</td>
+                         <td>{{ eval.echelle_notation}}</td>
+                         <td>{{ eval.echelle_performance}}</td>
+                         <td>{{ eval.echelle_coefficient}}</td>
+                         <td>{{ eval.appreciation}}</td>
+                         <td>{{ eval.date_appreciation}}</td>
+                     </tr>
+                 {% endfor %}
+             </tbody>
+         </table>
+     </div>
+     {% else %}
+     <center><h4><em><strong><span style="color: red;">{{ model.nom_complet }} n'a suivi aucune évaluation au sein de l'ARPCE</span></strong></em></h4></center>
+     {% endif %}
+
+        </div>
+    </body>
+</html>

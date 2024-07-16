@@ -1,0 +1,133 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+	<div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_constante' %}">Liste des constantes</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_list_constante' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_payroll_post_add_choice_constante' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <br/>
+						<div class="row">
+							<div class="col-md-12">
+								<p class="header">Choisissez le type de constante</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-4">
+								<table class="table bordered no-margin" style="width:100%">
+									<tr>
+										<td>
+											<label class="input-control radio small-check">
+												<input value="1" name="type_constante" checked type="radio">
+												<span class="check"></span>
+												<span class="caption">Calcul</span>
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<label class="input-control radio small-check">
+												<input value="2" name="type_constante" type="radio">
+												<span class="check"></span>
+												<span class="caption">Test</span>
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<label class="input-control radio small-check">
+												<input value="3" name="type_constante" type="radio">
+												<span class="check"></span>
+												<span class="caption">Tranche</span>
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<label class="input-control radio small-check">
+												<input value="8" name="type_constante" type="radio">
+												<span class="check"></span>
+												<span class="caption">Cumul</span>
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<label class="input-control radio small-check">
+												<input value="4" name="type_constante" type="radio">
+												<span class="check"></span>
+												<span class="caption">Valeur</span>
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<label class="input-control radio small-check">
+												<input value="9" name="type_constante" type="radio">
+												<span class="check"></span>
+												<span class="caption">Date</span>
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<label class="input-control radio small-check">
+												<input value="5" name="type_constante" type="radio">
+												<span class="check"></span>
+												<span class="caption">Rubrique</span>
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<label class="input-control radio small-check">
+												<input value="6" name="type_constante" type="radio">
+												<span class="check"></span>
+												<span class="caption">Prédefini</span>
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<label class="input-control radio small-check">
+												<input value="7" name="type_constante" type="radio">
+												<span class="check"></span>
+												<span class="caption">Individuel</span>
+											</label>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+
+					</form>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script>
+	</script>
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_list_bon_transfert' %}">Liste des ordres de transfert d'article</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+
+            <!-- GESTION DU WORKFLOW -->
+            {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_inventaire_list_bon_transfert" url_detail="module_inventaire_detail_bon_transfert" csrf_token=csrf_token module=module type_doc="Bon de transmission" service_referent_id=service_referent_beneficiaire.id lignes=lignes only %}
+            <!--FIN GESTION DU WORKFLOW-->
+
+
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:white;border: none;border-radius: none;">
+                    <div class="row">
+                        {% if model.est_realisee %}
+                    {% if est_integrale == False %}
+                            <button onclick="javascript:window.location.assign('{% url 'module_inventaire_completer_bon_transfert' model.id %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Mis à jour après arbitrage</button>
+                            {% else %}
+                            {% if est_printable %}
+                            <!-- Impression -->
+                            <form method="POST" action="{% url 'back_office_print_objet' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value={{model.id}}>
+                                <input type="hidden" name="dao" value="print_bon_transfert(id)">
+                                <input type="hidden" name="previous" value="{{ request.path }}">
+                                <button type="submit" class="btn btn-default" style="background-color: #41435d;border:none;color: white;">Imprimer</button>
+                            </form>
+                            <!-- Fin impression -->
+                            {% endif %}
+                            {% endif %}
+                    {% endif %}
+                    </div>
+                    <br>
+                    <!--button id="supprimer" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer le bon</!--button-->
+                    <br>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+
+
+                    <div class="row" style="margin-top: 10px" id="content_bon">
+                        <div class="">
+                            {% if model.est_realisee %}
+                            <div class="col-md-12">
+                                {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                            </div>
+                                <div class="row">
+                                    <br><!--center><h4><strong>ARPCE</strong></h4> </center-->
+                                        <center><h4 style="color: red; margin-top: 100px; font-size: 35px; margin-bottom: 40px; text-decoration: underline">{{titre_document}}</h4> </center>
+                                    <p class="fg-gray">
+                                        <center> <strong>Transfert réalisé à la date du</strong> :<br>
+                                        <span class="fg-dark"> {{ model.date_realisation|date:"d/m/Y" }} </span> </center>
+                                    </p>
+                                    </center>
+                                </div>
+                            {% endif %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        <strong>Numéro du bon </strong> :<br>
+                                        <span class="fg-dark"> {{ model.numero_transfert }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray" style="float:right;">
+                                        <strong>Demande d'achat</strong>:<br>
+                                        <span class="fg-dark">{{ model.demande_achat }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        <strong>Document externe</strong> :<br>
+                                        {% if model.reference_document != None and model.reference_document != "" %}
+                                            <span class="fg-dark">{{ model.reference_document }}</span>
+                                        {% else %}
+                                            <span class="fg-dark">-</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray" style="float:right;">
+                                        <strong>Date prévue</strong> :<br>
+                                        <span class="fg-dark">{{ model.date_transfert|date:"d/m/Y" }}</span>
+                                    </p>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        <strong>Service référent d'origine</strong> :<br>
+                                        <span class="fg-dark"> {{ service_referent_origine.libelle }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray" style="float:right;">
+                                        <strong>Service référent bénéficiaire</strong> :<br>
+                                        <span class="fg-dark"> {{ service_referent_beneficiaire.libelle }} </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        <strong>Opération</strong> :<br>
+                                        <span class="fg-dark"> {{ model.operation_stock.designation }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray" style="float:right;">
+                                        <strong>Agent recepteur</strong> :
+                                        <br>
+                                        <span class="fg-dark">{{ model.employe.nom_complet }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <table class="table border bordered">
+                                    <thead>
+                                        <tr>
+                                            <th width="25%">Article</th>
+                                            <th width="18%">Quantité à transférer</th>
+                                            <th width="18%">Quantité transférée</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ligne in lignes %}
+                                            <tr class="table bordered border">
+                                                <td>{{ ligne.nom_article}}</td>
+                                                <td>{{ ligne.quantite_demandee }} {{ ligne.unite_article }}</td>
+                                                <td>{{ ligne.quantite_fournie }} {{ ligne.unite_article }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+	<script src="/static/ErpProject/js/transfert-local.js"></script>
+	<script>
+		$(document).ready(function(){
+			transfertLocal.supprimerTransfert();
+			transfertLocal.supprimerToutesLignes();
+		});
+		function imprimer()
+        {
+            var mywindow = window.open('', 'Print', 'width=800');
+            var ticket = document.getElementById("content_bon").innerHTML;
+            mywindow.document = document;
+			mywindow.document.body.innerHTML = ticket;
+
+            mywindow.document.close();
+            mywindow.focus()
+            mywindow.#print();
+            mywindow.close();
+            return true;
+        }
+    </script>
+    <script>
+        function supprimer() {
+            var id = '{{model.id}}'
+            //-------deux variables pour la suppression---------------------------------
+            var modele = "Model_Bon_transfert"
+            var the_url = "module_inventaire_list_bon_transfert"
+            // url de suppression ------------------------------------------------------
+            url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+            url = url.replace('100', id);
+            url = url.replace('nom_modele', modele);
+            url = url.replace('url_retour', the_url);
+            document.location.href = url;
+
+
+        }
+        $('#supprimer').on('click', function () {
+
+
+            Swal.fire({
+                title: 'Etes vous sure?',
+                text: "De vouloir supprimer cette item!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, Supprime le!'
+            }).then((result) => {
+                if (result.value) {
+                    supprimer();
+                    Swal.fire(
+                        'Supprimé!',
+
+                        'Votre Item est supprimé',
+                        'Avec Succes',
+                    )
+                }
+            })
+        })
+
+    </script>
+{% endblock %}
+
+
+

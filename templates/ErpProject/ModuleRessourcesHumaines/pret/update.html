@@ -1,0 +1,125 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_home' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_factures_fournisseur' %}">Liste des factures</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_details_facture_fournisseur' model.id %}')" class="button small-button rounded" style="margin-left: 5px">Annuler</button>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+    <div class="row item-content" style="margin-top: 10px">
+        <form action="{% url 'module_comptabilite_post_update_facture_fournisseur' %}" method="POST"
+            data-role="validator" 
+            data-show-required-state="false"
+            data-hint-mode="line"
+            data-hint-background="bg-red"
+            data-hint-color="fg-white"
+            data-hide-error="5000"
+            novalidate="novalidate"
+            data-on-error-input="notifyOnErrorInput"
+            data-show-error-hint="false">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input name="ref" type="hidden" value="{{ model.id }}" >
+            <div class="row">
+                <table class="table no-margin">
+                    <tr>
+                        <td class="no-padding-top no-padding-left no-padding-bottom" width="35%">
+                            <label>Numéro de la facture</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="numero_facture" value="{{ model.numero_facture }}"
+                                    data-validate-func="required" 
+                                    data-validate-hint="Entrez le numéro de la facture svp." />
+                            </div>
+                        </td>
+                        <td  class="no-padding-top no-padding-bottom" width="35%">
+                            <label class="label">Date de facturation</label>
+                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" name="date_facturation" value="{{ model.date_facturation|date:'d/m/Y' }}" readonly
+                                    data-validate-func="required" 
+                                    data-validate-hint="Précisez la date de facturation svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom" width="30%"></td>
+                    </tr>
+                </table>
+            </div>
+            
+            
+            <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+
+            <div class="row" style="margin-top: 20px">
+                <div class="cell padding30 shadow">
+                    
+                    <div class="row cells2">
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Fournisseur :<br>
+                                <span class="sub-alt-header fg-dark"> {{ bon.fournisseur.nom_complet }} </span>
+                            </p>
+                        </div>
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Condition de reglement :<br>
+                                <span class="sub-alt-header fg-dark"> {{ bon.condition_reglement.designation }} </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row cells2">
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Document externe :<br>
+                                {% if bon.reference_document != None and bon.reference_document != "" %}
+                                    <span class="sub-alt-header fg-dark">{{ bon.reference_document }}</span>
+                                {% else %}
+                                    <span class="sub-alt-header fg-dark">-</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <table class="table border bordered">
+                            <thead>
+                                <tr>
+                                    <th width="37%">Article</th>
+                                    <th width="25%">Quantité demandée</th>
+                                    <th width="22%">Prix unitaire</th>
+                                    <th width="39%">Prix total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ligne in lignes %}
+                                    <tr class="table bordered border">
+                                        <td>{{ ligne.nom_article}}</td>
+                                        <td>{{ ligne.quantite_demandee }} {{ ligne.unite.symbole_unite }}</td>
+                                        <td>{{ ligne.prix_unitaire }} {{ bon.devise.symbole_devise }}</td>
+                                        <td>{{ ligne.total }} {{ bon.devise.symbole_devise }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td style="border:1px #999999 solid">TOTAL</td>
+                                    <td style="border:1px #999999 solid">{{ bon.prix_total }} {{ bon.devise.symbole_devise }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+{% endblock %}

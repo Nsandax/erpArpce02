@@ -1,0 +1,18 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %}
+<ul class="breadcrumb">
+    <li><a><span class="mif-home"></span></a></li>
+    <li><a class="chargement-au-click" href="{% url 'module_achat_list_categorie_articles' %}">Module Achat</a></li>
+    <li><a class="chargement-au-click" href="{% url 'module_achat_list_categorie_articles' %}">Liste des catégories d'article</a></li>
+    <li>{{ title }}</li>
+</ul>
+<div class="row">
+    {% if can_update == True %}
+    <button onclick="javascript:window.location.assign('{% url 'module_achat_update_categorie_articles' model.id %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button> {% endif %} {% if can_create
+    == True %}
+    <button class="button small-button rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_achat_add_categorie_articles' %}')" style="margin-left: 5px">Créer</button> {% endif %}
+</div>
+<hr style="background-color: #f7f5f5;">
+<div class="row" style="margin-top: 10px">
+    <p class="header">{{ model.designation }}</p>
+</div>
+{% endblock %}

@@ -1,0 +1,582 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %} {% block page %} {%load static %}
+{% load account_filters %}
+<style type="text/css">
+    body {
+        background-color: grey!important;
+    }
+
+    .PositionL {
+        display: flex;
+        flex-direction: column;
+        font-weight: 900;
+    }
+
+    .LignP {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .header1 {
+        background-color: rgba(109, 70, 60, 0.8);
+        position: relative;
+        top: -12px;
+        height: 45px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .header1 span {
+        padding-left: 2%;
+        padding-right: 2%;
+        padding-top: 10px;
+        color: #fff;
+        font-size: 100%;
+        font-weight: 800;
+    }
+
+    .coligne {
+        margin-right: 0px;
+        border-radius: 3px;
+    }
+
+    .first {
+        margin-top: 2%;
+    }
+
+    .first1 {
+        margin-bottom: 5%;
+    }
+
+    .btSh {
+        /* box-shadow: 0px 2px 6px slategrey;*/
+        border-radius: 4px;
+        margin-bottom: 2%;
+        padding-right: 0%;
+        border: 1px solid #fff;
+        margin-right: 11px;
+        background-color: #664036;
+    }
+
+    .montantP {
+        color: green;
+    }
+
+    .montantP12 {
+        color: red;
+    }
+</style>
+
+
+
+<div id="admin_view" class="row">
+    <div class="col-lg-12">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none; margin-top:2%;">
+            <div class="panel panel-default" style="background-color:#F9F9F9;border: none; margin-top:2%;">
+                <div class="card-body row" style="background-color: #fff;padding-top: 4%;">
+                    <div class="col-lg-12 first1">
+                        <div class="col-md-3">
+                            <div class="item-dash">
+                                <div class="" style="height: 5px;background-color: #664036;"></div>
+                                <div style="background-color: #664036;position:relative;width:50%;height: 45px;top:-20px;padding-top:5px;padding-left:3px;">
+                                    <span style="color:#fff;margin-left:2%;">Catégories</span>
+                                </div>
+                                <div class="PositionL" style="padding-left:5%;padding-bottom:5px;">
+                                    {% for item in categorie_budget%}
+                                    <span> {{item.designation}}</span> {%endfor%}
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="">
+                            <div class="row">
+                                <div class="col-md-5 card btSh">
+                                    <div class="row" style="padding-bottom:12%;">
+                                        <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;margin-bottom:8%;display:flex;justify-content: center;">
+                                                                    Budget dépense
+                                                            </span>
+                                        <span class="col-lg-12" style="margin-bottom:5%;font-size:120%;color:#fff; font-weight: 900;display:flex;justify-content: center;">
+                                                                {{Depenses}}
+                                                            </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 card btSh">
+                                    <div class="row" style="padding-bottom:12%;">
+                                        <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;margin-bottom:8%;display:flex;justify-content: center;">
+                                                                Budget recette
+                                                        </span>
+                                        <span class="col-lg-12" style="margin-bottom:5%;font-size:120%;color:#fff; font-weight: 900;display:flex;justify-content: center;">
+                                                            {{Recette}}
+                                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 card btSh">
+                                    <div class="row" style="padding-bottom:12%;">
+                                        <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;margin-bottom:8%;display:flex;justify-content: center;">
+                                                                            Centres de coûts
+                                                                    </span>
+                                        <span class="col-lg-12" style="margin-bottom:5%;font-size:120%;color:#fff; font-weight: 900;display:flex;justify-content: center;">
+                                                                        {{nombre_centre_cout}}
+                                                                    </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 card btSh">
+                                    <div class="row" style="padding-bottom:12%;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
+                                        <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;margin-bottom:8%;">
+                                                                        Transaction budgétaire
+                                                                </span>
+                                        <span class="col-lg-12" style="margin-bottom:5%;font-size:120%;color:#fff; font-weight: 900;display:flex;justify-content: center;">
+                                                                    {{nombre_transaction}}
+                                                                </span>
+                                                            </div>
+                                                    </div>
+                                                </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="item-dash">
+                                                <div class="" style="height: 5px;background-color: #664036;"></div>
+                                                <div style="float:right; background-color: #664036;position:relative;width:50%;height: 45px;top:-20px;padding-top:5px;padding-left:4px;">
+                                                        <span style="color:#fff;margin-left:2%;">Exercice Budgetaire</span>
+                                                </div>
+                                                <div class="" style="padding-left:0%;padding-top:15%;padding-bottom: 2px;">
+                                                    <ul style="">
+                                                        {% if ExerciceBudgtaire %}
+                                                        <p style="margin-right: -3pc;">
+                                                           <em class="fa fa-calculator"></em> <em style="font-style: normal;font-weight:800;">{{ExerciceBudgtaire.annee}}</em><br>
+                                                           <em class="monetary">Montant saisi: <br>
+                                                                <em style="font-weight:900;">{{ExerciceBudgtaire.montant |monetary}} {{ExerciceBudgtaire.devise.symbole_devise}}</em>
+                                                           </em>
+                                                           <br>
+                                                           <em class="monetary">Montant calculé:<br>
+                                                               <em style="font-weight: 900;">
+                                                                {{ExerciceBudgtaire.montant_alloue_exercice |monetary}} {{ExerciceBudgtaire.devise.symbole_devise}}
+                                                               </em>
+                                            </em>
+                                        </p>
+                                        {% else %} Aucune année fixée
+                                        <br>
+                                        <button onclick="javascript:window.location.assign('{% url 'module_budget_add_exercicebudgetaire' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Créer</button> {% endif %}
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 item-dash coligne">
+                        <div class="header1">
+                            <span>Recette</span> <span class="fa fa-file"></span>
+                        </div>
+                        <div class="PositionL">
+                            <span class="LignP">
+                                        <span>Prévision</span>
+                                        <span>{{calcul_recette.prevision |monetary}}</span>
+                                    </span>
+                                    <span class="LignP">
+                                        <span>Réalisation</span>
+                                        <span>{{calcul_recette.realisation |monetary}}</span>
+                                    </span>
+                                    <span class="LignP">
+                                        <span>Ecarts</span>
+                                        <span>{{calcul_recette.ecart |monetary}}</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 item-dash coligne">
+                                <div class="header1">
+                                    <span>Depense</span> <span class="fa fa-exchange fa-2x"></span>
+                                </div>
+                                <div class="PositionL">
+                                        <span class="LignP">
+                                            <span>Prévision</span>
+                                            <span>{{calcul_depense.prevision |monetary}}</span>
+                                        </span>
+                                        <span class="LignP">
+                                            <span>Réalisation</span>
+                                            <span>{{calcul_depense.realisation |monetary}}</span>
+                                        </span>
+                                        <span class="LignP">
+                                            <span>Ecarts</span>
+                                            <span>{{calcul_depense.ecart |monetary}}</span>
+                                        </span>
+                                    </div>
+                            </div>
+                            <div class="col-md-4 item-dash coligne">
+                                    <div class="header1">
+                                        <span>Projet</span> <span class="fa fa-eye fa-2x"></span>
+                                    </div>
+                                    <div class="PositionL">
+                                            <span class="LignP">
+                                                <span>Prévision</span>
+                                                <span>{{calcul_projet.prevision |monetary}}</span>
+                                            </span>
+                                            <span class="LignP">
+                                                <span>Dépenses</span>
+                                                <span>{{calcul_projet.realisation |monetary}}</span>
+                                            </span>
+                                            <span class="LignP">
+                                                <span>Ecarts</span>
+                                                <span>{{calcul_projet.ecart |monetary}}</span>
+                                            </span>
+                                        </div>
+                            </div>
+
+                            <div class="col-lg-12 first">
+
+                                <div class="col-md-12" style="padding: 10px;">
+                                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                        <div class="" style="background-color: #664036;height: 5px;"></div>
+                                        <table id="example" class="table" cellspacing="0" style="width:100%">
+                                            <thead>
+                                                <tr class="table-light">
+
+                                                    <th>Catégorie de budget</th>
+                                                    <th>Dotation</th>
+                                                    <th>Engagements</th>
+                                                    <th>Réels</th>
+                                                    <th>Ecart</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                    {% for item in list_categorie %}
+                                                        <tr>
+
+                                                           <td><a class="lien chargement-au-click">{{item.categorie_budget}}</a></td>
+                                                            <td><span class="monetary">{{item.dotation |monetary}}</span></td>
+                                                            <td>{{item.engagements |monetary}}</td>
+                                                            <td>{{item.reels |monetary}}</td>
+                                                            <td>{{item.ecart |monetary}}</td>
+
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                        </table>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12 first">
+
+                        <div class="col-md-12" style="padding: 10px;">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                <div class="" style="background-color: #664036;height: 5px;"></div>
+                                <div style="width: 100%;background-color: white;/*padding: 10px;">
+                                    <div style="padding: 10px;display:flex;justify-content: space-between;">
+                                        <strong class="sub-header" style="margin: 10px;font-weight: 900;">
+                                                    Recentes Transactions
+                                                </strong>
+                                        <span class="fa fa-menu"></span>
+                                    </div>
+                                    <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                </div>
+                                <!-- <div style="padding: 2px;">
+                                            <div style="display:flex;justify-content: space-between;text-align: end;">
+                                                <span>Designation</span> <span>Montant</span> <span>Devise</span> <span>Compte</span> <span>Projet</span>
+                                            </div>
+                                            {% for item in ListeTransaction %}
+                                            <div style="display:flex;justify-content: space-between;text-align: end;">
+                                                <span>
+                                                    <a class="lien chargement-au-click" href="{% url 'module_budget_detail_transactionbudgetaire' item.id %}">{{item.designation}}</a>
+                                                </span>
+                                                <span>{{item.montant}}</span> <span>{{item.devise}}</span> <span>{{item.compte}}</span> <span>{{item.projet}}</span>
+                                            </div>
+                                            {% endfor %}
+                                        </div> -->
+                                        <table id="example" class="table" cellspacing="0" style="width:100%">
+                                            <thead>
+                                                <tr class="table-light">
+
+                                                    <th>designation</th>
+                                                    <th>montant</th>
+                                                    <th>description</th>
+                                                    <th>devise</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                    {% for item in ListeTransaction %}
+                                                        <tr>
+
+                                                           <td><a class="lien chargement-au-click" href="{% url 'module_budget_detail_transactionbudgetaire' item.id %}">{{item.designation}}</a></td>
+                                                            <td><span class="monetary">{{item.montant |monetary}}</span></td>
+                                                            <td>{{item.description}}</td>
+                                                            <td>{{item.devise}}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                        </table>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Code Not use -->
+<div id="user_view" class="row" style="padding-top: 30px;">
+
+    <div class="col-lg-12">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+            <div class="panel" style="background-color:#f5f5f5;border: none;">
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="mb-4 ">
+                        <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                            <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                <div style="padding: 10px;background:#384654;color:#fff;">
+                                    <strong class="sub-header" style="margin: 10px;font-weight: 900;">Budget dépense</strong>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                            </div>
+                            <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;display:flex;justify-content: center;">
+                                <h3>{{Depenses}}</h3>
+                                <!-- <p>Fournisseur &#10132 Contrôle Qualité</p> -->
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                            <!-- <div style="padding: 15px;padding-top: 0px;">
+                                <button  class="btn rounded primary_color_{{module.name|lower}}">Transfert(s)</button>
+                                <button  class="button rounded btn btn-default ">Nouveau Transfert</button>
+                            </div> -->
+                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="mb-4 ">
+                        <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                            <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                <div style="padding: 10px;background:#384654;color:#fff;">
+                                    <strong class="sub-header" style="margin: 10px;font-weight: 900;"> Budget recette</strong>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                            </div>
+                            <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;display:flex;justify-content: center;">
+                                <h3>{{Recette}}</h3>
+                                <!-- <p>Fournisseur &#10132 Contrôle Qualité</p> -->
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                            <!-- <div style="padding: 15px;padding-top: 0px;"     >
+                                <button  class="btn rounded primary_color_{{module.name|lower}}">Transfert(s)</button>
+                                <button  class="button rounded btn btn-default ">Nouveau Transfert</button>
+                            </div> -->
+                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="mb-4 ">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                            <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                    <div style="padding: 10px;background:#384654;color:#fff;">
+                                    <strong class="sub-header" style="margin: 10px;font-weight: 900;">Transaction budgétaire</strong>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                            </div>
+                                <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;display:flex;justify-content: center;">
+                                <h3>{{nombre_transaction}}</h3>
+                                <!-- <p>Fournisseur &#10132 Contrôle Qualité</p> -->
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                            <!-- <div style="padding: 15px;padding-top: 0px;"     >
+                                <button  class="btn rounded primary_color_{{module.name|lower}}">Transfert(s)</button>
+                                <button  class="button rounded btn btn-default ">Nouveau Transfert</button>
+                            </div> -->
+                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--  -->
+            <div class="col-lg-12 first">
+
+                        <div class="col-md-12" style="padding: 0px;">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                <table id="example" class="table" cellspacing="0" style="width:100%">
+                                    <thead>
+                                        <tr class="table-light" style="background:#384654;">
+
+                                            <th>Catégorie de budget</th>
+                                            <th>Dotation</th>
+                                            <th>Engagements</th>
+                                            <th>Réels</th>
+                                            <th>Ecart</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in list_categorie %}
+                                        <tr>
+
+                                            <td><a class="lien chargement-au-click">{{item.categorie_budget}}</a></td>
+                                            <td><span class="monetary">{{item.dotation}}</span></td>
+                                            <td>{{item.engagements}}</td>
+                                            <td>{{item.reels}}</td>
+                                            <td>{{item.ecart}}</td>
+
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+            </div>
+            <!--  -->
+            <div class="col-md-4" style="padding: 10px;">
+                <div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+                    <label style="font-weight: 900;display:flex;justify-content:center;">Récentes Combinaisons</label>
+                    <hr>
+                    <ul style="width: 100%;padding: 10px;">
+                        {% for item in combinaison %}
+                        <li>
+                            <strong style="font-weight: 600;">{{item.designation}}</strong>
+                            <p style="float: right;font-size: 12px;color: grey;">{{item.statut}}
+                            </p>
+                            <p style="font-size: 13px;color: grey;">{{item.responsable}}</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4" style="padding: 10px;">
+                <div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+                    <label style="font-weight: 900;display:flex;justify-content:center;">Récentes Catégorie Budgetaire </label>
+                     <hr>
+                    <ul style="width: 100%;padding: 10px;overflow:auto;">
+                        {% for item in categorie_budget %}
+                        <li><strong style="font-weight: 600;"> {{item.designation}}</strong>
+                            <p style="float: right;font-size: 12px;color: grey;">{{item.type}}
+                            </p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4" style="padding: 10px;">
+                <div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+                    <label style="font-weight: 900;display:flex;justify-content:center;">Récents centre de coût</label>
+                    <hr>
+                    <ul style="width: 100%;padding: 10px;">
+                         {% for item in centre %}
+                        <li><strong style="font-weight: 600;">{{item.designation}}</strong>
+                            <p style="float: right;font-size: 12px;color: grey;">{{ item.get_label }} / {{item.code}}
+                            </p>
+                             <p style="font-size: 13px;color: grey;">{{item.groupe_analytique}}</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Code Not use -->
+
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+
+<script>
+		var lesactions = new Array();
+        var booleen = false
+        var isAdmin = "{{ isAdmin }}";
+        console.log("is Admin", isAdmin);
+		$(document).ready(function() {
+
+				// Initialisation des sous-menus
+				 $("#admin_view").hide();
+                 $("#user_view").hide();
+
+                 if(isAdmin == "True"){
+                    $("#admin_view").show();
+                 }else{
+                    $("#user_view").show();
+                 }
+
+               /* if(booleen){
+                    $("#admin_view").show();
+                }
+                else{
+                    $("#user_view").show();
+                }*/
+		});
+
+		/*$(document).ready(function() {
+			$('#example').DataTable({
+				dom: 'Bfrtip',
+				buttons: [{
+						extend: 'copyHtml5',
+						text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+						titleAttr: "Copier"
+					}, {
+						extend: 'excelHtml5',
+						text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+						titleAttr: "Exporter en excel"
+					}, {
+						extend: 'csvHtml5',
+						text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+						titleAttr: "Exporter en csv"
+					}, {
+						extend: 'pdfHtml5',
+						text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+						titleAttr: "Exporter en pdf"
+					},
+					//'copyHtml5',
+					//'excelHtml5',
+					//'csvHtml5',
+					//'pdfHtml5'
+				]
+			});
+
+
+
+		});*/
+
+
+
+	</script>
+
+
+<script>
+    /*  $(document).ready(function() {
+                                                $('#example').DataTable({
+                                                    dom: 'Bfrtip',
+                                                    buttons: [{
+                                                            extend: 'copyHtml5',
+                                                            text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                                                            titleAttr: "Copier"
+                                                        }, {
+                                                            extend: 'excelHtml5',
+                                                            text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                                                            titleAttr: "Exporter en excel"
+                                                        }, {
+                                                            extend: 'csvHtml5',
+                                                            text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                                                            titleAttr: "Exporter en csv"
+                                                        }, {
+                                                            extend: 'pdfHtml5',
+                                                            text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                                                            titleAttr: "Exporter en pdf"
+                                                        },
+                                                        //'copyHtml5',
+                                                        //'excelHtml5',
+                                                        //'csvHtml5',
+                                                        //'pdfHtml5'
+                                                    ]
+                                                });
+                                            });*/
+</script>
+{% endblock %}

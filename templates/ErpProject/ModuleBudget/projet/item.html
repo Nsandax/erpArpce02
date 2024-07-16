@@ -1,0 +1,186 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %}
+{% block page %}
+{% load account_filters %} 
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_tableau_de_bord' %}">Module Modulebudget</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_list_projet' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_budget_add_projet" url_detail="module_budget_detail_projet" csrf_token=csrf_token module=module type_doc="" only %}
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_budget_update_projet' projet.id %}')" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Modifier
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_budget_list_projet' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    <button id="supprimer" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer</button>
+                </div>
+                
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+
+
+                        <div class="row item-content" style="margin-top: 20px">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Code projet :<br>
+                                        <span class="sub-alt-header fg-dark"> {{ projet.codeprojet }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Designation :<br>
+                                        <span class="sub-alt-header fg-dark"> {{ projet.designation }} </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Description :<br>
+                                        <span class="sub-alt-header fg-dark"> {{ projet.description }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Montant alloué:<br>
+                                        <span class="sub-alt-header fg-dark">{{ projet.separateur_solde |monetary}} {{projet.devise}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Montant utilisé :<br>
+                                        <span class="sub-alt-header fg-dark"> {{ projet.separateur_montant_utilise |monetary}}  {{projet.devise}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Solde :<br>
+                                        <span class="sub-alt-header fg-dark"> {{ projet.separateur_montant_non_utilise |monetary }} {{projet.devise}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Niveau d'alerte :<br>
+                                        <span class="sub-alt-header fg-dark">{{ projet.pourcentage_alert }} %</span>
+                                    </p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Date de début :<br>
+                                        <span class="sub-alt-header fg-dark">{{ projet.date_debut}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Date de fin :<br>
+                                        <span class="sub-alt-header fg-dark">{{ projet.date_fin}}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="sub-header">Combinaisons Budgétaires...</p>
+                                    <table class="table border bordered">
+                                        <thead>
+                                            <tr>
+                                                <th width="15%">Combinaison</th>
+                                                <th width="16%">Responsable</th>
+                                                <th width="16%">Désignation</th>
+                                                <th width="16%">Centre de coûts</th>
+                                                <th width="16%">Activité</th>
+                                                <th width="16%">Montant</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for ligne in ligne_budgetaire %}
+                                                <tr class="table bordered border">
+                                                    <td> {{ ligne.code }}</td>
+                                                    <td> {{ ligne.responsable }} </td>
+                                                    <td> {{ ligne.designation }}</td>
+                                                    <td> {{ ligne.entite_demanderesse }}</td>
+                                                    <td> {{ ligne.activite }}</td>
+                                                    <td class="monetary"> {{ ligne. montant_alloue }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+            <script>
+                function supprimer() {
+                    var id = '{{projet.id}}'
+                    //-------deux variables pour la suppression---------------------------------
+                    var modele = "Model_Projet"
+                    var the_url = "module_budget_list_projet"
+                    //------- url de suppression ------------------------------------------------
+                    url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+                    url = url.replace('100', id);
+                    url = url.replace('nom_modele', modele);
+                    url = url.replace('url_retour', the_url);
+                    document.location.href = url;
+
+
+                }
+                $('#supprimer').on('click', function () {
+
+
+                    Swal.fire({
+                        title: 'Etes vous sure?',
+                        text: "De vouloir supprimer cette item!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Oui, Supprime le!'
+                    }).then((result) => {
+                        if (result.value) {
+                            supprimer();
+                            Swal.fire(
+                                'Supprimé!',
+
+                                'Votre Item est supprimé',
+                                'Avec Succes',
+                            )
+                        }
+                    })
+                })
+
+            </script>
+<script>
+                //Script du droit supprimer
+                var lesactions = new Array();
+                var booleen = false;
+                {% for action in actions %}
+                lesactions.push({ droit: "{{ action.droit }}" });
+                {% endfor %}
+
+                $(document).ready(function () {
+
+                    // Initialisation des sous-menus
+                    $("#supprimer").hide();
+
+                    for (var i = 1; i < lesactions.length; i++) {
+                        act = lesactions[i];
+                        if (act.droit === "CREER_RAPPORT") {
+                            booleen = true;
+                        }
+                    }
+
+                    if (booleen) {
+                        $("#supprimer").show();
+                    }
+                });
+</script>
+
+           {% endblock %}}

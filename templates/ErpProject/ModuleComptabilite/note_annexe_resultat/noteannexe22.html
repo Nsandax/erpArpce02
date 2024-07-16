@@ -1,0 +1,213 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote22.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_22' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 29%">
+          <col style="width: 21%">
+          <col style="width: 22%">
+          <col style="width: 18%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td class="tg-cnka" colspan="4">NOTE 22 : ACHATS<br></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Exercice clos le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">SIGLE</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Duree(en mois)</td>
+              <td class="tg-cr4b">0</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-0di8">Libellés</td>
+              <td class="tg-0di8">Année <br>N</td>
+              <td class="tg-0di8">Année <br>N-1</td>
+              <td class="tg-0di8">Variation en %</td>
+            </tr>
+            <tr>
+              <td class="tg-1do4">Achats  dans la région</td>
+              <td class="tg-gmla">400 000 000</td>
+              <td class="tg-gmla">400 000 000</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-1do4">Achat  hors région</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Achat  groupe</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-1ufo">TOTAL : ACHAT DE  MARCHANDISES</td>
+              <td class="tg-j8xs">400 000 000</td>
+              <td class="tg-j8xs">400 000 000</td>
+              <td class="tg-j8xs">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-cqfb">Achats  dans la région</td>
+              <td class="tg-lvth">80 000 000</td>
+              <td class="tg-lvth">80 000 000</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-cqfb">Achat  hors région</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cqfb">Achat  groupe</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-1ufo">TOTAL : ACHATS DE MATIERES PREMIERES ET FOURNITURES LIEES</td>
+              <td class="tg-kf42">80 000 000</td>
+              <td class="tg-kf42">80 000 000</td>
+              <td class="tg-kf42">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Matières consommables</td>
+              <td class="tg-lvth">20 050 000</td>
+              <td class="tg-lvth">20 050 000</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Matières combustibles</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Produits d’entretien</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Fournitures d’atelier, d’usine et de magasin</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Eau</td>
+              <td class="tg-baqh">10 000 000</td>
+              <td class="tg-baqh">10 000 000</td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Electricité</td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Autres énergies</td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Fournitures d’entretien</td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Fourniture de bureau</td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Petit matériel et outillages</td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Achats études, prestations de services, de travaux matériels et équipements</td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Achats d’emballages</td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Frais sur achats</td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-0lax">Remises rabais, remises et ristournes</td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+              <td class="tg-baqh"></td>
+            </tr>
+            <tr>
+              <td class="tg-4o4u">TOTAL : AUTRES ACHATS</td>
+              <td class="tg-wev4">30 050 000</td>
+              <td class="tg-wev4">30 050 000</td>
+              <td class="tg-wev4">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-897a">TOTAL GENERAL</td>
+              <td class="tg-dp2w">510 050 000</td>
+              <td class="tg-dp2w">510 050 000</td>
+              <td class="tg-dp2w">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-z0zb" colspan="4">Commentaires :</td>
+            </tr>
+            <tr>
+              <td class="tg-fa7u" colspan="4">Toutes variations significatives.<br></td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+    {% endblock %}

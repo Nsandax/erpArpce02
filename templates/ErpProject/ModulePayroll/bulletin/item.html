@@ -1,0 +1,496 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+	{% load account_filters %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_details_lotbulletin' model.lot_id %}">Lot de bulletin de paie {{ model.lot }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+		<button onclick="javascript:window.location.assign('{% url 'module_payroll_list_bulletin' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+		<button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Ré-Calculer Bulletin</button>
+		<button class="theme-btn theme-btn-sm rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_payroll_post_generer_Bulletin_paie' model.id %}')" style="margin-left: 5px">Bulletin à Imprimer</button>
+	</div>
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+	{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+	<br>
+
+    <div class="row item-content" style="margin-top: 10px">
+        <!--p class="header">{{ model.designation }}</p-->
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Désignation :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Référence :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.reference }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Employé :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.employe.nom_complet }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Lot :<br>
+					<span class="sub-alt-header fg-dark">{{ model.lot }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Fonction :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.employe.fonction }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Grade:<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.employe.grade }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Département:<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.employe.unite_fonctionnelle }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Cycle Diplôme:<br>
+					<span class="sub-alt-header fg-dark">{{ model.employe.cycle_diplome }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Nombre de parts :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.nombrepart }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Date d'engagement :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.employe.profilrh.date_engagement|date:"d/m/Y" }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Auteur :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.auteur.nom_complet }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Date de création :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.creation_date|date:"d/m/Y" }} </span>
+                </p>
+            </div>
+        </div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table striped no-margin" style="width: 100%">
+					<thead class="thead" style="border-bottom: none">
+						<tr>
+							<th width="5%">Code</th>
+							<th width="20%">Rubrique</th>
+							<th width="17%">Nombre</th>
+							<th width="17%">Base</th>
+							<th width="7%">Taux(%)</th>
+							<th width="17%">Gain</th>
+							<th width="17%">Retenue</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in item_bulletins %}
+							{% if item.rubrique.type_rubrique == 1 and item.rubrique.type_element == 1 %}
+							<tr>
+								<td>{{ item.rubrique.code }}</td>
+								<td>{{ item.designation }}</td>
+								<td>{% if item.rubrique.nombre_est_modifiable is True %} <a href="#" id="modal-nombre-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-nombre-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="nombre" data-valeur="{{ item.nombre }}">{{ item.nombre|monetary }}</a> {% else %} {{ item.nombre|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.base_est_modifiable is True %} <a href="#" id="modal-base-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-base-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="base" data-valeur="{{ item.base }}">{{ item.base|monetary }}</a> {% else %} {{ item.base|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.taux_est_modifiable is True %} <a href="#" id="modal-taux-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-taux-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="taux" data-valeur="{{ item.taux }}">{{ item.taux|monetary }}</a> {% else %} {{ item.taux|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.montant_est_modifiable is True %} <a href="#" id="modal-montant-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-montant-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="montant" data-valeur="{{ item.montant }}">{{ item.montant|monetary }}</a> {% else %} {{ item.montant|monetary }} {% endif %}</td>
+								<td></td>
+							</tr>
+							{% elif item.rubrique.reference == "SALBRUT" %}
+							<tr>
+								<td colspan="5"><strong>{{ item.designation }}</strong></td>
+								<td><strong>{{ item.montant|monetary }}</strong></td>
+								<td></td>
+							</tr>
+							{% elif item.rubrique.type_rubrique == 3 and item.rubrique.type_element == 1 %}
+							<tr>
+								<td>{{ item.rubrique.code }}</td>
+								<td>{{ item.designation }}</td>
+								<td>{% if item.rubrique.nombre_est_modifiable is True %} <a href="#" id="modal-nombre-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-nombre-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="nombre" data-valeur="{{ item.nombre }}">{{ item.nombre|monetary }}</a> {% else %} {{ item.nombre|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.base_est_modifiable is True %} <a href="#" id="modal-base-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-base-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="base" data-valeur="{{ item.base }}">{{ item.base|monetary }}</a> {% else %} {{ item.base|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.taux_est_modifiable is True %} <a href="#" id="modal-taux-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-taux-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="taux" data-valeur="{{ item.taux }}">{{ item.taux|monetary }}</a> {% else %} {{ item.taux|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.montant_est_modifiable is True %} <a href="#" id="modal-montant-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-montant-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="montant" data-valeur="{{ item.montant }}">{{ item.montant|monetary }}</a> {% else %} {{ item.montant|monetary }} {% endif %}</td>
+								<td></td>
+							</tr>
+							{% elif item.rubrique.reference == "TOTGAIN" %}
+							<tr>
+								<td colspan="5"><strong>{{ item.designation }}</strong></td>
+								<td><strong>{{ item.montant|monetary }}</strong></td>
+								<td></td>
+							</tr>
+							{% endif %}
+						{% endfor %}
+
+						{% for item in item_bulletins %}
+							{% if item.rubrique.type_rubrique == 2 and item.rubrique.est_patronal is False %}
+							<tr>
+								<td>{{ item.rubrique.code }}</td>
+								<td>{{ item.designation }}</td>
+								<td>{% if item.rubrique.nombre_est_modifiable is True %} <a href="#" id="modal-nombre-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-nombre-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="nombre" data-valeur="{{ item.nombre }}">{{ item.nombre|monetary }}</a> {% else %} {{ item.nombre|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.base_est_modifiable is True %} <a href="#" id="modal-base-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-base-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="base" data-valeur="{{ item.base }}">{{ item.base|monetary }}</a> {% else %} {{ item.base|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.taux_est_modifiable is True %} <a href="#" id="modal-taux-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-taux-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="taux" data-valeur="{{ item.taux }}">{{ item.taux|monetary }}</a> {% else %} {{ item.taux|monetary }} {% endif %}</td>
+								<td></td>
+								<td>{% if item.rubrique.montant_est_modifiable is True %} <a href="#" id="modal-montant-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-montant-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="montant" data-valeur="{{ item.montant }}">{{ item.montant|monetary }}</a> {% else %} {{ item.montant|monetary }} {% endif %}</td>
+							</tr>
+							{% endif %}
+							{% if item.rubrique.type_rubrique == 3 and item.rubrique.type_element == 2 and item.rubrique.est_patronal is False %}
+							<tr>
+								<td>{{ item.rubrique.code }}</td>
+								<td>{{ item.designation }}</td>
+								<td>{% if item.rubrique.nombre_est_modifiable is True %} <a href="#" id="modal-nombre-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-nombre-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="nombre" data-valeur="{{ item.nombre }}">{{ item.nombre|monetary }}</a> {% else %} {{ item.nombre|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.base_est_modifiable is True %} <a href="#" id="modal-base-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-base-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="base" data-valeur="{{ item.base }}">{{ item.base|monetary }}</a> {% else %} {{ item.base|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.taux_est_modifiable is True %} <a href="#" id="modal-taux-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-taux-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="taux" data-valeur="{{ item.taux }}">{{ item.taux|monetary }}</a> {% else %} {{ item.taux|monetary }} {% endif %}</td>
+								<td></td>
+								<td>{% if item.rubrique.montant_est_modifiable is True %} <a href="#" id="modal-montant-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-montant-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="montant" data-valeur="{{ item.montant }}">{{ item.montant|monetary }}</a> {% else %} {{ item.montant|monetary }} {% endif %}</td>
+							</tr>
+							{% elif item.rubrique.reference == "TOTRET" %}
+							<tr>
+								<td colspan="5"><strong>{{ item.designation }}</strong></td>
+								<td></td>
+								<td><strong>{{ item.montant|monetary }}</strong></td>
+							</tr>
+							{% endif %}
+						{% endfor %}
+						<tr>
+							<td colspan="7"><strong>Charges patronales</strong></td>
+						</tr>
+						{% for item in item_bulletins %}
+							{% if item.rubrique.est_patronal is True %}
+							<tr>
+								<td>{{ item.rubrique.code }}</td>
+								<td>{{ item.designation }}</td>
+								<td></td>
+								<td>{% if item.rubrique.base_est_modifiable is True %} <a href="#" id="modal-base-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-base-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="base" data-valeur="{{ item.base }}">{{ item.base|monetary }}</a> {% else %} {{ item.base|monetary }} {% endif %}</td>
+								<td>{% if item.rubrique.taux_pp_est_modifiable is True %} <a href="#" id="modal-taux_parpat-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-taux_parpat-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="taux_parpat" data-valeur="{{ item.taux_parpat }}">{{ item.taux_parpat|monetary }}</a> {% else %} {{ item.taux_parpat|monetary }} {% endif %}</td>
+								<td></td>
+								<td>{% if item.rubrique.montant_pp_est_modifiable is True %} <a href="#" id="modal-montant_parpat-{{ item.rubrique.code }}-lien" data-toggle="modal" data-target="#modal-montant_parpat-{{ item.rubrique.code }}" data-rubrique="{{ item.rubrique.code }}" data-champs="montant_parpat" data-valeur="{{ item.montant_parpat }}">{{ item.montant_parpat|monetary }}</a> {% else %} {{ item.montant_parpat|monetary }} {% endif %}</td>
+							</tr>
+							{% endif %}
+						{% endfor %}
+					</tbody>
+				</table>
+				<br>
+				<table class="table striped border bordered no-margin" style="width: 100%;">
+					<thead  style="border-bottom: none">
+						<tr>
+							<td width="25%">Cotisations salariales</td>
+							<td width="25%">Cotisations patronales</td>
+							<td width="25%">Net Imposable</td>
+							<td width="25%">Net à payer</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{% for item in item_bulletins %}{% if item.rubrique.reference == "TOTCOTISAL" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+							<td>{% for item in item_bulletins %}{% if item.rubrique.reference == "TOTCOTIPAT" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+							<td>{% for item in item_bulletins %}{% if item.rubrique.reference == "BASEIMPO" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+							<td>{% for item in item_bulletins %}{% if item.rubrique.reference == "NETAPAY" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+						</tr>
+					</tbody>
+				</table>
+				<br>
+				<br>
+				<span class="sub-alt-header fg-dark"> Autres rubriques </span>
+				<br>
+				<table class="table striped border bordered no-margin" style="width: 100%;">
+					<thead  style="border-bottom: none">
+						<tr>
+							<td width="10%">Code</td>
+							<td width="40%">Référence</td>
+							<td width="25%">Rubrique</td>
+							<td width="25%">Montant / Valeur</td>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in item_bulletins %}
+							{% if item.rubrique.type_rubrique == 3 and item.rubrique.type_element is None and item.rubrique.reference not in "SALBRUT,TOTGAIN,TOTRET,TOTCOTISAL,TOTCOTIPAT,NETAPAY,BASEIMPO" and item.rubrique.est_cumul is False and item.rubrique.est_patronal is False%}
+							<tr>
+								<td>{{ item.rubrique.code }}</td>
+								<td>{{ item.designation }}</td>
+								<td>{{ item.rubrique.reference }}</td>
+								<td>{{ item.montant|monetary }}</td>
+							</tr>
+							{% endif %}
+						{% endfor %}
+					</tbody>
+				</table>
+				<br>
+				<span class="sub-alt-header fg-dark"> Cumuls </span>
+				<br>
+				<table class="table striped border bordered no-margin" style="width: 100%;">
+					<thead style="border-bottom: none">
+						<tr>
+							<td width="10%">Code</td>
+							<td width="40%">Référence</td>
+							<td width="25%">Rubrique</td>
+							<td width="25%">Montant / Valeur</td>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in item_bulletins %}
+							{% if item.rubrique.type_rubrique == 3 and item.rubrique.type_element is None and item.rubrique.est_cumul is True %}
+							<tr>
+								<td>{{ item.rubrique.code }}</td>
+								<td>{{ item.designation }}</td>
+								<td>{{ item.rubrique.reference }}</td>
+								<td>{{ item.montant|monetary }}</td>
+							</tr>
+							{% endif %}
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+    </div>
+	{% for item in item_bulletins %}
+	{% if item.rubrique.nombre_est_modifiable is True %}
+		<div id="modal-nombre-{{ item.rubrique.code }}" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-sm" role="document">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Modifier Valeur</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<label>Nombre</label>
+							<div class="input-control text full-size" data-role="input">
+								<input class="valeur" name="valeur" type="text">
+								<input class="champs" name="champs" type="hidden">
+								<input class="rubrique" name="rubrique" type="hidden">
+							</div>
+						</div>
+						<hr style="background-color: #f7f5f5;">
+						<div class="row">
+							<button onclick="updateRubriqueValue('#modal-nombre-{{ item.rubrique.code }}')"  class="button small-button rounded primary chargement-au-click">Appliquer</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	{% if item.rubrique.base_est_modifiable is True %}
+		<div id="modal-base-{{ item.rubrique.code }}" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-sm" role="document">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Modifier Valeur</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<label>Base</label>
+							<div class="input-control text full-size" data-role="input">
+								<input class="valeur" name="valeur" type="text">
+								<input class="champs" name="champs" type="hidden">
+								<input class="rubrique" name="rubrique" type="hidden">
+							</div>
+						</div>
+						<hr style="background-color: #f7f5f5;">
+						<div class="row">
+							<button onclick="updateRubriqueValue('#modal-base-{{ item.rubrique.code }}')"  class="button small-button rounded primary chargement-au-click">Appliquer</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	{% if item.rubrique.taux_est_modifiable is True %}
+		<div id="modal-taux-{{ item.rubrique.code }}" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-sm" role="document">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Modifier Valeur</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<label>Taux</label>
+							<div class="input-control text full-size" data-role="input">
+								<input class="valeur" name="valeur" type="text">
+								<input class="champs" name="champs" type="hidden">
+								<input class="rubrique" name="rubrique" type="hidden">
+							</div>
+						</div>
+						<hr style="background-color: #f7f5f5;">
+						<div class="row">
+							<button onclick="updateRubriqueValue('#modal-taux-{{ item.rubrique.code }}')"  class="button small-button rounded primary chargement-au-click">Appliquer</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	{% if item.rubrique.montant_est_modifiable is True %}
+		<div id="modal-montant-{{ item.rubrique.code }}" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-sm" role="document">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Modifier Valeur</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<label>Montant</label>
+							<div class="input-control text full-size" data-role="input">
+								<input class="valeur" name="valeur" type="text">
+								<input class="champs" name="champs" type="hidden">
+								<input class="rubrique" name="rubrique" type="hidden">
+							</div>
+						</div>
+						<hr style="background-color: #f7f5f5;">
+						<div class="row">
+							<button onclick="updateRubriqueValue('#modal-montant-{{ item.rubrique.code }}')"  class="button small-button rounded primary chargement-au-click">Appliquer</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	{% if item.rubrique.type_rubrique == 2 and item.rubrique.taux_pp_est_modifiable is True %}
+		<div id="modal-taux_parpat-{{ item.rubrique.code }}" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-sm" role="document">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Modifier Valeur</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<label>Taux part patronale</label>
+							<div class="input-control text full-size" data-role="input">
+								<input class="valeur" name="valeur" type="text">
+								<input class="champs" name="champs" type="hidden">
+								<input class="rubrique" name="rubrique" type="hidden">
+							</div>
+						</div>
+						<hr style="background-color: #f7f5f5;">
+						<div class="row">
+							<button onclick="updateRubriqueValue('#modal-taux_parpat-{{ item.rubrique.code }}')"  class="button small-button rounded primary chargement-au-click">Appliquer</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+	{% if item.rubrique.type_rubrique == 2 and item.rubrique.montant_pp_est_modifiable is True %}
+		<div id="modal-montant_parpat-{{ item.rubrique.code }}" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-sm" role="document">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Modifier Valeur</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<label>Montant part patronale</label>
+							<div class="input-control text full-size" data-role="input">
+								<input class="valeur" name="valeur" type="text">
+								<input class="champs" name="champs" type="hidden">
+								<input class="rubrique" name="rubrique" type="hidden">
+							</div>
+						</div>
+						<hr style="background-color: #f7f5f5;">
+						<div class="row">
+							<button onclick="updateRubriqueValue('#modal-montant_parpat-{{ item.rubrique.code }}')"  class="button small-button rounded primary chargement-au-click">Appliquer</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endfor %}
+<form id="form" method="POST" action="{% url 'module_payroll_recalcul_bulletin' model.id %}">
+{% csrf_token %}
+<input id="submit" type="submit" style="display:none">
+</form>
+<div id="sample_inputs" style="display:none;">
+	<div>
+		<input name="input_valeur" class="input-valeur" type="hidden">
+		<input name="input_champs" class="input-champs" type="hidden">
+		<input name="input_rubrique" class="input-rubrique" type="hidden">
+	</div>
+</div>
+<script>
+
+	$('.modal').on('show.bs.modal', function (event) {
+		var button = $(event.relatedTarget); // Button that triggered the modal
+		var valeur = button.text();
+		var champs = button.data('champs');
+		var rubrique = button.data('rubrique');
+
+		var modal = $(this)
+		modal.find('.modal-body .valeur').val(valeur);
+		modal.find('.modal-body .champs').val(champs);
+		modal.find('.modal-body .rubrique').val(rubrique);
+	})
+	function updateRubriqueValue(id){
+		console.log("Début updateRubriqueValue");
+		var valeur = $(id).find('.modal-body .valeur').val();
+		var champs = $(id).find('.modal-body .champs').val();
+		var rubrique = $(id).find('.modal-body .rubrique').val();
+		console.log("Valeur "+ valeur +" Champs " +champs+ " Rubrique " +rubrique);
+
+		valeur_monetary = valeur.replaceAll(/\s/g,'').replace(",", ".");
+		console.log("valeur_monetary "+ valeur_monetary);
+
+		$(id + "-lien").text(valeur_monetary);
+
+		//Ajouter nouvelle ligne
+		var content = $('#sample_inputs div');
+		element = null;
+		element = content.clone();
+		element.appendTo('form');
+
+		element.find('.input-valeur').val(valeur_monetary);
+		element.find('.input-champs').val(champs);
+		element.find('.input-rubrique').val(rubrique);
+
+		setTimeout(function(){
+        	$('.close').click();
+    	}, 1);
+	}
+</script>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "ErpProject/ModuleControle/shared/layout.html" %}
+{% block page %}
+    <div class="row" style="margin-top: 10px">
+        <p class="align-center header">{{ title }}</p>
+        <div class="row">
+            <p>
+                Période :<br>
+                <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                <br>
+                <br>
+                Devise :<br>
+                <span class="sub-header">{{ devise.designation }}</span>
+            </p>
+        </div>
+        <table class="table striped border bordered no-margin" style="width: 100%">
+            <thead style="border-bottom: none">
+                <tr>
+                    <th width="8%">Compte</th>
+                    <th width="20s%">Désignation</th>
+                    <th width="24%">Ouverture</th>
+                    <th width="24%">Mouvements</th>
+                    <th width="24%">Clôture</th>
+                </tr>
+            </thead>
+        </table>
+        <table class="table striped border bordered no-margin" style="width: 100%">
+            <thead style="border-bottom: none">
+                <tr>
+                    <td width="8%"></td>
+                    <td width="20%"></td>
+                    <td width="12%">Débit</td>
+                    <td width="12%">Crédit</td>
+                    <td width="12%">Débit</td>
+                    <td width="12%">Crédit</td>
+                    <td width="12%">Débiteur</td>
+                    <td width="12%">Créditeur</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                    {% if item.numero_compte|length == 3 %}
+                    <tr style="background-color:burlywood;">
+                    {% elif item.numero_compte|length == 2 %}
+                    <tr style="background-color:lightskyblue;">
+                    {% else %}
+                    <tr>
+                    {% endif %}
+                   
+                        <!-- <tr style="background-color: red;"> -->
+                        <td width="8%">{{ item.numero_compte }}</td>
+                        <td width="20%">{{ item.designation_compte }}</td>
+                        <td style="text-align: right" width="12%"> {{ item.debit_ouverture }} </td>
+                        <td style="text-align: right" width="12%"> {{ item.credit_ouverture }} </td>
+                        <td style="text-align: right" width="12%">{% if item.debit_mouvement != "0.00" %} {{ item.debit_mouvement }} {% endif %}</td>
+                        <td style="text-align: right" width="12%">{% if item.credit_mouvement != "0.00" %} {{ item.credit_mouvement }} {% endif %}</td>
+                        <td style="text-align: right" width="12%">{% if item.debit_solde != "0.00" %} {{ item.debit_solde }} {% endif %}</td>
+                        <td style="text-align: right" width="12%">{% if item.credit_solde != "0.00" %} {{ item.credit_solde }} {% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th style="text-align: right">{{ equilibre_debit_ouverture }}</th>
+                    <th style="text-align: right">{{ equilibre_credit_ouverture }}</th>
+                    <th style="text-align: right">{{ equilibre_debit_mouvement }}</th>
+                    <th style="text-align: right">{{ equilibre_credit_mouvement }}</th>
+                    <th style="text-align: right">{{ equilibre_debit_solde }}</th>
+                    <th style="text-align: right">{{ equilibre_credit_solde }}</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+{% endblock %}

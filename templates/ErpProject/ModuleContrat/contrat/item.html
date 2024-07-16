@@ -1,0 +1,281 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load humanize %}
+     {% load account_filters %}
+
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>Contrat</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <!-- GESTION DU WORKFLOW -->
+            {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_contrat_add_contrat" url_detail="module_contrat_detail_contrat" csrf_token=csrf_token module=module type_doc="Contrat" only %}
+            <!--FIN GESTION DU WORKFLOW-->
+            <br>
+            {% if model.etat == "Contrat signé téléchargé" or model.etat == "Fournitures livrées" %}
+            <button onclick="launchDialog()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Enregistrer une opération</button>
+            {% endif %}
+
+            <!-- <button id="supprimer" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer l' avis</button> -->
+
+            <br><br>
+            <div class="panel panel-default" style="border: none;">
+                    <div class="panel panel-body" style="background-color:white;">
+                      <div class="col-md-12">
+                        <div class="col-md-6">
+                            <h2 style="color: red; font-weight: bold">CONTRAT </h3>
+                            {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                        </div>
+                          <div class="col-md-6" style="text-align: right;">
+
+                               <h3>{{ model.type_marche.designation }}</h3>
+
+                               <form  method="POST" action="{% url 'back_office_weasyprint_objet' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="ref" value="{{model.id}}">
+                                    <input type="hidden" name="modele" value="Model_Contrat">
+                                    <input type="hidden" name="title" value="Contrat">
+                                    <input type="hidden" name="subtitle" value="{{ model.numero_reference }}">
+                                    <button type="submit" class="btn btn-default" style="background-color: #41435d;border:none;color: white;" >Imprimer</button>
+                                </form>
+
+                                <h3 style="color: red; font-weight: bold">N° {{model.numero_reference}}</h3>
+
+                          </div>
+                        <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                             <div class="col-md-6">
+                                <p>
+                                    {% if model.demande_cotation %}
+                                    <strong>Demande de cotation:</strong> {{model.demande_cotation.numero_reference}}  <br>
+                                    <strong>Financement:</strong> {{model.demande_cotation.financement}}  <br>
+                                    {% endif %}
+                                    {% if model.appel_offre %}
+                                    <strong>Appel d'offre:</strong> {{model.contrat.numero_reference}}  <br>
+                                    <strong>Financement:</strong> {{model.appel_offre.financement}}  <br>
+                                    {% endif %}
+
+                                    <strong>Type de Marché:</strong>  {{model.type_marche.designation}} <br>
+                                    <strong>Montant:</strong>  {{model.montant}} {{ model.devise.symbole_devise}} <br>
+                                    <strong>Objet:</strong>  {{model.objet}} <br>
+                                    <strong>Modalités:</strong>  {{model.modalite}} <br>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Fournisseur:</strong> {{model.fournisseur}} <br>
+                                <strong>Periode du Contrat</strong> <br>
+                               Du {{model.date_debut |date:"m/d"}} Au {{model.date_fin|date:"m/d/Y"}}
+                            </div>
+
+                            <div class="col-md-12">
+                                <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;">
+                                    <tr>
+                                        <td class="head">Date</td>
+                                        <td class="head">Designation</td>
+                                        <td class="head">Catégorie</td>
+                                        <td class="head">Type</td>
+                                        <td class="head">Valeur</td>
+                                        <td class="head">Description</td>
+                                    </tr>
+
+                                    {% for item in model.operations %}
+                                    <tr>
+                                        <td class="td">{{ item.created_at }}</td>
+                                        <td class="td">{{ item.designation }}</td>
+                                        <td class="td"> {{item.value_categorie}} </td>
+                                        <td class="td">{{ item.value_type }} </td>
+                                        <td class="td">{{ item.valeur }} </td>
+                                        <td class="td">{{ item.description }} </td>
+                                    </tr>
+                                    {% endfor %}
+                                    <h4 style="color: green; font-weight: bold">Solde: {{model.solde}} {{ model.devise.symbole_devise}}</h3>
+
+                                </table>
+
+
+
+
+                            </div>
+
+
+
+
+                          <div  class="col-md-12"  style="margin-bottom: 15px">
+
+                                <h2>Documents attachés</h2>
+                                <hr>
+                                <ol>
+                                    {% for item in documents %}
+                                        <li style="margin-bottom: 0.25em">
+                                            <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                          </div>
+
+
+
+
+
+                          </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+
+        <!-- Dialogue Annuler-->
+        <div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogOperationContrat">
+            <div class="row cells3 padding20" style="margin-top: 10px">
+                <h3>Enregistrer une opération</h3>
+                <div class="cells2">
+                    <form action="{% url 'module_contrat_post_add_operation_contrat' %}" method="POST"
+                        enctype="multipart/form-data"
+                        data-role="validator">
+                        {% csrf_token %}
+                        <input type="hidden" name="contrat_id" value="{{model.id}}">
+
+                        <div class="row">
+                            <label>Designation :</label>
+                            <div class="input-control text full-size">
+                                <input style="margin-bottom: 5px" type="text" name="designation" required="required">
+                            </div><br>
+                        </div>
+
+
+                        <div class="row">
+                            <label>Catégorie :</label>
+                            <div class="input-control text full-size">
+                                <select name="categorie" id="categorie" required="required">
+                                    <option value="">Choisissez une catégorie</option>
+                                    {% for item in categorieOperation %}
+                                    <option value="{{ item.id }}"> {{ item.designation}} </option>
+                                    {% endfor %}
+                                </select>
+                            </div><br>
+                        </div>
+                        <div class="row">
+                            <label>Type d'opération :</label>
+                            <div class="input-control text full-size">
+                                <select name="type" id="type" required="required">
+                                    <option value="">Choisissez un type d'opération</option>
+                                    {% for item in typeOperation %}
+                                    <option value="{{ item.id }}"> {{ item.designation}} </option>
+                                    {% endfor %}
+                                </select>
+                            </div><br>
+                        </div>
+                        <div class="row">
+                            <label>Valeur de l'opération :</label>
+                            <div class="input-control text full-size">
+                                <input style="margin-bottom: 5px" type="text" name="valeur" required="required">
+
+                            </div><br>
+                        </div>
+                        <div class="row">
+                            <label>Fichiers</label>
+                            <div class="input-control text full-size">
+                                <input style="margin-bottom: 5px" type="file" name="file_upload" required="required" multiple>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label>Description</label>
+                            <div class="input-control text full-size">
+                                <input style="margin-bottom: 5px" type="text" name="description" required="required">
+                            </div>
+                        </div><br>
+                        <div class="row">
+                            <label>Réf.Document</label>
+                            <div class="input-control text full-size">
+                                <input style="margin-bottom: 5px" type="text" name="reference_document">
+                            </div>
+                        </div><br>
+                        <hr style="background-color: #f7f5f5;">
+                        <div class="row">
+                            <button type="submit" class="button rounded primary_color_{{ module.name|lower }}">Appliquer</button>
+                            <!-- <button class="button rounded" onclick="closeDialog('#dialogAnnulerWKF')" style="margin-left: 5px">Retour</button> -->
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    <!-- Fin Dialogue Annuler -->
+
+<script>
+    function supprimer() {
+        var id = '{{model.id}}'
+        //-------deux variables pour la suppression---------------------------------
+        var modele = "Model_Avis_appel_offre"
+        var the_url = "module_achat_list_avis_appel_offre"
+        // url de suppression ------------------------------------------------------
+        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+        url = url.replace('100', id);
+        url = url.replace('nom_modele', modele);
+        url = url.replace('url_retour', the_url);
+        document.location.href = url;
+
+
+    }
+    $('#supprimer').on('click', function () {
+
+
+        Swal.fire({
+            title: 'Etes vous sure?',
+            text: "De vouloir supprimer cette item!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer();
+                Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+
+</script>
+
+<script>
+    //Script du droit supprimer
+    var lesactions = new Array();
+    var booleen = false;
+    {% for action in actions %}
+    lesactions.push({ droit: "{{ action.droit }}" });
+    {% endfor %}
+
+    $(document).ready(function () {
+
+        // Initialisation des sous-menus
+        $("#supprimer").hide();
+
+        for (var i = 1; i < lesactions.length; i++) {
+            act = lesactions[i];
+            if (act.droit === "CREER_RAPPORT") {
+                booleen = true;
+            }
+        }
+
+        if (booleen) {
+            $("#supprimer").show();
+        }
+    });
+</script>
+
+<script>
+
+    function launchDialog(){
+        $("#dialogOperationContrat").show()
+        var dialog = $("#dialogOperationContrat").data('dialog');
+	        dialog.open();
+    }
+
+</script>
+{% endblock %}

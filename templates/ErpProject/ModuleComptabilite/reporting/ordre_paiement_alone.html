@@ -1,0 +1,155 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="invoice">
+            <h1 class="align-center header"><strong>{{ title }}</strong></h1>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <br>
+            <br>
+            <div class="row">
+                <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:50px;">
+                    <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                        <td width="20%" style="border:none;"><strong>DATE</strong></td>
+                        <td width="80%" style="border:none;font-size:13px;">{{model.created_at|date:"d/m/Y"}}</td>
+                    </tr>
+                </table>
+                <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:50px;">
+                   <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                        <td width="20%" style="border:none;"><strong>DENEFICIAIRE</strong></td>
+                        <td width="80%" style="border:none;font-size:13px;">{{model.getfss}}</td>
+                    </tr>
+                </table>
+                <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:50px;">
+                   <tr style="background-color:#D4D7DE;color:rgb(7, 6, 6)!important;font-weight:800;height:30px;">
+                        <td width="20%" style="border:none;"><strong>DESCRIPTIF DU PAIEMENT</strong></td>
+                        <td width="80%" style="border:none;font-size:13px;">{{model.description}}</td>
+                    </tr>
+                </table>
+                <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:50px;">
+                   <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                        <td width="20%" style="border:none;"><strong>NATURE DE L'ACHAT</strong></td>
+                        <td width="80%" style="border:none;font-size:13px;">{{model.value_type_paiement}}</td>
+                    </tr>
+                </table>
+
+                <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:50px;">
+                    {% for item in lignes %}
+                    <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                         <td width="20%" style="border:none;"><strong>N° Facture</strong></td>
+                         <td width="80%" style="border:none;font-size:13px;">{{ item.facture.numero_facture }}</td>
+                     </tr>
+                    {% endfor %}
+                 </table>
+
+                 <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:50px;">
+                    {% for item in lignes %}
+                    <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                         <td width="20%" style="border:none;"><strong>Montant de la Facture</strong></td>
+                         <td width="80%" style="border:none;font-size:13px;">{{item.facture.montant |monetary}}</td>
+                     </tr>
+                    {% endfor %}
+                 </table>
+
+                 <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:50px;">
+                    {% for item in lignes %}
+                    <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                         <td width="20%" style="border:none;"><strong>Montant déjà payé</strong></td>
+                         <td width="80%" style="border:none;font-size:13px;">{{item.facture.montant_paye|monetary}}</td>
+                     </tr>
+                    {% endfor %}
+                 </table>
+
+                 <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:50px;">
+                    <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                         <td width="20%" style="border:none;"><strong>MONTANT A PAYER TTC</strong></td>
+                         <td width="80%" style="border:none;font-size:13px;">{{model.Totalsomme}}</td>
+                     </tr>
+                 </table>
+
+                 <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:50px;">
+                    {% for item in lignes %}
+                    <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                         <td width="20%" style="border:none;"><strong>Solde restant</strong></td>
+                         <td width="80%" style="border:none;font-size:13px;">
+                            {{item.montant_restant |monetary}}
+                            {% if model.compte_banque %}
+                                {{model.compte_banque.journal.devise}}
+                            {% elif model.caisse %}
+                                {{model.caisse.journal.devise}}
+                            {% endif %}
+                        </td>
+                     </tr>
+                    {% endfor %}
+                 </table>
+                <!-- <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:35px;">
+                    <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                        <td width="20%" style="border:none;">MONTANT A PAYER TTC</td>
+                        <td width="80%" style="border:none;font-size:13px;" class="align-center">
+                            {{model.Totalsomme}}
+                            {% if model.compte_banque %}
+                                {{model.compte_banque.journal.devise}}
+                            {% elif model.caisse %}
+                                {{model.caisse.journal.devise}}
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table> -->
+                <table id="rapport" border="0" class="table bordered no-margin" style="width: 100%; height:10px;">
+                    <tr style="background-color:#D4D7DE;color:#000!important;font-weight:800;height:30px;">
+                        <td width="20%" style="border:none;">MODE DE PAIEMENT</td>
+                        <td width="80%" style="border:none;font-size:13px;" class="align-center">
+                            {% if model.compte_banque %}
+                                BANQUE
+                            {% elif model.caisse %}
+                                CAISSE
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <br>
+            <br>
+            <br>
+            <br>
+            <h3>VISA</h3>
+            <div class="row">
+                <table class="display table nowrap border bordered" cellspacing="0" style="width:100%;height:100px;">
+                    <thead>
+                        <tr>
+                            <th width="20%">BT</th>
+                            <th width="20%">ST</th>
+                            <th width="20%">RESPONSABLE SBM</th>
+                            <th width="20%">DAFC</th>
+                            <th width="20%">DIRECTEUR GENERAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="height:150px;">
+                            <td width="20%" style="text-align: right" > </td>
+                            <td width="20%" style="text-align: right"> </td>
+                            <td width="20%" style="text-align: right"> </td>
+                            <td width="20%" style="text-align: right"> </td>
+                            <td width="20%" style="text-align: right"> </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
+                <p style="color: red;text-align: center;">
+                    <i>Nous vous rappelons qu'aucune demande de piement n'est valable sans la validation (visa) de la chaine hierachique, <br>
+                        il est necessaire que la trésorerie s'en assure avant tout décaissement. De même aucune demande de paiement ne sera <br>
+                    sans une proforma ou une facture.</i>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

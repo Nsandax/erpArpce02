@@ -1,0 +1,277 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_fournisseurs' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_fournisseurs' %}">Liste des fournisseurs</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_fournisseurs' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row cells3 item-content" style="margin-top: 10px">
+        <div class="cell">
+            <form id="form" method="POST" action="{% url 'module_comptabilite_post_add_fournisseur' %}"
+				enctype="multipart/form-data"
+                data-role="validator"
+                data-show-required-state="false"
+                data-hint-mode="line"
+                data-hint-background="bg-red"
+                data-hint-color="fg-white"
+                data-hide-error="5000"
+                novalidate="novalidate"
+                data-on-error-input="notifyOnErrorInput"
+                data-show-error-hint="false">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+                <div class="row">
+                    <label class="input-control radio small-check">
+                        <input value="1" name="est_particulier" checked type="radio">
+                        <span class="check"></span>
+                        <span class="caption">Particulier</span>
+                    </label>
+                    <label class="input-control radio small-check" style="margin-left: 15px">
+                        <input value="0" name="est_particulier" type="radio">
+                        <span class="check"></span>
+                        <span class="caption">Entreprise</span>
+                    </label>
+                </div>
+				<div class="row">
+					<input id="image_upload" name="image_upload" type="file" accept="image/*" style="display:none;">
+					<div class="tile-container">
+						<a onclick="$('input[id=image_upload]').click();" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+							<div class="tile-content slide-up" >
+								<div class="slide" >
+									<img id="image_preview" src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+								</div>
+								<div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+									<span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
+                <div class="row">
+                    <label>Nom</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="nom_complet" type="text" data-validate-func="required" data-validate-hint="Entrez le nom du fournisseur !">
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Adresse</label>
+                    <div class="input-control select full-size" data-role="input">
+                        <select onchange="choix_pays()" id="choixPays">
+                            <option value="0">Sélectionnez un pays</option>
+                            {% for item in pays %}
+                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                            {% endfor %}
+                        </select>
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                    <div class="input-control select full-size" data-role="input">
+                        <select onchange="choix_province()" id="choixProvince" >
+                            <option value="0">Sélectionnez un état ou une province</option>
+                        </select>
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                    <div class="input-control select full-size" data-role="input">
+                        <select onchange="choix_ville()" id="choixVille">
+                            <option value="0">Sélectionnez une ville</option>
+                        </select>
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                    <div class="input-control select full-size" data-role="input">
+                        <select name="commune_quartier_id" id="choixCommune">
+                            <option value="0">Sélectionnez une commune</option>
+                        </select>
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="adresse" type="text" placeholder="Rue..." >
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Téléphone</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="phone" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Courriel</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="email" type="email" data-validate-func="email" data-validate-hint="Entrez une adresse email valide !">
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+                <div id="more" class="row" style="display: none">
+                    <div class="row">
+                        <label>Catégorie</label>
+                        <div class="input-control select full-size" data-role="input">
+                            <select name="categorie_id">
+                                <option value="0"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label>Civilité</label>
+                        <div class="input-control select full-size" data-role="input">
+                            <select name="civilite_id">
+                                <option value="0"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label>Langue</label>
+                        <div class="input-control select full-size" data-role="input">
+                            <select name="langue_id">
+                                <option value="0"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <button id="btnMore" class="button link" type="button">Plus d'information</button>
+                    <button id="btnLess" class="button link" type="button" style="display: none">Moins d'information</button>
+                    <script>
+                        $("#btnMore").on("click", function(){
+                            $("#more").css("display", "block");
+                            $("#btnLess").css("display", "block");
+                            $("#btnMore").css("display", "none");
+                        });
+                        $("#btnLess").on("click", function(){
+                            $("#more").css("display", "none");
+                            $("#btnMore").css("display", "block");
+                            $("#btnLess").css("display", "none");
+                        });
+                    </script>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        function readURL(input) {
+			if (input.files && input.files[0]) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					$('#image_preview').attr('src', e.target.result);
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		}
+
+		$("#image_upload").change(function(){
+			readURL(this);
+		});
+        function choix_pays() {
+            var idPays = $("#choixPays").val();
+
+            if (idPays != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_configuration_list_places_filles' %}",
+                    { ref: idPays },
+                    function (response) {
+                        $("#choixProvince").children().remove();
+                        $("#choixProvince").append("<option value='0'>Sélectionnez la province</option>");
+                        console.log(response);
+                        for (var i = 0; i < response.length; i++) {
+                            var laProvince = response[i];
+
+                            var option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                            $("#choixProvince").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+            else supprimer_provinces();
+        }
+
+        function choix_province()
+        {
+            var idProvince = $("#choixProvince").val();
+
+            if (idProvince != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_configuration_list_places_filles' %}",
+                    { ref: idProvince },
+                    function (response) {
+                        $("#choixVille").children().remove();
+                        $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                        for (var i = 0; i < response.length; i++) {
+                            var laVille = response[i];
+
+                            var option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                            $("#choixVille").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+            else supprimer_villes();
+        }
+
+        function choix_ville() {
+            var idVille = $("#choixVille").val();
+
+            if (idVille != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_configuration_list_places_filles' %}",
+                    { ref: idVille },
+                    function (response) {
+                        $("#choixCommune").children().remove();
+                        $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+
+                        for (var i = 0; i < response.length; i++) {
+                            var laCommune = response[i];
+
+                            var option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                            $("#choixCommune").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+            else supprimer_communes();
+        }
+
+        function supprimer_communes() {
+            $("#choixCommune").children().remove();
+            $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+        }
+
+        function supprimer_villes() {
+            $("#choixVille").children().remove();
+            $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+            supprimer_communes();
+        }
+
+        function supprimer_provinces() {
+            $("#choixProvince").children().remove();
+            $("#choixProvince").append("<option value='0'>Sélectionnez l'état ou la province</option>");
+            supprimer_villes();
+        }
+    </script>
+{% endblock %}

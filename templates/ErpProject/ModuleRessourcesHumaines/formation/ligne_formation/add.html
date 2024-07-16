@@ -1,0 +1,232 @@
+{% extends "ErpProject/ModuleRessourceshumaines/shared/layout.html" %} {% block page %}
+
+{%load static %}
+<link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+
+<script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_formation' %}">Liste des formations</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_detail_formation' formation.id %}">{{formation.theme}}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ formation.theme }} - {{formation.organisme_formation}}</h2>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+
+                    <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+
+                        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary">Valider</button>
+                        <button class="button small-button rounded">Annuler</button>
+
+                        <hr class="hr-ligne">
+                        <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                        <br>
+
+                        <form action="{% url 'module_ressourceshumaines_post_add_ligne_formation' %}" method="POST"
+                            enctype="multipart/form-data"
+                            data-role="validator"
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+
+                            <input id="submit" type="submit" style="display: none">
+                            <input id="nombreLigne" type="hidden" value="0" />
+                            <input name="formation_id" id="nombreLigne" value="{{formation.id}}" type="hidden" value="0" />
+
+                            <div class="col-md-6">
+                                <label>Cout effective de la formation</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="cout_formation_effective" id="cout_formation_effective" type="text" data-validate-func="required" data-validate-hint="Entrez coût effective de formation !">
+                                </div>
+
+                    </div>
+                            <div class="col-md-6">
+                                <label>Frais de misssion et d'hebergement effectif</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="frais_mission_hebergement_effective" id="frais_mission_hebergement_effective" type="text" data-validate-func="required" data-validate-hint="Entrez Frais de misssion et d'hebergement effectif !">
+                                </div>
+
+                            </div>
+                            <div class="col-md-6">
+                                <label>Frais de déplacement HT effectif</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="frais_deplacement_ht_effective" id="frais_deplacement_ht_effective" type="text" data-validate-func="required" data-validate-hint="Entrez Frais de déplacement HT effectif !">
+                                </div>
+
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre effectif des participants par jour</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="nombre_participant_par_jour_effective" id="nombre_participant_par_jour_effective" type="text" data-validate-func="required" data-validate-hint="Entrez Nombre effectif des participants par jour !">
+                            </div>
+
+                    </div>
+
+
+                            <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                                <table class="table no-margin">
+                                    <thead class="no-border">
+                                        <tr>
+                                            <th class="no-padding-top no-padding-left no-padding-bottom" width="40%">Employé</th>
+                                            <th width="25%">Compétence</th>
+                                            <th width="30%">Observation</th>
+                                            <th width="5%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items">
+                                            {% if ligne_formation.count > 0 %}
+                                            {% for ligne in ligne_formation %}
+                                            <input name="all_ligne_id" id="all_ligne_id{{forloop.counter}}" value = "{{ligne.id}}" type="hidden" autocomplete="off" >
+                                        <tr id="ligne{{forloop.counter}}">
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <div class="input-control select full-size">
+                                                    <select  id="item{{forloop.counter}}" name="employe">
+                                                        <option value="{{ligne.employe.id}}">{{ligne.employe.nom_complet}}</option>
+
+                                                    </select>
+
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="competence" id="competence{{forloop.counter}}" value = "{{ligne.competence}}" type="text" autocomplete="off" >
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="ligne_id" id="ligne_id{{forloop.counter}}" value = "{{ligne.id}}" type="hidden" autocomplete="off" >
+                                                    <input name="description" id="description{{forloop.counter}}" value = "{{ligne.description}}" type="text" autocomplete="off" >
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="pagination no-border">
+                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne({{forloop.counter}})"><span class="mif-cross fg-red"></span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+
+                                        <tr id="ligne1">
+                                                <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                    <div class="input-control select full-size">
+                                                        <select  id="item1" name="employe" class="chosen-select"
+                                                        data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un employé" required>
+                                                                <option value="">Sélectionnez un employé</option>
+                                                                {% for item in employes %}
+                                                                <option value="{{ item.id }}">
+                                                                    {{ item.nom_complet }}
+                                                                </option>
+                                                                {% endfor %}
+                                                        </select>
+
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input name="competence" id="competence1" value = "{{ligne.competence}}" type="text" autocomplete="off" >
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input name="ligne_id" name="ligne_id1" value = "0" type="hidden">
+                                                        <input name="description" id="description1" value = "{{ligne.description}}" type="text" autocomplete="off" >
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="pagination no-border">
+                                                        <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                            </div>
+                        </form>
+
+                    </div>
+            </div>
+    </div>
+</div>
+
+
+<script>
+    $('.chosen-select').chosen();
+</script>
+
+
+   <script>
+       var lataille = 0;
+       var nombreLignes = 1;
+        var compteur = 1;
+
+        {% for item in ligne_syndicat %}
+            lataille +=1
+        {% endfor %}
+
+    console.log("taille",lataille);
+    if (lataille != 0) {
+            nombreLignes = lataille;
+            compteur = lataille;
+        }
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+            nouvelleLigne += '<select class="chosen-select" id="item' + compteur + '" name="employe"  data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un employé"><option value="">Sélectionnez un employé</option>';
+            nouvelleLigne += '{% for item in employes %}<option value="{{ item.id }}"> {{ item.nom_complet }} </option>{% endfor %}';
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="competence' + compteur + '" name="competence" type="text">';
+            nouvelleLigne += '</span></div>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="ligne_id" name="ligne_id'+compteur+'" value = "0" type="hidden"><input id="description' + compteur + '" name="description" type="text">';
+            nouvelleLigne += '</span></div>';
+
+            nouvelleLigne += '</td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+
+
+
+        });
+
+
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+
+
+    </script>
+
+
+
+{% endblock %}

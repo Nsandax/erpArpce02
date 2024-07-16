@@ -1,0 +1,143 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %} {%load static %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_vente_tableau_de_bord' %}">Module Vente</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>Nouveau Paiement</h2>
+    <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <dir class="separ" style="background-color: grey;opacity: 0.2"></dir>
+            <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary primary_color_{{module.name|lower}}">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_vente_list_facture_client' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+
+    <div class="row cells3 item-content" style="margin-top: 10px">
+        <div class="cell">
+                <!-- En lieu et place du # il faut mettre {% url 'module_vente_post_add_paiement_client' %}-->
+            <form action="#" method="POST"
+                data-role="validator"
+                data-show-required-state="false"
+                data-hint-mode="line"
+                data-hint-background="bg-red"
+                data-hint-color="fg-white"
+                data-hide-error="5000"
+                novalidate="novalidate"
+                data-on-error-input="notifyOnErrorInput"
+                data-show-error-hint="false">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+                <input name="ref" type="hidden" value="{{ facture.id }}" >
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Date de Règlement</label>
+                        <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                            <input readonly type="text" name="date_paiement" readonly
+                                data-validate-func="required"
+                                data-validate-hint="Précisez la date de reglement svp.">
+                            <div class="button"><span class="mif-calendar"></span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Dévise</label>
+                        <div class="input-control text full-size">
+                            <select name="devise_id" id="devise_id" onchange="choix_devise()"
+                                data-validate-func="min"
+                                data-validate-arg="1"
+                                data-validate-hint="Sélectionnez la devise svp.">
+                                <option value="0">Sélectionnez une devise</option>
+                                {% for item in devises %}
+                                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Destination de l'argent</label>
+                        <div class="input-control text full-size">
+                            <select name="destination_paiement"
+                                data-validate-func="min"
+                                data-validate-arg="1"
+                                data-validate-hint="Sélectionnez la destination de l'argent svp.">
+                                <option value="0">Sélectionnez une destination</option>
+                                <option value="1">Caisse</option>
+                                <option value="2">Banque</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Moyen de Paiement</label>
+                        <div class="input-control text full-size">
+                            <select name="moyen_paiement"
+                                data-validate-func="min"
+                                data-validate-arg="1"
+                                data-validate-hint="Sélectionnez un moyen de paiement svp.">
+                                <option value="0">Sélectionnez un moyen de paiement</option>
+                                {% for item in moyen_paiement %}
+                                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                    <label>Montant</label>
+                        <div class="input-control text full-size">
+                            <input type="text" name="montant"
+                                data-validate-func="required"
+                                data-validate-hint="Entrez le montant svp." />
+                            <span class="prepend-icon" style="margin-left:75%">
+                                <span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole_devise }}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        var deviseRef = "{{ devise_ref.symbole_devise }}";
+        var lesDevises = new Array();
+        {% for item in devises %}
+            lesDevises.push({ id: "{{ item.id }}", symbole_devise:"{{ item.symbole_devise }}" });
+        {% endfor %}
+
+        function choix_devise()
+        {
+            var id_devise = $("#devise_id").val();
+            if(id_devise == "0") deviseRef = "$";
+            else
+            {
+                for(var i = 0; i < lesDevises.length; i++)
+                {
+                    var devise = lesDevises[i];
+                    if(devise.id == id_devise)
+                    {
+                        deviseRef = devise.symbole_devise;
+                        $(".devise").text(deviseRef);
+                        break;
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}

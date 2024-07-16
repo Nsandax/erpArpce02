@@ -1,0 +1,748 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+{%load static %}
+{% load customfilter %}
+<link rel="stylesheet" href="{% static 'ErpProject/dashboard_rh_lib/assets/bootstrap/bootstrap4-alpha3.min.css' %}">
+<link rel="stylesheet" href="{% static 'ErpProject/dashboard_rh_lib/assets/fonts/font-roboto.css' %}">
+<!-- <script src="{% static 'ErpProject/dashboard_rh_lib/assets/jquery/jquery-3.1.0.min.js' %}"></script> -->
+<script src="{% static 'ErpProject/dashboard_rh_lib/assets/tether/tether.min.js' %}"></script>
+<!-- <script src="{% static 'ErpProject/dashboard_rh_lib/assets/bootstrap/bootstrap4-alpha3.min.js' %}"></script> -->
+<script src="{% static 'ErpProject/dashboard_rh_lib/assets/canvasjs.min.js' %}"></script>
+<script src="{% static 'ErpProject/dashboard_rh_lib/assets/jquery.scrollspeed/jquery.scrollspeed.min.js' %}"></script>
+<script src="{% static 'ErpProject/dashboard_rh_lib/assets/jquery.inview/jquery.inview.min.js' %}"></script>
+<style type="text/css">
+    .card {
+        position: relative;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 1px solid #fff !important;
+        border-radius: 0.25rem;
+        margin-bottom: 20px !important;
+    }
+    .fond{
+        background-color: rgba(240, 240, 240, 0.3);
+        border-radius: 50px;
+        height: 50px;
+        width: 50px;
+        opacity:3.5;
+        float: left;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: -9px;
+     }
+     .font-weight-bold{
+        font-weight: 800;
+     }
+     .text_grid{
+        font-family:Roboto;font-size:16px;font-weight:900;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .left{
+        width:50%;
+        float: left;
+    }
+    .right{
+        width:50%;
+        float: right;
+    }
+    #revenue-tag {
+				border-radius: 0px !important;
+				font-size: inherit !important;
+				font-weight: inherit !important;
+    }
+
+    .align-center {
+        text-align: center;
+    }
+
+    .cardview {
+        background-color: transparent;
+        border: none;
+        margin-bottom: 0px;
+    }
+
+    #sales-doughnut-chart-us, #sales-doughnut-chart-nl, #sales-doughnut-chart-de {
+        height: 280px;
+        margin-top: 1rem;
+        width: 100%;
+    }
+
+    #page-views-spline-area-chart, #orders-spline-area-chart, #revenue-spline-area-chart {
+        height: 100px;
+        width: 100%;
+    }
+
+    #users-doughnut-chart, #users-spline-chart {
+        height: 280px;
+        margin-top: 2rem;
+        width: 100%;
+    }
+
+    #users-countries-bar-chart {
+        height: 360px;
+        margin-top: 2rem;
+        width: 100%;
+    }
+    .card_body_padd{
+        padding:8% 15% 15% 15%;
+    }
+    .canvasjs-chart-credit{
+        display: none;
+    }
+</style>
+<div id="vue_admin" class="container" style="width: 100%;">
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                <br>
+    <div class="row" style="padding-top: 30px;">
+
+        <div class="col-lg-12">
+            <h2>Tableau de Bord</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2">
+
+                <div class="panel panel-default" style="border: none;">
+                    <div class="panel" style="background-color:#f5f5f5;border: none;"></div>
+                    {% if temp_notif_count > 0 %}
+                    <div class="col-md-12" style="padding: 10px;">
+                        {% for item in temp_notif_list %}
+                        <div class="col-md-4" style="padding: 10px;z-index:1;">
+                            <div style="">
+                                <div class="mb-4 ">
+                                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                        <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                            <div style="padding: 10px;">
+                                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Notification</strong>
+                                                <small style="margin-right:50">{{item.notification.created_at}}</small>
+                                                <button onclick="javascript:window.location.assign('{% url 'module_rh_notification' item.id %}')" type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" >
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                        </div>
+                                        <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                            <p>{{item.notification.text}}<br>
+                                                {% if item.notification.conge != None %}
+                                                Etat: {{item.notification.expression.etat}}<br>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+
+                                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                        <div style="padding: 15px;padding-top: 0px;">
+                                            {% if item.type_action == "Link" %}
+                                                <button  class="btn rounded primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button>
+                                            {% endif %}
+                                        </div>
+                                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="" id="container-wrapper">
+                <div class="row mb-3">
+                    <div class="col-xl-4 col-md-4 mb-4">
+                        <div class="card-item" style="">
+                            <div class="card-body card_body_padd" style="border-top:3px solid #991B58;">
+                                <div class="row">
+                                    <div class="col-md-2 fond">
+                                        <span class="fas fa-users fa-2x" style="color:#667B8F;"></span>
+                                    </div>
+                                    <div class="col-md-8" style="margin-top:-2%;">
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800 text_grid">
+                                            EMPLOYES
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12" style="font-size:25px;text-align:right;font-weight: 700;">
+                                    {{NombreEmploye}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-4 mb-4">
+                        <div class="card-item" style="">
+                            <div class="card-body card_body_padd" style="border-top:3px solid #991B58;">
+                                <div class="row">
+                                    <div class="col-md-2 fond">
+                                        <!-- <span class="fab fa-google-wallet fa-1x text-primary"></span> -->
+                                        <i class="fas fa-briefcase fa-2x" style="color:#667B8F;"></i>
+                                    </div>
+                                    <div class="col-md-8" style="margin-top: -2%;">
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800 text_grid">
+                                            DEPARTEMENT
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12" style="font-size:25px;text-align:right;font-weight: 700;">
+                                    {{NombreDepart}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-4 mb-4">
+                        <div class="card-item" style="">
+                            <div class="card-body card_body_padd" style="border-top:3px solid #991B58;">
+                                <div class="row">
+                                    <div class="col-md-2 fond">
+                                        <span class="fab fa-google-wallet fa-2x" style="color:#667B8F;"></span>
+                                    </div>
+                                    <div class="col-md-8" style="margin-top: -2%;">
+                                        <div class="h5 mb-0 font-weight-bold text_grid">
+                                            CONGE
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12" style="font-size:25px;text-align:right;font-weight: 700;">
+                                    {{NombreConge}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="container mt-2">
+                    <h5>Salaire Annuel & Dépense du Mois - {% now "F" %}</h5>
+                    <h5 class="m-t-1">Montant: <span class="tag tag-success" id="revenue-tag">FCFA 15,341,110</span></h5>
+                    <hr class="m-t-2">
+
+                    <h3>Repartition Dépense {% now "F" %}</h3>
+
+                    <!-- sales doughnut charts -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="inview" id="sales-doughnut-chart-us"></div>
+                            <h3 class="align-center">Salaires</h3>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="inview" id="sales-doughnut-chart-nl"></div>
+                            <h3 class="align-center">Fonctionnement</h3>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="inview" id="sales-doughnut-chart-de"></div>
+                            <h3 class="align-center">Autres</h3>
+                        </div>
+                    </div>
+                    <!-- row sales doughnt charts -->
+
+                    <hr>
+
+                    <!-- stats spline area charts -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="cardview card-block">
+                                <h5 class="card-title">Depense Direction</h5>
+                                <h2>FCFA 38,435,184</h2>
+                                <div class="inview" id="page-views-spline-area-chart"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="cardview card-block">
+                                <h5 class="card-title">Dépense Service</h5>
+                                <h2>FCFA 320,151</h2>
+                                <div class="inview" id="orders-spline-area-chart"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="cardview card-block">
+                                <h5 class="card-title"> Dépense Bureau</h5>
+                                <h2>FCFA 15,341,110</h2>
+                                <div class="inview" id="revenue-spline-area-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- row stats spline area charts -->
+
+                    <hr>
+
+                    <h4>Taux de depart en formation</h4>
+
+                    <!-- users doughnut and spline chart -->
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4">
+                            <div class="inview" id="users-doughnut-chart"></div>
+                        </div>
+
+                        <div class="col-lg-9 col-md-8">
+                            <div class="inview" id="users-spline-chart"></div>
+                        </div>
+                    </div>
+                    <!-- row users doughnut and spline chart -->
+
+                    <hr>
+
+                    <h4>Repartition Employé par Département</h4>
+
+                    <!-- users countries bar chart -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="inview" id="users-countries-bar-chart"></div>
+                        </div>
+                    </div>
+                    <!-- row users countries bar chart -->
+
+                </div> <!-- container -->
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Link -->
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/html2canvas.min.js' %}"></script>
+
+<script>
+    $(function () {
+        var totalRevenue = 15341110,
+                totalUsers = 7687036;
+
+        // CanvasJS doughnut chart to show annual sales percentage from United States(US)
+        var salesDoughnutChartUS = new CanvasJS.Chart("sales-doughnut-chart-us", {
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            title: {
+                fontColor: "#848484",
+                fontSize: 70,
+                horizontalAlign: "center",
+                text: "47%",
+                verticalAlign: "center"
+            },
+            toolTip: {
+                backgroundColor: "#ffffff",
+                borderThickness: 0,
+                cornerRadius: 0,
+                fontColor: "#424242"
+            },
+            data: [
+                {
+                    explodeOnClick: false,
+                    innerRadius: "96%",
+                    radius: "90%",
+                    startAngle: 270,
+                    type: "doughnut",
+                    dataPoints: [
+                        { y: 47, color: "#c70000", toolTipContent: "Arpce: $<span>" + CanvasJS.formatNumber(Math.round(47 / 100 * totalRevenue), '#,###,###') + "</span>" },
+                        { y: 53, color: "#424242", toolTipContent: null }
+                    ]
+                }
+            ]
+        });
+
+        // CanvasJS doughnut chart to show annual sales percentage from Netherlands(NL)
+        var salesDoughnutChartNL = new CanvasJS.Chart("sales-doughnut-chart-nl", {
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            title: {
+                fontColor: "#848484",
+                fontSize: 70,
+                horizontalAlign: "center",
+                text: "19%",
+                verticalAlign: "center"
+            },
+            toolTip: {
+                backgroundColor: "#ffffff",
+                borderThickness: 0,
+                cornerRadius: 0,
+                fontColor: "#424242"
+            },
+            data: [
+                {
+                    explodeOnClick: false,
+                    innerRadius: "96%",
+                    radius: "90%",
+                    startAngle: 270,
+                    type: "doughnut",
+                    dataPoints: [
+                        { y: 19, color: "#c70000", toolTipContent: "Arpce: $<span>" + CanvasJS.formatNumber(Math.round(19 / 100 * totalRevenue), '#,###,###') + "</span>" },
+                        { y: 81, color: "#424242", toolTipContent: null }
+                    ]
+                }
+            ]
+        });
+
+        // CanvasJS doughnut chart to show annual sales percentage from Germany(DE)
+        var salesDoughnutChartDE = new CanvasJS.Chart("sales-doughnut-chart-de", {
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            title: {
+                fontColor: "#848484",
+                fontSize: 70,
+                horizontalAlign: "center",
+                text: "12%",
+                verticalAlign: "center"
+            },
+            toolTip: {
+                backgroundColor: "#ffffff",
+                borderThickness: 0,
+                cornerRadius: 0,
+                fontColor: "#424242"
+            },
+            data: [
+                {
+                    explodeOnClick: false,
+                    innerRadius: "96%",
+                    radius: "90%",
+                    startAngle: 270,
+                    type: "doughnut",
+                    dataPoints: [
+                        { y: 12, color: "#c70000", toolTipContent: "Arpce: $<span>" + CanvasJS.formatNumber(Math.round(12 / 100 * totalRevenue), '#,###,###') + "</span>" },
+                        { y: 88, color: "#424242", toolTipContent: null }
+                    ]
+                }
+            ]
+        });
+
+        // CanvasJS spline area chart to show pageviews from Jan 2015 - Dec 2015
+        var pageViewsSplineAreaChart = new CanvasJS.Chart("page-views-spline-area-chart", {
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            axisX: {
+                gridThickness: 0,
+                lineThickness: 0,
+                maximum: new Date("1 Dec 2015"),
+                minimum: new Date("1 Jan 2015"),
+                tickLength: 0,
+                valueFormatString: " "
+            },
+            axisY: {
+                gridThickness: 0,
+                lineThickness: 0,
+                tickLength: 0,
+                valueFormatString: " "
+            },
+            toolTip: {
+                backgroundColor: "#ffffff",
+                borderThickness: 0,
+                cornerRadius: 0,
+                fontColor: "#424242"
+            },
+            data: [
+                {
+                    color: "#424242",
+                    fillOpacity: 1,
+                    lineColor: "#ffffff",
+                    lineThickness: 3,
+                    markerSize: 0,
+                    type: "splineArea",
+                    dataPoints: [
+                        { x: new Date("31 Jan 2021"), y: 2171991 },
+                        { x: new Date("31 Feb 2021"), y: 2678910 },
+                        { x: new Date("31 Mar 2021"), y: 3215487 },
+                        { x: new Date("31 Apr 2021"), y: 2213754 },
+                        { x: new Date("31 May 2021"), y: 2584561 },
+                        { x: new Date("31 Jun 2021"), y: 3178647 },
+                        { x: new Date("31 Jul 2021"), y: 3645041 },
+                        { x: new Date("31 Aug 2021"), y: 2914568 },
+                        { x: new Date("31 Sep 2021"), y: 3985421 },
+                        { x: new Date("31 Oct 2021"), y: 3754219 },
+                        { x: new Date("31 Nov 2021"), y: 3971047 },
+                        { x: new Date("31 Dec 2021"), y: 4121538 }
+                    ]
+                }
+            ]
+        });
+
+        // CanvasJS spline area chart to show orders from Jan 2015 - Dec 2015
+        var ordersSplineAreaChart = new CanvasJS.Chart("orders-spline-area-chart", {
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            axisX: {
+                gridThickness: 0,
+                lineThickness: 0,
+                maximum: new Date("1 Dec 2015"),
+                minimum: new Date("1 Jan 2015"),
+                tickLength: 0,
+                valueFormatString: " "
+            },
+            axisY: {
+                gridThickness: 0,
+                lineThickness: 0,
+                tickLength: 0,
+                valueFormatString: " "
+            },
+            toolTip: {
+                backgroundColor: "#ffffff",
+                borderThickness: 0,
+                cornerRadius: 0,
+                fontColor: "#424242"
+            },
+            data: [
+                {
+                    color: "#424242",
+                    fillOpacity: 1,
+                    lineColor: "#ffffff",
+                    lineThickness: 3,
+                    markerSize: 0,
+                    type: "splineArea",
+                    dataPoints: [
+                        { x: new Date("31 Jan 2021"), y: 17376 },
+                        { x: new Date("15 Feb 2021"), y: 21431 },
+                        { x: new Date("18 Mar 2021"), y: 25724 },
+                        { x: new Date("19 Apr 2021"), y: 22138 },
+                        { x: new Date("20 May 2021"), y: 20676 },
+                        { x: new Date("25 Jun 2021"), y: 25429 },
+                        { x: new Date("29 Jul 2021"), y: 29160 },
+                        { x: new Date("11 Aug 2021"), y: 23317 },
+                        { x: new Date("30 Sep 2021"), y: 31883 },
+                        { x: new Date("25 Oct 2021"), y: 30034 },
+                        { x: new Date("30 Nov 2021"), y: 31768 },
+                        { x: new Date("17 Dec 2021"), y: 41215 }
+                    ]
+                }
+            ]
+        });
+
+        // CanvasJS spline area chart to show revenue from Jan 2015 - Dec 2015
+        var revenueSplineAreaChart = new CanvasJS.Chart("revenue-spline-area-chart", {
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            axisX: {
+                gridThickness: 0,
+                lineThickness: 0,
+                maximum: new Date("1 Dec 2015"),
+                minimum: new Date("1 Jan 2015"),
+                tickLength: 0,
+                valueFormatString: " "
+            },
+            axisY: {
+                gridThickness: 0,
+                lineThickness: 0,
+                tickLength: 0,
+                valueFormatString: " "
+            },
+            toolTip: {
+                backgroundColor: "#ffffff",
+                borderThickness: 0,
+                cornerRadius: 0,
+                fontColor: "#424242"
+            },
+            data: [
+                {
+                    color: "#424242",
+                    fillOpacity: 1,
+                    lineColor: "#ffffff",
+                    lineThickness: 3,
+                    markerSize: 0,
+                    type: "splineArea",
+                    yValueFormatString: "$###,###.##",
+                    dataPoints: [
+                        { x: new Date("31 Jan 2021"), y: 868800 },
+                        { x: new Date("10 Feb 2021"), y: 1071550 },
+                        { x: new Date("07 Mar 2021"), y: 1286200 },
+                        { x: new Date("16 Apr 2021"), y: 1106900 },
+                        { x: new Date("13 May 2021"), y: 1033800 },
+                        { x: new Date("19 Jun 2021"), y: 1017160 },
+                        { x: new Date("30 Jul 2021"), y: 1458000 },
+                        { x: new Date("25 Aug 2021"), y: 1165850 },
+                        { x: new Date("12 Sep 2021"), y: 1594150 },
+                        { x: new Date("19 Oct 2021"), y: 1501700 },
+                        { x: new Date("23 Nov 2021"), y: 1588400 },
+                        { x: new Date("29 Dec 2021"), y: 1648600 }
+                    ]
+                }
+            ]
+        });
+
+        // CanvasJS doughnut chart to show annual users - new and returning
+        var usersDoughnutChart = new CanvasJS.Chart("users-doughnut-chart", {
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            toolTip: {
+                backgroundColor: "#000000",
+                borderThickness: 2,
+                cornerRadius: 0,
+                fontColor: "#BBBBBB",
+                contentFormatter: function (e) {
+                    return e.entries[0].dataPoint.name + ": " + CanvasJS.formatNumber(e.entries[0].dataPoint.y, '###,###') + " - " + Math.round(e.entries[0].dataPoint.y / totalUsers * 100) + "%"; // calcuting and showing percentage of users inside tooltip
+                }
+            },
+            data: [
+                {
+                    innerRadius: "82%",
+                    radius: "100%",
+                    showInLegend: false,
+                    startAngle: 180,
+                    type: "doughnut",
+                    dataPoints: [
+                        { y: 1921757, name: "Passée", color: "#c70000" },
+                        { y: 5765279, name: "En cours", color: "#424242", exploded: true }
+                    ]
+                }
+            ]
+        });
+
+        // CanvasJS spline chart to show users - new and returning from Jan 2015 - Dec 2015
+        var usersSplineChart = new CanvasJS.Chart("users-spline-chart", {
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            axisX: {
+                gridThickness: 0,
+                labelFontColor: "#bbbbbb",
+                lineColor: "#bbbbbb"
+            },
+            axisY: {
+                gridThickness: 0,
+                labelFontColor: "#bbbbbb",
+                lineColor: "#bbbbbb"
+            },
+            legend: {
+                dockInsidePlotArea: true,
+                fontColor: "#BBBBBB",
+                fontSize: 16,
+                horizontalAlign: "right",
+                verticalAlign: "top"
+            },
+            toolTip: {
+                backgroundColor: "#000000",
+                borderThickness: 2,
+                cornerRadius: 0,
+                fontColor: "#ffffff",
+                shared: true
+            },
+            data: [
+                {
+                    color: "#424242",
+                    legendMarkerType: "square",
+                    legendText: "En cours",
+                    name: "En cours",
+                    showInLegend: true,
+                    type: "spline",
+                    dataPoints: [
+                        { x: new Date("1 Jan 2021"), y: 325799 },
+                        { x: new Date("1 Feb 2021"), y: 401837 },
+                        { x: new Date("1 Mar 2021"), y: 482323 },
+                        { x: new Date("1 Apr 2021"), y: 332063 },
+                        { x: new Date("1 May 2021"), y: 387684 },
+                        { x: new Date("1 Jun 2021"), y: 476797 },
+                        { x: new Date("1 Jul 2021"), y: 546756 },
+                        { x: new Date("1 Aug 2021"), y: 437186 },
+                        { x: new Date("1 Sep 2021"), y: 597813 },
+                        { x: new Date("1 Oct 2021"), y: 563133 },
+                        { x: new Date("1 Nov 2021"), y: 595657 },
+                        { x: new Date("1 Dec 2021"), y: 618231 }
+                    ]
+                },
+                {
+                    color: "#c70000",
+                    legendMarkerType: "square",
+                    legendText: "Passée",
+                    name: "Passée",
+                    showInLegend: true,
+                    type: "spline",
+                    dataPoints: [
+                        { x: new Date("1 Jan 2021"), y: 108599 },
+                        { x: new Date("1 Feb 2021"), y: 133945 },
+                        { x: new Date("1 Mar 2021"), y: 160774 },
+                        { x: new Date("1 Apr 2021"), y: 110688 },
+                        { x: new Date("1 May 2021"), y: 129228 },
+                        { x: new Date("1 Jun 2021"), y: 158932 },
+                        { x: new Date("1 Jul 2021"), y: 182252 },
+                        { x: new Date("1 Aug 2021"), y: 145728 },
+                        { x: new Date("1 Sep 2021"), y: 199271 },
+                        { x: new Date("1 Oct 2021"), y: 187711 },
+                        { x: new Date("1 Nov 2021"), y: 198552 },
+                        { x: new Date("1 Dec 2021"), y: 206077 }
+                    ]
+                }
+            ]
+        });
+
+        // CanvasJS bar chart to show country wise annual users percentage
+        var usersCountriesBarChart = new CanvasJS.Chart("users-countries-bar-chart", {
+            animationEnabled: true,
+            backgroundColor: "transparent",
+            axisX: {
+                labelFontColor: "#424242",
+                labelFontSize: 12,
+                lineThickness: 0,
+                tickThickness: 0
+            },
+            axisY: {
+                gridThickness: 0,
+                lineThickness: 0,
+                tickThickness: 0,
+                valueFormatString: " "
+
+            },
+            toolTip: {
+                backgroundColor: "#ffffff",
+                borderThickness: 0,
+                cornerRadius: 0,
+                fontColor: "#424242",
+                contentFormatter: function (e) {
+                    return e.entries[0].dataPoint.label + ": " +  CanvasJS.formatNumber(Math.round(e.entries[0].dataPoint.y / 100 * totalUsers), '###,###'); // calculating and showing country wise number of users inside tooltip
+                }
+            },
+            data: [
+                {
+                    color: "#445280",
+                    indexLabelFontColor: "#424242",
+                    indexLabelFontFamily: "calibri",
+                    indexLabelFontSize: 18,
+                    indexLabelPlacement: "outside",
+                    type: "bar",
+                    dataPoints: [
+                        { y: 2,  indexLabel: "2%",  label: "Secrétariat Direction Administrative, Financière et Comptable" },
+                        { y: 4,  indexLabel: "4%",  label: "Service Gestion des Infrastructures et Services Internet" },
+                        { y: 5,  indexLabel: "5%",  label: "Service Contrôle du Spectre des Fréquences" },
+                        { y: 12, indexLabel: "12%", label: "Service Universel" },
+                        { y: 9,  indexLabel: "9%",  label: "Service Audit et Evaluation Economique" },
+                        { y: 10, indexLabel: "10%", label: "Secrétariat Direction de l'Economie et des Marchés" },
+                        { y: 14, indexLabel: "14%", label: "Service Operateurs et Prestataires" },
+                        { y: 15, indexLabel: "15%", label: "Service Juridique et du Contentieux" },
+                        { y: 20, indexLabel: "20%", label: "Sécrétariat de Direction des Ressources en Fréquence" },
+                        { y: 9, indexLabel: "9%", label: "Service Concurrence et Marchés" },
+                    ]
+                }
+            ]
+        });
+
+        jQuery.scrollSpeed(100, 400); // for smooth mouse wheel scrolling
+
+        // jQuery.inview plugin
+        $('.inview').one('inview', function (e, isInView) {
+            if (isInView) {
+                switch (this.id) {
+                    case "sales-doughnut-chart-us": salesDoughnutChartUS.render();
+                        break;
+                    case "sales-doughnut-chart-nl": salesDoughnutChartNL.render();
+                        break;
+                    case "sales-doughnut-chart-de": salesDoughnutChartDE.render();
+                        break;
+                    case "page-views-spline-area-chart": pageViewsSplineAreaChart.render();
+                        break;
+                    case "orders-spline-area-chart": ordersSplineAreaChart.render();
+                        break;
+                    case "revenue-spline-area-chart": revenueSplineAreaChart.render();
+                        break;
+                    case "users-doughnut-chart": usersDoughnutChart.render();
+                        break;
+                    case "users-spline-chart": usersSplineChart.render();
+                        break;
+                    case "users-countries-bar-chart": usersCountriesBarChart.render();
+                        break;
+                }
+            }
+        });
+
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_rh_list_employe' %}">Module Ressources humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+		<div class="cell">
+           <button class="button small-button rounded primary" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_poste' %}')" style="margin-left: 5px">Créer</button>
+           
+		</div>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+    <div id="tree-view" class="row" style="margin-top: 10px">	
+		<table class="table dataTable striped border bordered" data-role="datatable" data-searching="true" style="width: 100%">
+            <thead>
+                <tr>
+                    <th style="width: 20px"></th>
+                    <th>Désignation</th>
+                    <th>Département</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                    <tr>
+                        <td>
+                            <label class="small-check">
+                                <input type="checkbox">
+                                <span class="check"></span>
+                            </label>
+                        </td>
+                        <td> 
+                            <a class="lien chargement-au-click" href="{% url 'module_ressources_humaines_details_poste' item.id %}">{{ item.designation }}</a> 
+                        </td>
+                        <td>
+							{% if item.departement != None and item.departement != 0 %}
+								{{ item.departement.designation }}
+							{% else %}
+								Attaché à aucun département
+							{% endif %}							
+						</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable( {
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'copyHtml5',
+                        text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                        titleAttr: "Copier"
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                        titleAttr: "Exporter en excel"
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                        titleAttr: "Exporter en csv"
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                        titleAttr: "Exporter en pdf"
+                    },
+                    //'copyHtml5',
+                    //'excelHtml5',
+                    //'csvHtml5',
+                    //'pdfHtml5'
+                ]
+            } );
+        } );
+    </script>	
+	
+{% endblock %}

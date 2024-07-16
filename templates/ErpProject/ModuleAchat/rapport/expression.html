@@ -1,0 +1,65 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Expression de besoin">
+        <meta name="author" content="MKman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="invoice">
+            <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+            <!-- <h2 class="align-center header">{{ title }}</h2> -->
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                </div>
+                <div class="col-md-6" style="text-align: right;">
+                    <h3>Expression des besoins</h3>
+                    <h3 style="color: red; font-weight: bold">N° {{model.numero_expression}}</h3>
+                </div>
+                <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                <div class="col-md-6">
+                    <p>
+                        <strong> Demandé par:</strong> {{model.demandeur.nom_complet}}
+                        <br>
+                        <strong>Justification :</strong> {{model.justification}}
+                        <br>
+                        <strong>Centre de coût :</strong> {{model.centre_cout.designation}}
+                    </p>
+                </div>
+                <div class="col-md-6" style="margin-bottom: 40px">
+                    <p style="float: right;">
+                        <strong>Date demande: {{model.date_expression | date:"d/m/Y" }}</strong>
+                        <br>
+                        <strong>Statut demande : {{model.etat}}</strong>
+                        <br>
+                        <strong>
+                    </p>
+                </div>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#D64F0D;color:#fff;font-weight:500">
+                    <td class="head">#</td>
+                    <td class="head">ARTICLE</td>
+                    <td class="head">QUANTITE</td>
+                    <td class="head">DESCRIPTION</td>
+                </tr>
+                {% for item in lignes %}
+                    <tr>
+                        <td class="td"></td>
+                        <td class="td">{{ item.article.designation }}</td>
+                        <td class="td"> {{item.quantite_demande}} </td>
+                        <td class="td">{{ item.description }} </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>

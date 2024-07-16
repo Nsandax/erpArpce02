@@ -1,0 +1,184 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_list_transfert_internal' %}">Liste des ordres de transfert interne</a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_add_transfert_internal' %}">Nouvel odre de transfert interne</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" >
+
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                    <div class="row">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} leaf">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_inventaire_add_transfert_internal' %}')" class="theme-btn theme-btn-sm rounded leaf" style="margin-left: 5px">Annuler</button>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+
+                    <div class="row item-content" style="margin-top: 10px">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Numéro de l'ordre de Sortie :<br>
+                                        <span id="numero" class="fg-dark">{{numero_bon}}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Date prévue :<br>
+                                        <span id="date_prevue" class="fg-dark"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Opération :<br>
+                                        <span class="fg-dark"> {{ operation_stock.designation }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Référence du document :<br>
+                                        <span id="reference_document" class="fg-dark"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Emplacement d'origine :<br>
+                                        <span class="fg-dark"> {{ emplacement_origine.designation }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Emplacement de destination :<br>
+                                        <span class="fg-dark"> {{ emplacement_destination.designation }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Demandeur  :<br>
+                                        <span id="demandeur_id" class="fg-dark"> {{ demandeur.nom_complet }} </span>
+                                    </p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Expression de besoin  :<br>
+                                        <span id="expression_id" class="fg-dark"> {{ expression.numero_expression }} </span>
+                                    </p>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <table class="table border bordered">
+                                    <thead>
+                                        <tr>
+                                        <th width="48%">Article</th>
+                                        <th width="26%">Quantité demandée</th>
+                                        <th width="26%">Quantité fournie</th>
+                                        <!--<th width="21%">Numéro de série</th>
+                                        <th width="25%">Description</th>-->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items">
+                                    </tbody>
+                                    <!--tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td style="border:1px #999999 solid">TOTAL</td>
+                                            <td style="border:1px #999999 solid" id="total"></td>
+                                        </tr>
+                                    </tfoot-->
+                                </table>
+                            </div>
+                            <form id="form" method="POST" action="{% url 'module_inventaire_post_valider_transfert_internal' %}">
+                                {% csrf_token %}
+                                <input id="submit" type="submit" style="display: none">
+                                <input type="hidden" name="numero" id="input_numero">
+                                <input type="hidden" name="numero_bon" id="numero_bon" value="{{numero_bon}}">
+                                <input type="hidden" name="est_partiel" id="input_est_partiel">
+                                <input type="hidden" name="expression_id" value="{{ expression.id }}">
+                                <input type="hidden" name="emplacement_origine_id" value="{{ emplacement_origine.id }}">
+                                <input type="hidden" name="emplacement_destination_id" value="{{ emplacement_destination.id }}">
+                                <input type="hidden" name="operation_stock_id" value="{{ operation_stock.id }}">
+                                <input type="hidden" name="date_prevue" id="input_date_prevue">
+                                <input type="hidden" name="reference_document" id="input_reference_document">
+                                <input type="hidden" name="demandeur_id" id="demandeur_id" value="{{ demandeur.id }}">
+                                <input type="hidden" name="departement_id" id="departement_id" value="{{ departement.id }}">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/ErpProject/js/transfert-interne.js"></script>
+    <script>
+        $(document).ready(function(){
+            var bon  = transfertInterne.avoirTransfert();
+
+            $("#date_prevue").text(bon.date_prevue);
+            $("#input_date_prevue").val(bon.date_prevue);
+
+            $("#numero").text(bon.numero);
+            $("#input_numero").val(bon.numero);
+
+            $("#input_est_partiel").val(bon.is_partial)
+
+            if(bon.reference_document.length == 0) $("#reference_document").text("-");
+            else
+            {
+                $("#reference_document").text(bon.reference_document);
+                $("#input_reference_document").val(bon.reference_document);
+            }
+
+            lignes = transfertInterne.avoirToutesLignes();
+            console.log(lignes)
+            for (var i = 0; i < lignes.length; i++) {
+                var ligne = lignes[i];
+                var nouvelleLigne = '<tr class="table bordered border"><td>' + ligne.nom_article + '</td>';
+                nouvelleLigne += '<td>' + ligne.quantite_demandee + ' ' + ligne.symbole_unite + '</td>';
+                nouvelleLigne += '<td>' + ligne.quantite_fournie + ' ' + ligne.symbole_unite + '</td>';
+                /*nouvelleLigne += '<td>' + ligne.numero_serie + '</td>';
+                nouvelleLigne += '<td>' + ligne.description + '</td>';*/
+
+
+
+                $("#items").append(nouvelleLigne);
+
+                var input_article_id = '<input type="hidden" name="article_id" value="' + ligne.article_id + '" >';
+                $("#form").append(input_article_id);
+                var input_quantite_demandee = '<input type="hidden" name="quantite_demandee" value="' + ligne.quantite_demandee + '" >';
+                $("#form").append(input_quantite_demandee);
+                var input_employe_id = '<input type="hidden" name="quantite_fournie" value="' + ligne.quantite_fournie + '" >';
+                $("#form").append(input_employe_id);
+                var input_type_asset = '<input type="hidden" name="numero_serie" value="' + ligne.numero_serie + '" >';
+                $("#form").append(input_type_asset);
+                var input_departement_id = '<input type="hidden" name="description" value="' + ligne.description + '" >';
+                $("#form").append(input_departement_id);
+
+            }
+            transfertInterne.refresh()
+        });
+    </script>
+{% endblock %}

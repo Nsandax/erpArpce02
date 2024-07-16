@@ -1,0 +1,95 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Bilan</title>
+        <meta name="description" content="Rapport Bilan OHADA Révisé">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report" class="">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <span>Période :</span> <br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                </div>
+                <div class="col-md-6">
+                    <span>Devise :</span> <br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="row padding10 no-margin">
+                <p class="sub-header no-margin"> BILAN ACTIF </p>
+            </div>
+            <br>
+            <table id="rapport-actif" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                    <td width="5%" rowspan="2" align="center">REF</td>
+                    <td width="25%" rowspan="2" align="center">ACTIF</td>
+                    <td width="5%" rowspan="2" align="center">Note</td>
+                    <td width="45%" colspan="3" align="center">Exercice au N</td>
+                    <td width="20%" align="center">Exercice au N-1</td>
+                </tr>
+                <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                    <td width="15%" align="center">Brut</td>
+                    <td width="15%" align="center">Amort/Deprec</td>
+                    <td width="15%" align="center">Net</td>
+                    <td width="20%" align="center">Net</td>
+                </tr>
+
+                {% for item in donnees_bilan_actif %}
+                    <tr {% if item.est_total %} {% if item.reference == "BZ" %}style="background-color:#7c984a;color:#fff!important;font-weight:300" {% elif item.reference == "AZ" or item.reference == "BK" or item.reference == "BT"%} style="background-color:#002060;color:#fff!important;font-weight:300"{% else %} style="background-color:#f2eee8;color:#000;font-weight:300" {% endif %}{% else %} data-toggle="modal" data-target="#modal-actif-{{ item.reference }}" {% endif %}>
+                        <td >{{ item.reference }}</td>
+                        <td >{{ item.libelle }}</td>
+                        <td >{{ item.note }}</td>
+                        <td align="right"> {% if item.brut == "0.00" %}  - {% else %}  {{ item.brut|monetary }} {% endif %}</td>
+                        <td align="right"> {% if item.amort == "0.00" %}  - {% else %}  {{ item.amort|monetary }} {% endif %}</td>
+                        <td width="15%" align="right"> {% if item.balance_n == "0.00" %}  - {% else %}  {{ item.balance_n|monetary }} {% endif %}</td>
+                        <td width="20%" align="right"> {% if item.balance_n1 == "0.00" %}  - {% else %}  {{ item.balance_n1|monetary }} {% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <div class="row padding10 no-margin">
+                <p class="sub-header no-margin"> BILAN PASSIF </p>
+            </div>
+            <br>
+            <table id="rapport-actif" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#91a7c3;color:#ffffff;font-weight:500">
+                    <td width="5%" rowspan="2" align="center">REF</td>
+                    <td width="35%" rowspan="2" align="center">ACTIF</td>
+                    <td width="5%" rowspan="2" align="center">Note</td>
+                    <td width="25%"  align="center">Exercice au N</td>
+                    <td width="25%" align="center">Exercice au N-1</td>
+                </tr>
+                <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                    <td width="25%" align="center">Net</td>
+                    <td width="25%" align="center">Net</td>
+                </tr>
+
+                {% for item in donnees_bilan_passif %}
+                    <tr {% if item.est_total %} {% if item.reference == "DZ" %}style="background-color:#7c984a;color:#fff!important;font-weight:300" {% elif item.reference == "DP" or item.reference == "DT" or item.reference == "DF"%} style="background-color:#002060;color:#fff!important;font-weight:300"{% else %} style="background-color:#f2eee8;color:#000;font-weight:300" {% endif %}{% else %} data-toggle="modal" data-target="#modal-passif-{{ item.reference }}" {% endif %}>
+                        <td >{{ item.reference }}</td>
+                        <td >{{ item.libelle }}</td>
+                        <td >{{ item.note }}</td>
+                        <td width="15%" align="right"> {% if item.balance_n == "0.00" %}  - {% else %}  {{ item.balance_n|monetary }} {% endif %}</td>
+                        <td width="20%" align="right"> {% if item.balance_n1 == "0.00" %}  - {% else %}  {{ item.balance_n1|monetary }} {% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>            
+        </div>
+    </body>
+</html>

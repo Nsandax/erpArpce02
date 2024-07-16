@@ -1,0 +1,119 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <link href="{% static 'ErpProject/css/printnote3E.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_3E' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 36%">
+          <col style="width: 24%">
+          <col style="width: 22%">
+          <col style="width: 18%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="tg-nqil" colspan="4">NOTE 3E : INFORMATIONS SUR LES REEVALUATIONS EFFECTUEES PAR L'ENTITE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Exercice clos&nbsp;&nbsp;le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">SIGLE&nbsp;&nbsp;:</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Durée (en mois) :</td>
+              <td class="tg-cr4b">0</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8" colspan="4">Nature et date des réévaluations :</td>
+            </tr>
+            <tr>
+              <td class="tg-bn4c">Eléments réévalués par postes du bilan</td>
+              <td class="tg-bn4c">Montants co–ts historiques</td>
+              <td class="tg-bn4c" colspan="2">Ecarts et provisions spéciales de réévaluation</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Terrains</td>
+              <td class="tg-lvth">25 000 000</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Bâtiments</td>
+              <td class="tg-lvth">41 600 000</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Aménagements, agencements et installations</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Matériel, mobilier et actifs biologiques</td>
+              <td class="tg-lvth">56 300 000</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Matériel de transport</td>
+              <td class="tg-lvth">27 700 000</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Titres de participations</td>
+              <td class="tg-lvth">23 000 000</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Autres immobilisations financières</td>
+              <td class="tg-lvth">23 049 500</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8" colspan="2">Total  écarts de réévaluation</td>
+              <td class="tg-h2g2"></td>
+              <td class="tg-h2g2">-</td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8" colspan="2">Total  provisions spéciales de réévaluation</td>
+              <td class="tg-h2g2"></td>
+              <td class="tg-h2g2">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b" colspan="4">Méthode de réévaluation utilisée :<br><br><br><br><br></td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+{% endblock %}

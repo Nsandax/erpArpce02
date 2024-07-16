@@ -1,0 +1,113 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %} {%load static %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_vente_tableau_de_bord' %}">Module Vente</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+    <strong style="float: right;color: #grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <dir class="separ" style="background-color: grey;opacity: 0.2"></dir>
+            <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+    <div class="row">
+        <div class="col-md-2">
+            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_add_client' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                Créer
+            </button>
+        </div>
+        <div class="col-md-3">
+            <div id="btn-view" data-role="group" data-group-type="one-state">
+                <button id="btn-tree" onclick="javascript:window.location.assign('{% url 'module_vente_list_clients' %}?view=list')" class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}"><span class="mif-list"></span></button>
+                <button id="btn-kanban" onclick="javascript:window.location.assign('{% url 'module_vente_list_clients' %}?view=kanban')" class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}"><span class="mif-apps"></span></button>
+            </div>
+        </div>
+    </div>
+    <hr class="hr-ligne">
+     <!-- Appel de la fonction message -->
+     {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+
+    <!-- Vue de type list -->
+    {% if view == "list" %}
+    <div id="list-view" class="row" style="margin-top: 10px;">
+       <table id="data_table" class="display nowrap border bordered striped" style="width:100%">
+       <thead>
+                <tr>
+                    <th style="width: 20px; background-color:#2e416a; white"></th>
+                    <th>Nom</th>
+                    <th>Téléphone</th>
+                    <th>Courriel</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                <tr>
+                    <td>
+                        <label class="small-check">
+                                    <input type="checkbox">
+                                    <span class="check"></span>
+                                </label>
+                    </td>
+                    <td>
+                        <a class="lien chargement-au-click" href="{% url 'module_vente_details_client' item.id %}">{{ item.nom_complet }}</a>
+                    </td>
+                    <td> {{ item.phone }} </td>
+                    <td> {{ item.email }} </td>
+                    <td>
+                        {% if item.est_particulier == True %} {{ "Particulier" }} {% else %} {{ "Entreprise" }} {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif view == "kanban" %}
+    <!-- Vue de type card -->
+    <div id="kanban-view" class="row cells3" style="margin-top: 10px">
+        {% for item in model %}
+        <div class="col-md-4" style="/*min-height: 250px!important;*/">
+            <div class="shadow padding10 clearfix" style="margin-top: 10px">
+                {% if item.image != None and item.image != "" %}
+                    <img src="{% static item.image %}" style="height: 70px; width: 70px; float: left;"> {% else %}
+                    <img src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 70px; width: 70px; float: left;"> {% endif %}
+                    <div style="padding-left: 80px;">
+                        <span class="sub-header"><a class="lien chargement-au-click" href="{% url 'module_vente_details_client' item.id %}">{{ item.nom_complet }}</a></span>
+                        <!--span class="minor-header fg-gray">{{ item.adresse_complete }}</span-->
+                        <br> {% if item.email != None and item.email != "" %}
+                        <span class="mif-envelop fg-dark"></span> <a href="mailto:{{ item.email }}" target="blank" class="sub-alt-header lien leaf"><span class="minor-header">{{ item.email }}</span></a> {% else %}
+                        <span class="mif-envelop fg-dark"></span> <span class="sub-alt-header lien leaf">---</span> {% endif %}
+                        <br> {% if item.phone != None and item.phone != "" %}
+                        <span class="mif-phone fg-dark"></span> <span class="sub-alt-header fg-dark">{{ item.phone }}</span> {% else %}
+                        <span class="mif-phone fg-dark"></span> <span class="sub-alt-header lien leaf">---</span> {% endif %}
+                        <br>
+                        <span class="sub-alt-header fg-dark">
+                            {% if item.est_particulier == True %}
+                                {{ "Particulier" }}
+                            {% else %}
+                                {{ "Entreprise" }}
+                            {% endif %}
+                        </span>
+                    <br>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+<!-- /.col-lg-12 -->
+</div>
+   <!-- Appel widget datatable -->
+   {% include 'ErpProject/ErpBackOffice/widget/datatable.html' with type_view=view %}
+
+{% endblock %}

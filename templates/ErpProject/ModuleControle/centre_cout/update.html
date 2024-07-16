@@ -1,0 +1,123 @@
+{% extends "ErpProject/ModuleControle/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_controle_tableau' %}">Module Controle de Gestion</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_controle_list_centre_cout' %}">Liste des centres de coût</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+                <!-- <div class="row only-on-large-screen">
+                    {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button small-button rounded primary_color_{{module.name|lower}}" val="Valider"%}
+
+                    <button onclick="javascript:window.location.assign('{% url 'module_controle_list_centre_cout' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  class="button small-button rounded primary" val="Valider"%}
+                    <button onclick="javascript:window.location.assign('{% url 'module_controle_list_centre_cout' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div> -->
+
+                <div class="row">
+                    <div class="col-md-2">
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with id="btnSubmit" val="Valider"%}
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_controle_list_centre_cout' %}')" class="theme-btn theme-btn-sm rounded">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne"> {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <form id="form" method="POST" action="{% url 'module_controle_post_update_centre_cout' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                    data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    <input name="ref" type="hidden" value="{{ model.id }}">
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label>Designation</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="designation" id="designation" type="text" data-validate-func="required" data-validate-hint="Entrez designation !" value="{{model.designation}}">
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Code</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="code" id="code" type="text" data-validate-func="required" data-validate-hint="Entrez code !" value="{{model.code}}">
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+                            <label>Abbréviation (Max 3 Caractères)</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="abbreviation" id="abbreviation" type="text" data-validate-func="required" data-validate-hint="Entrez une abbréviation !" value="{{model.abbreviation}}">
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Type</label>
+                            <div class="input-control text full-size">
+                                <select type="text" id="type_centre_cout" name="type_centre_cout" data-validate-func="required" data-validate-hint="Entrez le type !">
+                        <option value="{{model.typeCentre}}">{{model.value_typeCentre}}</option>
+                        <option value="2">Compte analytique</option>
+                        <option value="1">Vue analytique</option>
+
+                    </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Centre de coût parent</label>
+                            <div class="input-control text full-size">
+                                <select name="centre_cout_id" id="centre_cout_id">
+                                <option value="">Sélectionnez le centre de coût parent</option>
+                            {% for item in centre_cout %}
+                                <option {% if item.id == model.centre_cout_id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} "{{item.get_label}}"</option>
+                            {% endfor %}
+                            </select>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label>Groupe parent</label>
+                            <div class="input-control text full-size">
+                                <select type="text" id="groupe_analytique_id" name="groupe_analytique_id">
+                            <option value="">Sélectionnez le groupe parent</option>
+                            {% for item in groupe_analytique %}
+                                <option {% if item.id == model.groupe_analytique_id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }}</option>
+                            {% endfor %}
+                        </select>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+{% endblock %}

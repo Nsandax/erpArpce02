@@ -1,0 +1,779 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_operationtresorerie' objet.id filter %}">{{objet}} : Liste des opérations</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        {% if model.etat == "closed" %}
+        <strong style="float: left;color: grey;opacity: 0.8;margin-top: -5px;">Etat : Cloturé</strong>
+        <br>
+        {% endif %}
+
+
+
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+                <div class="row">
+                    {% if model.etat != "closed" %}
+                    <div class="col-md-2">
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Modifier" %}
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_operationtresorerie' objet.id filter %}')" class="theme-btn theme-btn-sm rounded">
+                            Annuler 
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="cloture" style="width: 100%;" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                            Clôturer
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="col-md-3">
+                        <button style="width: 100%;"  onclick="imprimerAll({{model.id}})" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                            Imprimer {% if not model.compte_banque %} le brouillard de caisse {% else %} le relevé bancaire {% endif %}
+                        </button>
+                    </div>
+                    {% if not est_lettre %}
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_lettrage_operationtresorerie' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                            Lettrer
+                        </button>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+
+                <hr class="hr-ligne">
+                
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <!-- {% if messages %}
+                        <ul class="messages">
+                        {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+                                {{ message }}
+                        </li>
+                        {% endfor %}
+                        </ul>
+                {% endif %} -->
+            <form id="form" method="POST" action="{% url 'module_comptabilite_post_update_operationtresorerie' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input name="objet_id"  value="{{objet.id}}" type="hidden">
+                            <input name="ref"  value="{{model.id}}" type="hidden">
+                            <input name="journal_id"  value="{{objet.journal_id}}" type="hidden">
+                            <input name="type_operation"  value="{{filter}}" type="hidden">
+                            <div class="row">
+
+                <div class="col-md-6">
+                            <label>Référence</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="reference" id="reference" type="text" value="{{model.reference}}" readonly style="background-color:cornsilk;">
+                            </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+                            <label>Balance initiale</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="balance_initiale" id="balance_initiale" type="text" value="{{model.balance_initiale}}" readonly {% if model.etat == "closed" %} readonly style="background-color:cornsilk;" {% endif %}>
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Solde final</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="solde" id="solde" type="text" value="{{model.solde}}" {% if model.etat == "closed" or not model.compte_banque %} readonly style="background-color:cornsilk;" {% endif %}>
+                                {% if not model.compte_banque %}
+                                <div class="button" id="billet"><span class="mif-money"></span></div>
+                                {% endif %}
+                            </div>
+
+                </div>
+                <div class="col-md-6">
+                    <label>Devise</label>
+                    <div class="input-control text full-size">
+                        <select name="devise_id" class="form-control" style="border: none;" id="devise_id" data-validate-func="required" data-validate-hint="Entrez une devise !" {% if model.etat == "closed" %} readonly style="background-color:cornsilk;" {% endif %} >
+                            <option value="{{model.devise.id}}">{{model.devise.symbole_devise}}</option>
+
+                        </select>
+                    </div>
+    </div>
+
+                <div class="col-md-6">
+                    <label>Date operation</label>
+                    <div id="date_operation" class="input-control text full-size"  {% if model.etat != "closed" %} data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr" {% endif %}>
+                        <input readonly type="text" name="date_operation" value = "{{model.date_operation|date:'d/m/Y'}}" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez date_operation svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+
+                <div class="col-md-6">
+                    <label>Date comptable</label>
+                    <div id="date_comptable" class="input-control text full-size"  {% if model.etat != "closed" %} data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr" {% endif %}>
+
+                        <input readonly type="text" name="date_comptable" value = "{{model.date_comptable|date:'d/m/Y'}}" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez date_comptable svp.">
+
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+
+
+
+                <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="description" id="description" type="text" value="{{model.description}}" {% if model.etat == "closed" %} readonly style="background-color:cornsilk;" {% endif %}>
+                            </div>
+                            <br> <br> <br>
+                </div>
+
+
+                <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+                        <div class="row margin20 no-margin-left no-margin-right">
+                            <table id="tableau" class="table no-margin">
+                                <thead class="no-border">
+                                    <tr>
+                                        <th width="10%">Date</th>
+                                        <th width="15%">Libelle</th>
+                                        <th width="15%">Facture</th>
+                                        <th width="15%">Partenaire</th>
+                                        <th width="10%">Type d'opération</th>
+                                        <th width="15%">Montant</th>
+                                        <th width="15%">Motif</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items">
+                                    {% if ligne_operation.count > 0 %}
+                                    {% for ligne in ligne_operation %}
+                                    <input name="all_ligne_id" id="all_ligne_id{{forloop.counter}}" value = "{{ligne.id}}" type="hidden" autocomplete="off" >
+                                    <tr id="ligne{{forloop.counter}}">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <input id="id{{forloop.counter}}" type="hidden" name="article_id" value="0" />
+                                           <div id="date_ligne_operation{{forloop.counter}}" class="input-control text full-size"  {% if model.etat != "closed" or ligne.est_lettre %} data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr" {% endif %}>
+                                                <input readonly type="text" name="date_ligne_operation" value = "{{ligne.date_ligne_operation|date:'d/m/Y'}}" readonly
+                                                data-validate-func="required"
+                                                data-validate-hint="Precisez date de l'opération svp.">
+
+                                            <div class="button"><span class="mif-calendar"></span></div>
+                                        </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class=" input-control text full-size">
+                                                <input name="ligne_id" id="ligne_id{{forloop.counter}}" value = "{{ligne.id}}" type="hidden" autocomplete="off" >
+                                                <input name="libelle" id="libelle{{forloop.counter}}" type="text" value="{{ligne.libelle}}"
+                                                data-validate-func="required"
+                                                    data-validate-hint="Précisez le libelle svp" {% if model.etat == "closed" or ligne.est_lettre %} readonly style="background-color:cornsilk;" {% endif %}>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                    <select onchange="selectChange(event)" id="facture{{forloop.counter}}" name="facture">
+                                                    {% if ligne.facture %}
+                                                    <option value="{{ ligne.facture.id }}">{{ ligne.facture.numero_facture }}</option>
+                                                    {% else %}
+                                                        <option value="">Si le paiement est lié à une facture, selectionnez!</option>
+                                                    {% for item in factures %}
+                                                        <option value="{{ item.id }}">{{ item.numero_facture }}</option>
+                                                    {% endfor %}
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <div class="input-control select full-size">
+                                                        <select id="partenaire{{forloop.counter}}" name="partenaire" >
+                                                            {% if model.etat == "closed" or ligne.est_lettre %}
+                                                            <option value="{{ligne.partenaire.id}}">{{ligne.partenaire.nom_complet}}</option>
+                                                            {% else %}
+                                                        <option value="{{ligne.partenaire.id}}">{{ligne.partenaire.nom_complet}}</option>
+                                                        {% for item in partenaires %}
+                                                            <option value="{{ item.id }}">{{ item.nom_complet }}</option>
+                                                        {% endfor %}
+                                                        {% endif %}
+                                                    </select>
+                                                </div>
+                                            </td>
+
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <select id="type_operation_ligne{{forloop.counter}}" name="type_operation_ligne">
+                                                {% if model.etat == "closed" or ligne.est_lettre %}
+                                                <option value="{{ligne.type_operation}}">{{ligne.value_type_operation}}</option>
+                                                {% else %}
+                                                <option value="{{ligne.type_operation}}">{{ligne.value_type_operation}}</option>
+                                               <option value="1">Dépôt</option>
+                                                <option value="2">Retrait</option>
+                                                {% endif %}
+
+
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                        <div class=" input-control text full-size">
+                                            <input name="montant" id="montant{{forloop.counter}}" type="text" autocomplete="off" value="{{ligne.montant}}"
+                                                data-validate-func="number"
+                                                data-validate-arg="1"
+                                                data-validate-hint="Précisez le montant de l'opération svp" {% if model.etat == "closed" or ligne.est_lettre %} readonly style="background-color:cornsilk;" {% endif %}>
+                                        </div>
+                                    </td>
+
+                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                <input name="motif" id="motif{{forloop.counter}}" type="text" value="{{ligne.description}}"
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Précisez le motif svp" {% if model.etat == "closed" or ligne.est_lettre %} readonly style="background-color:cornsilk;" {% endif %}>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                {% if model.etat != "closed" %}
+                                                {% if not ligne.est_lettre %}
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne({{forloop.counter}})"><span class="mif-cross fg-red"></span></span>
+                                                {% endif %}
+                                                {% else %}
+                                                <span class="item" title="Imprimer la pièce de caisse" onclick="imprimerligne({{ligne.id}})"><span class="mif-print fg-red"></span></span>
+                                                {% endif %}
+                                                {% if ligne.est_lettre %}
+                                                <span class="item" style="float: right; width: 10px;"  title="Ligne lettrée"><span  class="mif-lock mif-micro fg-green"></span></span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr id="ligne1">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <input id="id1" type="hidden" name="article_id" value="0" />
+                                           <div id="date_ligne_operation1" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input readonly type="text" name="date_ligne_operation" readonly
+                                                data-validate-func="required"
+                                                data-validate-hint="Precisez date de l'opération svp.">
+                                            <div class="button"><span class="mif-calendar"></span></div>
+                                        </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class=" input-control text full-size">
+                                                <input name="ligne_id" id="ligne_id1" value = "0" type="hidden">
+                                                <input name="libelle" id="libelle1" type="text" placeholder=""
+                                                data-validate-func="required"
+                                                    data-validate-hint="Précisez le libelle svp">
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                    <select onchange="selectChange(event)" id="facture1" name="facture">
+                                                    <option value="">Si le paiement est lié à une facture, selectionnez!</option>
+                                                    {% for item in factures %}
+                                                        <option value="{{ item.id }}">{{ item.numero_facture }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <div class="input-control select full-size">
+                                                        <select id="partenaire1" name="partenaire">
+                                                        <option value="">Sélectionnez un partenaire</option>
+                                                        {% for item in partenaires %}
+                                                            <option value="{{ item.id }}">{{ item.nom_complet }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </td>
+
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <select id="type_operation_ligne1" name="type_operation_ligne">
+                                                <option value="1">Dépôt</option>
+                                                <option value="2">Retrait</option>
+
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                        <div class=" input-control text full-size">
+                                            <input name="montant" id="montant1" type="text" autocomplete="off" placeholder="Ex: 100"
+                                                data-validate-func="number"
+                                                data-validate-arg="1"
+                                                data-validate-hint="Précisez le montant de l'opération svp">
+                                        </div>
+                                    </td>
+
+                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                <input name="motif" id="motif1" type="text" placeholder=""
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Précisez le motif svp">
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                         </div>
+                                        </td>
+
+                                    </tr>
+                                    {% endif %}
+
+                                </tbody>
+                            </table>
+                            {% if model.etat != "closed" %}
+                            <div id="btn_ligne" class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                            </div>
+                            {% endif %}
+                            </div>
+
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+
+    <!-- Billeterie -->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogBillet">
+
+				<div class="row cells3 padding20" style="margin-top: 10px">
+					<h3>Billeterie</h3>
+					<div class="cells2">
+						<div id="formBilleterie" >
+                           <form method="POST" action="{% url 'module_comptabilite_post_add_billeterie_operation_budgetaire' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submitBillet" type="submit" style="display: none">
+                            <input name="operation_tresorerie_id" type="hidden" value={{model.id}}>
+                            <div class="row" id="resultBilleterie">
+							</div>
+							<div class="row margin20 no-margin-left no-margin-right">
+                                <table id="tableau_billeterie" class="table no-margin">
+                                    <thead class="no-border">
+                                        <tr>
+                                            <th width="30%">Nombre de Pièces/Billets</th>
+                                            <th width="35%">Valeur de la pièce/billet</th>
+                                            <th width="30%">Sous-total</th>
+                                            {% if model.etat != "closed" %}
+                                            <th width="5%"></th>
+                                            {% endif %}
+
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemsBillet">
+                                        {% if lignes_billeterie.count > 0 %}
+                                        {% for ligne in lignes_billeterie %}
+                                        <input name="all_ligne_billet_id" id="all_ligne_billet_id{{forloop.counter}}" value = "{{ligne.id}}" type="hidden" autocomplete="off" >
+                                        <tr id="ligneBillet{{forloop.counter}}">
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <div class=" input-control text full-size">
+                                                    <input name="ligne_billet_id" id="ligne_billet_id{{forloop.counter}}" value = "{{ligne.id}}" type="hidden" autocomplete="off" >
+                                                    <input name="billet" id="billet{{forloop.counter}}" type="text" autocomplete="off" value="{{ligne.billet}}" readonly
+                                                        data-validate-func="number"
+                                                        data-validate-arg="1"
+                                                        data-validate-hint="Précisez le billet svp">
+                                                </div>
+                                            </td>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class=" input-control text full-size">
+                                                <input name="valeur" id="valeur{{forloop.counter}}" type="text" autocomplete="off" value="{{ligne.valeur}}" readonly
+                                                    data-validate-func="number"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Précisez la valeur du billet svp">
+                                            </div>
+                                        </td>
+
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class=" input-control text full-size">
+                                                <input name="sous_total" id="sous_total{{forloop.counter}}" type="text" autocomplete="off" value="{{ligne.sous_total}}" readonly
+                                                    readonly
+                                                    data-validate-func="number"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Précisez le sous-total svp">
+                                            </div>
+                                        </td>
+
+                                            {% if model.etat != "closed" %}
+
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="pagination no-border">
+                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigneBillet({{forloop.counter}})"><span class="mif-cross fg-red"></span></span>
+                                             </div>
+                                            </td>
+                                            {% endif %}
+
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+
+
+                                        <tr id="ligneBillet">
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <div class=" input-control text full-size">
+                                                    <input name="ligne_billet_id" id="ligne_billet_id1" value = "0" type="hidden" autocomplete="off" >
+                                                    <input name="billet" id="billet1" type="text" autocomplete="off" value="0"
+                                                        onchange="MyCompute(1)"
+                                                        data-validate-func="number"
+                                                        data-validate-arg="1"
+                                                        data-validate-hint="Précisez le billet svp">
+                                                </div>
+                                            </td>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class=" input-control text full-size">
+                                                <input name="valeur" id="valeur1" type="text" autocomplete="off" value="0"
+                                                    onchange="MyCompute(1)"
+                                                    data-validate-func="number"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Précisez la valeur du billet svp">
+                                            </div>
+                                        </td>
+
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class=" input-control text full-size">
+                                                <input name="sous_total" id="sous_total1" type="text" autocomplete="off" value="0"
+                                                readonly
+                                                    data-validate-func="number"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Précisez le sous-total svp">
+                                            </div>
+                                        </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="pagination no-border">
+                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigneBillet(1)"><span class="mif-cross fg-red"></span></span>
+                                             </div>
+                                            </td>
+
+                                        </tr>
+                                        {% endif %}
+
+                                    </tbody>
+                                </table>
+                                {% if model.etat != "closed" %}
+                                <div id="btn_ligne_bitterie" class="row margin10 no-margin-left no-margin-right">
+                                    <button type="button" class="button small-button rounded" id="btnAjouterBillet">Ajouter une ligne</button>
+                                </div>
+
+                                </div><br>
+                                <strong style="float: right;color: grey;opacity: 0.9;margin-top: -30px;">Total Calculé: <span id="totalBilleterie" style="font-size: 20px!important;"></span></strong>
+                                {% endif %}
+							<hr style="background-color: #f7f5f5;">
+							<div class="row">
+								<button id="appliquerBtn" onclick="javascript:document.getElementById('submitBillet').click()" class="button small-button rounded primary chargement-au-click">Appliquer</button>
+								<!--button class="button small-button rounded" onclick="closeDialog('#dialogBillet')" style="margin-left: 5px">Annuler</!--button-->
+							</div>
+                        </div>
+                    </form>
+					</div>
+				</div>
+			</div>
+			<!-- Fin B -->
+</div>
+
+
+
+<script>
+
+var operation_tresorerie_id = '{{model.id}}'
+var operation_status = "{{model.etat}}"
+
+var lataille = 0;
+var latailleBillet = 0;
+var nombreLignes = 1;
+var compteur = 1;
+var nombreLignesBillet = 1;
+var compteurBillet = 1;
+
+{% for item in ligne_operation %}
+lataille +=1
+{% endfor %}
+
+{% for item in lignes_billeterie %}
+latailleBillet +=1
+{% endfor %}
+
+    console.log("taille",lataille);
+    if (lataille != 0) {
+            nombreLignes = lataille;
+            compteur = lataille;
+        }
+        if (latailleBillet != 0) {
+            nombreLignesBillet = latailleBillet;
+            compteurBillet = latailleBillet;
+        }
+
+
+
+
+$("#btnAjouterLigne").on("click", function () {
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+        nouvelleLigne += '<input name="article_id" id="id' + compteur + '" type="hidden" value="0" />';
+        nouvelleLigne += '<div id="date_ligne_operation'+compteur+'" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">';
+        nouvelleLigne += '<input readonly type="text" name="date_ligne_operation" readonly data-validate-func="required" data-validate-hint="Precisez date de l\'opération svp.">';
+        nouvelleLigne += '<div class="button"><span class="mif-calendar"></span></div></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        nouvelleLigne += '<input name="ligne_id" id="ligne_id'+compteur+'" value = "0" type="hidden">';
+        nouvelleLigne += '<input name="libelle" id="libelle'+compteur+'" type="text" placeholder="" data-validate-func="required" data-validate-hint="Précisez le libelle svp"></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne += '<select onchange="selectChange(event)" id="facture'+compteur+'" name="facture">';
+        nouvelleLigne += '<option value="">Si le paiement est lié à une facture, selectionnez!</option>{% for item in factures %}<option value="{{ item.id }}">{{ item.numero_facture }}</option>{% endfor %}</select></div></td>';
+
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne += '<select id="partenaire'+compteur+'" name="partenaire">';
+        nouvelleLigne += '<option value="">Sélectionnez un partenaire</option>{% for item in partenaires %}<option value="{{ item.id }}">{{ item.nom_complet }}</option>{% endfor %}</select></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        nouvelleLigne += '<select id="type_operation_ligne'+compteur+'" name="type_operation_ligne">'
+        nouvelleLigne += '<option value="1">Dépôt</option><option value="2">Retrait</option></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne+= '<input name="montant" id="montant'+compteur+'" type="text" placeholder="Ex: 100"  data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le montant svp"></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne+= '<input name="motif" id="motif'+compteur+'" type="text" placeholder=""  data-validate-func="required" data-validate-hint="Précisez le motif svp"></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border"><span class="item" title="Supprimer la ligne" onclick="supprimerLigne('+compteur+')"><span class="mif-cross fg-red"></span></span></div></td></tr>';
+
+        $("#items").append(nouvelleLigne);
+    });
+
+
+
+
+    function supprimerLigne(indice) {
+        nombreLignes--;
+        $("#ligne" + indice).remove();
+    }
+
+    // Dialogue Billeterie
+	function launchDialogBilleterie(id){
+		//$("#resultBilleterie").children().remove();
+
+		var dialog = $(id).data('dialog');
+		dialog.open();
+	}
+
+    $('#billet').on('click', function () {
+
+
+        //calcul de la somme
+        var somme = 0
+        for (var i = 1; i <= compteurBillet; i++) {
+            billet = $("#billet"+i).val();
+            valeur = $("#valeur"+i).val();
+
+            somme += parseFloat(billet) * parseFloat(valeur);
+        }
+        $("#totalBilleterie").text(somme);
+        console.log("gauche droite")
+        console.log(operation_status)
+
+
+
+        if (operation_status =="closed"){
+            console.log("non noin")
+            $("#appliquerBtn").hide();
+        }
+
+
+        //Ouverure du dialog avec quelques données dja
+        $("#dialogBillet")
+        .data('operation_status', operation_status)
+        .dialog("open");
+
+
+
+        //launchDialogBilleterie('#dialogBillet')
+})
+
+
+
+
+$("#btnAjouterBillet").on("click", function () {
+        nombreLignesBillet++;
+        compteurBillet++;
+        var nouvelleLigne = '<tr id="ligneBillet' + compteurBillet + '">';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne += '<input name="ligne_billet_id" id="ligne_billet_id'+compteurBillet+'" value = "0" type="hidden" autocomplete="off" >';
+        nouvelleLigne += '<input name="billet" id="billet'+compteurBillet+'" onchange="MyCompute('+compteurBillet+')" type="text" value="0" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le billet svp"></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne+= '<input name="valeur" id="valeur'+compteurBillet+'" type="text" onchange="MyCompute('+compteurBillet+')" value="0"  data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez la valeur du billet svp"></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne+= '<input name="sous_total" id="sous_total'+compteurBillet+'" type="text" value="0" readonly  data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le sous-total svp"></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border"><span class="item" title="Supprimer la ligne" onclick="supprimerLigneBillet('+compteurBillet+')"><span class="mif-cross fg-red"></span></span></div></td></tr>';
+
+        $("#itemsBillet").append(nouvelleLigne);
+    });
+
+    function supprimerLigneBillet(indice) {
+        nombreLignesBillet--;
+
+        $("#ligneBillet" + indice).remove();
+        compteurBillet--;
+        var somme = 0
+        for (var i = 1; i <= compteurBillet; i++) {
+            billet = $("#billet"+i).val();
+            valeur = $("#valeur"+i).val();
+
+            somme += parseFloat(billet) * parseFloat(valeur);
+        }
+
+        $("#totalBilleterie").text(somme);
+    }
+
+
+
+    function MyCompute(indice) {
+        var billet = $("#billet"+indice).val();
+        var valeur = $("#valeur"+indice).val();
+
+        var sous_total = billet * valeur;
+        $("#sous_total"+indice).val(sous_total);
+        console.log("sous total", sous_total);
+        var somme = 0;
+        console.log("compteur", compteurBillet)
+        for (var i = 1; i <= compteurBillet; i++) {
+            console.log("ici og")
+            billet = $("#billet"+i).val();
+            valeur = $("#valeur"+i).val();
+
+            somme += billet * valeur;
+        }
+        $("#totalBilleterie").text(somme);
+
+    }
+
+	// Fermer Boîte de dialogue
+	function closeDialog(id){
+        console.log("on est la")
+		var dialog = $(id).data('dialog');
+        console.log(dialog)
+		dialog.close();
+	}
+
+
+
+    var nombreItems = 0
+    function selectChange(event)
+        {
+            $select = $(event.target);
+            console.log("jsuis la dam,n")
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 7) == "facture")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length, 1);
+                console.log("la ligne actuelle",ligneActuelle)
+                if ((ligneActuelle === "")||(ligneActuelle === null)){
+                   ligneActuelle = 1;
+                }
+
+                if($("#" + id_element).val() != "")
+                {
+                    nombreItems += 1;
+                    var idFacture = parseInt($("#" + id_element).val());
+                    console.log("ID ARTICLE : " + idFacture);
+                    $.get(
+                        "{% url  'module_comptabilite_get_select_facture' %}",
+                        {ref : idFacture},
+                        function(data)
+                        {
+                            console.log("DATA " + data.id)
+                            if(data != null)
+                            {
+                                console.log("dqssdsdsds : ");
+
+                                $("#partenaire" + ligneActuelle).children().remove();
+                                $("#partenaire" + ligneActuelle).append("<option value='"+data.partenaire_id+"'>"+data.partenaire_name+"</option>");
+                                $("#type_operation_ligne" + ligneActuelle).children().remove();
+                                $("#type_operation_ligne" + ligneActuelle).append("<option value='"+data.type_id+"'>"+data.type_name+"</option>");
+                                $("#montant" + ligneActuelle).val(data.montant_restant);
+
+                            }
+                        },
+                        "json"
+                    );
+                }
+                else {nombreItems -= 1;
+                    $("#partenaire" + ligneActuelle).children().remove();
+                    $("#partenaire" + ligneActuelle).append('<option value="">Sélectionnez un partenaire</option>{% for item in partenaires %}<option value="{{ item.id }}">{{ item.nom_complet }}</option>{% endfor %}');
+                    $("#type_operation_ligne" + ligneActuelle).children().remove();
+                    $("#type_operation_ligne" + ligneActuelle).append('<option value="1">Dépôt</option><option value="2">Retrait</option>');
+                    $("#montant" + ligneActuelle).val(0);
+                }
+            }
+        }
+
+
+
+</script>
+
+<script>
+    
+        $('#cloture').on('click', function () {
+        Swal.fire({
+            title: 'Confirmation de clôture?',
+            text: "Voulez-vous procéder à la clôture ?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Clôturer!'
+        }).then((result) => {
+            if (result.value) {
+              javascript:window.location.assign('{% url 'module_comptabilite_closed_operationtresorerie' model.id %}');
+            }
+        })
+})
+
+
+    function imprimerligne(_id) {
+        console.log('mon id '+_id)
+        url = '{% url 'module_comptabilite_rapport_operationtresorerie' %}?ref=' + _id
+        newwindow = window.open(url, '', '_blank, height = 9000, width = 9000');
+        //newwindow.print()  
+    }
+
+    function imprimerAll(_id) {
+        console.log('mon id ' + _id)
+        url = '{% url 'module_comptabilite_get_rapport_operationtresorerie' %}?ref=' + _id
+        newwindow = window.open(url, '', '_blank, height = 9000, width = 9000');
+        //newwindow.print()
+    }
+</script>
+
+
+
+{% endblock %}

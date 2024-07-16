@@ -1,0 +1,400 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+		<style>
+			.progress {
+			position: relative;
+			padding: 0 1rem 0 3.5rem;
+			margin: 1rem 0 0;
+			list-style: none;
+			}
+
+			.progress__item {
+			position: relative;
+			min-height: 75px;
+			counter-increment: list;
+			padding-left: 0.5rem;
+			}
+			.progress__item:before {
+				content: "";
+				position: absolute;
+				left: -1.7rem;
+				top: 27px;
+				height: 60%;
+				width: 1px;
+				border-left: 1px solid #363B6D;
+			}
+			.progress__item:after {
+				content: counter(list);
+				position: absolute;
+				top: 0;
+				left: -2.5rem;
+				width: 26px;
+				height: 26px;
+				border-radius: 50%;
+				background: transparent;
+				color: #363B6D;
+				font-weight: 400;
+				font-size: 13px;
+				line-height: 1.5rem;
+				text-align: center;
+				border: 1px solid #363B6D;
+			}
+			.progress__item:last-child:before {
+			border: none;
+			}
+			.progress__item.progress__item--completed {
+			color: #363B6D;
+			}
+			.progress__item.progress__item--completed:after {
+			content: "\2713";
+			font-weight: 400;
+			background: #363B6D;
+			color: #fff;
+			}
+			.progress__item.progress__item--active:after {
+			background: #363B6D;
+			color: #fff;
+			}
+
+			.progress__title {
+				padding: 0rem 0rem;
+				margin: 0;
+				font-size: 15px;
+			}
+
+			.progress__info {
+				font-size: 11px;
+			}
+		</style>
+
+
+   <div class="row">
+		<ul class="breadcrumb">
+			<li><a><span class="mif-home"></span></a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_rh_list_employe' %}">Liste des employés</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_rh_detail_employe' model.id %}">Informations administratives sur {{ model.nom_complet | upper }}</a></li>
+			<li>{{ title }}</li>
+		</ul>
+	</div>
+
+	<div class="row">
+	   <div class="col-md-4">
+			<button onclick="javascript:window.location.assign('{% url 'module_rh_detail_employe' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="width: 100%;">Détails administratifs</button>
+		</div>
+		<div class="col-md-2">
+			<button onclick="javascript:window.location.assign('{% url 'module_rh_list_employe' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="width: 100%;">Annuler</button>
+			<!--button id="supprimer" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer</!button-->
+		</div>
+	</div>
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+	{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+	<div class="row">
+		<div class="col-md-6">
+			<div class="card-item item_employe" style="border-radius: 8px;">
+				<div class="profile-picture">
+					{% if model.image != None and model.image != "" %}
+						<img src="{% static model.image %}">
+					{% else %}
+						<img src="{% static 'ErpProject/image/user_profile.png' %}">
+					{% endif %}
+				</div>
+				<div class="title_item">
+					<h1>{{ model.nom_complet }}</h1> <br>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="card-item item_employe" style="border-radius: 8px;">
+				<div class="" style="margin: 5% 8% 5% 8%;">
+					<table style="width: 100%;">
+						<tr style="height: 60px;">
+							<td style="border-right: 1px solid #d2d2d2;border-bottom: 1px solid #d2d2d2;text-align: center;color: #d9d9d9;">
+								<strong class="strong_title"> Matricule </strong><br>
+								{{ model.profilrh.matricule }}
+							</td>
+							<td style="border-left: 1px solid #d2d2d2;border-bottom: 1px solid #d2d2d2;text-align: center;color: #d9d9d9;">
+								<strong class="strong_title"> Genre </strong> <br>
+								{% if model.profilrh.genre != None and model.profilrh.genre != "" %}
+									{{ model.profilrh.genre }}
+								{% else %}
+									-
+								{% endif %}
+							</td>
+						</tr>
+						<tr style="height: 60px;">
+							<td style="border-right: 1px solid #d2d2d2;border-top: 1px solid #d2d2d2;text-align: center;color: #d9d9d9;">
+								<strong class="strong_title"> Etat-civil </strong> <br>
+								{% if model.profilrh.etat_civil != None and model.profilrh.etat_civil != "" %}
+									{{ model.profilrh.etat_civil }}
+								{% else %}
+									-
+								{% endif %}
+							</td>
+							<td style="border-left: 1px solid #d2d2d2;border-top: 1px solid #d2d2d2;text-align: center;color: #d9d9d9;">
+								<strong class="strong_title"> IDENTIFICATION </strong> <br>
+								{% if model.profilrh.numero_identification != None and model.profilrh.numero_identification != "" %}
+									{{ model.profilrh.numero_identification }}
+								{% else %}
+									-
+								{% endif %}
+
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-12">
+			<div class="card-item item_employe" style="border-radius: 8px;">
+				<div class="row">
+					<div class="tabcontrol2" data-role="tabcontrol">
+						<ul class="tabs">
+							<li class="active"><a href="#frame_mouvement_employe">Mouvement</a></li>
+
+						</ul>
+						<div class="frames">
+							<div class="frame" id="frame_mouvement_employe" style="display: block;">
+								<table class="table no-margin">
+                                    <fieldset>
+                                        <!-- <legend>Mouvements employés</legend> -->
+                                        <thead class="no-border">
+                                            <tr>
+                                                <th width="20%">Référence</th>
+                                                <th width="20%">Type</th>
+                                                <th width="20%">Date</th>
+                                                <th width="20%">Observation</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {% for item in mobilite_employe %}
+                                            <tr class="table bordered border">
+                                                <td>
+													{{item.reference}}
+                                                </td>
+                                                <td>
+                                                    {{item.value_typeMobilite}}
+                                                </td>
+                                                <td>
+                                                    {{item.date_mobilite | date:"d/m/Y"}}
+                                                </td>
+                                                <td>
+                                                    {{item.observation }}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+
+                                    </fieldset>
+                                </table>
+                                <br><br><br>
+                                <div class="row p-b-30" style="margin-bottom: 50px;text-align: center;">
+                                    <button onclick="launchDialogOuverture()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="width: 50%;">Ajouter un mouvement</button>
+                                </div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Billeterie -->
+    <div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogOuverture">
+
+        <div class="row cells3 padding20" style="margin-top: 10px">
+            <h3>Ajouter un mouvement</h3>
+            <div class="cells2">
+                <div id="formBilleterie" >
+                   <form method="POST" action="{% url 'module_rh_post_add_mobilite_employe' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                    data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submitOuverture" type="submit" style="display: none">
+					<input type="hidden" name="employe_id" value="{{model.id}}"/>
+					<div class="row">
+						<div class="col-md-6" id="blocTypeMobilite">
+							<label>Type mouvement</label>
+								<div class="input-control select full-size" data-role="input" >
+									<select id="type_mobilite" name="type_mobilite" onchange="chooseTypeMobilite()" data-validate-func="min" data-validate-arg="1">
+										<option value="0">Sélectionnez un type de mouvement</option>
+										{% for item in types_mobilite %}
+											<option value="{{ item.id }}">{{ item.designation }}</option>
+										{% endfor %}
+									</select>
+								</div>
+						</div>
+						<div class="col-md-6" id="blocReference">
+							<label>Référence</label>
+							<div class="input-control text full-size" data-role="input" >
+								<input name="reference" id="reference" type="text" data-validate-func="required">
+							</div>
+						</div>
+					</div>
+
+                    <div class="row">
+						<div class="col-md-6" id="blocOrganisation" >
+							<label>Organisation</label>
+								<div class="input-control select full-size" data-role="input">
+									<select id="organisation_id" name="organisation_id" onchange="fill_postes()">
+										<option value="0">Sélectionnez une organisation</option>
+										{% for item in unites_fonctionnelles %}
+											<option value="{{ item.id }}">{{ item.libelle }}</option>
+										{% endfor %}
+									</select>
+								</div>
+						</div>
+						<div class="col-md-6" id="blocPoste">
+							<label>Poste</label>
+								<div class="input-control select full-size" data-role="input">
+									<select id="poste_id" name="poste_id">
+										<option value="0">Sélectionnez une organisation pour commencer</option>
+									</select>
+								</div>
+						</div>
+
+					</div>
+					<div class="row" >
+						<div class="col-md-6" id="blocClassification">
+							<label>Classification</label>
+								<div class="input-control select full-size" data-role="input">
+									<select id="classification_id" name="classification_id">
+										<option value="0">Sélectionnez une classification professionnele</option>
+										{% for item in classifications %}
+											<option value="{{ item.id }}">{{ item.designation }}</option>
+										{% endfor %}
+									</select>
+								</div>
+						</div>
+						<div class="col-md-6" id="blocCategorie">
+							<label>Catégorie</label>
+								<div class="input-control select full-size" data-role="input">
+									<select id="categorie_id" name="categorie_id">
+										<option value="0">Sélectionnez une catégorie</option>
+										{% for item in categories %}
+											<option value="{{ item.id }}">{{ item.designation }}</option>
+										{% endfor %}
+									</select>
+								</div>
+						</div>
+						<div class="col-md-6" id="blocDateMobilite">
+							<label>Date de la mobilité</label>
+							<div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+								<input readonly type="text" id="date_mobilite" name="date_mobilite" readonly value="{% now 'd/m/Y' %}"
+									data-validate-func="required"
+									data-validate-hint="Précisez la date de mobilité svp.">
+								<div class="button"><span class="mif-calendar"></span></div>
+							</div>
+						</div>
+						<div class="col-md-6" id="blocObservation">
+							<label>Observation</label>
+							<div class="input-control text full-size" data-role="input" >
+								<input name="observation" id="observation" type="text" data-validate-func="required">
+							</div>
+						</div>
+					</div>
+
+
+                    <hr style="background-color: #f7f5f5;">
+                    <div class="row">
+                        <button id="appliquerBtn" onclick="javascript:document.getElementById('submitOuverture').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Appliquer</button>
+                        <!--button class="button small-button rounded" onclick="closeDialog('#dialogBillet')" style="margin-left: 5px">Annuler</!--button-->
+                    </div>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+    <!-- Fin B -->
+
+
+
+<script>
+
+	$(document).ready(function(){
+		hideAll()
+        });
+
+	function hideAll(){
+			//$("#blocTypeMobilite").hide()
+            //$("#blocReference").hide()
+			$("#blocOrganisation").hide()
+			$("#blocPoste").hide()
+			$("#blocClassification").hide()
+			$("#blocCategorie").hide()
+			//$("#blocDateMobilite").hide()
+	}
+
+
+    function launchDialogOuverture(){
+        $("#dialogOuverture")
+        .dialog("open");
+	}
+
+	function fill_postes() {
+
+		var choixOrganisation = $("#organisation_id").val();
+
+		if (choixOrganisation !== ""){
+			showDialog("chargement");
+
+			$.get(
+				"{% url 'module_rh_get_json_poste_of_ou' %}",
+				{ref:choixOrganisation}
+				,
+				function (response) {
+					console.log(response)
+					$("#poste_id").children().remove();
+                    $("#poste_id").append("<option value='0'>Sélectionnez un poste</option>");
+
+					for (var i = 0; i < response.length; i++) {
+						var unposte = response[i];
+
+						var option = "<option value='" + unposte.id + "'>" + unposte.designation + "(" + unposte.localisation +") </option>";
+                        $("#poste_id").append(option);
+					}
+				showDialog("chargement");
+				},
+				"json"
+			);
+
+		}
+		console.log(est_projet)
+		console.log("jjs")
+
+
+
+
+	}
+
+	function chooseTypeMobilite(){
+		//On ne gère pas le type recrutement car cela est créé automatiquement à la création de l'employé
+		hideAll();
+		var choixTypeMobilite = $("#type_mobilite").val();
+
+		if(choixTypeMobilite == "2"){ //Promotion
+			$("#blocOrganisation").show()
+			$("#blocPoste").show()
+			$("#blocClassification").show()
+			$("#blocCategorie").show()
+		}else if(choixTypeMobilite == "3"){//Promotion
+			$("#blocOrganisation").show()
+			$("#blocPoste").show()
+		}else if(choixTypeMobilite == "4"){ //Detachement
+			$("#blocOrganisation").show()
+			$("#blocPoste").show()
+		}
+
+	}
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_immobilisations' %}">Liste des immobilisations</a></li>
+        <li>{{ title }}</li>
+</div>
+
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button rounded primary_color_{{module.name|lower}}">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_details_immobilisation' model.id %}')" class="button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row cells3 item-content" style="margin-top: 10px">
+        <form id="form" method="POST" action="{% url 'module_comptabilite_post_update_immobilisation' %}"
+            data-role="validator"
+            data-show-required-state="false"
+            data-hint-mode="line"
+            data-hint-background="bg-red"
+            data-hint-color="fg-white"
+            data-hide-error="5000"
+            novalidate="novalidate"
+            data-on-error-input="notifyOnErrorInput"
+            data-show-error-hint="false">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input type="hidden" name="ref" value="{{ model.id }}" >
+            <div class="row">
+                <label>Code de l'immobilisation</label>
+                <div class="input-control text full-size">
+                    <input type="text" name="code" id="code"
+                        data-validate-func="required" value="{{ model.code }}" readonly style="background-color: #d9d9d9;"
+                        data-validate-hint="Entrez le code de l'immobilisation svp." />
+                </div>
+                <label class="label">Immobilier</label>
+                <div class="input-control text full-size">
+                    <select name="immobilier_id" id="immobilier_id"
+                        data-validate-func="min"
+                        data-validate-arg="1" onchange="choix_immobilier()"
+                        data-validate-hint="Sélectionnez l'immobilier svp.">
+                        <option value="{{ model.immobilier_id }}"> {{ model.immobilier.numero_identification }} - {{ model.immobilier.article.designation }} </option>
+                    </select>
+                </div>
+                <label>Valeur d'acquisition</label>
+                <div class="input-control text full-size">
+                    <input name="valeur_acquisition" id="valeur_acquisition" type="text" placeholder="Ex: 100"
+                        data-validate-func="number" value="{{ model.valeur_acquisition }}"
+                        data-validate-hint="Précisez la valeur d'acquisition svp">
+                    <span class="prepend-icon" style="margin-left:75%">
+                        <span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole_devise }}</span>
+                    </span>
+                </div>
+                <label class="label">Date d'acquisition</label>
+                <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr" readonly>
+                    <input readonly type="text" name="date_acquisition" readonly
+                        data-validate-func="required" value='{{ model.date_acquisition|date:"d/m/Y" }}'
+                        data-validate-hint="Précisez la date d'acquisition svp.">
+
+                </div>
+                <label>Durée de vie (en année)</label>
+                <div class="input-control text full-size">
+                    <input name="duree_amortissement" id="duree_amortissement" type="text" placeholder="Ex: 5"
+                        data-validate-func="number" value="{{ model.duree_vie }}"
+                        data-validate-hint="Précisez la durée de l'immobilier svp">
+                    <span class="prepend-icon" style="margin-left:75%">
+                        <span style="margin-top: 1px;" class="sub-header place-right devise">ANS</span>
+                    </span>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        var lesImmobiliers = new Array();
+
+        {% for item in immobiliers %}
+            lesImmobiliers.push({id:"{{ item.id }}", designation:"{{ item.designation }}", valeur:parseFloat("{{ item.prix_unitaire }}").toPrecision(2)});
+        {% endfor %}
+    </script>
+    <script>
+        function choix_immobilier()
+        {
+            var valeur_immobilier = "0.00";
+            var immobilier_id = $("#immobilier_id").val();
+            if(immobilier_id != "0") {
+                for(var i = 0; i < lesImmobiliers.length; i++) {
+                    var immobilier = lesImmobiliers[i];
+                    if(immobilier.id == immobilier_id) {
+                        valeur_immobilier = immobilier.valeur;
+                        break;
+                    }
+                }
+            }
+
+            $("#valeur_acquisition").text(valeur_immobilier);
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,186 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+        <style>
+            #rapport th
+            {
+                text-align: center;
+                vertical-align: middle;
+            }
+            .title{
+                font-size: 17px;
+                font-weight: 800;
+            }
+        </style>
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <hr class="hr-ligne">
+        {% for model in bulletins %}
+        <div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr>
+                    <th width="30%">
+                        <div style="height: 200px;">
+                            <div class="row"  style="margin-bottom:9%;">
+                                <div class="col-md-6">
+                                    <img src="{% static organisation.image %}" style="height:100%;width:100%;">
+                                </div>
+                                <div class="col-md-6">
+                                    <strong style="font-size:20px;">ARPCE</strong> <br>
+                                    <strong style="font-size:15px;">B.P. 2490</strong> <br>
+                                    <strong style="font-size:15px;">Brazzaville</strong>
+                                </div>
+
+                            </div>
+                            <div  style="margin-bottom:10%;">Direction Générale</div>
+                            <div class="">Direction Admiistrative, Financière et Comptable <br>
+                            Siege ARPCE</div>
+                        </div>
+                    </th>
+                    <th width="40%">
+                        <div style="margin-bottom:4%;text-align: center;">
+                            <strong style="font-size:20px;">{{title}}</strong>
+                        </div>
+                    </th>
+                    <th width="30%" style="vertical-align: middle;">
+                        <strong style="font-size:15px;">Bulletin de paie Octobre 2019</strong><br>
+                        <br>
+                        <p>Période du: 01/10/2019</p>
+                        <p>Au: 31/10/2019</p>
+                    </th>
+                </tr>
+            </table>
+            <!-- <p class="align-center header">{{title}}</p> -->
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr style="border:0.5px solid #999999;">
+                    <div class="row" style="border:0.5px solid #999999;padding:1%;">
+                        <div class="col-md-4">
+                            <span>Nom et Prénom: <strong>{{ model.employe.nom_complet }}</strong></span><br>
+                            <span>Matricule CNSS: <strong>{{ model.employe.profilrh.numero_ss }}</strong></span><br>
+                            <span>Emploi:</span> <strong>{{ model.employe.poste.designation }}</strong><br>
+                            <span>Classification: <strong>{{ model.employe.categorie_employe }}</strong></span>
+                        </div>
+                        <div class="col-md-4">
+                            <span>Matricule: <strong>{{ model.employe.profilrh.matricule }}</strong></span><br>
+                            <span>Recruté(e) le: <strong>{{ model.employe.profilrh.date_engagement|date:"d/m/Y" }}</strong></span><br>
+                        </div>
+                        <div class="col-md-4">
+                            <span>Situation Matrimoniale: <strong>{{ model.employe.profilrh.etat_civil }}</strong></span><br>
+                            <span>Parts: <strong>{{ model.employe.nombre_parts }}</strong></span><br>
+                            <span>Nb Enfants: <strong>{{ model.employe.nombre_enfants }}</strong></span><br>
+                        </div>
+
+                    </div>
+                </tr>
+                <tr>
+                    <th width="10%">Code</th>
+                    <th width="15%">Lbellé</th>
+                    <th width="15%">Base</th>
+                    <th width="15%">Taux/NB</th>
+                    <th width="15%">Gain</th>
+                    <th width="20%">Retenue</th>
+                </tr>
+                {% for item in model.item_bulletins.all %}
+                    {% if item.rubrique.type_rubrique == 1 and item.rubrique.type_element == 1 and item.montant != 0.0 %}
+                    <tr>
+                        <td>{{ item.rubrique.code }}</td>
+                        <td>{{ item.designation }}</td>
+                        <td></td>
+                        <td></td>
+                        <td>{{ item.montant|monetary }}</td>
+                        <td></td>
+                    </tr>
+                    {% elif item.rubrique.reference == "SALBRUT" %}
+                    <tr>
+                        <td colspan="2"><strong>{{ item.designation }}</strong></td>
+                        <td></td>
+                        <td></td>
+                        <td><strong>{{ item.montant|monetary }}</strong></td>
+                        <td></td>
+                    </tr>
+                    {% elif item.rubrique.type_rubrique == 3 and item.rubrique.type_element == 1 and item.montant != 0.0 %}
+                    <tr>
+                        <td>{{ item.rubrique.code }}</td>
+                        <td>{{ item.designation }}</td>
+                        <td></td>
+                        <td></td>
+                        <td>{{ item.montant|monetary }}</td>
+                        <td></td>
+                    </tr>
+                    {% elif item.rubrique.type_element == 2 and item.montant != 0.0 %}
+                    <tr>
+                        <td>{{ item.rubrique.code }}</td>
+                        <td>{{ item.designation }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>{{ item.montant|monetary }}</td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                <tr>
+                    <th colspan="4" style="text-align:end;">TOTAUX</th>
+                    <th>{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "TOTGAIN" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</th>
+                    <th>{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "TOTRET" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</th>
+                </tr>
+                <tr>
+                    <th colspan="4" style="text-align:end;">Net à payer</th>
+                    <th colspan="2">{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "NETAPAY" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</th>
+                </tr>
+            </table>
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr>
+                    <div class="row" style="border:0.5px solid #999999;padding:1%;">
+                        <div class="col-md-3" style="vertical-align: middle;">
+                           Compte N°
+                        </div>
+                        <div class="col-md-9">
+                            <span>Virement bancaire </span> <br>
+                            <span>10000023584523 98</span> <br>
+                            <span>BANQUE CONGOLAISE DE l'HABITAT</span> <br>
+                        </div>
+                    </div>
+                </tr>
+            </table>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width:80%;">
+                <tr>
+                    <th>Cumul brut taxable</th>
+                    <th>Cumul cotisation retraite</th>
+                    <th>Cumul net taxe IRPP</th>
+                    <th>Cumul IRPP</th>
+                </tr>
+                <tr>
+                    <td>{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "CUMBRUTAX" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+                    <td>{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "CUMCOTRET" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+                    <td>{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "CUMNETIRPP" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+                    <td>{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "CUMIRPP" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+                </tr>
+                <tr>
+                    <th>Base des congés</th>
+                    <th>Nbre jours présence</th>
+                    <th>Jours Congés acquis</th>
+                </tr>
+                <tr>
+                    <td>{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "CUMBASCONGE" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+                    <td>{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "CUMPRESENCE" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+                    <td>{% for item in model.item_bulletins.all %}{% if item.rubrique.reference == "CUMJRSCONGES" %}{{ item.montant|monetary }}{% endif %}{% endfor %}</td>
+                </tr>
+            </table>
+            <br>
+            <br>
+
+        </div>
+        {% endfor %}
+
+    </body>
+</html>

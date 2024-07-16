@@ -1,0 +1,137 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} {% block page %} {%load static %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_list_departement' %}">Liste des departements</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>Nouvelle organisation</h3>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_get_upload_departement' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les organisations à partir excel</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_rh_list_departement' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_rh_list_departement' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+
+               <form id="form" method="POST" action="{% url 'module_rh_post_add_departement' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+
+                    <input id="submit" type="submit" style="display: none">
+                    <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                    <input id="type_id" name="type_id" type="text" value="{{ type_unite.id }}" style="display: none">
+                    <input id="type" name="type" type="text" value="" style="display: none">
+                    <br/>
+
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Libelle</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="libelle" type="text" data-validate-func="required" data-validate-hint="Entrez le libelle !">
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label>Code</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="code" type="text" data-validate-func="required" data-validate-hint="Entrez le libelle !">
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+
+            <div class="col-md-6">
+                    <label>Type</label>
+                    <div class="input-control text full-size">
+                        {% if type_unite %}
+                        <select name="type_id" id="type_id">
+                            <option value="{{ type_unite.id }}"> {{ type_unite.designation }} </option>
+                        </select>
+                        {% else %}
+                        <select name="type_id" id="type_id" data-validate-func="required">
+                        <option value="">Sélectionnez un type</option>
+                            {% for item in type_unite_fonctionnelles %}
+                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <label>Organisation parente</label>
+                    <div class="input-control text full-size">
+                        <select name="unite_fonctionnelle_id" id="unite_fonctionnelle_id">
+                            <option value="">Sélectionnez une organisation</option>
+                            {% for item in departements %}
+                                <option value="{{ item.id }}"> {{ item.libelle }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label>Responsable</label>
+                    <div class="input-control text full-size">
+                        <select name="responsable_id" id="responsable_id" disabled>
+                            <option value="0">Responsable en attente</option>
+                            {% for item in employes %}
+                                <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <label>Description</label>
+                    <div class="input-control text full-size">
+                        <textarea name="description" id="description">{{model.description}}</textarea>
+                    </div>
+                    <br><br><br><br>
+                </div>
+
+
+            </div>
+
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+{% endblock %}

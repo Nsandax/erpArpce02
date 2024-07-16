@@ -1,0 +1,130 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+
+{% block page %}
+
+    {%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_achat_tableau_de_bord' %}">Module Achat</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_achat_list_fournisseurs' %}">Liste des fournisseurs</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <button onclick="javascript:window.location.assign('{% url 'module_achat_update_fournisseur' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button>
+            <button class="theme-btn theme-btn-sm rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_achat_add_fournisseur' %}')" style="margin-left: 5px">Créer</button>
+
+            <button id="supprimer" class="theme-btn theme-btn-sm rounded" primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer</button>
+        </div>
+    </div>
+     {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_achat_add_fournisseur" url_detail="module_achat_details_fournisseur" csrf_token=csrf_token module=module type_doc="Etat de besoin" only %}
+    <hr class="hr-ligne" />
+    <br>
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12">
+            <div class="item-content">
+                <p class="header shadow" style="height: 100px; width: 100px;">
+                    {% if model.image != None and model.image != "" %}
+                        <img src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                    {% else %}
+                        <img src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                    {% endif %}
+                </p>
+                <p class="header">{{ model.nom_complet }}</p>
+                <p class="minor-header fg-gray">{% if model.est_particulier %} Est particulier {% else %} Est entreprise {% endif %}</p>
+                <p class="minor-header fg-gray">
+                    Adresse complète :
+                    <br>
+                    <span class="sub-alt-header fg-dark">{{ model.adresse_complete }}</span>
+                    <br>
+                    <br> Adresse email :
+                    <br> {% if model.email != None and model.email != "" %}
+                    <a href="mailto:{{ model.email }}" target="blank" class="sub-alt-header lien chargement-au-click">{{ model.email }}</a> {% else %}
+                    <span class="sub-alt-header lien chargement-au-click">-</span> {% endif %}
+                    <br>
+                    <br> Numéro de téléphone :
+                    <br> {% if model.phone != None and model.phone != "" %}
+                    <span class="sub-alt-header fg-dark">{{ model.phone }}</span> {% else %}
+                    <span class="sub-alt-header lien chargement-au-click">-</span> {% endif %}
+                    <br>
+                    <br> Compte comptable :
+                    <br> {% if model.compte != None and model.compte != "" %}
+                    <span class="sub-alt-header fg-dark">{{ model.compte.numero }} - {{ model.compte.designation}}</span> {% else %}
+                    <span class="sub-alt-header lien chargement-au-click">-</span> {% endif %}
+                    <br>
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function supprimer() {
+            var id = '{{model.id}}'
+            //-------deux variables pour la suppression---------------------------------
+            var modele = "Model_Fournisseur"
+            var the_url = "module_achat_list_fournisseurs"
+            // url de suppression ------------------------------------------------------
+            url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+            url = url.replace('100', id);
+            url = url.replace('nom_modele', modele);
+            url = url.replace('url_retour', the_url);
+            document.location.href = url;
+
+
+        }
+        $('#supprimer').on('click', function () {
+
+
+            Swal.fire({
+                title: 'Etes vous sure?',
+                text: "De vouloir supprimer cette item!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, Supprime le!'
+            }).then((result) => {
+                if (result.value) {
+                    supprimer();
+                    Swal.fire(
+                        'Supprimé!',
+
+                        'Votre Item est supprimé',
+                        'Avec Succes',
+                    )
+                }
+            })
+        })
+
+    </script>
+    <script>
+        //Script du droit supprimer
+        var lesactions = new Array();
+        var booleen = false;
+        {% for action in actions %}
+        lesactions.push({ droit: "{{ action.droit }}" });
+        {% endfor %}
+
+        $(document).ready(function () {
+
+            // Initialisation des sous-menus
+            $("#supprimer").hide();
+
+            for (var i = 1; i < lesactions.length; i++) {
+                act = lesactions[i];
+                if (act.droit === "CREER_RAPPORT") {
+                    booleen = true;
+                }
+            }
+
+            if (booleen) {
+                $("#supprimer").show();
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_projet_professionnel' %}">Liste de Mes Projets Professionnels</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_ressourceshumaines_add_projet_professionnel" url_detail="module_ressourceshumaines_detail_projet_professionnel" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row">
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_projet_professionnel' projet_professionnel.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+                        Modifier
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_projet_professionnel' %}')" class="theme-btn theme-btn-sm rounded " style="width: 20%;margin-left: 5px">Annuler</button>
+                    <button id="supprimer" class="theme-btn theme-btn-sm rounded danger" style="width: 20%;margin-left: 5px">Supprimer</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row padding20 no-padding-top no-padding-bottom" style="border-right: 1px solid #f7f5f5;">
+                                    <p>
+                                            Numero projet :
+                                            <br>
+                                            <span class="sub-alt-header">{{ projet_professionnel.numero_projet }}</span>
+                                            <br>
+                                            <br>
+
+            Description de mon projet professionnel :
+                    <br>
+                    <span class="sub-alt-header">{{ projet_professionnel.projet }}</span>
+                    <br>
+                    <br>
+
+            <!-- Employe id :
+                    <br>
+                    <span class="sub-alt-header">{{ projet_professionnel.employe_id }}</span>
+                    <br>
+                    <br> -->
+
+
+
+        </p>
+                                </div>
+                            </div>
+                        </div>
+<script>
+    function supprimer() {
+        var id = '{{projet_professionnel.id}}'
+        //-------deux variables pour la suppression---------------------------------
+        var modele = "Model_Projet_professionnel"
+        var the_url = "module_ressourceshumaines_list_projet_professionnel"
+        //------- url de suppression ------------------------------------------------
+        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+        url = url.replace('100', id);
+        url = url.replace('nom_modele', modele);
+        url = url.replace('url_retour', the_url);
+        document.location.href = url;
+
+
+    }
+    $('#supprimer').on('click', function () {
+
+
+        Swal.fire({
+            title: 'Etes vous sure?',
+            text: "De vouloir supprimer cette item!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer();
+                Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+
+</script>
+ <script>
+    //Script du droit supprimer
+    var lesactions = new Array();
+    var booleen = false;
+    {% for action in actions %}
+    lesactions.push({ droit: "{{ action.droit }}" });
+    {% endfor %}
+
+    $(document).ready(function () {
+
+        // Initialisation des sous-menus
+        $("#supprimer").hide();
+
+        for (var i = 1; i < lesactions.length; i++) {
+            act = lesactions[i];
+            if (act.droit === "CREER_RAPPORT") {
+                booleen = true;
+            }
+        }
+
+        if (booleen) {
+            $("#supprimer").show();
+        }
+    });
+</script>
+
+{% endblock %}}

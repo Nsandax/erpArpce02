@@ -1,0 +1,454 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_factures_fournisseur' %}">Liste des factures fournisseurs</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row only-on-small-screen">
+                        <h2 class="text-light no-margin-left">{{ title }}</h2>
+                    </div>
+
+                    <div class="row only-on-large-screen">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">
+                            Valider
+                        </button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_factures_fournisseur' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <div class="row only-on-small-screen">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_factures_fournisseur' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+
+                    <hr class="hr-ligne"><br>
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+                    <form id="form" method="POST" action="{% url 'module_comptabilite_validate_facture_avoir' %}"
+                        enctype="multipart/form-data"
+                        data-role="validator"
+                        data-show-required-state="false"
+                        data-hint-mode="line"
+                        data-hint-background="bg-red"
+                        data-hint-color="fg-white"
+                        data-hide-error="5000"
+                        novalidate="novalidate"
+                        data-on-error-input="notifyOnErrorInput"
+                        data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none"><br/>
+                        <input type="hidden" name="facture_mere_id" value="{{facture.id}}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Numéro de la facture</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="numero_facture" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Date de facturation</label>
+                                <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                    <input readonly type="text" name="date_facturation" readonly
+                                        data-validate-func="required"
+                                        data-validate-hint="Précisez la date de facturation svp.">
+                                    <div class="button"><span class="mif-calendar"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Fournisseur</label>
+                                <div class="input-control text full-size">
+                                    <select onchange="choix_fournisseur()" id="fournisseur_id" name="fournisseur_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez le fournisseur svp.">
+                                        <option value="{{ facture.fournisseur.id }}"> {{ facture.fournisseur.nom_complet }} </option>
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Bon de reception</label>
+                                <div class="input-control text full-size">
+                                    <select name="order_id" id="order_id" onchange="choix_bon()">
+                                        {% if facture.bon_reception == None or facture.bon_reception == '' %}
+                                            <option value="0"></option>
+                                        {% else %}
+                                            <option value="{{ facture.bon_reception.id }}">{{ facture.bon_reception.numero_reception }} </option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Document externe</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" readonly id="reference_document"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Document en attache</label>
+                                <div class="input-control text full-size">
+                                    <input id="document_upload" name="document_upload" type="file" >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Devise</label>
+                                <div class="input-control text full-size">
+                                    <select name="devise_id" class="form-control" style="border: none;" id="devise_id" onchange="choix_devise() " data-validate-func="min" data-validate-arg="1 " data-validate-hint="Sélectionnez la devise svp. ">
+                                        {% for item in devises %}
+                                            <option value="{{ item.id }} "> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Autres informations</label>
+                                <div class="input-control select full-size" data-role="input">
+                                    <input name="autres_infos" type="text" >
+                                </div>
+                            </div>
+                        </div>
+
+                        <br> <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+                        <div class="row margin20 no-margin-left no-margin-right">
+                            <!--table class="table no-margin">
+                                <thead class="no-border">
+                                    <tr>
+                                        <th class="no-padding-top no-padding-left no-padding-bottom" width="35%">Article</th>
+                                        <th width="20%">Quantité demandée</th>
+                                        <th width="20%">Prix unitaire</th>
+                                        <th width="25%">Prix total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items">
+                                </tbody>
+                            </table-->
+
+                            <div class="col-md-12" >
+                                <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                                    <thead>
+                                            <td class="head">ARTICLE</td>
+                                            <td class="head">QUANTITE</td>
+                                            <td class="head">PRIX UNITAIRE</td>
+                                            <td class="head">TAXE</td>
+                                            <td class="head">TOTAL</td>
+
+                                    </thead>
+
+                                    {% for ligne in lignes %}
+
+                                        <input type="hidden" name="article_id" value="{{ligne.article.id}}" />
+                                        <input name="quantite_demandee" type="hidden" value="{{ligne.quantite_demande}}">
+                                        <input type="hidden" name="prix_unitaire" value="{{ ligne.prix_unitaire }}">
+
+                                        <tr class="table bordered border">
+                                            <td class="td">{{ ligne.designation}}</td>
+                                            <td class="td">{{ ligne.quantite_demande }} {{ ligne.unite.symbole_unite }}</td>
+                                            <td class="td" align="right">{{ ligne.prix_unitaire }} {{ bon.devise.symbole_devise }}</td>
+                                            <td class="td" align="right">{{ ligne.ligne_montant_taxe }} {{ bon.devise.symbole_devise }}</td>
+                                            <td class="td" align="right">{{ ligne.total }} {{ bon.devise.symbole_devise }}</td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </table>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var deviseRef = "$";
+
+        var lesFournitures = new Array();
+        var lesFournisseurs = new Array();
+        var lesCategories = new Array();
+        var lesArticles = new Array();
+        var lesDevises = new Array();
+
+        {% for item in categories %}
+            lesCategories.push({id:"{{ item.id }}", designation:"{{ item.designation }}"});
+        {% endfor %}
+
+        {% for item in articles %}
+            lesArticles.push({id:"{{ item.id }}", designation:"{{ item.designation }}", code_article:"{{ item.code_article }}", categorie_id:"{{ item.categorie_id }}"});
+        {% endfor %}
+
+        {% for item in devises %}
+            lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+        {% endfor %}
+
+        {% for item in fournitures %}
+            {% if item.numero_reception != None and item.numero_reception != "" %}
+                lesFournitures.push({id:"{{ item.id }}", fournisseur_id:"{{ item.fournisseur_id }}", designation:"{{ item.numero_reception }} : {{ item.prix_total }} {{ item.devise.symbole_devise }}"});
+            {% else %}
+                lesFournitures.push({id:"{{ item.id }}", fournisseur_id:"{{ item.fournisseur_id }}", designation:"{{ item.prix_total }} {{ item.devise.symbole_devise }} du {{ item.date_reception|date:'d/m/Y' }}"});
+            {% endif %}
+        {% endfor %}
+
+        {% for item in fournisseurs %}
+            lesFournisseurs.push({id:"{{ item.id }}", nom_complet:"{{ item.nom_complet }}"});
+        {% endfor %}
+    </script>
+
+    <script>
+
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+        var bon = {};
+
+        $(document).ready(function(){
+            /*var etat_actuel_id = $('#etat_actuel_id').val();
+            if (etat_actuel_id == 0){
+                $("#tableau2").hide();
+            }
+            else{
+                $("#items").empty();
+                $("#tableau").hide();
+                $("#btn_ligne").hide();
+            }*/
+
+            $("#tableau2").hide();
+        });
+//      ********************* ITEM FACTURE *****************************
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="article_id" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article"><option value="0">Sélectionnez un article</option>';
+            nouvelleLigne += renvoyerOptionsArticles();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="prix' + compteur + '" name="prix_unitaire" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function selectChange(event)
+        {
+            $select = $(event.target);
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+                if($("#" + id_element).val() != "0")
+                {
+                    nombreItems += 1;
+                    var idArticle = parseInt($("#" + id_element).val());
+                    console.log("ID ARTICLE : " + idArticle);
+                    $.get(
+                        "{% url  'module_achat_article_prix' %}",
+                        {ref : idArticle},
+                        function(data)
+                        {
+                            console.log("DATA " + data.id)
+                            if(data != null)
+                            {
+                                $("#id" + ligneActuelle).val(data.id);
+                                $("#quantite" + ligneActuelle).val(1);
+                                $("#prix" + ligneActuelle).val(data.prix_unitaire);
+                                $("#unite" + ligneActuelle).text(data.symbole_unite);
+                                console.log("prix : " + data.prix_unitaire);
+                            }
+                        },
+                        "json"
+                    );
+                }
+                else nombreItems -= 1;
+            }
+        }
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            if($("#id" + indice).val() != "0")
+            {
+                fournitureLocal.supprimerLigne($("#id" + indice).val());
+            }
+            $("#ligne" + indice).remove();
+        }
+
+        function choix_devise()
+        {
+            var id_devise = $("#devise_id").val();
+            if(id_devise == "0") deviseRef = "$";
+            else
+            {
+                for(var i = 0; i < lesDevises.length; i++)
+                {
+                    var devise = lesDevises[i];
+                    if(devise.id == id_devise)
+                    {
+                        deviseRef = devise.symbole_devise;
+                        $(".devise").text(deviseRef);
+                        break;
+                    }
+                }
+            }
+        }
+
+        function renvoyerOptionsArticles()
+        {
+            var ligne = "";
+            var hasArticle = "0";
+            for(var i = 0; i < lesCategories.length; i++)
+            {
+                var categorie = lesCategories[i];
+                for(var j = 0; j < lesArticles.length; j++)
+                {
+                    var article = lesArticles[j];
+                    if(article.categorie_id == categorie.id)
+                    {
+                        hasArticle = "1";
+                        break;
+                    }
+                }
+                if(hasArticle == "1")
+                {
+                    ligne += '<optgroup label="' + categorie.designation + '">';
+                    for(var j = 0; j < lesArticles.length; j++)
+                    {
+                        var article = lesArticles[j];
+                        if(article.categorie_id == categorie.id)
+                        {
+                            ligne += '<option value="' + article.id + '"> [' + article.code_article + '] ' + article.designation + '</option>';
+                        }
+                    }
+                    ligne += '</optgroup>';
+                }
+            }
+            return ligne;
+        }
+
+//      ********************** FIN ITEM FACTURE ***************************
+
+        function choix_fournisseur()
+        {
+            //$("#items").children().remove();
+            var fournisseur_id = $("#fournisseur_id").val();
+            if(fournisseur_id != "0")
+            {
+                $("#order_id").children().remove();
+                $("#order_id").append('<option value="0">Sélectionnez le bon de commande</option>');
+
+                for(var i = 0; i < lesFournitures.length; i++)
+                {
+                    var fourniture = lesFournitures[i];
+                    if(fourniture.fournisseur_id == fournisseur_id)
+                    {
+                        var ligne = '<option value="' + fourniture.id + '">' + fourniture.designation + '</option>';
+                        $("#order_id").append(ligne);
+                    }
+                }
+            }
+            else placerOptionsFournitures();
+        }
+
+        function choix_bon()
+        {
+            var order_id = $("#order_id").val();
+            if(order_id != "0")
+            {
+                $("#items").children().remove();
+                for(var i = 0; i < lesFournitures.length; i++)
+                {
+                    var fourniture = lesFournitures[i];
+                    if(fourniture.id == order_id)
+                    {
+                        $("#fournisseur_id").val(fourniture.fournisseur_id);
+                        break;
+                    }
+                }
+
+                $.get("{% url 'module_achat_list_ligne_reception' %}",
+                    {ref : order_id},
+                    function(data)
+                    {
+                        if(data != null)
+                        {
+                            console.log(data);
+                            var lignes = data.lignes;
+                            console.log(lignes);
+                            for(var i = 0; i < lignes.length; i++)
+                            {
+                                    var ligne = lignes[i];
+                                    var total = parseFloat(ligne.prix_unitaire) * parseFloat(ligne.quantite_fournie);
+                                    if(ligne.prix_lot != 0) total = parseFloat(ligne.prix_lot);
+
+                                    var nouvelleLigne = '<tr class="table bordered border"><td>' + ligne.nom_article + '</td>';
+                                    nouvelleLigne += '<td>' + ligne.quantite_fournie + ' ' + ligne.symbole_unite + '</td>';
+                                    if(parseFloat(ligne.prix_unitaire) != 0)
+                                    {
+                                        nouvelleLigne += '<td>' + parseFloat(ligne.prix_unitaire).toFixed(2) + ' ' + data.symbole_devise + '</td>';
+                                    }
+                                    else nouvelleLigne += '<td> - </td>';
+                                    nouvelleLigne += '<td>' + total.toFixed(2) + ' ' + data.symbole_devise + '</td></tr>';
+
+                                    $("#items").append(nouvelleLigne);
+                            }
+                        }
+                        $("#reference_document").val(data.reference_document);
+                    },
+                    "json"
+                );
+            }
+            else $("#items").children().remove();
+        }
+
+        function placerOptionsFournitures()
+        {
+            $("#order_id").children().remove();
+            $("#order_id").append('<option value="0">Sélectionnez le bon de commande</option>');
+
+            for(var i = 0; i < lesFournitures.length; i++)
+            {
+                var fourniture = lesFournitures[i];
+                var ligne = '<option value="' + fourniture.id + '">' + fourniture.designation + '</option>';
+                $("#order_id").append(ligne);
+            }
+        }
+    </script>
+
+
+
+
+{% endblock %}

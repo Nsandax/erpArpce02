@@ -1,0 +1,50 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumbs2 small">
+        <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_categorie_clients' %}">Module Vente</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_categorie_clients' %}">Liste des catégories de clients</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_details_categorie_clients' model.id %}">{{ model.designation }}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_vente_details_categorie_clients' model.id %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+    </div>
+    
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+    <div class="row cells3 item-content" style="margin-top: 10px">
+        <div class="cell">
+            <form id="form" method="POST" action="{% url 'module_vente_post_update_categorie_clients' %}"
+                data-role="validator" 
+                data-show-required-state="false"
+                data-hint-mode="line"
+                data-hint-background="bg-red"
+                data-hint-color="fg-white"
+                data-hide-error="5000"
+                novalidate="novalidate"
+                data-on-error-input="notifyOnErrorInput"
+                data-show-error-hint="false">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+                <input name="ref" type="hidden" value="{{ model.id }}" >
+                <div class="row">
+
+                </div>
+                <div class="row">
+                    <label>Désignation</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="designation" value="{{ model.designation }}" type="text" data-validate-func="required" data-validate-hint="Entrez le nom de la categorie !">
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+                
+            </form>
+        </div>        
+    </div>
+{% endblock %}

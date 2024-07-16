@@ -1,0 +1,101 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_annee_fiscale' %}">Liste des années fiscales</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_annee_fiscale' %}')" class="theme-btn theme-btn-sm rounded">
+                            Annuler 
+                        </button>
+                    </div>
+                </div>   
+
+                <hr class="hr-ligne">
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+            <form id="form" method="POST" action="{% url 'module_comptabilite_post_update_annee_fiscale' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                             <input name="ref" type="hidden" value="{{ model.id }}">
+                            <div class="row">
+                    
+                <div class="col-md-6">
+                            <label>Désignation</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="designation" id="designation" type="text" data-validate-func="required" data-validate-hint="Entrez designation !" value = "{{model.designation}}">
+                            </div>
+                            
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Observation</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="observation" id="observation" type="text" data-validate-func="required" data-validate-hint="Entrez observation !" value = "{{model.observation}}">
+                            </div>
+                            
+                </div>
+            
+                <div class="col-md-6">
+                    <label>Date debut</label>
+                    <div id="date_debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_debut" value = "{{model.date_debut|date:'d/m/Y'}}" readonly
+                            data-validate-func="required" 
+                            data-validate-hint="Precisez date_debut svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+                
+                <div class="col-md-6">
+                    <label>Date fin</label>
+                    <div id="date_fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_fin" value = "{{model.date_fin|date:'d/m/Y'}}" readonly
+                            data-validate-func="required" 
+                            data-validate-hint="Precisez date_fin svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+                
+                <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                                <input value="1" name="est_active" id="est_active" checked type="checkbox">
+                                                <span class="check"></span>
+                                                <span class="caption">Est active</span>
+                                            </label>
+                            
+                </div>
+            
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+    
+{% endblock %}

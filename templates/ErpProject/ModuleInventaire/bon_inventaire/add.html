@@ -1,0 +1,234 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_list_bon_inventaire' %}">Ajustements de stock</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <button onclick="javascript:enregistrer_inventaire()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Démarrer l'inventaire</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_inventaire_list_bon_inventaire' %}')" class="theme-btn theme-btn-sm rounded" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <br>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+
+                    <form action="{% url 'module_inventaire_demarrer_bon_inventaire' %}" method="POST"
+                        data-role="validator"
+                        data-show-required-state="false"
+                        data-hint-mode="line"
+                        data-hint-background="bg-red"
+                        data-hint-color="fg-white"
+                        data-hide-error="5000"
+                        novalidate="novalidate"
+                        data-on-error-input="notifyOnErrorInput"
+                        data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+                        <input id="nombreLigne" type="hidden" value="0" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Référence de l'inventaire</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" id="numero"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez le numéro de l'ordere de fabrication svp." />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Document externe</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" id="reference_document"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Emplacement inventorié</label>
+                                <div class="input-control text full-size">
+                                    <select name="emplacement_id" id="emplacement_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez l'emplacement à inventorier svp.">
+                                        <option value="0">Sélectionnez un emplacement</option>
+                                        {% for item in emplacements %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div  class="col-md-6">
+                                <label>Date d'inventaire</label>
+                                <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy HH:MM" data-role="datepicker" data-locale="fr">
+                                    <input readonly type="text" id="date_realisation" readonly
+                                        data-validate-func="required"
+                                        data-validate-hint="Précisez la date d'inventaire' svp.">
+                                    <div class="button"><span class="mif-calendar"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Inventaire de</label>
+                                <div class="row">
+                                    <label class="input-control radio small-check">
+                                        <input value="0" name="inventaire_de" checked type="radio">
+                                        <span class="check"></span>
+                                        <span class="caption">Tous les articles</span>
+                                    </label><br>
+                                    <label class="input-control radio small-check" style="/*margin-left: 15px*/">
+                                        <input value="1" name="inventaire_de" type="radio">
+                                        <span class="check"></span>
+                                        <span class="caption">Une catégorie d'articles</span>
+                                    </label><br>
+                                    <label class="input-control radio small-check">
+                                        <input value="2" name="inventaire_de" type="radio">
+                                        <span class="check"></span>
+                                        <span class="caption">Un article seulement</span>
+                                    </label><br>
+                                    <!--label class="input-control radio small-check" style="/*margin-left: 15px*/">
+                                        <input value="3" name="inventaire_de" type="radio">
+                                        <span class="check"></span>
+                                        <span class="caption">Sélectionner les articles manuellement</span>
+                                    </label-->
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="article_inventorie">
+                                    <label>Article inventorié</label>
+                                    <div class="input-control text full-size">
+                                        <select name="article_id" id="article_id">
+                                            <option value="0">Sélectionnez un article </option>
+                                            {% for item in articles %}
+                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="categorie_inventorie">
+                                    <label>Catégorie inventoriée</label>
+                                    <div class="input-control text full-size">
+                                        <select name="categorie_id" id="categorie_id">
+                                            <option value="0">Sélectionnez une catégorie </option>
+                                            {% for item in categories %}
+                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/static/ErpProject/js/inventaire-local.js"></script>
+
+    <script>
+
+        $(document).ready(function(){
+
+             $("#categorie_inventorie").hide();
+             $("#article_inventorie").hide();
+
+            $("input[name='inventaire_de']").change(function(){
+                if($(this).val() == '0') {
+					$("#categorie_inventorie").hide();
+					$("#article_inventorie").hide();
+					$("#article_id").val('0');
+					$("#categorie_id").val('0');
+                } else if ($(this).val() == '1') {
+					$("#categorie_inventorie").show();
+					$("#article_inventorie").hide();
+					$("#article_id").val('0');
+                }else if ($(this).val() == '2') {
+					$("#categorie_inventorie").hide();
+					$("#article_inventorie").show();
+					$("#categorie_id").val('0');
+                }else if ($(this).val() == '3') {
+					$("#categorie_inventorie").hide();
+					$("#article_inventorie").hide();
+					$("#article_id").val('0');
+					$("#categorie_id").val('0');
+                }
+            });
+
+        });
+
+
+        function enregistrer_inventaire(){
+            var canPost = true;
+            var ordre = {
+                numero : "",
+                date_prevue : "",
+                date_realisation : "",
+                est_realisee : "",
+                article_id : 0,
+				emplacement_id : 0,
+				categorie_id : 0,
+                quantite_voulue : 0,
+                quantite_obtenue : 0,
+                inventoriste_id : 0,
+                reference_document : "",
+				inventaire_de : 0,
+                description : ""
+            };
+
+			if($("input[name='inventaire_de']:checked").val() == "2" && $("#article_id").val() == "0"){
+				canPost = false;
+				$.Notify({
+					caption: "Erreur",
+					content: "Veuillez sélectionner l'article à inventorier.",
+					type: "alert"
+				});
+			} else if ($("input[name='inventaire_de']:checked").val() == "1" && $("#categorie_id").val() == "0"){
+				canPost = false;
+				$.Notify({
+					caption: "Erreur",
+					content: "Veuillez sélectionner la catégorie à inventorier.",
+					type: "alert"
+				});
+			} else {
+				if($("#numero").val().length == 0) canPost = false;
+				else ordre.numero = $.trim($("#numero").val());
+
+				if($("#date_realisation").val().length == 0) canPost = false;
+				else ordre.date_realisation = $("#date_realisation").val();
+
+				if($("#emplacement_id").val() == 0 || $("#emplacement_id").val() == "0") canPost = false;
+				else ordre.emplacement_id = parseInt($("#emplacement_id").val());
+
+				ordre.reference_document = $("#reference_document").val();
+				ordre.article_id = parseInt($("#article_id").val());
+				ordre.categorie_id = parseInt($("#categorie_id").val());
+				ordre.inventaire_de = parseInt($("input[name='inventaire_de']:checked").val());
+
+				if(canPost == true)
+				{
+					inventaireLocal.ajouterInventaire(ordre);
+				}
+				document.getElementById('submit').click();
+			}
+        }
+
+    </script>
+{% endblock %}

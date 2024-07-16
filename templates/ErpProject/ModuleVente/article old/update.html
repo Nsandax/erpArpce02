@@ -1,0 +1,374 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <ul class="breadcrumbs2 small">
+        <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_articles' %}">Module Vente</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_articles' %}">Liste des articles achetables</a></li>
+        <li>{{ title }}</li>
+    </ul>
+
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary primary_color_{{ module.name|lower }}">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_vente_details_article' model.id %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+    </div>
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row item-content" style="margin-top: 10px">
+        <form id="form" method="POST" action="{% url 'module_vente_post_update_article' %}"
+			enctype="multipart/form-data"
+            data-role="validator"
+            data-show-required-state="false"
+            data-hint-mode="line"
+            data-hint-background="bg-red"
+            data-hint-color="fg-white"
+            data-hide-error="5000"
+            novalidate="novalidate"
+            data-on-error-input="notifyOnErrorInput"
+            data-show-error-hint="false">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input name="ref" type="hidden" value="{{ model.id }}">
+
+            <div class="row">
+                <table class="table no-margin">
+                    <tr>
+                        <td class="no-padding-left no-padding-bottom" width="35%">
+                            <input id="image_upload" name="image_upload" type="file" accept="image/*" style="display:none;">
+							<div class="tile-container">
+								<a onclick="$('input[id=image_upload]').click();" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+									<div class="tile-content slide-up" >
+										<div class="slide" >
+										{% if model.image != None and model.image != "" %}
+											<img id="image_preview" src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+										{% else %}
+											<img id="image_preview" src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+										{% endif %}
+										</div>
+										<div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+											<span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+										</div>
+									</div>
+								</a>
+							</div>
+                        </td>
+                        <td  class="no-padding-bottom" width="35%"></td>
+                        <td class="no-padding-bottom" width="30%"></td>
+                    </tr>
+                    <tr>
+                        <td class="no-padding-left no-padding-bottom" width="35%">
+                            <label>Code de l'article</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="code_article" id="code_article" value="{{ model.code_article }}"
+                                    data-validate-func="required"
+                                    data-validate-hint="Entrez le code de l'article svp." />
+                            </div>
+                        </td>
+                        <td  class="no-padding-bottom" width="35%">
+                            <label class="label">Désignation</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="designation" id="designation" value="{{ model.designation }}"
+                                    data-validate-func="required"
+                                    data-validate-hint="Entrez la désignation de l'article svp." />
+                            </div>
+                        </td>
+                        <td class="no-padding-bottom" width="30%"></td>
+                    </tr>
+                    <tr>
+                        <td class="no-padding-left no-padding-bottom" width="35%">
+                            <label>Type d'article</label>
+                            <div class="input-control text full-size">
+                                <select name="type_article" id="type_article"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le type d'article svp.">
+                                    <option value="0">Sélectionnez un type</option>
+                                    {% for item in types_article %}
+                                        <option {% if model.type_article == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                        <td class="no-padding-bottom" width="35%">
+                            <label>Catégorie</label>
+                            <div class="input-control text full-size">
+                                <select name="categorie_id" id="categorie_id"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez la catégorie svp.">
+                                    <option value="0">Sélectionnez une catégorie d'article</option>
+                                    {% for item in categories %}
+                                        <option {% if model.categorie_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                        <td class="no-padding-bottom" width="30%"></td>
+                    </tr>
+                    <tr>
+                        <td class="no-padding-left no-padding-bottom" width="35%">
+                            <label>Unité</label>
+                            <div class="input-control text full-size">
+                                <select onchange="choix_unite()" name="unite_id" id="unite_id"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez l'unité svp.">
+                                    <option value="0">Sélectionnez une unité</option>
+                                    {% for item in unites %}
+                                        <option {% if model.unite_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                        <td class="no-padding-bottom" width="35%">
+                            <label>Prix unitaire</label>
+                            <div class="input-control text full-size">
+                                <input name="prix_unitaire_article" id="prix_unitaire_article" value="{{ model.prix_unitaire }}"
+                                    type="text"
+                                    placeholder="Ex: 100"
+                                    data-validate-func="number"
+                                    data-validate-hint="Précisez le prix unitaire svp">
+                                <span class="prepend-icon" style="margin-left:75%">
+                                    <span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole_devise }}</span>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="no-padding-bottom" width="30%"></td>
+                    </tr>
+                    <tr>
+                        <td class="no-padding-top no-padding-left no-padding-bottom" width="35%">
+                            <div class="row">
+                                <label class="input-control checkbox small-check full-size">
+                                    <input value="1" name="est_achetable" id="est_achetable"
+                                        {% if model.est_achetable == True %}{{ "checked" }}{% endif %}
+                                        type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Peut être acheté</span>
+                                </label>
+                                <label class="input-control checkbox small-check full-size" >
+                                    <input value="1" name="est_manufacturable" id="est_manufacturable"
+                                        {% if model.est_manufacturable == True %}{{ "checked" }}{% endif %}
+                                        type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Est manufacturable</span>
+                                </label>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom" width="35%">
+                            <div class="row">
+                                <label class="input-control checkbox small-check full-size" >
+                                    <input value="1" name="est_commercialisable" id="est_commercialisable"
+                                        {% if model.est_commercialisable == True %}{{ "checked" }}{% endif %}
+                                        type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Peut être vendu</span>
+                                </label>
+                                <label class="input-control checkbox small-check full-size">
+                                    <input value="1" name="est_fabriquable" id="est_fabriquable"
+                                        {% if model.est_fabriquable == True %}{{ "checked" }}{% endif %}
+                                        type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Peut être fabriqué</span>
+                                </label>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom" width="30%"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="row">
+                <div class="tabcontrol2" data-role="tabcontrol">
+                    <ul class="tabs">
+                        <li class="active"><a href="#frame_autres_informations">Autres informations</a></li>
+                        <li class=""><a href="#frame_fourniture">Fourniture</a></li>
+                        <li class=""><a href="#frame_unite_achat">Unités d'achat de l'article</a></li>
+                    </ul>
+                    <div class="frames">
+                        <div class="frame" id="frame_autres_informations" style="display: block;">
+                            <div class="row cells3">
+                                <div class="cell">
+                                    <div class="row">
+                                        <label>Designation court</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input value="{{ model.designation_court }}" name="designation_court" id="designation_court" type="text" >
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <label>Code barre</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input value="{{ model.code_barre }}" name="code_barre" id="code_barre" type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="frame" id="frame_fourniture" style="display: none;">
+                            <table class="table no-margin">
+                                <thead class="no-border">
+                                    <tr>
+                                        <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Fournisseur</th>
+                                        <th width="20%">Quantité minimale</th>
+                                        <th width="25%">Prix unitaire</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items">
+                                    <tr id="ligne1">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <input id="id1" type="hidden" value="0" />
+                                            <div class="input-control select full-size">
+                                                <select onchange="selectChange(event)" name="fournisseur_id" id="item1">
+                                                    <option value="0">Sélectionnez un fournisseur</option>
+                                                    {% for item in fournisseurs %}
+                                                        <option value="{{ item.id }}">{{ item.nom_complet }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="quantite1" name="quantite_minimale" type="text" placeholder="Ex: 10">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right unite"></span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="prix1" name="prix_unitaire_fournisseur" type="text" placeholder="Ex: 100">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole_devise }}</span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                            </div>
+                        </div>
+                        <div class="frame" id="frame_unite_achat" style="display: none;">2</div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        function readURL(input) {
+			if (input.files && input.files[0]) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					$('#image_preview').attr('src', e.target.result);
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		}
+
+		$("#image_upload").change(function(){
+			readURL(this);
+		});
+        var lesFournisseurs = new Array();
+        var lesUnites = new Array();
+
+        {% for item in fournisseurs %}
+            lesFournisseurs.push({id:"{{ item.id }}", nom_complet:"{{ item.nom_complet }}"});
+        {% endfor %}
+
+        {% for item in unites %}
+            lesUnites.push({id:"{{ item.id }}", symbole_unite:"{{ item.symbole_unite }}"});
+        {% endfor %}
+    </script>
+    <script>
+        var deviseRef = "{{ devise_ref.symbole_devise }}";
+        var uniteRef = "";
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input id="id' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" name="fournisseur_id" >';
+            nouvelleLigne += '<option value="0">Sélectionnez un fournisseur</option>';
+            nouvelleLigne += renvoyerOptionsFournisseurs();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_minimale" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right unite"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="prix' + compteur + '" name="prix_unitaire_fournisseur" type="text" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function choix_unite()
+        {
+            var unite_id = $("#unite_id").val();
+            if(unite_id != "0")
+            {
+                for(var i = 0; i < lesUnites.length; i++)
+                {
+                    var unite = lesUnites[i];
+                    if(unite.id == unite_id)
+                    {
+                        uniteRef = unite.symbole_unite;
+                        break;
+                    }
+                }
+            }
+            else uniteRef = "";
+
+            $(".unite").text(uniteRef);
+        }
+
+        function selectChange(event)
+        {
+            $select = $(event.target);
+            var id_element = $select[0].id;
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+                if($("#" + id_element).val() != "0") nombreItems += 1;
+                else nombreItems -= 1;
+            }
+        }
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+
+        function renvoyerOptionsFournisseurs()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesFournisseurs.length; i++)
+            {
+                var fournisseur = lesFournisseurs[i];
+                ligne += '<option value="' + fournisseur.id + '">' + fournisseur.nom_complet + '</option>';
+            }
+            return ligne;
+        }
+    </script>
+{% endblock %}

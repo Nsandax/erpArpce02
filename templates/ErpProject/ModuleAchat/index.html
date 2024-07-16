@@ -1,0 +1,571 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %} {%load static %} {% load i18n %}
+<style type="text/css">
+    body {
+        background-color: grey !important;
+    }
+    #page-wrapper{
+        height: 100% !important;
+    }
+</style>
+<!-- vue du DashBoard Utilisateur -->
+<div class="row" style="padding-top: 30px">
+    <div class="col-lg-12">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "d/m/Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+
+            <!-- Appel de la fonction message -->
+            {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+            <!--Notification-->
+            <div class="panel" style="background-color:#f5f5f5;border: none;"></div>
+            {% if temp_notif_count > 0 %}
+            <div class="col-md-12" style="padding: 10px;">
+                {% for item in temp_notif_list %}
+                <div class="col-md-4" style="padding: 10px;">
+                    <div style="">
+                        <div class="mb-4 ">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                <div style="width: 100%;background-color: white;/*padding: 10px;">
+                                    <div style="padding: 10px;">
+                                        <strong class="sub-header"
+                                            style="margin: 10px;font-weight: 900;">Notification</strong>
+                                        <small style="margin-right:50">{{item.notification.created_at}}</small>
+                                        <button
+                                            onclick="javascript:window.location.assign('{% url 'module_achat_notification' item.id %}')"
+                                            type="button" class="ml-2 mb-1 close" data-dismiss="toast"
+                                            aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="separ"
+                                        style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;">
+                                    </div>
+
+                                </div>
+                                <div class="pt-4"
+                                    style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                    <p>
+                                        {{item.notification.text}}<br>
+
+                                        {% if item.notification.expression != None %}
+                                        Etat: {{item.notification.expression.etat}}<br>
+                                        {% endif %}
+
+                                        {% if item.notification.demande != None %}
+                                        Etat: {{item.notification.demande.etat}}<br>
+                                        {% endif %}
+
+                                        {% if item.notification.bon_reception != None %}
+                                        Etat: {{item.notification.bon_reception.etat}}<br>
+                                        {% endif %}
+                                    </p>
+
+                                </div>
+                                <div class="separ"
+                                    style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                <div style="padding: 15px;padding-top: 0px;">
+                                    {% if item.type_action == "Link" %}
+                                    <button class="btn rounded primary_color_{{module.name|lower}}"
+                                        onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button>
+                                    {% endif %}
+                                </div>
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <!--END Notification-->
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Header Bar pour le filtre-->
+
+                <div class="col-md-9">
+                    <div id="vue_G_chart_perfom" class="iconChart" style=" display: inline;margin-left:1%;">
+                        <i class="fa fa-sliders-h" style="font-weight:900;font-size:17px"></i>
+                        <span class="" style="font-weight:900;font-size:17px">ANNEE</span>
+                    </div>
+                    <div class="" style="display: inline; margin-left:1%;">
+                        <strong class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <select onchange="choix_year_()" class="champ" name="year" id="year"
+                                data-validate-func="min" data-validate-arg="1"
+                                data-validate-hint="Sélectionnez le responsable direct svp.">
+                                <option value="0">Sélectionnez une année</option>
+                                {% for item in year%}
+                                <option value="{{item}}">{{item}}</option>
+                                {% endfor%}
+                            </select>
+
+                        </strong>
+                    </div>
+                </div>
+                <!-- Header Bar pour le filtre-->
+            </div>
+        </div>
+
+        <!--Graphic -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel" style="background-color:#f5f5f5;border: none;">
+                    <div class="col-md-12" style="padding: 10px;">
+                        <div>
+                            <div class="mb-4">
+                                <div class="card-body">
+                                    <div class="chart-area item-dash" style="padding: 15px;background-color: white;">
+                                        <canvas id="myChart" width="400" height="100"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <!--End Graphic -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="panel panel-success p1"
+                    style="box-shadow: 0 3px 6px rgba(0,0,0,.1);border-radius: 10px;border-bottom: none;">
+                    <div class="panel-heading" style="background-color: transparent;color: white;">
+                        <div class="row">
+                            <div class="col-xs-10 text-left">
+                                <p class="graphic_number">
+                                    {{ TotalExpression }}
+                                </p>
+                                <div style="font-weight: 900;">
+                                    Expression de besoin Creée
+                                </div>
+
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <i class="fa fa-folder fa-2x" style="float:left;opacity: 0.3"></i>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-success p2"
+                    style="box-shadow: 0 3px 6px rgba(0,0,0,.1);border-radius: 10px;border-bottom: none;">
+                    <div class="panel-heading" style="background-color: transparent;color: white;">
+                        <div class="row">
+                            <div class="col-xs-10 text-left">
+                                <p class="graphic_number">{{ NombreExpressnionApprouve }}</p>
+                                <div style="font-weight: 900;">Expression de besoin Approuvée</div>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <i class="fa fa-thumbs-up fa-2x  bounce" style="float: left;opacity: 0.3"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-success p3"
+                    style="box-shadow: 0 3px 6px rgba(0,0,0,.1);border-radius: 10px;border-bottom: none;">
+                    <div class="panel-heading" style="background-color: transparent;color: white;">
+                        <div class="row">
+                            <div class="col-xs-10 text-left">
+                                <p class="graphic_number">{{ NombreExpressionArticleLivre }}</p>
+                                <div style="font-weight: 900;">Expression de besoin Livré</div>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <i class="fa fa-angle-double-right fa-2x" style="float: left;opacity: 0.3"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-success p4"
+                    style="box-shadow: 0 3px 6px rgba(0,0,0,.1);border-radius: 10px;border-bottom: none;">
+                    <div class="panel-heading" style="background-color: transparent;color: white;">
+                        <div class="row">
+                            <div class="col-xs-10 text-left">
+                                <p class="graphic_number">{{ NombreExpressionDemandeAchatGenere }}</p>
+                                <div style="font-weight: 900;">Demande d'achat Générée</div>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <i class="fa fa-share fa-2x" style="float: left;opacity: 0.3"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="tm-box-icon style-02 card-item" style="padding:2%;font-weight: 900;">Expression de besoin en cours</div>
+            <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                <thead>
+                    <tr class="table-light">
+                        <th>N°</th>
+                        <th>Periode</th>
+                        <th>etat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if ListExpBenCours %}
+                        {% for item in ListExpBenCours|slice:":5"%}
+                            <tr>
+                                <td><a class="lien chargement-au-click"
+                                        href="{% url 'module_achat_detail_expression' item.id %}">{{item.numero_expression}}</a>
+                                </td>
+                                <td>{{item.date_expression | date:"d-m-Y"}}</td>
+                                <td>
+                                    {{item.etat}}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="3" align="center">
+                            Pas de données disponibles
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="tm-box-icon style-02 card-item" style="padding:2%;font-weight: 900;">Expression de besoin Livrées</div>
+            <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                <thead>
+                    <tr class="table-light">
+                        <th>N°</th>
+                        <th>Periode</th>
+                        <th>etat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if Lesarticleslivre %}
+                        {% for item in Lesarticleslivre%}
+                            <tr>
+                                <td><a class="lien chargement-au-click"
+                                        href="{% url 'module_achat_detail_expression' item.id %}">{{item.numero_expression}}</a>
+                                </td>
+                                <td>{{item.date_expression | date:"d-m-Y"}}</td>
+                                <td>
+                                    {{item.etat}}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="3" align="center">
+                            Pas de données disponibles
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+<!-- Fin vue du DashBoard Utilisateur -->
+
+
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+
+<script>
+    var lesactions = new Array();
+    var booleen = false;
+    {% for action in actions %}
+    lesactions.push({ droit: "{{ action.droit }}" });
+    {% endfor %}
+
+    $(document).ready(function () {
+
+        // Initialisation des sous-menus
+        $("#admin_view").hide();
+        $("#user_view").hide();
+
+        for (var i = 1;i < lesactions.length;i++) {
+            act = lesactions[i];
+            if (act.droit === "CREER_RAPPORT") {
+                booleen = true;
+            }
+        }
+
+        if (booleen) {
+            $("#admin_view").show();
+        } else {
+            $("#user_view").show();
+        }
+    });
+
+    $(document).ready(function () {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [{
+                extend: 'copyHtml5',
+                text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                titleAttr: "Copier"
+            }, {
+                extend: 'excelHtml5',
+                text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                titleAttr: "Exporter en excel"
+            }, {
+                extend: 'csvHtml5',
+                text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                titleAttr: "Exporter en csv"
+            }, {
+                extend: 'pdfHtml5',
+                text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                titleAttr: "Exporter en pdf"
+            },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        });
+
+
+
+    });
+</script>
+
+<script>
+    var ctx;
+    var myChart;
+</script>
+
+<script>
+    ctx = document.getElementById('myChart').getContext('2d');
+    myChart1 = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            datasets: [{
+                label: 'Quantite Expression de besoin',
+                data: {{ ExpressionAuteurByM }},
+        // this dataset is drawn below
+        order: 1,
+        backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+    },
+
+        {
+            label: 'Quantite Expression de besoin',
+            data: {{ ExpressionAuteurByM }},
+
+        type: 'line',
+        // this dataset is drawn on top
+        order: 2,
+        backgroundColor: [
+        'rgba(255, 255, 255, 0.1)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)'
+    ],
+        borderColor: [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+    ],
+        borderWidth: 1
+                }
+            ],
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
+        options: {
+        scales: {
+            yAxes: [{
+                ticks: { beginAtZero: true }
+            }]
+        }
+    }
+    });
+</script>
+
+<script>
+    function choix_year_() {
+        var year = $("#year").val();
+        if (year != 0) {
+            $.get(
+                "{% url 'module_achat_tableau_de_bord_expression_ajax' %}", {
+                year: year
+            },
+                function (response) {
+                    console.log(response);
+
+                    var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            datasets: [{
+                                label: 'Quantite Expression de besoin',
+                                data: response[0],
+
+                                // this dataset is drawn below
+                                order: 1,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            },
+
+                            {
+                                label: 'Quantite Expression de besoin',
+                                data: response[0],
+
+                                type: 'line',
+                                // this dataset is drawn on top
+                                order: 2,
+                                backgroundColor: [
+                                    'rgba(255, 255, 255, 0.1)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }
+                            ],
+                            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+
+                    myChart1.destroy();
+                },
+                "json"
+            );
+        }
+        else {
+            myChart1 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    datasets: [{
+                        label: '',
+                        data: {{ ExpressionByMonth }},
+                // this dataset is drawn below
+                order: 1,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            },
+
+                {
+                    label: '',
+                    data: {{ ExpressionByMonth }},
+        type: 'line',
+            // this dataset is drawn on top
+            order: 2,
+                backgroundColor: [
+                    'rgba(255, 255, 255, 0.1)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                        borderWidth: 1
+    }
+                    ],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+            });
+
+
+        }
+
+    }
+</script>
+
+{% endblock %}

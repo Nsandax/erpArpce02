@@ -1,0 +1,127 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity:1;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_inventaire_add_article' %}')"
+                                class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                                Créer
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <div id="btn-view" data-role="group" data-group-type="one-state">
+                                <button id="btn-tree" onclick="javascript:window.location.assign('{% url 'module_inventaire_list_articles_stockables' %}?view=list')"
+                                    class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}">
+                                    <span class="mif-list"></span></button>
+                                <button id="btn-kanban" onclick="javascript:window.location.assign('{% url 'module_inventaire_list_articles_stockables' %}?view=kanban')"
+                                    class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}">
+                                    <span class="mif-apps"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+                    <!-- Vue de type list -->
+                    {% if view == "list" %}
+                    <div id="list-view" class="row" style="margin-top: 10px;">
+                        <table id="data_table" class="display nowrap border bordered striped"  style="width: 100%">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20px"></th>
+                                    <th>Référence</th>
+                                    <th>Designation</th>
+                                    <th>Prix de vente</th>
+                                    <th>Catégorie</th>
+                                    <th>Type d'article</th>
+                                    <th>Quantité en stock</th>
+                                    <th>Quantité prévue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in model %}
+                                    <tr>
+                                        <td>
+                                            <label class="small-check">
+                                                <input type="checkbox">
+                                                <span class="check"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <a class="lien chargement-au-click" href="{% url 'module_inventaire_details_article' item.id %}">{{ item.code_article }}</a>
+                                        </td>
+                                        <td> {{ item.designation }} </td>
+                                        <td> {{ item.separateur_prix_unitaire }} {{ devise_ref.symbole_devise }} </td>
+                                        <td> {{ item.categorie.designation }} </td>
+                                        <td>
+                                            {% for type_article in types_article %}
+                                                {% if type_article.id == item.type_article %}
+                                                    {{ type_article.designation }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td> {{ item.quantite_stock }} {{ item.unite.symbole_unite }}</td>
+                                        <td> {{ item.quantite_prevue }} {{ item.unite.symbole_unite }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                    {% elif view == "kanban" %}
+                        <!-- Vue de type card -->
+                        <div id="kanban-view" class="row" style="margin-top:10px;">
+                        {% for item in model %}
+                            <div class="col-md-4">
+                                <div class="shadow padding10 clearfix" style="margin-top: 10px; margin-bottom: 15px">
+                                    {% if item.image != None and item.image != "" %}
+                                        <img src="{% static item.image %}" style="height: 70px; width: 70px; float: left;">
+                                    {% else %}
+                                        <img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 70px; width: 70px; float: left;">
+                                    {% endif %}
+                                    <div style="padding-left: 80px;">
+                                        <span class="sub-header"><a class="lien chargement-au-click" href="{% url 'module_inventaire_details_article' item.id %}">{{ item.designation }}</a></span>
+                                        <br>
+                                        <span class="sub-alt-header">Prix : {{ item.separateur_prix_unitaire |monetary}} {{ devise_ref.symbole_devise }}</span>
+                                        <br>
+                                        <span class="sub-alt-header">Type :<span class="monetary">{{ item.value_type_article }}</span>
+                                        <br>
+                                        {% if item.est_achetable %}<span class="sub-alt-header"> Est achetable</span> {% endif %}
+                                        {% if item.est_vendable %} - <span class="sub-alt-header"> Est vendable</span> {% endif %}
+                                        {% if item.est_stockable %} - <span class="sub-alt-header"> Est stockable</span> {% endif %}
+                                        {% if item.est_amortissable %} - <span class="sub-alt-header"> Est amortissable</span> {% endif %}
+                                        {% if item.est_manufacturable %} - <span class="sub-alt-header"> Est manufacturable</span> {% endif %}
+                                        <br>
+                                        <br>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+<!-- Appel widget datatable -->
+{% include 'ErpProject/ErpBackOffice/widget/datatable.html' with type_view=view %}
+{% endblock %}

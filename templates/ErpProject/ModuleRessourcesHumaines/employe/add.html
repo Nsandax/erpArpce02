@@ -1,0 +1,1237 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} {% block page %}
+{%load static %}
+<script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+<link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a>
+        </li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_list_employe' %}">Liste des employés</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>Nouvel employé</h3>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row">
+                    <button id="go" onclick="javascript:document.getElementById('submit').click()"
+                        class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">
+                        Valider
+                    </button>
+                    <button
+                        onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_get_upload_employe' %}')"
+                        class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les employés à partir
+                        excel</button>
+                    <button
+                        onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_get_upload_dependant_employe' %}')"
+                        class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les dépendants à partir
+                        excel</button>
+                    <button
+                        onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_get_upload_mailing_employe' %}')"
+                        class="theme-btn theme-btn-sm rounded chargement-au-click">charger les emails à partir
+                        excel</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_rh_list_employe' %}')"
+                        class="theme-btn theme-btn-sm rounded ">Annuler</button>
+                </div>
+
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+                <form id="form" method="POST" action="{% url 'module_rh_post_add_employe' %}"
+                    enctype="multipart/form-data" data-role="validator" data-show-required-state="false"
+                    data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                    data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput"
+                    data-show-error-hint="false">
+                    {% csrf_token %}
+
+                    <input id="submit" type="submit" style="display: none">
+                    <input type="text" id="isPopup" name="isPopup" value="{{ isPopup }}" style="display: none">
+
+                    <br />
+
+                    <div id="rh_profil">
+                        <div class="row">
+                            <div style="margin-left:1%;font-weight:800;">PROFILE EMPLOYE</div>
+                            <table>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input id="image_upload" name="image_upload" type="file" accept="image/*"
+                                            style="display:none;">
+                                        <div class="tile-container">
+                                            <a onclick="$('input[id=image_upload]').click();" id="trigger-input-file"
+                                                href="#" class="tile-wide fg-white shadow"
+                                                style="height: 100px!important; width: 100px!important;"
+                                                data-role="tile">
+                                                <div class="tile-content slide-up">
+                                                    <div class="slide">
+                                                        <img id="image_preview"
+                                                            src="{% static 'ErpProject/image/user_profile.png' %}"
+                                                            style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                                    </div>
+                                                    <div class="slide-over op-dark padding10"
+                                                        style="text-align: center!important; opacity: 60%!important;">
+                                                        <span class="icon mif-pencil"
+                                                            style="text-align: center!important; font-size: 40px!important;"></span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                            </table>
+                            <div class="row">
+                                <div class="tabcontrol2" data-role="tabcontrol">
+                                    <ul class="tabs" style="position: relative;left: 0%;">
+                                        <li class="active"><a id="myCheck2" href="#frame_infopublic">Infos publiques</a></li>
+                                        <li class=""><a id="myCheck" href="#frame_infoperso">Infos personnelles</a></li>
+                                        <li class=""><a href="#frame_rh">Paramètre Banque</a></li>
+                                        <li class=""><a href="#frame_doc">Documents</a></li>
+                                        <li class=""><a href="#frame_adroit">Ayant-droits</a></li>
+                                    </ul>
+                                    <div class="frames">
+                                        <div class="frame" id="frame_infopublic" style="display: block;">
+                                            <table>
+                                                <h4>Identification de l'employé</h4>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Matricule</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input name="matricule" type="text">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Prénom</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input class="champ" id="prenom" name="prenom" type="text">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label>Nom</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input class="champ" id="nom" name="nom" type="text">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                    <br>
+                                                    <h4>Information de Contact</h4>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Lieu de travail</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <select class="champ" id="lieu_travail" name="lieu_travail"
+                                                                    data-validate-func="required" data-validate-arg="1"
+                                                                    data-validate-hint="Sélectionnez un lieu svp">
+                                                                    <option value="">Sélectionnez un lieu de travail</option>
+                                                                    {% for item in lieuTravail %}
+                                                                    <option value="{{ item.id }}"> {{ item.designation }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Email</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input class="champ" id="email" name="email"
+                                                                    type="email" data-validate-func="required"
+                                                                    data-validate-arg="1"
+                                                                    data-validate-hint="Entrez une adresse email valide svp !">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Tél. Personnel</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input class="champ" name="phone" type="text">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Tél. Professionnel 1</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input class="champ" name="phone_professionnel"
+                                                                    type="text">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Tél. Professionnel 2</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input class="champ" name="phone_bureau" type="text">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                            </table>
+                                            <table>
+                                                <h4>Poste</h4>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Organisation</label>
+                                                        <div class="input-control text full-size">
+                                                            <select class="champ" onchange="fill_account()"
+                                                                id="departement" name="departement"
+                                                                data-validate-func="required" data-validate-arg="1"
+                                                                data-validate-hint="Sélectionnez une organisation svp">
+                                                                <option value="">Sélectionnez une organisation</option>
+                                                                {% for item in departements %}
+                                                                <option value="{{ item.id }}"> {{ item.libelle }}
+                                                                </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Poste</label>
+                                                        <div class="input-control select full-size">
+                                                            <select class="champ" id="poste" name="poste"
+                                                                data-validate-func="min" data-validate-arg="1"
+                                                                data-validate-hint="Sélectionnez un poste svp">
+                                                                <option value="">Sélectionnez un poste</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Fonctions</label>
+                                                        <div class="input-control text full-size">
+                                                            <select class="ui search dropdown" multiple=""
+                                                                name="fonction" id="fonction">
+                                                                <option value="">Selectionnez les fonctions</option>
+                                                                {% for item in fonctions %}
+                                                                <option value="{{ item.id }}">{{ item.designation }}
+                                                                </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Catégorie salariale de l'employé</label>
+                                                        <div class="input-control text full-size">
+                                                            <select name="categorie_employe_id"
+                                                                id="categorie_employe_id">
+                                                                <option value="">Sélectionnez une categorie salariale
+                                                                </option>
+                                                                {% for item in categorie_employes %}
+                                                                <option value="{{item.id}}"> {{ item }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Contrat de Travail</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input name="contrat" type="text"
+                                                                placeholder="votre contrat de travail">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Categorie socio professionnelle</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <select name="categorie_socio_professionnelle"
+                                                                class="chosen-select"
+                                                                id="categorie_socio_professionnelle"
+                                                                data-validate-func="required" data-validate-arg="1"
+                                                                data-validate-hint="Selectionnez une categorie svp.">
+                                                                {% for item in categories %}
+                                                                <option value="{{item.id}}">
+                                                                    {{item.designation}}
+                                                                </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Sécurite Social</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input name="numero_ss" type="text"
+                                                                placeholder="numero CNSS">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Date de recrutement</label>
+                                                        <div id="date_engagement" class="input-control text full-size"
+                                                            data-format="dd/mm/yyyy" data-role="datepicker"
+                                                            data-locale="fr">
+                                                            <input readonly type="text" name="date_engagement" readonly
+                                                                data-validate-func="required"
+                                                                data-validate-hint="Précisez la Date de recrutement svp.">
+                                                            <div class="button"><span class="mif-calendar"></span></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Date Prise de Service</label>
+                                                        <div id="prisecharge" class="input-control text full-size"
+                                                            data-format="dd/mm/yyyy" data-role="datepicker"
+                                                            data-locale="fr">
+                                                            <input readonly type="text" name="prisecharge"
+                                                                readonly data-validate-func="required"
+                                                                data-validate-hint="Précisez la Date Prise de Service svp.">
+                                                            <div class="button"><span class="mif-calendar"></span></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Statut Employé</label>
+                                                        <div class="input-control text full-size">
+                                                            <select name="statutEmploye" class="chosen-select" id="statutEmploye"
+                                                                data-validate-func="required" data-validate-arg="1"
+                                                                data-validate-hint="Selectionnez le statut de l'employé svp.">
+                                                                {% for item in statuts %}
+                                                                    <option value="{{item.id}}">
+                                                                        {{item.designation}}
+                                                                    </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <!-- <input name="type_structure_id" id="type_structure_id" type="hidden"  value="0"> -->
+                                                        <label>Modèle Bulletin</label>
+                                                        <div class="input-control text full-size">
+                                                            <select name="modelbulletin" id="modelbulletin">
+                                                                <option value="0">Sélectionnez un modèle de bulletin</option>
+                                                                {% for item in bulletin_modeles %}
+                                                                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <!-- <div class="col-md-6">
+                                                         <input name="type_structure_id" id="type_structure_id" type="hidden"  value="0">
+                                                        <label>Type de Structure</label>
+                                                        <div class="input-control text full-size">
+                                                            <select name="typestructure" id="typestructure"
+                                                                    data-validate-func="min"
+                                                                    data-validate-arg="0"
+                                                                    data-validate-hint="Sélectionnez votre type de structure">
+                                                                    <option value="0">Sélectionnez votre type de structure</option>
+                                                                    {% for item in type_structure %}
+                                                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                    {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div> -->
+                                                </div>
+                                            </table>
+                                            <table>
+                                                <div class="row">
+                                                    <h4>Adresse Personnelle</h4>
+                                                    <div class="col-md-6">
+                                                        <div class="input-control select full-size" data-role="input">
+                                                            <select onchange="choix_pays()" id="choixPays"
+                                                                data-validate-func="min" data-validate-arg="1"
+                                                                data-validate-hint="Précisez le pays de l'employé svp !">
+                                                                <option value="">Sélectionnez un pays</option>
+                                                                {% for item in pays %}
+                                                                <option value="{{ item.id }}"> {{ item.designation }}
+                                                                </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="input-control select full-size" data-role="input">
+                                                            <select onchange="choix_province()" id="choixProvince"
+                                                                data-validate-func="min" data-validate-arg="1"
+                                                                data-validate-hint="Précisez la province ou département de l'employé svp !">
+                                                                <option value="0">Sélectionnez un département </option>
+                                                            </select>
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                        </td>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="input-control select full-size" data-role="input">
+                                                            <select onchange="choix_ville()" id="choixVille"
+                                                                data-validate-func="min" data-validate-arg="1"
+                                                                data-validate-hint="Précisez la ville de l'employé svp !">
+                                                                <option value="0">Sélectionnez une ville</option>
+                                                            </select>
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="input-control select full-size" data-role="input">
+                                                            <select name="commune_quartier_id" id="choixCommune"
+                                                                data-validate-func="min" data-validate-arg="1"
+                                                                data-validate-hint="Précisez un arrondissement svp !">
+                                                                <option value="0">Sélectionnez un arrondissement
+                                                                </option>
+                                                            </select>
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input name="adresse" type="text" placeholder="Rue...">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="frames">
+                                        <div class="frame" id="frame_infoperso" style="display: block;">
+                                            <table>
+                                                <h4>Naissance</h4>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Date de naissance</label>
+                                                        <div id="date_naissance" class="input-control text full-size"
+                                                            data-format="dd/mm/yyyy" data-role="datepicker"
+                                                            data-locale="fr">
+                                                            <input readonly type="text" name="date_naissance" readonly
+                                                                data-validate-func="required"
+                                                                data-validate-hint="Précisez la date d'engagement svp.">
+                                                            <div class="button"><span class="mif-calendar"></span></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Lieu de naissance</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input name="lieu_naissance" type="text">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </table>
+                                            <table>
+                                                <h4>Nationalite </h4>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Nationalite</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input class="champ" id="form7" name="nationalite"
+                                                                type="text" data-validate-func="required"
+                                                                data-validate-hint="Entrez la natiollité !">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>N° Carte Nationale d'Identité</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input id="form1" name="numero_identification" type="text"
+                                                                data-validate-hint="Entrez le numero de votre carte !">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>N° Passeport</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input id="form2" name="numero_passeport" type="text"
+                                                                data-validate-hint="Entrez le numero de passeport !">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </table>
+                                            <table>
+                                                <h4>Etat</h4>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Genre</label>
+                                                        <div class="input-control text full-size">
+                                                            <select name="genre" id="genre"
+                                                                data-validate-func="required"
+                                                                data-validate-hint="Sélectionnez le genre svp.">
+                                                                <option value="0">Selectionnez le genre</option>
+                                                                <option value="Masculin">Masculin</option>
+                                                                <option value="Feminin">Feminin</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Etat-civil</label>
+                                                        <div class="input-control text full-size">
+                                                            <select name="etat_civil" id="etat_civil"
+                                                                data-validate-func="required"
+                                                                data-validate-hint="Sélectionnez votre etat civil svp.">
+                                                                <option value="0">Selectionnez votre etat civil</option>
+                                                                <option value="Marié(e)">Marié(e)</option>
+                                                                <option value="Célibataire">Célibataire</option>
+                                                                <option value="Divorcé(e)">Divoré(e)</option>
+                                                                <option value="Veuf(ve)">Veuf(ve)</option>
+                                                                <option value="Union Libre">Union Libre</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Diplôme</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <select name="diplome" id="diplome"
+                                                                data-validate-func="min"
+                                                                data-validate-arg="1"
+                                                                data-validate-hint="Sélectionnez le type de diplôme obtenu.">
+                                                                <option value="0">Sélectionnez le diplôme obtenu</option>
+                                                                {% for item in diplome %}
+                                                                    <option value="{{item.id}}">{{item.designation}}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <input id="form4" name="situation_famille" type="hidden">
+                                                </div>
+                                                <!-- <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Niveau d'étude</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input name="education" type="text"
+                                                                placeholder="votre niveau d'étude">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                </div> -->
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="frames">
+                                        <div class="frame" id="frame_rh" style="display: block;">
+                                            <!-- New IDENTITE BANK UI -->
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <table class="table no-margin">
+                                                        <fieldset>
+                                                            <legend>Relevé d'Identité Bancaire</legend>
+                                                            <thead class="no-border">
+                                                                <tr>
+                                                                    <th width="15%">Banque</th>
+                                                                    <th width="5%">Code Guichet</th>
+                                                                    <th width="20%">Num Compte</th>
+                                                                    <th width="5%">Clé RIB</th>
+                                                                    <th width="20%">Libéllé</th>
+                                                                    <th width="10%">IBAN</th>
+                                                                    <th width="10%">BIC</th>
+                                                                    <th width="10%">Répartition (en %)</th>
+                                                                    <th width="5"></th>
+                                                                </tr>
+                                                            </thead>
+
+                                                            <tbody id="tbl_posts_bodyb">
+                                                                <tr id="grpa-1">
+                                                                    <td>
+                                                                        <div class="input-control select full-size">
+                                                                            <select id="banque_name-1" class="banque_name"
+                                                                                name="banque_name" data-validate-func="min"
+                                                                                data-validate-arg="1"
+                                                                                data-validate-hint="Sélectionnez une banque svp">
+                                                                                <option value="0">Sélectionnez une banque</option>
+                                                                                {% for item in banque %}
+                                                                                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="input-control text full-size">
+                                                                            <input name="code_guichet" id="code_guichet-1"
+                                                                            class="code_guichet" type="text" placeholder="code guichet">
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="input-control text full-size">
+                                                                            <input name="numero_compte" id="numero_compte-1"
+                                                                            class="numero_compte" type="text" placeholder="Numero-Compte">
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="input-control text full-size">
+                                                                            <input name="cle_rib" id="cle_rib-1"
+                                                                            class="cle_rib" type="text" placeholder="Clé Rib">
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="input-control text full-size">
+                                                                            <input name="titulaire_compte" id="titulaire_compte-1"
+                                                                            class="titulaire_compte" type="text" placeholder="titulaire compte">
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="input-control text full-size">
+                                                                            <input name="iban" id="iban-1"
+                                                                            class="iban" type="text" placeholder="IBAN">
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="input-control text full-size">
+                                                                            <input name="bic" id="bic-1"
+                                                                            class="bic" type="text" placeholder="BIC">
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="input-control text full-size">
+                                                                            <input name="repartition" id="repartition-1"
+                                                                            class="repartition" type="number" placeholder="repartition">
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="pagination no-border">
+                                                                            <span class="item delete-record" title="Supprimer la ligne" data-id="0"><span class="mif-cross fg-red"></span></span>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </fieldset>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <button type="button" class="theme-btn theme-btn-sm rounded" id="btnAjouterLigneBanque">Ajouter une ligne</button>
+                                                </div>
+                                            </diV>
+                                            <br><br><br>
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    <div class="input-control select full-size" data-role="input">
+                                                        <label>Mode de paiement</label><br>
+                                                        <select name="mode_paiement" id="mode_paiement"
+                                                            data-validate-func="required"
+                                                            data-validate-hint="Sélectionnez le mode de paiement svp.">
+                                                            <option value="0">Mode de paiement</option>
+                                                            <option value="virement">virement</option>
+                                                            <option value="cheque">Chèque</option>
+                                                            <option value="espece">Espèce</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="frames">
+                                        <div class="frame" id="frame_doc" style="display: block;">
+                                            <table>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Curriculum vitae</label>
+                                                        <div class="input-control text full-size">
+                                                            <input id="curriculum_vitae" name="curriculum_vitae"
+                                                                type="file" multiple
+                                                                accept="image/png, image/jpeg,.pdf,.docx" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Contrat de travail</label>
+                                                        <div class="input-control text full-size">
+                                                            <input id="contrat_travail" name="contrat_travail"
+                                                                type="file" multiple
+                                                                accept="image/png, image/jpeg,.pdf,.docx" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Diplômes</label>
+                                                        <div class="input-control text full-size">
+                                                            <input id="diplome_etude" name="diplome_etude" type="file"
+                                                                multiple accept="image/png, image/jpeg,.pdf,.docx" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label>Documents annexes</label>
+                                                        <div class="input-control text full-size">
+                                                            <input id="document_annexe" name="document_annexe"
+                                                                type="file" multiple
+                                                                accept="image/png, image/jpeg,.pdf,.docx" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="frames">
+                                        <div class="frame" id="frame_adroit" style="display: block;">
+                                            <table class="table no-margin">
+                                                <thead class="no-border">
+                                                    <tr>
+                                                        <th class="no-padding-top no-padding-left no-padding-bottom"
+                                                            width="30%">Prénom et nom</th>
+                                                        <th width="20%">Date de Naissance</th>
+                                                        <th width="20%">Lien de parenté</th>
+                                                        <th width="25%">Description</th>
+                                                        <th width="5%"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="items">
+                                                    <tr id="ligne1">
+                                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                            <div class="input-control text full-size">
+                                                                <input name="noms_ayant_droit" id="noms_ayant_droit1"
+                                                                    type="text" autocomplete="off">
+                                                            </div>
+                                                        </td>
+                                                        <td class="no-padding-top no-padding-bottom">
+                                                            <div class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                                <input name="birthday_ayant" id="birthday_ayant1" type="text" autocomplete="off" data-validate-func="required" data-validate-hint="Précisez la date d'engagement svp.">
+                                                                <div class="button"><span class="mif-calendar"></span></div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="no-padding-top no-padding-bottom">
+                                                            <div class="input-control text full-size">
+                                                                <input name="lien_parente" id="lien_parente1"
+                                                                    type="text" autocomplete="off">
+                                                            </div>
+                                                        </td>
+                                                        <td class="no-padding-top no-padding-bottom">
+                                                            <div class="input-control text full-size">
+                                                                <input name="description" id="description1" type="text"
+                                                                    autocomplete="off">
+                                                            </div>
+                                                        </td>
+                                                        <td class="no-padding-top no-padding-bottom">
+                                                            <div class="pagination no-border" style="display:none;">
+                                                                <span class="item" title="Supprimer la ligne"
+                                                                    onclick="supprimerLigne(1)"><span
+                                                                        class="mif-cross fg-red"></span></span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <div class="row margin10 no-margin-left no-margin-right">
+                                                <button type="button" class="theme-btn theme-btn-sm rounded"
+                                                    id="btnAjouterLigne">Ajouter une ligne</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- REPLIQUE TABLEAU -->
+        <table id="rib_table" class="table no-margin" style="display:none;">
+            <fieldset>
+                <thead class="no-border">
+                    <tr>
+                        <th width="15%">Banque</th>
+                        <th width="5%">Code Guichet</th>
+                        <th width="20%">Num Compte</th>
+                        <th width="5%">Clé RIB</th>
+                        <th width="20%">Libéllé</th>
+                        <th width="10%">IBAN</th>
+                        <th width="10%">BIC</th>
+                        <th width="10%">Répartition (en %)</th>
+                        <th width="5"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="grpa-1">
+                        <td>
+                            <div class="input-control select full-size">
+                                <select id="" class="banque_name"
+                                    name="banque_name" data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez une banque svp">
+                                    <option value="0">Sélectionnez une banque</option>
+                                    {% for item in banque %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="code_guichet" id=""
+                                class="code_guichet" type="text" placeholder="code guichet">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="numero_compte" id=""
+                                class="numero_compte" type="text" placeholder="Numero-Compte">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="cle_rib" id=""
+                                class="cle_rib" type="text" placeholder="Clé Rib">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="titulaire_compte" id=""
+                                class="titulaire_compte" type="text" placeholder="titulaire compte">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="iban" id=""
+                                class="iban" type="text" placeholder="IBAN">
+                            </div>
+                        </td>
+                        <td id="grpb-1">
+                            <div class="input-control text full-size">
+                                <input name="bic" id=""
+                                class="bic"  type="text" placeholder="BIC">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="repartition" id=""
+                                class="repartition" type="number" placeholder="repartition">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="pagination no-border">
+                                <span class="item delete-record" title="Supprimer la ligne" data-id="0"><span class="mif-cross fg-red"></span></span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </fieldset>
+        </table>
+    </div>
+</div>
+<script>
+    // Item menu lien vers autre pages
+    $(function () {
+        document.getElementById("myCheck").click()
+        document.getElementById("myCheck2").click()
+    })
+</script>
+<script>
+
+    // elimination de enter pour eviter les erreurs
+    window.addEventListener("keydown", checkey, false);
+    function checkey(key) {
+        if (key.keyCode == "13") {
+            key.preventDefault()
+        }
+    }
+
+</script>
+
+<!-- Upload Photo profile -->
+<script>
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#image_preview').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#image_upload").change(function () {
+        readURL(this);
+    });
+
+    function choix_pays() {
+        var idPays = $("#choixPays").val();
+
+        if (idPays != 0) {
+            showDialog("chargement");
+
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}",
+                { ref: idPays },
+                function (response) {
+                    $("#choixProvince").children().remove();
+                    $("#choixProvince").append("<option value='0'>Sélectionnez un département ou une province</option>");
+                    console.log(response);
+                    for (var i = 0;i < response.length;i++) {
+                        var laProvince = response[i];
+
+                        var option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                        $("#choixProvince").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        }
+        else supprimer_provinces();
+    }
+
+    function choix_province() {
+        var idProvince = $("#choixProvince").val();
+
+        if (idProvince != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}",
+                { ref: idProvince },
+                function (response) {
+                    $("#choixVille").children().remove();
+                    $("#choixVille").append("<option value='0'>Sélectionnez une ville</option>");
+
+                    for (var i = 0;i < response.length;i++) {
+                        var laVille = response[i];
+
+                        var option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                        $("#choixVille").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        }
+        else supprimer_villes();
+    }
+
+    function choix_ville() {
+        var idVille = $("#choixVille").val();
+
+        if (idVille != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}",
+                { ref: idVille },
+                function (response) {
+                    $("#choixCommune").children().remove();
+                    $("#choixCommune").append("<option value='0'>Sélectionnez un arrondissement</option>");
+
+                    for (var i = 0;i < response.length;i++) {
+                        var laCommune = response[i];
+
+                        var option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                        $("#choixCommune").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        }
+        else supprimer_communes();
+    }
+
+    function supprimer_communes() {
+        $("#choixCommune").children().remove();
+        $("#choixCommune").append("<option value='0'>Sélectionnez un arrondissement</option>");
+    }ligne
+
+    function supprimer_villes() {
+        $("#choixVille").children().remove();
+        $("#choixVille").append("<option value='0'>Sélectionnez une ville</option>");
+        supprimer_communes();
+    }
+
+    function supprimer_provinces() {
+        $("#choixProvince").children().remove();
+        $("#choixProvince").append("<option value='0'>Sélectionnez un département/option>");
+        supprimer_villes();
+    }
+</script>
+
+
+<script>
+    var lespostesfill = new Array();
+    var lesemployeesfill = new Array();
+    function fill_account() {
+
+        var choixDepartement = $("#departement").val();
+        var textchoixDepartement = $("#departement option:selected").text();
+
+        //$("#service_ref_id").children().remove();
+        //$("#service_ref_id").append("<option value='"+choixDepartement+"'>"+textchoixDepartement+"</option>");
+
+        console.log(choixDepartement)
+
+        if ((choixDepartement !== 0) || (choixDepartement !== -100)) {
+            showDialog("chargement");
+            console.log(choixDepartement)
+
+            $.get(
+                "{% url 'module_rh_get_poste_of_departement' %}",
+                { ref: choixDepartement }
+                ,
+                function (response) {
+                    console.log(response)
+                    $("#poste").children().remove();
+                    $("#poste").append("<option value='0'>Sélectionnez un poste</option>");
+                    $("#responsable_id").children().remove();
+                    $("#responsable_id").append("<option value='0'>Sélectionnez un responsable direct</option>");
+                    lespostesfill = [];
+                    thereponse = response[0];
+                    for (var i = 0;i < thereponse.length;i++) {
+                        var unposte = thereponse[i];
+                        lespostesfill.push({ id: unposte.id, designation: unposte.designation });
+
+                        var option = "<option value='" + unposte.id + "'>" + unposte.designation + "</option>";
+                        $("#poste").append(option);
+                    }
+                    thereponse = response[1];
+                    console.log(thereponse)
+                    for (var i = 0;i < thereponse.length;i++) {
+                        var unemploye = thereponse[i];
+                        console.log('emplue', unemploye.id)
+                        lesemployeesfill.push({ id: unemploye.id, nom_complet: unemploye.nom_complet });
+
+                        var option = "<option value='" + unemploye.id + "'>" + unemploye.nom_complet + "</option>";
+                        $("#responsable_id").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+
+        }
+        if (type_article === 2) { }
+
+    }
+</script>
+
+<script>
+    var lesarticlesfill = new Array();
+    var lataille = 1;
+    var nombreLignes = 1;
+    var nombreItems = 0;
+    var ligneActuelle = 0;
+    var compteur = 1;
+    var bon = {};
+
+    $("#btnAjouterLigne").on("click", function () {
+        console.log("clicked")
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+        nouvelleLigne += '<div class="input-control select full-size">';
+        nouvelleLigne += '<input name="noms_ayant_droit" id="noms_ayant_droit' + compteur + '" type="text" autocomplete="off" ></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr"><input name="birthday_ayant" id="birthday_ayant'+ compteur +'" type="text" data-validate-func="required" autocomplete="off" data-validate-hint="Précisez la date de naissance svp."><div class="button"><span class="mif-calendar"></span></div></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">'
+        nouvelleLigne += '<input name="lien_parente" id="lien_parente' + compteur + '" type="text" autocomplete="off" ></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom">';
+        nouvelleLigne += '<div class="input-control text full-size">';
+        nouvelleLigne += '<input id="description' + compteur + '" name="description" type="text">';
+        nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+        nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+        nouvelleLigne += '</div></td></tr>';
+
+        $("#items").append(nouvelleLigne);
+    });
+
+    function supprimerLigne(indice) {
+        nombreLignes--;
+        $("#ligne" + indice).remove();
+    }
+
+
+    function renvoyerOptionsArticles() {
+        var ligne = "";
+        for (var i = 0;i < lesarticlesfill.length;i++) {
+            var article = lesarticlesfill[i];
+
+            ligne += '<option value="' + article.id + '"> [' + article.code_article + '] ' + article.designation + '</option>';
+
+        }
+        return ligne;
+    }
+</script>
+
+<script>
+    function getAdress(id_, compteur) {
+        valeur = id_.value;
+        if (valeur == 0) {
+            $('#adresseb'+compteur).val("")
+        }
+        else{
+            showDialog("chargement");
+            $.get(
+                "{% url 'module_rh_getAdressBanque_json' %}",
+                { ref: valeur },
+                function (response) {
+                    console.log(response.adresse);
+                    $('#adresseb'+compteur).val(response.adresse);
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        }
+    }
+
+    var codeArray = ["0", "000000", "0", "000", "XX", "X", "00"];
+    var codeLen = codeArray.length;
+    var choosefoction = false;
+    $(document).ready(function () {
+        var code = "";
+        for (i = 0;i < codeLen;i++) {
+            if (i == 0) {
+                code += codeArray[i];
+            } else {
+                code += "." + codeArray[i];
+            }
+        }
+        $('#code').val(code);
+
+    });
+
+    function choix_fonction() {
+        if (!choosefoction) {
+            var texte = "000000";
+            var valeur = $("#fonction").val();
+            if (valeur != 0) {
+                texte = $("#fonction option:selected").text();
+                choosefoction = true;
+            }
+            codeArray[1] = texte;
+            refresh_code();
+        }
+    }
+</script>
+
+<script>
+    // cette fonction permet de faire en sorte que le select multiple apparaisse comme un input simple
+    $(function () {
+        $('.chosen-select').chosen();
+        $('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+    });
+</script>
+
+<!-- BANQUE -->
+<!-- <script>
+    var nombreLignesb = 1;
+    var compteur_b = 1;
+    $("#btnAjouterLigneBanque").on("click", function () {
+            nombreLignes++;
+            compteur_b++;
+            var nouvelleLigne = '<tr id="ligneb' + compteur_b + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="banque_id" id="id' + compteur_b + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input id="stockb' + compteur_b + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="getAdress(this,'+ compteur_b +')" id="itemb' + compteur_b + '" name="itemb" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectiornnez une banque"><option value="0">Sélectionnez une banque</option>';
+            nouvelleLigne +=  '{% for item in banque %}<option value="{{ item.id }}"> {{ item.designation }} </option>{% endfor %}'
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="adresseb' + compteur_b + '" name="adresse_banque"';
+            nouvelleLigne += '>';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="numero_compte' + compteur_b + '" name="numero_compte" type="text">';
+            nouvelleLigne += '</span></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="repartition' + compteur_b + '" name="repartition" type="number">'
+            nouvelleLigne += '</span></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigneBanque(' + compteur_b + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function supprimerLigneBanque(indice) {
+            nombreLignesb--;
+            $("#ligneb" + indice).remove();
+        }
+
+        function renvoyerOptionsBanque()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesarticlesfill.length; i++)
+            {
+                var article = lesarticlesfill[i];
+
+                ligne += '<option value="' + article.id + '"> [' + article.code_article + '] ' + article.designation + '</option>';
+
+            }
+            return ligne;
+        }
+
+</script> -->
+
+
+<!-- RIB -->
+<script>
+    var _index = 1;
+    $(document).ready(function(){
+        $(document).delegate('#btnAjouterLigneBanque', 'click', function(e) {
+            e.preventDefault();
+            var content = $('#rib_table > tbody > tr');
+            _index++;
+            element = null;
+            element = content.clone();
+            element.attr('id', 'grpa-'+_index);
+            element.attr('id', 'grpb-'+_index);
+
+            element.find('.delete-record').attr('data-id', _index);
+            element.appendTo('#tbl_posts_bodyb');
+            //Initialiser les IDS
+            element.find('.banque_name').attr('id', 'banque_name-'+_index);
+            element.find('.code_guichet').attr('id', 'code_guichet-'+_index);
+            element.find('.numero_compte').attr('id', 'numero_compte-'+_index);
+            element.find('.cle_rib').attr('id', 'cle_rib-'+_index);
+            element.find('.titulaire_compte').attr('id', 'titulaire_compte-'+_index);
+            element.find('.iban').attr('id', 'iban-'+_index);
+            element.find('.bic').attr('id', 'bic-'+_index);
+            element.find('.repartition').attr('id', 'repartition-'+_index);
+
+        });
+
+        $(document).delegate('.delete-record', 'click', function(e) {
+				e.preventDefault();
+				var didConfirm = confirm("Etes-vous sûr de vouloir supprimer cette ligne");
+				if (didConfirm == true) {
+					var id = $(this).attr('data-id');
+                    console.log('Identifiant-1'+' '+id);
+					// $('#rec-' + id).remove();
+                    $('#grpa-'+ id).remove();
+                    $('#grpb-'+ id).remove();
+                    console.log('Identifiant-2'+' '+id);
+					return true;
+				} else {
+					return false;
+				}
+			});
+    });
+</script>
+
+{% endblock %}

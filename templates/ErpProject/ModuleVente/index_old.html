@@ -1,0 +1,133 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <ul class="breadcrumbs2 small">
+		<li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+		<li>{{ title }}</li>
+    </ul>
+
+	<hr class="hr-ligne" />
+
+	<div class="container item-content">
+		<!--div class="row" style="display:block; height: 300px; /*background-image: url('/static/ErpProject/image/upload/organisation/cover.jpg'); background-size: 100% 100%; background-position: center*/"></div-->
+		<div class="row padding30 no-padding-left no-padding-right erp-hidden">
+			<div class="tile-container">
+					<a href="{% url 'module_ressources_humaines_list_employes' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/accueil/ModuleRessouceHumaine/employe.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Employés</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_ressources_humaines_list_departements' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/accueil/ModuleRessouceHumaine/departement.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Départements</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_ressources_humaines_report' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/accueil/ModuleRessouceHumaine/presence.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Presences</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_ressources_humaines_list_postes' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/accueil/ModuleRessouceHumaine/poste.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Postes</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_ressources_humaines_configuration' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/accueil/ModuleRessouceHumaine/parametre.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Paramètrage</span>
+							</p>
+						</div>
+					</a>
+			</div>
+		</div>
+		<div class="row">
+			<div class="tabcontrol2" data-role="tabcontrol">
+				<ul class="tabs">
+					<li class="active"><a href="#frame_business_explorer">Facturation</a></li>
+					<li class=""><a href="#frame_employee_service">Vente</a></li>
+					<!-- <li class=""><a href="#frame_manager_service">Rapport</a></li> -->
+				</ul>
+
+				<div class="frames">
+					<div class="frame" id="frame_business_explorer" style="display: block;">
+						<div class="row cells4" style="margin-top: 20px">
+							<div class="cell">
+								<div class="row">
+									<div class="card" style="margin-right: 10px; height: 200px;">
+										<img class="card-img-top" src="{% static 'ErpProject/image/rh4.jpg' %}" alt="Card image cap" height="90px">
+										<ul class="list-group list-group-flush">
+											<li class="list-group-item"><h5 class="card-title"><a href="{% url 'module_vente_list_factures'%}">Factures Clients</a></h5></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="frames">
+					<div class="frame" id="frame_employee_service" style="display: block;">
+						<div class="row cells4" style="margin-top: 20px">
+							<div class="cell" >
+								<div class="row">
+									<div class="card" style="margin-right: 10px; height: 200px;">
+										<img class="card-img-top" src="{% static 'ErpProject/image/rh1.jpg' %}" alt="Card image cap">
+										<ul class="list-group list-group-flush">
+											<li class="list-group-item"><h5 class="card-title"><a href="{% url 'module_vente_list_commande' %}">Vente directe</a></h5></li>
+											<!-- <li class="list-group-item">Mon profil</li> -->
+										</ul>
+									</div>
+								</div>
+							</div>
+							<div class="cell">
+								<div class="row">
+									<div class="card" style="margin-right: 10px; height: 200px;">
+										<img class="card-img-top" src="{% static 'ErpProject/image/shopping.png' %}" alt="Card image cap">
+										<ul class="list-group list-group-flush">
+											<li class="list-group-item"><h5 class="card-title"><a href="{% url 'module_vente_list_commande' %}">Vente avec livraison</a></h5></li>
+											<!-- <li class="list-group-item">Arpce Learning</li> -->
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="frames">
+					<div class="frame" id="frame_manager_service" style="display: block;">
+						<div class="row cells4" style="margin-top: 20px">
+							<div class="cell" >
+								<div class="row">
+									<div class="card" style="margin-right: 10px; height: 200px;">
+										<img class="card-img-top" src="{% static 'ErpProject/image/rh7.jpg' %}" alt="Card image cap">
+										<ul class="list-group list-group-flush">
+											<li class="list-group-item"><h5 class="card-title"><a href="#">Rapport</a></h5></li>
+
+										</ul>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+
+{% endblock %}

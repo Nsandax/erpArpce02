@@ -1,0 +1,311 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+{% load timetags %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_constante' %}">Liste des constantes</a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_payroll_details_constante' model.id %}">{{ model.designation }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_details_constante' model.id %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_payroll_post_update_constante' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+						<input type="text"  id="ref" name="ref" value ="{{ model.id }}" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+						<input type="text"  id="type_constante" name = "type_constante" value = "{{ type_constante }}" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation</label>
+                                <div class="input-control text full-size">
+                                    <input value="{{ model.designation }}" type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Code</label>
+                                <div class="input-control text full-size">
+                                    <input value="{{ model.code }}" type="text" name="code"  id="code"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez le code svp."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+							<div class="col-md-6">
+								<label>Référence</label>
+								<div class="input-control text full-size">
+									<input value="{{ model.reference }}" type="text" name="reference" id="reference" autocomplete="off" />
+								</div>
+							</div>
+                        </div>
+						<br><br>
+						<div class="row" style="margin-top: 10px">
+							<div class="tabcontrol2" data-role="tabcontrol">
+								<ul class="tabs">
+									<li class="active"><a href="#frame_periode">Période</a></li>
+									<li class=""><a href="#frame_constante">Constantes</a></li>
+									<li class=""><a href="#frame_autres">Autres informations</a></li>
+								</ul>
+								<div class="frames">
+									<div class="frame" id="frame_periode" style="display: block;">
+										<div class="row">
+											<div class="col-md-4">
+												<label>Période</label><br>
+												<div class="row">
+													<div class="col-md-10">
+														<label class="input-control radio small-check">
+															<input value="1" {% if model.periode_cumul == 1 %}{{ "checked" }}{% endif %} name="periode_cumul" type="radio">
+															<span class="check"></span>
+															<span class="caption">Paie en cours</span>
+														</label><br>
+														<label class="input-control radio small-check">
+															<input value="2" {% if model.periode_cumul == 2 %}{{ "checked" }}{% endif %} name="periode_cumul" type="radio">
+															<span class="check"></span>
+															<span class="caption">Mensuelle</span>
+														</label><br>
+														<label class="input-control radio small-check">
+															<input value="3" {% if model.periode_cumul == 3 %}{{ "checked" }}{% endif %} name="periode_cumul" type="radio">
+															<span class="check"></span>
+															<span class="caption">Trimestrielle</span>
+														</label><br>
+														<label class="input-control radio small-check">
+															<input value="4" {% if model.periode_cumul == 4 %}{{ "checked" }}{% endif %} name="periode_cumul" type="radio">
+															<span class="check"></span>
+															<span class="caption">Annuelle</span>
+														</label><br>
+														<label class="input-control radio small-check">
+															<input value="5" {% if model.periode_cumul == 5 %}{{ "checked" }}{% endif %} name="periode_cumul" type="radio">
+															<span class="check"></span>
+															<span class="caption">De date à date</span>
+														</label>
+													</div>
+													<div class="col-md-2">
+													</div>
+												</div>
+											</div>
+											<div class="col-md-4">
+												<label>Date</label><br>
+												<div class="row">
+													<div class="col-md-6">
+														<label>Date début</label>
+														<div id="input-date-debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+															<input type="text"  value="{% if model.date_debut_cumul is None %}{% else %}{{ model.date_debut_cumul|timestamp_to_date }}{% endif %}" id="date_debut_cumul" name="date_debut_cumul">
+															<div class="button"><span class="mif-calendar"></span></div>
+														</div>
+													</div>
+													<div class="col-md-6">
+														<label>Date fin</label>
+														<div id="input-date-fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+															<input type="text"  value="{% if model.date_fin_cumul is None %}{% else %}{{ model.date_fin_cumul|timestamp_to_date }}{% endif %}" id="date_fin_cumul" name="date_fin_cumul">
+															<div class="button"><span class="mif-calendar"></span></div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="frame" id="frame_constante" style="display: none;">
+										<div class="row">
+											<div class="col-md-12">
+												<table class="table bordered no-margin" style="width:100%;">
+													<thead>
+														<tr>
+															<th width="20%">Op.</th>
+															<th width="30%">Code</th>
+															<th width="45%">Intitulé</th>
+															<th width="5%"></th>
+														</tr>
+													</thead>
+
+													<tbody id="tbl_posts_body">
+														{% for item_calcul in model.parametres_calculs.all %}
+														<tr id="rec-{{ item_calcul.sequence }}">
+															<td>
+																<div class="input-control text full-size">
+																	<input type="text" value="{{ item_calcul.sequence }}" id="sequence-{{ item_calcul.sequence }}" class="sequence" name="sequence" style="display: none">
+																	<select name="operation_select" id="operation_select-{{ item_calcul.sequence }}" class="select_operation">
+																		<option value="2">(+)</option>
+																		<option value="3">(-)</option>
+																	</select>
+																</div>
+															</td>
+															<td>
+																<div class="input-control text full-size">
+																	<select name="rubrique_id" id="rubrique_id-{{ item_calcul.sequence }}" class="input_select">
+																		<option value="0">Sélectionnez la rubrique</option>
+																		{% for item in rubriques %}
+																			<option data-intitule="{{ item.designation }}" value="{{ item.id }}"> {{ item.reference }} </option>
+																		{% endfor %}
+																	</select>
+																</div>
+															</td>
+															<td>
+																<div class="input-control text full-size">
+																	<input type="text" id="intitule_input-{{ item_calcul.sequence }}" class="intitule_input" name="intitule_input" readonly>
+																</div>
+															</td>
+															<td>
+																<div class="pagination no-border">
+																	<span class="item delete-record" title="Supprimer la ligne" data-id="{{ item_calcul.sequence }}"><span class="mif-cross fg-red"></span></span>
+																</div>
+															</td>
+														</tr>
+														{% endfor %}
+													</tbody>
+												</table>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<br>
+												<button type="button" class="button rounded" id="add-record">Ajouter une constante/valeur</button>
+											</div>
+										</div>
+									</div>
+									<div class="frame" id="frame_autres" style="display: none;">
+										<div class="row">
+											<div class="col-md-6">
+												<label>Description</label>
+												<div class="input-control text full-size" style="min-height: 6.25rem !important;">
+													<textarea name="description" id="description">{{ model.description }}</textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+                </div>
+            </div>
+        </div>
+
+		<div style="display:none;">
+			<table id="sample_table">
+				<tr id="">
+					<td>
+						<div class="input-control text full-size">
+							<input type="text" value="" id="" class="sequence" name="sequence" style="display: none">
+							<select name="operation_select" id="" class="select_operation">
+								<option value="2">(+)</option>
+								<option value="3">(-)</option>
+							</select>
+						</div>
+					</td>
+					<td>
+						<div class="input-control text full-size">
+							<select name="rubrique_id" id="" class="input_select">
+								<option value="0">Sélectionnez la rubrique</option>
+								{% for item in rubriques %}
+									<option data-intitule="{{ item.designation }}" value="{{ item.id }}"> {{ item.reference }} </option>
+								{% endfor %}
+							</select>
+						</div>
+					</td>
+					<td>
+						<div class="input-control text full-size ">
+							<input type="text" id="" class="intitule_input" name="intitule_input" readonly>
+						</div>
+					</td>
+					<td>
+						<div class="pagination no-border">
+							<span class="item delete-record" title="Supprimer la ligne" data-id="0"><span class="mif-cross fg-red"></span></span>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+    </div>
+	<script>
+		var compteur = "{{ model.last_sequence_calcul }}";
+		//compteur = parseInt(compteur);
+		//console.log("compteur: "+ compteur);
+		$(document).ready(function(){
+			{% if model.periode_cumul == 5 %}
+				$('input[name="date_debut_cumul"]').prop("disabled", false);
+				$('input[name="date_fin_cumul"]').prop("disabled", false);
+			{% else %}
+				$('input[name="date_debut_cumul"]').prop("disabled", true);
+				$('input[name="date_fin_cumul"]').prop("disabled", true);
+			{% endif %}
+
+			$(document).delegate('#add-record', 'click', function(e) {
+				e.preventDefault();
+				var content = $('#sample_table tr');
+				compteur++;
+				element = null;
+				element = content.clone();
+				element.attr('id', 'rec-'+compteur);
+				element.find('.delete-record').attr('data-id', compteur);
+				element.find('.sequence').val(compteur);
+
+				element.appendTo('#tbl_posts_body');
+
+				//Initialiser les IDs
+				element.find('.sequence').attr('id', 'sequence-'+compteur);
+				element.find('.input_select').attr('id', 'rubrique_id-'+compteur);
+				element.find('.intitule_input').attr('id', 'intitule_input-'+compteur);
+				element.find('.select_operation').attr('id', 'operation_select-'+compteur);
+			});
+
+
+			$(document).delegate('.delete-record', 'click', function(e) {
+				e.preventDefault();
+				var didConfirm = confirm("Etes-vous sûr de vouloir supprimer cette ligne");
+				if (didConfirm == true) {
+					var id = $(this).attr('data-id');
+					$('#rec-' + id).remove();
+					return true;
+				} else {
+					return false;
+				}
+			});
+
+			//Affecter l'intutilé
+			$(document).delegate(".input_select", 'change', function(e) {
+				e.preventDefault();
+				$(this).parent().parent().parent().find(".intitule_input").val($(this).children(':selected').attr('data-intitule'));
+            });
+
+			$("input[name='periode_cumul']").change(function(){
+                if($(this).val() == '5') {
+					$('input[name="date_debut_cumul"]').prop("disabled", false);
+					$('input[name="date_fin_cumul"]').prop("disabled", false);
+                } else {
+					$('input[name="date_debut_cumul"]').prop("disabled", true);
+					$('input[name="date_fin_cumul"]').prop("disabled", true);
+                }
+            });
+
+			{% for item_calcul in model.parametres_calculs.all %}
+				$("#rubrique_id-{{ item_calcul.sequence }}").val("{{ item_calcul.rubrique_id }}");
+				$("#operation_select-{{ item_calcul.sequence }}").val("{{ item_calcul.type_operation }}");
+				$("#intitule_input-{{ item_calcul.sequence }}").val("{{ item_calcul.rubrique.designation }}");
+			{% endfor %}
+		});
+	</script>
+{% endblock %}

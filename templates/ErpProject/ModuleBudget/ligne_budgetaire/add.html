@@ -1,0 +1,494 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %} {% block page %}
+{%load static %}
+<style>
+    .cle{
+        font-size: 16px;
+        color: red;
+    }
+</style>
+<script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+<link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_tableau_de_bord' %}">Tableau de bord</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_list_ligne_budgetaire' %}">Liste des combinaisons budgétaires</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>Nouvelle Combinaison Budgétaire</h3>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+                <!-- <div class="row">
+                    {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider"%}
+
+                    <button onclick="javascript:window.location.assign('{% url 'module_budget_list_ligne_budgetaire' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div> -->
+                <div class="row">
+                    <div class="col-md-2">
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider"%}
+                    </div>
+                    <!-- <div class="col-md-3"> -->
+                        <button
+                        onclick="javascript:window.location.assign('{% url 'module_budget_get_upload_ligne_budgetaire' %}')"
+                        class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les combinaisons en
+                        excel</button>
+                    <!-- </div> -->
+                    <div class="col-md-2">
+                        <button onclick="javascript:window.location.assign('{% url 'module_budget_list_ligne_budgetaire' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+
+                <br>
+                <form id="form" method="POST" action="{% url 'module_budget_post_add_ligne_budgetaire' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+
+                    <input id="submit" type="submit" style="display: none">
+                    <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                    <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                    <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+                    <br/>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Code</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="code"  id="code"  autocomplete="off" readonly data-validate-func="required"
+                                data-validate-hint="Veuillez saisir le code"
+                                    style="background-color:rgb(226,224,224);"
+                                    data-validate-func="required"
+                                    data-validate-hint="Entrez la désignation de la Combinaison Budgétaire svp." />
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="groupe_nom_projet" style="display: none;">
+                            <label>Nom du projet</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="nom_projet"  id="nom_projet"  autocomplete="off"
+                                data-validate-hint="Veuillez saisir le nom du projet"
+                                data-validate-hint="Entrez la désignation de la Combinaison Budgétaire svp." />
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="groupe_nom_activite" style="display: none;">
+                            <label>Nom Activité</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="nom_activite"  id="nom_activite"  autocomplete="off"
+                                data-validate-hint="Veuillez saisir le nom de l'activité"
+                                data-validate-hint="Veuillez saisir le nom de l'activité svp." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Type <span class="cle">*</span></label>
+                            <div class="input-control text full-size">
+                                <select type="text" name="type" id="type" onchange="choix_type()"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le type de combinaison svp.">
+                                    <option value="0">Sélectionnez un type</option>
+                                    {% for item in types %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" id="entite_row">
+                            <label>Entité <span class="cle">*</span></label>
+                            <div class="input-control text full-size">
+                                <select type="text" name="entite" id="entite" onchange="choix_entite()"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez l'entité de la Combinaison Budgétaire svp.">
+                                    <option value="0">Sélectionnez l'entité</option>
+                                    {% for item in typeentites %}
+                                        <option value="{{ item.id }}"> {{ item.designation }}  </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="compte_row">
+                            <label>Compte comptable <span class="cle">*</span></label>
+                            <div class="input-control text full-size">
+                                <select style="width: 100%;" type="text" name="compte" id="compte" onchange="choix_compte()"
+                                class="chosen-select" data-placeholder="Selectionnez les comptes qui constituent le poste budgétaire" >
+                                    {% for item in comptes %}
+                                        <option value="{{ item.id }}">{{ item.numero }} {{ item.designation}} </option>
+                                    {% endfor %}
+                                </select>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" id="secteur_row">
+                            <label>Secteur </label>
+                            <div class="input-control text full-size">
+                                <select name="nature_activite" id="nature_activite" onchange="choix_secteur()"
+                                    data-validate-func="min"
+                                    data-validate-arg="0"
+                                    data-validate-hint="Sélectionnez le secteur svp.">
+                                    <option value="0">Sélectionnez un secteur</option>
+                                    {% for item in natureactivites %}
+                                        <option value="{{ item.id }}"> {{ item.designation }}  </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="centre_row">
+                            <label>Centre des coûts</label>
+                            <div class="input-control text full-size">
+                                <select name="entite_demanderesse" id="entite_demanderesse" onchange="choix_centre()"
+                                data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le centre de coût svp.">
+                                    <option value="0" data-code="000">Selectionnez le centre de coûts</option>
+                                    {% for item in centres %}
+                                        <option value="{{ item.id }}" data-code="{{ item.code }}"> {{ item.designation }}  </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="nature_row">
+                            <label>Nature</label>
+                            <div class="input-control text full-size">
+                                <select name="nature_charge" id="nature_charge" onchange="choix_nature()"
+                                data-validate-func="required"
+                                data-validate-hint="Veuillez fixer la nature" >
+                                    <option value="">Selectionnez la nature</option>
+                                    {% for item in naturecharges %}
+                                        <option value="{{ item.id }}">{{ item.designation }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" id="active_row">
+                            <label>Activité <span class="cle">*</span></label>
+                            <div class="input-control text full-size">
+                                <select name="activite" id="activites" onchange="choix_activite()"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Entrez l'activité de la Combinaison Budgétaire svp.">
+                                    <option value="0">Sélectionnez l'activité de la Combinaison.</option>
+                                    {% for item in activites %}
+                                        <option value="{{ item.id }}" data-code="{{ item.code }}">{{ item.designation }}  </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6" id="site_row">
+                            <label>Site </label>
+                            <div class="input-control text full-size">
+                                <select name="localite" id="localite" onchange="choix_site()"
+                                data-validate-func="required"
+                                data-validate-hint="Veuillez fixer le site" >
+                                    <option value="0">Selectionnez le site</option>
+                                    {% for item in localites %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" id="budget_row">
+                            <label>Budget <span class="cle">*</span></label>
+                            <div class="input-control text full-size">
+
+                                {% include 'ErpProject/ErpBackOffice/widget/select.html' with url="/budget/exercice/add?isPopup=1" model="Model_Budget" name="budget" id="budget" hint="Sélectionnez le budget svp." only %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Niveau d'alerte en %</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="pourcentage_alert"  id="pourcentage_alert" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Message alerte :</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="message_alert"  id="message_alert" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Montant dotation <span class="cle">*</span></label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="montant_dotation" id="montant_dotation" class="monetary"/>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Correspondants </label>
+                            <div class="input-control text full-size">
+                                <select type="text" name="responsable_id" id="responsable_id"
+
+                                    data-validate-hint="Sélectionnez le correspondant svp." class="chosen-select" multiple style="width: 100%;"
+                                    data-placeholder="Sélectionnez des Correspondants">
+
+                                    {% for item in responsable %}
+                                        <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="bloque_row">
+                            <label class="input-control checkbox small-check full-size">
+                                    <input value="1" name="is_bloqued" id="is_bloqued" type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Bloquant</span>
+                            </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        var codeArray = ["0", "000000", "0", "000", "XX", "X", "00"];
+        var codeLen = codeArray.length;
+        var chooseCompte = false;
+        $(document).ready(function(){
+            var code = "";
+            for (i = 0; i < codeLen; i++) {
+                if (i == 0){
+                    code += codeArray[i];
+                }else{
+                    code += "." + codeArray[i];
+                }
+            }
+            $('#code').val(code);
+
+            choix_type();
+
+        });
+
+        function refresh_code()
+        {   var valeur = $("#type").val();
+
+            if(valeur == 1)
+            {
+                var code = "";
+                for (i = 0; i < codeLen; i++) {
+                    if (i == 0){
+                        code += codeArray[i];
+                    }else{
+                        code += "." + codeArray[i];
+                    }
+                }
+                $('#code').val(code);
+            }
+        }
+
+        function choix_entite()
+        {
+            var valeur = $("#entite").val();
+            codeArray[0] = valeur;
+            refresh_code();
+        }
+        function choix_compte()
+        {
+            if (!chooseCompte){
+            var texte = "000000";
+            var valeur = $("#compte").val();
+            if (valeur != 0){
+                texte = $("#compte option:selected").text();
+                texte = texte.split(" ")[0];
+                chooseCompte = true;
+            }
+            codeArray[1] = texte;
+            refresh_code();
+        }
+        }
+
+        function choix_secteur()
+        {
+            var valeur = $("#nature_activite").val();
+            codeArray[2] = valeur;
+            refresh_code();
+        }
+        function choix_centre()
+        {
+            //var valeur = $("#entite_demanderesse").val();
+            var valeur = $("#entite_demanderesse option:selected").data("code");
+            codeArray[3] = valeur;
+            refresh_code();
+        }
+        function choix_activite()
+        {
+            var texte = "XX";
+            var valeur = $("#activites").val();
+            //texte = $("#activite option:selected").data("code");
+            console.log(valeur);
+            if (valeur != 0){
+                console.log("activite", valeur)
+                texte = $("#activites option:selected").data("code");
+                console.log(texte);
+                codeArray[4] = texte;
+            }else{
+                codeArray[4] = texte;
+            }
+            refresh_code();
+        }
+        function choix_nature()
+        {
+            var texte = "X";
+            var valeur = $("#nature_charge").val();
+            console.log(valeur);
+            if (valeur != ""){
+                texte = $("#nature_charge option:selected").text();
+                codeArray[5] = texte.charAt(0);
+            }else{
+                codeArray[5] = texte;
+            }
+            refresh_code();
+        }
+        function choix_site()
+        {
+            var valeur = $("#localite").val();
+            codeArray[6] = "0" + valeur;
+            refresh_code();
+        }
+        /*function choix_projet()
+        {
+            var texte = "00000";
+            var valeur = $("#code_projet").val();
+            if (valeur != 0){
+                texte = $("#code_projet option:selected").text();
+            }
+            codeArray[7] = texte;
+            refresh_code();
+        }*/
+
+        function choix_type()
+        {
+            var code = "";
+            for (i = 0; i < codeLen; i++) {
+                if (i == 0){
+                    code += codeArray[i];
+                }else{
+                    code += "." + codeArray[i];
+                }
+            }
+
+            var valeur = $("#type").val();
+            var txt_code = $("#code");
+            var txt_entite = $("#entite");
+            var txt_centre_cout = $("#entite_demanderesse");
+            var txt_activite = $("#activites");
+            var txt_nature = $("#nature_charge");
+            var txt_budget = $("#budget");
+            var groupe_nom_projet = $("#groupe_nom_projet");
+            var txt_nom_projet = $("#nom_projet");
+
+            var groupe_nom_active  = $("#groupe_nom_activite");
+            var txt_nom_activite   = $("#nom_activite");
+            console.log("Type", valeur);
+
+            if(valeur == 2)
+            {
+                txt_code.attr("readonly", false);
+                txt_code.attr("maxlength", 5);
+                txt_code.val("");
+                txt_code.css("background-color","#FFF");
+                txt_entite.attr("data-validate-arg",0);
+                txt_centre_cout.attr("data-validate-arg",0);
+                txt_activite.attr("data-validate-arg",0);
+                txt_nature.removeAttr("data-validate-func");
+                txt_nom_activite.attr("data-validate-arg",0);
+                groupe_nom_projet.show();
+                txt_nom_projet.attr("data-validate-func","required");
+
+                // Visibility
+                // document.getElementById("budget_row").style.display = "none";
+                document.getElementById("active_row").style.display = "none";
+                document.getElementById("secteur_row").style.display = "none";
+                document.getElementById("nature_row").style.display = "none";
+                document.getElementById("compte_row").style.display = "none";
+                document.getElementById("entite_row").style.display = "none";
+                document.getElementById("site_row").style.display = "none";
+                document.getElementById("centre_row").style.display = "none";
+                document.getElementById("bloque_row").style.display = "none";
+                groupe_nom_active.hide();
+            }
+            else if (valeur == 3){
+                console.log("Dans 3", valeur);
+                txt_code.attr("readonly", false);
+                txt_code.attr("maxlength", 5);
+                txt_code.val("");
+                txt_code.css("background-color","#FFF");
+                txt_entite.attr("data-validate-arg",0);
+                txt_centre_cout.attr("data-validate-arg",0);
+                txt_activite.attr("data-validate-arg",0);
+                txt_nature.removeAttr("data-validate-func");
+                txt_nom_projet.attr("data-validate-arg",0);
+
+                groupe_nom_active.show();
+                txt_nom_activite.attr("data-validate-func","required");
+
+                 // Visibility
+                // document.getElementById("entite").setAttribute("disabled", "disabled");
+                // document.getElementById("budget_row").style.display = "none";
+                document.getElementById("active_row").style.display = "none";
+                document.getElementById("secteur_row").style.display = "none";
+                document.getElementById("nature_row").style.display = "none";
+                document.getElementById("compte_row").style.display = "none";
+                document.getElementById("entite_row").style.display = "none";
+                document.getElementById("site_row").style.display = "none";
+                document.getElementById("centre_row").style.display = "none";
+                document.getElementById("bloque_row").style.display = "none";
+                groupe_nom_projet.hide();
+            }
+            else
+            {
+                txt_code.attr("readonly", true);
+                txt_code.val(code);
+                txt_code.css("background-color","rgb(226,224,224)")
+                txt_entite.attr("data-validate-arg",1);
+                txt_centre_cout.attr("data-validate-arg",1);
+                txt_activite.attr("data-validate-arg",1);
+                txt_nature.attr("data-validate-func","required");
+                //txt_budget.attr("data-validate-arg",1);
+                // txt_nom_activite.attr("data-validate-arg",0);
+                groupe_nom_projet.hide();
+                groupe_nom_active.hide();
+                txt_nom_projet.removeAttr("data-validate-func");
+                txt_nom_activite.removeAttr("data-validate-func");
+
+
+                document.getElementById("budget_row").style.display = "block";
+                document.getElementById("active_row").style.display = "block";
+                document.getElementById("secteur_row").style.display = "block";
+                document.getElementById("nature_row").style.display = "block";
+                document.getElementById("compte_row").style.display = "block";
+                document.getElementById("entite_row").style.display = "block";
+                document.getElementById("site_row").style.display = "block";
+                document.getElementById("centre_row").style.display = "block";
+                document.getElementById("bloque_row").style.display = "block";
+            }
+
+        }
+    </script>
+
+    <script>
+          $(function() {
+        $('.chosen-select').chosen();
+        $('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+      });</script>
+
+{% endblock %}

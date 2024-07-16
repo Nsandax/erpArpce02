@@ -1,0 +1,388 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %} {%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_lister_pieces' %}">Liste des pieces comptables</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <button onclick="enregistrer_piece()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:document.getElementById('up-submit').click()" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les écritures sur excel</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_lister_pieces' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                    <form id="form" method="POST" action="{% url 'module_comptabilite_get_upload_piece' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="up-submit" type="submit" style="display: none">
+                        <input type="hidden" id="up-designation" name="designation" />
+                        <input type="hidden" id="up-reference" name="reference" />
+                        <input type="hidden" id="up-partenaire_id" name="partenaire_id" />
+                        <input type="hidden" id="up-date_piece" name="date_piece" />
+                        <input type="hidden" id="up-devise_id" name="devise_id" />
+                        <input type="hidden" id="up-journal_id" name="journal_id" />
+                        <input type="hidden" id="up-description" name="description" />
+                    </form>
+
+                    <form id="form" method="POST" action="{% url 'module_comptabilite_post_creer_piece' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none"><br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation de la pièce</label>
+                                <div class="input-control text full-size">
+                                    <input onchange="designationModifie(this)" type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                    data-validate-func="required"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation de la pièce comptable svp." />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Référence de la pièce</label>
+                                <div class="input-control text full-size">
+                                    <input onchange="referenceModifie(this)" type="text" name="reference" id="reference"
+                                <input onchange="referenceModifie(this)" type="text" name="reference" id="reference"
+                                    <input onchange="referenceModifie(this)" type="text" name="reference" id="reference"
+                                        data-validate-func="required"
+                                    data-validate-func="required"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la référence de la pièce comptable svp." />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Partenaire</label>
+                                <div class="input-control text full-size">
+                                    <select onchange="partenaireModifie(this)" type="text" name="partenaire_id" id="partenaire_id"
+                                        data-validate-func="min"
+                                    data-validate-func="min"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez le partenaire concerné svp.">
+                                        <option value="0">Sélectionnez un partenaire</option>
+                                        {% for item in partenaires %}
+                                            <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Date</label>
+                                <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                    <input type="text" onchange="datePieceModifie(this)" id="date_piece" name="date_piece"
+                                        data-validate-func="required"
+                                    data-validate-func="required"
+                                        data-validate-func="required"
+                                        data-validate-hint="Précisez la date svp.">
+                                    <div class="button"><span class="mif-calendar"></span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Devise</label>
+                                <div class="input-control text full-size">
+                                    <select onchange="deviseModifie(this)" name="devise_id" id="devise_id" onchange="choix_devise()"
+                                        data-validate-func="min"
+                                    data-validate-func="min"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez la devise svp.">
+                                         <option value="{{ devise.id }}"> {{ devise.designation }}</option>                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Journal</label>
+                                <div class="input-control text full-size">
+                                    <select type="text" onchange="journalModifie(this)" name="journal_id" id="journal_id"
+                                <select type="text" onchange="journalModifie(this)" name="journal_id" id="journal_id"
+                                    <select type="text" onchange="journalModifie(this)" name="journal_id" id="journal_id"
+                                        data-validate-func="min"
+                                    data-validate-func="min"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez le journal svp.">
+                                        <option value="-1">Sélectionnez le journal svp</option>
+                                        {% for item in journaux %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+
+
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Description</label> <br><br>
+                        <div class="input-control text full-size">
+                            <textarea name="description" id="description" onchange="descriptionModifie(this)"></textarea>
+                        </div>
+                    </div>
+
+                 </div>
+
+                        <br><br><br>
+                        <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+                        <div class="row margin20 no-margin-left no-margin-right">
+                            <p class="sub-header">Ecritures comptables de la pièce</p>
+                            <table class="table no-margin">
+                                <thead class="no-border">
+                                    <tr>
+                                        <th class="no-padding-top no-padding-left no-padding-bottom" width="35%">Compte</th>
+                                        <th width="26%">Libellé</th>
+                                        <th width="17%">Débit</th>
+                                        <th width="17%">Crédit</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items">
+                                    <tr id="ligne1">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                <select id="compte_id1" name="compte_id"
+                                                    data-validate-func="min"
+                                        data-validate-func="min"
+                                                    data-validate-func="min"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez un compte svp">
+                                                    <option value="0">Sélectionnez un compte</option>
+                                                    {% for item in comptes %}
+                                                        <option value="{{ item.id }}">{{ item.numero }} {{ item.designation }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="libelle1" name="libelle" type="text"
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Entrez le libellé de l'écriture svp">
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="montant_debit1" name="montant_debit" type="text" placeholder="Ex: 100"
+                                                    data-validate-func="number" value="0"
+                                                    data-validate-hint="Précisez le montant du debit svp">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" id="unite1" class="sub-header place-right devise">CFA</span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="montant_credit1" name="montant_credit" type="text" placeholder="Ex: 100"
+                                                    data-validate-func="number" value="0"
+                                                    data-validate-hint="Précisez le montant du crédit svp">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">CFA</span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row margin10 no-margin-left no-margin-right">
+                            <button type="button" class="theme-btn theme-btn-sm rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function designationModifie(input) {
+            var value = input.value;
+            $("#up-designation").val(value);
+        }
+        function referenceModifie(input) {
+            var value = input.value;
+            $("#up-reference").val(value);
+        }
+        function partenaireModifie(input) {
+            var value = input.value;
+            $("#up-partenaire_id").val(value);
+        }
+        function datePieceModifie(input) {
+            var value = input.value;
+            $("#up-date_piece").val(value);
+        }
+        function deviseModifie(input) {
+            var value = input.value;
+            $("#up-devise_id").val(value);
+        }
+        function journalModifie(input) {
+            var value = input.value;
+            $("#up-journal_id").val(value);
+        }
+        function descriptionModifie(input) {
+            var value = input.value;
+            $("#up-description").val(value);
+        }
+        var id_devise = $("#devise_id").val();
+        $("#up-devise_id").val(id_devise);
+
+        var deviseRef = "CFA";
+
+        var lesComptes = new Array();
+        var lesDevises = new Array();
+
+        {% for item in comptes %}
+            lesComptes.push({id:"{{ item.id }}", designation:"{{ item.numero }} {{ item.designation }}"});
+        {% endfor %}
+
+        {% for item in devises %}
+            lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+        {% endfor %}
+    </script>
+    <script>
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<select name="compte_id" id="compte_id' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un compte svp"><option value="0">Sélectionnez un compte</option>';
+            nouvelleLigne += renvoyerOptionsComptes();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="libelle' + compteur +'" name="libelle" type="text" data-validate-func="required" ';
+            nouvelleLigne += 'data-validate-hint="Entrez le libellé de l\'écriture svp"></div></td>'
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="montant_debit" id="montant_debit' + compteur + '" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-hint="Précisez le montant du débit svp" type="text" value="0" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input name="montant_credit" id="montant_credit' + compteur + '" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-hint="Précisez le montant du crédit svp" type="text" value="0" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+
+            $("#ligne" + indice).remove();
+        }
+
+        function choix_devise()
+        {
+            var id_devise = $("#devise_id").val();
+            if(id_devise == "0") deviseRef = "$";
+            else
+            {
+                for(var i = 0; i < lesDevises.length; i++)
+                {
+                    var devise = lesDevises[i];
+                    if(devise.id == id_devise)
+                    {
+                        deviseRef = devise.symbole_devise;
+                        $(".devise").text(deviseRef);
+                        break;
+                    }
+                }
+            }
+        }
+
+        function enregistrer_piece(){
+            var canPost = true;
+            var items = new Array();
+
+            for(var i = 1; i <= compteur; i++)
+            {
+                var ligneEcriture = document.getElementById("ligne" + i);
+                if(ligneEcriture != null)
+                {
+                    var item = {
+                        montant_credit : 0,
+                        montant_debit : 0,
+                    };
+
+                    var montant_credit = $("#montant_credit" + i).val();
+                    if(!((montant_credit - 0) == montant_credit && ('' + montant_credit).trim().length > 0))
+                    {
+                        canPost = false;
+                        break;
+                    }
+                    else item.montant_credit = parseFloat(montant_credit);
+
+                    var montant_debit = $("#montant_debit" + i).val();
+                    if(!((montant_debit - 0) == montant_debit && ('' + montant_debit).trim().length > 0))
+                    {
+                        canPost = false;
+                        break;
+                    }
+                    else item.montant_debit = parseFloat(montant_debit);
+
+                    items[items.length] = item;
+                }
+            }
+
+            if(canPost == true)
+            {
+                var total_debit = 0; var total_credit = 0;
+                for(var i = 0; i < items.length; i++)
+                {
+                    var ecriture = items[i];
+                    total_credit += ecriture.montant_credit;
+                    total_debit += ecriture.montant_debit;
+                }
+
+                if(total_credit !== total_debit)
+                {
+                    $.Notify({
+                        caption: 'Erreur',
+                        content: "La pièce doit être équilibrée au niveau des écritures comptables",
+                        type: 'alert'
+                    });
+                    canPost = false;
+                    return;
+                }
+            }
+            if(canPost == true) document.getElementById('submit').click();
+        }
+
+        function renvoyerOptionsComptes()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesComptes.length; i++)
+            {
+                var compte = lesComptes[i];
+                ligne += '<option value="' + compte.id + '">' + compte.designation + '</option>';
+            }
+            return ligne;
+        }
+    </script>
+{% endblock %}

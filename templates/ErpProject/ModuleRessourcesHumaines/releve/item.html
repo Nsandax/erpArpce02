@@ -1,0 +1,84 @@
+{% extends "ErpProject/ModuleRessourceshumaines/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_plan_releve' %}">Liste des employés</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_ressourceshumaines_add_plan_releve" url_detail="module_ressourceshumaines_details_plan_releve" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row only-on-large-screen">
+    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_plan_releve' %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">Annuler</button>
+    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_add_plan_releve' employe.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+           Ajouter des relèves
+        </button>
+</div>
+<div class="row only-on-small-screen">
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_add_plan_releve' employe.id %}')" class="button small-button rounded primary_color_{{module.name|lower}}">
+                Ajouter des relèves
+             </button>
+    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_plan_releve' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+</div>
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Nom :<br>
+                    <span class="sub-alt-header fg-dark"> {{ employe.nom_complet }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Poste :<br>
+                    {% if employe.poste != None and employe.poste != 0 %}
+					<span class="sub-alt-header fg-dark"> {{ employe.poste.designation }} </span>
+				    {% else %}
+					<span class="sub-alt-header fg-dark">Attaché à aucun poste</span>
+				     {% endif %}
+                   
+                </p>
+            </div>
+            <div class="col-md-6">
+                    <p class="fg-gray">
+                        Département :<br>
+                        {% if employe.unite_fonctionnelle.libelle != None and employe.unite_fonctionnelle.libelle != "" %}
+                            <span class="sub-alt-header fg-dark">{{ employe.unite_fonctionnelle.libelle }}</span>
+                        {% else %}
+                            <span class="sub-alt-header fg-dark">-</span>
+                        {% endif %}
+                    </p>
+                </div>
+        </div>
+       
+        <div class="row">
+            <div class="col-md-12">
+                <p class="sub-header">Plan de relève de l'employé</p>
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th width="16%">Employé</th>
+                            <th width="16%">Degré de relève</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in ligne_releve %}
+                            <tr class="table bordered border">
+                                <td> {{ ligne.employe }}</td>
+                                <td> {{ ligne.degre }} </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

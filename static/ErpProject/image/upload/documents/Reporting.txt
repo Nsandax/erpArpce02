@@ -1,0 +1,20 @@
+http://desktop-nt8a2l2/ReportServer : pour voir ceux qui sot créer
+
+http://dev:Password01@localhost/Reports/Pages/Folder.aspx
+
+ORDRE DE MISSION VIEW
+
+**********************************************************************************************************************************************
+
+SELECT        dbo.ErpBackOffice_model_ordre_de_mission.id, dbo.ErpBackOffice_model_ordre_de_mission.objet_mission, dbo.ErpBackOffice_model_ordre_de_mission.destination, 
+                         dbo.ErpBackOffice_model_ordre_de_mission.moyen_transport, dbo.ErpBackOffice_model_ordre_de_mission.date_retour, dbo.ErpBackOffice_model_ordre_de_mission.date_depart, 
+                         dbo.ErpBackOffice_model_ordre_de_mission.type, dbo.ErpBackOffice_model_ordre_de_mission.frais_mission, dbo.ErpBackOffice_model_ordre_de_mission.description, 
+                         dbo.ErpBackOffice_model_ordre_de_mission.observation, dbo.ErpBackOffice_model_ordre_de_mission.numero_ordre, dbo.ErpBackOffice_model_ordre_de_mission.demandeur_id, 
+                         dbo.ErpBackOffice_model_employe.model_personne_ptr_id, dbo.ErpBackOffice_model_personne.nom_complet AS demandeur, dbo.ErpBackOffice_model_employe.poste_id, 
+                         dbo.ErpBackOffice_model_poste.designation AS poste
+FROM            dbo.ErpBackOffice_model_ordre_de_mission INNER JOIN
+                         dbo.ErpBackOffice_model_employe ON dbo.ErpBackOffice_model_ordre_de_mission.demandeur_id = dbo.ErpBackOffice_model_employe.model_personne_ptr_id INNER JOIN
+                         dbo.ErpBackOffice_model_personne ON dbo.ErpBackOffice_model_employe.model_personne_ptr_id = dbo.ErpBackOffice_model_personne.id INNER JOIN
+                         dbo.ErpBackOffice_model_poste ON dbo.ErpBackOffice_model_employe.poste_id = dbo.ErpBackOffice_model_poste.id
+
+**********************************************************************************************************************************************

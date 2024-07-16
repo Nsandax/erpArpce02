@@ -1,0 +1,157 @@
+{% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+{% if not isPopup %}
+<!-- Suite Menu Nav -->
+<!-- Menu lateral -->
+<div class="sidebar" role="navigation">
+    <div class="contenair-profil only-on-large-screen" style="background-color: transparent;">
+        <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+        <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+        <p class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</p>
+        <div class="divider" style="background-color: transparent;"></div>
+    </div>
+    <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+        <ul class=" nav" id="side-menu" style="background-color: transparent;">
+            <li class="li-menu">
+                <a href="{% url 'module_rh_tableau_de_bord' %}" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Accueil </a>
+            </li>
+
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Ressources humaines <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_rh_list_employe' %}" class="a-menu">Employés</a></li>
+                    <li class="{% if menu == 2 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_rh_list_departement' %}" class="a-menu">Départements</a></li>
+                    <li class="{% if menu == 12 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressources_humaines_list_postes' %}" class="a-menu">Postes</a></li-->
+                    <!--li class="{% if menu == 3 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#">Requetes</a></li-->
+                </ul>
+                 <!--nav-second-niveau -->
+            </li>
+
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Présences <span class="fa fa arrow"></span></a>
+
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_presence' %}" class="a-menu">Présences</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_presence_employe' %}" class="a-menu">Employés</a></li>
+                </ul>
+
+                <!-- /.nav-second-niveau -->
+            </li>
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Congé <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_type_conge' %}" class="a-menu">Type des congés</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_demande_conge' %}" class="a-menu">Demande de congés</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_conge_approuve' %}" class="a-menu">Congés accordés</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_conge_reject' %}" class="a-menu">Congés réfusés</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_conge' %}" class="a-menu">Demande de congés</a></li>
+                </ul>
+                <!-- /.nav-second-niveau -->
+            </li>
+
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Paie <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+                     <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_bulletin' %}">Bulletins de l'employé</a>
+                    </li>
+                    <li class="{% if menu == 12 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_calcul_paie_list' %}">Calcul paie</a>
+                    </li>
+                    <li class="{% if menu == 11 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_profilpaie' %}">Profil paie</a>
+                    </li>
+                    <li class="{% if menu == 8 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_lotbulletin' %}">Lots de bulletins de paie</a>
+                    </li>
+                    <li class="{% if menu == 9 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_element' %}">Elements du bulletin</a>
+                    </li>
+                    <li class="{% if menu == 10 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_bareme' %}">Barêmes</a>
+                    </li>
+                </ul>
+                <!-- /.nav-second-niveau -->
+            </li>
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Formation <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_formation' %}" class="a-menu">Les formations tenues</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_add_formation' %}" class="a-menu">Nouvelle formation</a></li>
+                </ul>
+
+                <!-- /.nav-second-niveau -->
+            <!--/li>
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Parc automobile <span class="fa fa arrow"></span></a-->
+                <!-- nav-second-niveau -->
+                <!--ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_vehicule' %}" class="a-menu">Nos véhicules</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_vehicule_model' %}" class="a-menu">Gérer les modèles de véhicules</a></li>
+                </ul-->
+
+                <!-- /.nav-second-niveau -->
+            <!--/li-->
+
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Business intelligence <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 11 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Presences</a></li>
+                </ul>
+                <!-- /.nav-second-niveau -->
+            </li>
+
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Configuration <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+
+                    <li class="{% if menu == 13 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#" class="a-menu">Catégorie des employés</a></li>
+
+                    <!--li class="{% if menu == 14 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Congés</a></li>
+                    <li class="{% if menu == 15 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Congé à approuver</a></li>
+
+                    <li class="{% if menu == 16 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Demande de congés</a></li>
+
+                    <li class="{% if menu == 17 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Presence</a></li>
+
+                    <li class="{% if menu == 18 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Type de congés</a></li-->
+                </ul>
+                <!-- /.nav-second-niveau -->
+            </li>
+
+        </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+<!-- /.Menu lateral -->
+</nav>
+<!-- /.Menu Navbar -->
+
+<!-- Corps de la page (A définir dans chaque fonction du module) -->
+<div id="page-wrapper" style="background-color:#f9f9f9;">
+{% else %}
+<div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+    {% endif %}
+    {% block page %}{% endblock %}
+</div>
+<!-- Fin Corps de la page -->
+{% endblock %}

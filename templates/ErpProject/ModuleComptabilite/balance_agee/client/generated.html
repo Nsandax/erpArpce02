@@ -1,0 +1,176 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+    {% block page %}
+        {%load static %}
+        {% load account_filters %}
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="row">
+            <button onclick="javascript:document.getElementById('submit_print').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+            <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+            <!-- Button dropdown -->
+            <button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded chargement-au-click" >
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="far fa-calendar-alt"></i> à la date du {{ date_fin }} <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li><a href="{% url 'module_comptabilite_generer_balance_agee_client' %}?type_date=1" id="type_today" class="dropdown-item"> Aujourd'hui </a></li>
+                    <li><a href="{% url 'module_comptabilite_generer_balance_agee_client' %}?type_date=2" id="type_last_month" class="dropdown-item"> Fin du mois dernier </a></li>
+                    <li><a href="{% url 'module_comptabilite_generer_balance_agee_client' %}?type_date=3" id="type_last_trimester" class="dropdown-item"> Fin du dernier trimestre </a></li>
+                    <li><a href="{% url 'module_comptabilite_generer_balance_agee_client' %}?type_date=4" id="type_last_year" class="dropdown-item"> Fin de la dernière periode </a></li>
+                    <li class="divider"></li>
+                    <li><a href="#" class="dropdown-item"> <i class="fa fa-caret-down"></i>  Personnalisé</a></li>
+                    <li class="col-md-12">
+                        <form id="form" method="POST" action="{% url 'module_comptabilite_post_generer_balance_agee_client' %}"
+                            data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit_search" type="submit" style="display: none">
+                            <label>Date de fin :</label>
+                            <div id="input-date-fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" name="date_fin" id="date_fin" readonly
+                                    data-validate-func="required"
+                                    data-validate-hint="Précisez la date de fin svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </form>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="col-md-12">
+                        <div onclick="javascript:document.getElementById('submit_search').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Appliquer</div>
+                    </li>
+                </ul>
+            </button>
+            <!-- /.Button dropdown -->
+            <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_generer_balance_agee_client' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Retour</button>
+        </div>
+        <form id="form" method="POST" action="{% url 'module_comptabilite_post_imprimer_balance_agee_client' %}">
+            {% csrf_token %}
+            <input id="submit_print" type="submit" style="display: none">
+            <input type="text" name="date_fin" value="{{ date_fin }}" style="display: none">
+            <input type="number" name="devise_id" value="{{ devise.id }}" style="display: none">
+        </form>
+        <hr class="hr-ligne">
+        <div id="divToPrint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <p class="align-center header">{{ title }}</p>
+            <div class="row">
+                <p>
+                    A la date du :<br>
+                    <span class="sub-header">{{ date_fin }}</span>
+                    <br>
+                    <br>
+                    Devise :<br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </p>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                    <td width="16%" colspan="2">Nom du client</td>
+                    <td width="12%">No Compte</td>
+                    <td width="12%">Date d'échéance</td>
+                    <td width="12%">En cours</td>
+                    <td width="12%">1-30 jours échu</td>
+                    <td width="12%">31-60 jours échu</td>
+                    <td width="12%">61-90 jours échu</td>
+                    <td width="12%">Plus de 90 jours</td>
+                </tr>
+                {% for client in clients %}
+                    <tr class="tr-toggle" style="background-color:#f1f1f1;font-weight:700!important;" data-toggle="collapse" data-target=".facture{{ client.id }}" daria-expanded="false">
+                        <td width="2%"><i class="fa fa-caret-right"></i></td>
+                        <td width="14%">{{ client.nom_complet }}</td>
+                        <td width="12%">{{ client.compte.numero }} {{ client.compte.designation }}</td>
+                        <td width="12%"></td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_au_jour|monetary }} </td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_1_30|monetary }} </td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_31_60|monetary }} </td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_61_90|monetary }}</td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_91_plus|monetary }}</td>
+                    </tr>
+                    {% for facture in factures %}
+                        {% if facture.client_id == client.id %}
+                            <tr class="collapse facture{{ client.id }}">
+                                <td colspan="3">
+                                <a class="lien chargement-au-click" href="{% url 'module_comptabilite_details_facture_client' facture.id %}">{{ facture.numero_facture }}</a>
+                                </td>
+                                <td width="12%">{{ facture.date_echeance|date:"d/m/Y" }} </td>
+                                <td style="text-align: right" width="12%">{{ facture.montant_au_jour|monetary }} </td>
+                                <td style="text-align: right" width="12%">{{ facture.montant_1_30|monetary }} </td>
+                                <td style="text-align: right" width="12%">{{ facture.montant_31_60|monetary }} </td>
+                                <td style="text-align: right" width="12%">{{ facture.montant_61_90|monetary }}</td>
+                                <td style="text-align: right" width="12%">{{ facture.montant_91_plus|monetary }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+                <tr style="background-color:#7c984a;color:#fff!important;">
+                    <th style="text-align: left" colspan="4">Total</th>
+                    <th style="text-align: right">{{ total_montant_au_jour|monetary }}</th>
+                    <th style="text-align: right">{{ total_montant_1_30|monetary }}</th>
+                    <th style="text-align: right">{{ total_montant_31_60|monetary }}</th>
+                    <th style="text-align: right">{{ total_montant_61_90|monetary }}</th>
+                    <th style="text-align: right">{{ total_montant_91_plus|monetary }}</th>
+                </tr>
+            </table>
+        </div>
+        {% include 'ErpProject/ErpBackOffice/widget/export_excel.html' with btn_id="btn_export" table_id="rapport" filename="balance_agee_client" only %}
+        <script>
+            $(document).ready(function(){
+                {% if type_date == "1" %}
+                    $("#type_today").removeClass("selected");
+                    $("#type_last_month").removeClass("selected");
+                    $("#type_last_trimester").removeClass("selected");
+                    $("#type_last_year").removeClass("selected");
+
+                    $("#type_today").addClass("selected");
+                {% elif type_date == "2" %}
+                    $("#type_today").removeClass("selected");
+                    $("#type_last_month").removeClass("selected");
+                    $("#type_last_trimester").removeClass("selected");
+                    $("#type_last_year").removeClass("selected");
+
+                    $("#type_last_month").addClass("selected");
+                {% elif type_date == "3" %}
+                    $("#type_today").removeClass("selected");
+                    $("#type_last_month").removeClass("selected");
+                    $("#type_last_trimester").removeClass("selected");
+                    $("#type_last_year").removeClass("selected");
+
+                    $("#type_last_trimester").addClass("selected");
+                {% elif type_date == "4" %}
+                    $("#type_today").removeClass("selected");
+                    $("#type_last_month").removeClass("selected");
+                    $("#type_last_trimester").removeClass("selected");
+                    $("#type_last_year").removeClass("selected");
+
+                    $("#type_last_year").addClass("selected");
+                {% else %}
+                    $("#type_today").removeClass("selected");
+                    $("#type_last_month").removeClass("selected");
+                    $("#type_last_trimester").removeClass("selected");
+                    $("#type_last_year").removeClass("selected");
+                {% endif %}
+
+                $("tr > td > i").removeClass("fa-caret-down");
+                $("tr > td > i").addClass("fa-caret-right");
+                $("tr > td > i").data("show", false);
+
+                $(".tr-toggle").click(function() {
+                    var icone = $(this).find("i");
+                    if (icone.data("show") === true) {
+                        icone.removeClass("fa-caret-down");
+                        icone.addClass("fa-caret-right");
+                        icone.data("show", false);
+                    } else {
+                        icone.removeClass("fa-caret-right");
+                        icone.addClass("fa-caret-down");
+                        icone.data("show", true);
+                    }
+                });
+            });
+        </script>
+{% endblock %}

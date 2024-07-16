@@ -1,0 +1,1222 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %} {%load static %}
+<script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+<link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_list_employe' %}">Liste des employés</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_detail_employe' model.id %}">Détails sur {{ model.nom_complet | upper }}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>Modifier employé</h3>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_rh_list_employe' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+
+                <form id="form" method="POST" action="{% url 'module_rh_post_update_employe' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+
+                    <input id="submit" type="submit" style="display: none">
+                    <input type="hidden" name="ref" value="{{model.id}}">
+
+                    <br/>
+
+                    <div id="rh_profil">
+                        <div class="row">
+                            <table>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input id="image_upload" name="image_upload" type="file" accept="image/*" style="display:none;">
+                                        <div class="tile-container">
+                                            <a onclick="$('input[id=image_upload]').click();" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+                                                <div class="tile-content slide-up" >
+                                                    <div class="slide" >
+                                                    {% if model.image != None and model.image != "" %}
+                                                        <img id="image_preview" src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                                    {% else %}
+                                                        <img id="image_preview" src="{% static 'ErpProject/image/user_profile.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                                    {% endif %}
+                                                    </div>
+
+                                                    <div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+                                                        <span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="input-control radio small-check">
+                                            <input value="0" name="est_enconge" type="radio">
+                                            <span class="check"></span>
+                                            <span class="caption">Est en congé</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </table>
+
+                            <div class="row">
+                                <div class="tabcontrol2" data-role="tabcontrol">
+                                    <ul class="tabs">
+                                        <li class="active"><a href="#frame_infopublic">Infos publiques</a></li>
+                                        <li class=""><a href="#frame_infoperso">Infos personnelles</a></li>
+                                        <li class=""><a href="#frame_rh">Paramètre Banque</a></li>
+                                        <li class=""><a href="#frame_doc">Documents</a></li>
+                                        <li class=""><a href="#frame_adroit">Ayant-droits</a></li>
+                                    </ul>
+                                    <div class="frames">
+                                        <div class="frame" id="frame_infopublic" style="display: block;">
+                                            <table>
+                                                <h4>Identification de l'employé</h4>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <label>Matricule</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input name="matricule" type="text" value="{{ model.profilrh.matricule }}" >
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Prénom</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input name="prenom" type="text" value="{{model.prenom}}">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label>Nom</label>
+                                                        <div class="input-control text full-size" data-role="input">
+                                                            <input name="nom" type="text" value="{{model.nom}}">
+                                                            <span class="input-state-error mif-warning"></span>
+                                                            <span class="input-state-success mif-checkmark"></span>
+                                                        </div>
+                                                    </div>
+                                                    <br>
+                                                </div>
+                                                    <h4>Information de Contact</h4>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Lieu de travail</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <select class="champ" id="lieu_travail" name="lieu_travail"
+                                                                    data-validate-func="min" data-validate-arg="1"
+                                                                    data-validate-hint="Sélectionnez un lieu svp">
+                                                                    <option value="">Sélectionnez un lieu de travail</option>
+                                                                    {% for item in lieuTravail %}
+                                                                        <option {% if model.lieu_travail.id == item.id %} {{ "selected" }} {% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Email</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input name="email" type="email"  value="{{ model.profilrh.email_professionnel }}"
+                                                                    data-validate-func="email"
+                                                                    data-validate-hint="Entrez une adresse email valide svp !">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Tél. Personnel</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input class="champ" name="phone" value="{{ model.profilrh.phone_personnel }}" type="text">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Tél. Professionnel 1</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input class="champ" name="phone_professionnel"
+                                                                    type="text" value="{{ model.profilrh.phone_professionnel }}">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Tél. Professionnel 2</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input class="champ" name="phone_bureau" type="text" value="{{ model.profilrh.phone_professionnel2 }}">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </table>
+                                                  <table>
+                                                    <h4>Poste</h4>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Organisation</label>
+                                                            <div class="input-control text full-size">
+                                                                <select name="departement" id="departement"
+                                                                    data-validate-func="min"
+                                                                    data-validate-arg="1"
+                                                                    data-validate-hint="Sélectionnez une organisation svp.">
+                                                                    <option value="0">Sélectionnez une organisation</option>
+                                                                    {% for item in departements %}
+                                                                        <option {% if model.unite_fonctionnelle.id == item.id %} {{ "selected" }} {% endif %} value="{{ item.id }}"> {{ item.libelle }} </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Poste</label>
+                                                            <div class="input-control text full-size">
+                                                            <select id="form" name="poste" id="poste"
+                                                                data-validate-func="min"
+                                                                data-validate-arg="1"
+                                                                data-validate-hint="Sélectionnez le poste svp.">
+                                                                <option value="">Sélectionnez un poste</option>
+                                                                {% for item in postes %}
+                                                                    <option {% if model.poste.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} ({{ item.departement.libelle }})</option>
+                                                                {% endfor %}
+
+                                                            </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Fonctions</label>
+                                                            <div class="input-control text full-size">
+                                                                <select style="width: 100%;" type="text" name="fonction" id="fonction" onchange="choix_fonction()"
+                                                                    class="chosen-select" multiple data-placeholder="selectionez une fonction">
+
+                                                                    {% for item in fonctions %}
+                                                                    <option value="{{ item.id }}">{{ item.designation }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <!-- {% include 'ErpProject/ErpBackOffice/widget/select.html' with url="/ressourceshumaines/employe/add?isPopup=1" model="Model_Employe" name="responsable" id="responsable" hint="Sélectionnez un responsable svp." only %} -->
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Catégorie salariale de l'employé</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <select name="categorie_employe_id" id="categorie_employe_id">
+                                                                    <option value="">Sélectionnez une categorie salariale</option>
+                                                                {% for item in categorie_employes %}
+                                                                    <option {% if item.id == model.categorie_employe_id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item }}</option>
+                                                                {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Contrat de Travail</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input name="contrat" type="text" value="{{model.profilrh.contrat}}"
+                                                                    placeholder="votre contrat de travail">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Categorie socio professionnelle</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <select name="categorie_socio_professionnelle"
+                                                                    class=""
+                                                                    id="categorie_socio_professionnelle">
+                                                                    <option value="">Selectionnez une categorie svp</option>
+                                                                    {% for item in categories %}
+                                                                    <option {% if item.id == model.classification_pro.id %} {{ "selected" }} {% endif %} value="{{item.id}}">
+                                                                        {{item.designation}}
+                                                                    </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <br>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Sécurite Social</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input name="numero_ss" type="text" placeholder="numero CNSS" value="{{ model.profilrh.numero_ss }}" >
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Date de recrutement</label>
+                                                            <div id="date_engagement" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                                <input readonly type="text" name="date_engagement" readonly value="{{ model.profilrh.date_engagement | date:"d/m/Y" }}"
+                                                                    data-validate-func="required"
+                                                                    data-validate-hint="Précisez la date d'engagement svp.">
+                                                                <div class="button"><span class="mif-calendar"></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Date Prise de Service</label>
+                                                            <div id="date_engagement" class="input-control text full-size"
+                                                                data-format="dd/mm/yyyy" data-role="datepicker"
+                                                                data-locale="fr">
+                                                                <input readonly type="text" name="prisecharge" value="{{ model.profilrh.debut_service | date:"d/m/Y" }}"
+                                                                    readonly data-validate-func="required"
+                                                                    data-validate-hint="Précisez la Date Prise de Service svp.">
+                                                                <div class="button"><span class="mif-calendar"></span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Statut Employé</label>
+                                                            <div class="input-control text full-size">
+                                                                <select name="statutEmploye" class="" id="statutEmploye"
+                                                                    data-validate-func="required" data-validate-arg="1"
+                                                                    data-validate-hint="Selectionnez le statut de l'employé svp.">
+                                                                    <option value="">Selectionnez une categorie svp</option>
+                                                                    {% for item in statuts %}
+                                                                        <option {% if model.statutrh.id == item.id %} {{ "selected" }} {% endif %} value="{{item.id}}">
+                                                                            {{item.designation}}
+                                                                        </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <input name="type_structure_id" id="type_structure_id" type="hidden"  value="0">
+                                                            <label>Modèle Bulletin</label>
+                                                            <div class="input-control text full-size">
+                                                                <select name="modelbulletin" id="modelbulletin">
+                                                                    <option value="0">Sélectionnez un modèle de bulletin</option>
+                                                                    {% for item in bulletin_modeles %}
+                                                                        <option {% if model.modele_bulletin.id == item.id %} {{ "selected" }} {% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </table>
+                                                <table>
+                                                    <div class="row">
+                                                        <h4>Adresse Personnelle</h4>
+                                                        <div class="col-md-6">
+                                                            <div class="input-control select full-size" data-role="input">
+                                                                <select onchange="choix_pays()" id="choixPays">
+                                                                    <option value="">Sélectionnez un pays</option>
+                                                                    {% for item in pays %}
+                                                                        <option {% if item.id == le_pays.id %} {{ "selected" }} {% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="input-control select full-size" data-role="input">
+                                                                <select onchange="choix_province()" id="choixProvince">
+                                                                    <option value="0">Sélectionnez un état ou une province</option>
+                                                                    <option selected value="{{ la_province.id }}"> {{ la_province.designation }} </option>
+                                                                </select>
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="input-control select full-size" data-role="input">
+                                                                <select onchange="choix_ville()" id="choixVille">
+                                                                    <option value="0">Sélectionnez une ville</option>
+                                                                    <option selected value="{{ la_ville.id }}"> {{ la_ville.designation }} </option>
+                                                                </select>
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="input-control select full-size" data-role="input">
+                                                                <select name="commune_quartier_id" id="choixCommune">
+                                                                    <option value="0">Sélectionnez une commune</option>
+                                                                    <option selected value="{{ la_commune.id }}"> {{ la_commune.designation }} </option>
+                                                                </select>
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input name="adresse" type="text" placeholder="Rue..." value="{{ model.adresse_complete }}" >
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="frames">
+                                            <div class="frame" id="frame_infoperso" style="display: block;">
+                                                <table>
+                                                    <h4>Naissance</h4>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Date de naissance</label>
+                                                            <div id="date_naissance" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                                <input readonly type="text" name="date_naissance" readonly value="{{ model.profilrh.date_naissance|date:"d/m/Y" }}"
+                                                                    data-validate-func="required"
+                                                                    data-validate-hint="Précisez la date d'engagement svp.">
+                                                                <div class="button"><span class="mif-calendar"></span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Lieu de naissance</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input name="lieu_naissance" type="text" value="{{ model.profilrh.lieu_naissance }}">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </table>
+                                                <table>
+                                                    <h4>Nationalite </h4>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Nationalite</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input id="form" name="nationalite" type="text" value="{{ model.profilrh.nationalite }}"
+                                                                    data-validate-func="required"
+                                                                    data-validate-hint="Entrez la natiollité !">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>N° Carte Nationale d'Identité</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <input id="form" name="numero_identification" type="text" value="{{ model.profilrh.numero_identification }}" data-validate-hint="Entrez le numero de votre carte !">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>N° Passeport</label>
+                                                            <div class="input-control text full-size" data-role="input" >
+                                                                <input id="form" name="numero_passeport" type="text" value="{{ model.profilrh.numero_passeport }}"
+
+                                                                    data-validate-hint="Entrez le numero de passeport !">
+                                                                <span class="input-state-error mif-warning"></span>
+                                                                <span class="input-state-success mif-checkmark"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </table>
+                                                <table>
+                                                    <h4>Etat</h4>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Genre</label>
+                                                            <div class="input-control text full-size">
+                                                                <select name="genre" id="genre"
+                                                                    data-validate-func="required"
+                                                                    data-validate-arg="1"
+                                                                    data-validate-hint="Sélectionnez votre genre svp.">
+                                                                    <option value="">Selectionnez votre genre</option>
+                                                                    <option {% if model.profilrh.genre == "Masculin" %} {{ "selected" }} {% endif %} value="Masculin">Masculin</option>
+                                                                    <option {% if model.profilrh.genre == "Feminin" %} {{ "selected" }} {% endif %} value="Feminin">Feminin</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Etat-civil</label>
+                                                            <div class="input-control text full-size">
+                                                                <select name="etat_civil" id="etat_civil"
+                                                                    data-validate-func="required"
+                                                                    data-validate-arg="1"
+                                                                    data-validate-hint="Sélectionnez votre etat civil svp.">
+                                                                    <option value="">Sélectionnez votre etat civil svp.</option>
+                                                                    <option {% if model.profilrh.etat_civil == "Marié(e)" %} {{ "selected" }} {% endif %} value="Marié(e)">Marié(e)</option>
+                                                                    <option {% if model.profilrh.etat_civil == "Célibataire" %} {{ "selected" }} {% endif %} value="Célibataire">Célibataire</option>
+                                                                    <option {% if model.profilrh.etat_civil == "Divorcé(e)" %} {{ "selected" }} {% endif %} value="Divorcé(e)">Divoré(e)</option>
+                                                                    <option {% if model.profilrh.etat_civil == "Veuf(ve)" %} {{ "selected" }} {% endif %} value="Veuf(ve)">Veuf(ve)</option>
+                                                                    <option {% if model.profilrh.etat_civil == "Union Libre" %} {{ "selected" }} {% endif %} value="Union Libre">Union Libre</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Diplôme</label>
+                                                            <div class="input-control text full-size" data-role="input">
+                                                                <select name="diplome" id="diplome"
+                                                                    data-validate-func="required"
+                                                                    data-validate-hint="Sélectionnez le diplôme obtenu.">
+                                                                    <option value="">Selectionnez votre diplome</option>
+                                                                    {% for item in diplome %}
+                                                                        <option {% if model.diplome.id == item.id %} {{ "selected" }} {% endif %} value="{{item.id}}">{{item.designation}}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <input id="form4" name="situation_famille" value="" type="hidden">
+                                                    </div>
+                                                </table>
+
+                                            </div>
+                                        </div>
+                                        <div class="frames">
+                                            <div class="frame" id="frame_rh" style="display: block;">
+                                                <!-- New IDENTITE BANK UI -->
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <table class="table no-margin">
+                                                            <fieldset>
+                                                                <legend>Relevé d'Identité Bancaire</legend>
+                                                                <thead class="no-border">
+                                                                    <tr>
+                                                                        <th width="15%">Banque</th>
+                                                                        <th width="5%">Code Guichet</th>
+                                                                        <th width="20%">Num Compte</th>
+                                                                        <th width="5%">Clé RIB</th>
+                                                                        <th width="20%">Libéllé</th>
+                                                                        <th width="10%">IBAN</th>
+                                                                        <th width="10%">BIC</th>
+                                                                        <th width="10%">Répartition (en %)</th>
+                                                                        <th width="5"></th>
+                                                                    </tr>
+                                                                </thead>
+
+                                                                <tbody id="tbl_posts_bodyb">
+                                                                    {% for item_rib in ribs %}
+                                                                    <tr id="grpa-{{forloop.counter}}">
+                                                                        <td>
+                                                                            <div class="input-control select full-size">
+                                                                                <select id="banque_name-{{forloop.counter}}" class="banque_name"
+                                                                                    name="banque_name" data-validate-func="min"
+                                                                                    data-validate-arg="1"
+                                                                                    data-validate-hint="Sélectionnez une banque svp">
+                                                                                    <option value="0">Sélectionnez une banque</option>
+                                                                                    {% for item in banque %}
+                                                                                        <option {% if item_rib.comptebanque.banque_id == item.id %} {{ "selected" }} {% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                                    {% endfor %}
+                                                                                </select>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="input-control text full-size">
+                                                                                <input name="code_guichet" id="code_guichet-{{forloop.counter}}"
+                                                                                value="{{item_rib.code_guichet}}" class="code_guichet" type="text" placeholder="code guichet">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="input-control text full-size">
+                                                                                <input name="numero_compte" id="numero_compte-{{forloop.counter}}"
+                                                                                value="{{item_rib.comptebanque.numero_compte}}" class="numero_compte" type="text" placeholder="Numero-Compte">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="input-control text full-size">
+                                                                                <input name="cle_rib" id="cle_rib-{{forloop.counter}}"
+                                                                                value="{{item_rib.cle_rib}}" class="cle_rib" type="text" placeholder="Clé Rib">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="input-control text full-size">
+                                                                                <input name="titulaire_compte" id="titulaire_compte-{{forloop.counter}}"
+                                                                                value="{{item_rib.comptebanque.designation}}" class="titulaire_compte" type="text" placeholder="titulaire compte">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="input-control text full-size">
+                                                                                <input name="iban" id="iban-{{forloop.counter}}"
+                                                                                value="{{item_rib.iban}}" class="iban" type="text" placeholder="IBAN">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="input-control text full-size">
+                                                                                <input name="bic" id="bic-{{forloop.counter}}"
+                                                                                value="{{item_rib.bic}}" class="bic" type="text" placeholder="BIC">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="input-control text full-size">
+                                                                                <input name="repartition" id="repartition-{{forloop.counter}}"
+                                                                                value="{{item_rib.comptebanque.repartition}}" class="repartition" type="number" placeholder="repartition">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="pagination no-border">
+                                                                                <span class="item delete-record" title="Supprimer la ligne" data-id="{{forloop.counter}}"><span class="mif-cross fg-red"></span></span>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </fieldset>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <button type="button" class="theme-btn theme-btn-sm rounded" id="btnAjouterLigneBanque">Ajouter une ligne</button>
+                                                    </div>
+                                                </diV>
+                                                <br><br><br>
+                                                <div class="row">
+                                                    <div class="col-md-5">
+                                                        <div class="input-control select full-size" data-role="input">
+                                                            <label>Mode de paiement</label><br>
+                                                            <select name="mode_paiement" id="mode_paiement"
+                                                                data-validate-func="required"
+                                                                data-validate-hint="Sélectionnez le mode de paiement svp.">
+                                                                <option value="0">Mode de paiement</option>
+                                                                <option value="virement">virement</option>
+                                                                <option value="cheque">Chèque</option>
+                                                                <option value="espece">Espèce</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="frames">
+                                            <div class="frame" id="frame_doc" style="display: block;">
+                                                <table>
+                                                    {% if num != 0 %}
+                                                        <div class="row">
+                                                            <h4>Documents de l'employé</h4>
+                                                            <ol>
+                                                                {% for item in documents %}
+                                                                <li style="padding-right: 10px;">
+                                                                    <a style="margin-right: 10px;" href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                                                                    <input type="button" class="btn btn-information" value="Supprimer" onclick="javascript:window.location.assign('{% url 'backoffice_delete_document' item.id 'Model_Employe' 'module_rh_update_employe' %}')">
+                                                                    <!-- <input type="checkbox" class="regular-checkbox"> -->
+                                                                    <style>
+                                                                        /* The container */
+
+                                                                    .regular-checkbox {
+                                                                    -webkit-appearance: none;
+                                                                    background-color: #fafafa;
+                                                                    border: 1px solid #cacece;
+                                                                    box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05);
+                                                                    padding: 9px;
+                                                                    border-radius: 3px;
+                                                                    display: inline-block;
+                                                                    position: relative;
+                                                                    }
+                                                                    .regular-checkbox:active, .regular-checkbox:checked:active {
+                                                                        box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 3px rgba(0,0,0,0.1);
+                                                                    }
+
+                                                                    .regular-checkbox:checked {
+                                                                        background-color: #e9ecee;
+                                                                        border: 1px solid #adb8c0;
+                                                                        box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05), inset 15px 10px -12px rgba(255,255,255,0.1);
+                                                                        color: #99a1a7;
+                                                                    }
+
+                                                                    .regular-checkbox:checked:after {
+                                                                        content: '\2714';
+                                                                        font-size: 14px;
+                                                                        position: absolute;
+                                                                        top: 0px;
+                                                                        left: 3px;
+                                                                        color: #99a1a7;
+                                                                    }
+                                                                    .big-checkbox {
+                                                                        padding: 18px;
+                                                                    }
+
+                                                                    .big-checkbox:checked:after {
+                                                                        font-size: 28px;
+                                                                        left: 6px;
+                                                                    }
+
+                                                                    </style>
+                                                                </li>
+                                                                {% endfor %}
+                                                            </ol>
+                                                            <div>
+                                                                <!-- <button class="btn btn-danger">Supprimer plusieurs</button> -->
+                                                            </div>
+                                                            <!-- <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a> -->
+                                                            <!-- <td></td> -->
+                                                            <!-- <span title="Supprimer la ligne"><span class="mif-cross fg-red"></span> -->
+                                                        </div>
+                                                        <hr>
+                                                    {% endif %}
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Curriculum vitae</label>
+                                                            <div class="input-control text full-size">
+                                                                <input id="curriculum_vitae" name="curriculum_vitae" type="file" accept="image/png, image/jpeg,.pdf,.docx"/>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Contrat de travail</label>
+                                                            <div class="input-control text full-size">
+                                                                <input id="contrat_travail" name="contrat_travail" type="file" multiple accept="image/png, image/jpeg,.pdf,.docx"/>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Diplômes</label>
+                                                            <div class="input-control text full-size">
+                                                                <input id="diplome_etude" name="diplome_etude" type="file" multiple accept="image/png, image/jpeg,.pdf,.docx"/>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Documents annexes</label>
+                                                            <div class="input-control text full-size">
+                                                                <input id="document_annexe" name="document_annexe" type="file" multiple accept="image/png, image/jpeg,.pdf,.docx"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="frames">
+                                            <div class="frame" id="frame_adroit" style="display: block;">
+                                                <table id="table_1" class="table no-margin">
+                                                    <thead class="no-border">
+                                                        <tr>
+                                                            <th width="50%">Prénom et nom</th>
+                                                            <th width="20%">Date de Naissance</th>
+                                                            <th width="20%">Lien de parenté</th>
+                                                            <th width="25%">Description</th>
+                                                            <th width="5%"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="items">
+
+                                                    </tbody>
+                                                </table>
+                                            <div class="row margin10 no-margin-left no-margin-right">
+                                                <button type="button" class="theme-btn theme-btn-sm rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- REPLIQUE TABLEAU -->
+        <table id="rib_table" class="table no-margin" style="display:none;">
+            <fieldset>
+                <thead class="no-border">
+                    <tr>
+                        <th width="15%">Banque</th>
+                        <th width="5%">Code Guichet</th>
+                        <th width="20%">Num Compte</th>
+                        <th width="5%">Clé RIB</th>
+                        <th width="20%">Libéllé</th>
+                        <th width="10%">IBAN</th>
+                        <th width="10%">BIC</th>
+                        <th width="10%">Répartition (en %)</th>
+                        <th width="5"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="grpa-1">
+                        <td>
+                            <div class="input-control select full-size">
+                                <select id="" class="banque_name"
+                                    name="banque_name" data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez une banque svp">
+                                    <option value="0">Sélectionnez une banque</option>
+                                    {% for item in banque %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="code_guichet" id=""
+                                class="code_guichet" type="text" placeholder="code guichet">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="numero_compte" id=""
+                                class="numero_compte" type="text" placeholder="Numero-Compte">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="cle_rib" id=""
+                                class="cle_rib" type="text" placeholder="Clé Rib">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="titulaire_compte" id=""
+                                class="titulaire_compte" type="text" placeholder="titulaire compte">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="iban" id=""
+                                class="iban" type="text" placeholder="IBAN">
+                            </div>
+                        </td>
+                        <td id="grpb-1">
+                            <div class="input-control text full-size">
+                                <input name="bic" id=""
+                                class="bic"  type="text" placeholder="BIC">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-control text full-size">
+                                <input name="repartition" id=""
+                                class="repartition" type="number" placeholder="repartition">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="pagination no-border">
+                                <span class="item delete-record" title="Supprimer la ligne" data-id="0"><span class="mif-cross fg-red"></span></span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </fieldset>
+        </table>
+    </div>
+</div>
+
+<script>
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#image_preview').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#image_upload").change(function(){
+        readURL(this);
+    });
+
+    function choix_pays() {
+        var idPays = $("#choixPays").val();
+
+        if (idPays != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}",
+                { ref: idPays },
+                function (response) {
+                    $("#choixProvince").children().remove();
+                    $("#choixProvince").append("<option value='0'>Sélectionnez la province</option>");
+                    console.log(response);
+                    for (var i = 0; i < response.length; i++) {
+                        var laProvince = response[i];
+
+                        var option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                        $("#choixProvince").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        }
+        else supprimer_provinces();
+    }
+
+    function choix_province()
+    {
+        var idProvince = $("#choixProvince").val();
+
+        if (idProvince != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}",
+                { ref: idProvince },
+                function (response) {
+                    $("#choixVille").children().remove();
+                    $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laVille = response[i];
+
+                        var option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                        $("#choixVille").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        }
+        else supprimer_villes();
+    }
+
+    function choix_ville() {
+        var idVille = $("#choixVille").val();
+
+        if (idVille != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}",
+                { ref: idVille },
+                function (response) {
+                    $("#choixCommune").children().remove();
+                    $("#choixCommune").append("<option value='0'>Sélectionnez un arrondissement</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laCommune = response[i];
+
+                        var option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                        $("#choixCommune").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        }
+        else supprimer_communes();
+    }
+
+    function supprimer_communes() {
+        $("#choixCommune").children().remove();
+        $("#choixCommune").append("<option value='0'>Sélectionnez un arrondissement</option>");
+    }
+
+    function supprimer_villes() {
+        $("#choixVille").children().remove();
+        $("#choixVille").append("<option value='0'>Sélectionnez une ville</option>");
+        supprimer_communes();
+    }
+
+    function supprimer_provinces() {
+        $("#choixProvince").children().remove();
+        $("#choixProvince").append("<option value='0'>Sélectionnez un département</option>");
+        supprimer_villes();
+    }
+</script>
+
+<script>
+    var lesDependants = new Array();
+
+    {% for item in dependants %}
+        lesDependants.push({id:"{{ item.id }}", nom_complet:"{{ item.nom_complet }}", type_dependance:"{{item.type_dependance}}", description: "{{item.description}}", date_naissance:"{{item.date_naissance|date:"d/m/Y"}}"});
+    {% endfor %}
+</script>
+
+<script>
+    $(document).ready(function() {
+        $("#choixPays").val("{{ le_pays.id }}");
+
+        $.get(
+            "{% url 'backoffice_list_places_filles' %}", {
+                ref: "{{ le_pays.id }}"
+            },
+            function(response) {
+                $("#choixProvince").children().remove();
+                $("#choixProvince").append("<option value='0'>Sélectionnez la province</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laProvince = response[i];
+                    var option = "";
+                    if (laProvince.id == parseInt("{{ la_province.id }}")) {
+                        option = "<option selected value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                    } else {
+                        option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                    }
+
+                    $("#choixProvince").append(option);
+                }
+            },
+            "json"
+        );
+
+        $.get(
+            "{% url 'backoffice_list_places_filles' %}", {
+                ref: "{{ la_province.id }}"
+            },
+            function(response) {
+                $("#choixVille").children().remove();
+                $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laVille = response[i];
+                    var option = "";
+                    if (laVille.id == parseInt("{{ la_ville.id }}")) {
+                        option = "<option selected value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                    } else option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+
+                    $("#choixVille").append(option);
+                }
+            },
+            "json"
+        );
+
+        $.get(
+            "{% url 'backoffice_list_places_filles' %}", {
+                ref: "{{ la_ville.id }}"
+            },
+            function(response) {
+                $("#choixCommune").children().remove();
+                $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laCommune = response[i];
+                    var option = "";
+                    if (laCommune.id == parseInt("{{ la_commune.id }}")) {
+                        option = "<option selected value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                    } else option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+
+                    $("#choixCommune").append(option);
+                }
+            },
+            "json"
+        );
+    });
+</script>
+
+<script>
+    var lespostesfill = new Array();
+    var lesemployeesfill = new Array();
+    function fill_account() {
+        var choixDepartement = $("#departement").val();
+        var textchoixDepartement = $( "#departement option:selected" ).text();
+
+        //$("#service_ref_id").children().remove();
+        //$("#service_ref_id").append("<option value='"+choixDepartement+"'>"+textchoixDepartement+"</option>");
+
+        console.log(choixDepartement)
+
+        if ((choixDepartement !== 0) || (choixDepartement !== -100)){
+            showDialog("chargement");
+            console.log(choixDepartement)
+
+            $.get(
+                "{% url 'module_rh_get_poste_of_departement' %}",
+                {ref:choixDepartement}
+                ,
+                function (response) {
+                    console.log(response)
+                    $("#poste").children().remove();
+                    $("#poste").append("<option value='0'>Sélectionnez un poste</option>");
+                    $("#responsable_id").children().remove();
+                    $("#responsable_id").append("<option value='0'>Sélectionnez un responsable direct</option>");
+                        lespostesfill = [];
+                        thereponse = response[0];
+                        for (var i = 0; i < thereponse.length; i++) {
+                        var unposte = thereponse[i];
+                        lespostesfill.push({id:unposte.id, designation: unposte.designation});
+
+                        var option = "<option value='" + unposte.id + "'>"+unposte.designation+"</option>";
+                        $("#poste").append(option);
+                    }
+                    thereponse = response[1];
+                    console.log(thereponse)
+                    for (var i = 0; i < thereponse.length; i++) {
+                        var unemploye = thereponse[i];
+                        console.log('emplue', unemploye.id)
+                        lesemployeesfill.push({id:unemploye.id, nom_complet: unemploye.nom_complet});
+
+                        var option = "<option value='" + unemploye.id + "'>"+unemploye.nom_complet+"</option>";
+                        $("#responsable_id").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        }
+        if (type_article === 2){}
+    }
+</script>
+
+<script>
+</script>
+
+<script>
+    var compteur = 0;
+    window.onload = function() {remplirTable()};
+    function remplirTable(){
+        console.log("ici")
+
+        for (var i = 0; i < lesDependants.length; i++){
+            var dep = lesDependants[i];
+            console.log(dep)
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><input name="identitie" value="'+dep.id+'" id="identitie'+compteur+'" type="hidden"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<input name="noms_ayant_droit" value="'+ dep.nom_complet +'" id="noms_ayant_droit'+compteur+'" type="text" autocomplete="off" ></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr"><input name="birthday_ayant" value="'+dep.date_naissance+'" id="birthday_ayant'+ compteur +'" type="text" data-validate-func="required" autocomplete="off" data-validate-hint="Précisez la date de naissance svp."><div class="button"><span class="mif-calendar"></span></div></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="lien_parente" value="'+ dep.type_dependance +'" id="lien_parente'+compteur+'" type="text" autocomplete="off" ></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="description' + compteur + '" name="description" value="'+dep.description+'" type="text">';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        }
+    }
+
+    var lesarticlesfill = new Array();
+    var nombreLignes = lesDependants.length;
+    var bon = {};
+
+    $("#btnAjouterLigne").on("click", function () {
+        console.log("compteur", compteur)
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne = '<tr id="ligne' + compteur + '"><input name="identitie" value="0" id="identitie'+compteur+'" type="hidden"><td class="no-padding-top no-padding-left no-padding-bottom">';
+        nouvelleLigne += '<div class="input-control select full-size">';
+        nouvelleLigne += '<input name="noms_ayant_droit" id="noms_ayant_droit'+compteur+'" type="text" autocomplete="off" ></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr"><input name="birthday_ayant" id="birthday_ayant'+ compteur +'" type="text" data-validate-func="required" autocomplete="off" data-validate-hint="Précisez la date de naissance svp."><div class="button"><span class="mif-calendar"></span></div></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        nouvelleLigne += '<input name="lien_parente" id="lien_parente'+compteur+'" type="text" autocomplete="off" ></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom">';
+        nouvelleLigne += '<div class="input-control text full-size">';
+        nouvelleLigne += '<input id="description' + compteur + '" name="description" type="text">';
+        nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+        nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+        nouvelleLigne += '</div></td></tr>';
+
+        $("#items").append(nouvelleLigne);
+    });
+
+    function supprimerLigne(indice) {
+        $("#ligne" + indice).remove();
+        {% for item in dependants %}
+            {{ dependants.pop.0 }}
+        {%  endfor %}
+        nombreLignes--;
+        console.log(indice)
+    }
+    function supprimerDocument(indice) {
+        //
+    }
+    function renvoyerOptionsArticles() {
+        var ligne = "";
+        for(var i = 0; i < lesarticlesfill.length; i++){
+            var article = lesarticlesfill[i];
+            ligne += '<option value="' + article.id + '"> [' + article.code_article + '] ' + article.designation + '</option>';
+        }
+        return ligne;
+    }
+
+    var codeArray = ["0", "000000", "0", "000", "XX", "X", "00"];
+    var codeLen = codeArray.length;
+    var choosefoction = false;
+    $(document).ready(function () {
+        var code = "";
+        for (i = 0; i < codeLen; i++) {
+            if (i == 0) {
+                code += codeArray[i];
+            } else {
+                code += "." + codeArray[i];
+            }
+        }
+        $('#code').val(code);
+    });
+    function choix_fonction() {
+        if (!choosefoction) {
+            var texte = "000000";
+            var valeur = $("#fonction").val();
+            if (valeur != 0) {
+                texte = $("#fonction option:selected").text();
+                choosefoction = true;
+            }
+            codeArray[1] = texte;
+            refresh_code();
+        }
+    }
+</script>
+<script>
+    // cette fonction permet de faire en sorte que le select multiple apparaisse comme un input simple
+    $(function () {
+        $('.chosen-select').chosen();
+        $('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+    });
+</script>
+<!-- RIB -->
+<script>
+    var _index = 0;
+    var lataille = 0;
+
+    {% for item in ribs %}
+    lataille += 1
+    {% endfor %}
+
+    console.log("taille", lataille);
+    if (lataille != 0) {
+        _index = lataille;
+    }
+    $(document).ready(function(){
+        $(document).delegate('#btnAjouterLigneBanque', 'click', function(e) {
+            e.preventDefault();
+            var content = $('#rib_table > tbody > tr');
+            _index++;
+            element = null;
+            element = content.clone();
+            element.attr('id', 'grpa-'+_index);
+            element.attr('id', 'grpb-'+_index);
+
+            element.find('.delete-record').attr('data-id', _index);
+            element.appendTo('#tbl_posts_bodyb');
+            //Initialiser les IDS
+            element.find('.banque_name').attr('id', 'banque_name-'+_index);
+            element.find('.code_guichet').attr('id', 'code_guichet-'+_index);
+            element.find('.numero_compte').attr('id', 'numero_compte-'+_index);
+            element.find('.cle_rib').attr('id', 'cle_rib-'+_index);
+            element.find('.titulaire_compte').attr('id', 'titulaire_compte-'+_index);
+            element.find('.iban').attr('id', 'iban-'+_index);
+            element.find('.bic').attr('id', 'bic-'+_index);
+            element.find('.repartition').attr('id', 'repartition-'+_index);
+
+        });
+
+        $(document).delegate('.delete-record', 'click', function(e) {
+            e.preventDefault();
+            var didConfirm = confirm("Etes-vous sûr de vouloir supprimer cette ligne");
+            if (didConfirm == true) {
+                var id = $(this).attr('data-id');
+                console.log('Identifiant-1'+' '+id);
+                // $('#rec-' + id).remove();
+                $('#grpa-'+ id).remove();
+                // $('#grpb-'+ id).remove();
+                console.log('Identifiant-2'+' '+id);
+                return true;
+            } else {
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock %}

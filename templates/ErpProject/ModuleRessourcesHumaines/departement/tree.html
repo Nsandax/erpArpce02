@@ -1,0 +1,145 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} 
+{%load static%}
+{% block page %}
+
+
+<link href="{% static 'ErpProject/wizard/style.min.css' %}" rel="stylesheet">
+<script src="{% static 'ErpProject/wizard/jstree.min.js' %}"></script>
+
+<style>
+
+</style>
+
+<div class="div">
+
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div  class="row">
+    <div  class="col-lg-12">
+        <h2>{{title}}</h2>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+           <div class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+        <br>
+        <div class="row">
+            <div class="col-md-3">
+                <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_rh_add_departement' 0 %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                    Créer Organisation
+                </button>
+            </div>
+            <div class="col-md-3">
+                <div id="btn-view" data-role="group" data-group-type="one-state">
+                    <button id="btn-tree" class="button btn-typeview btn-secondary active"><span class="mif-list"></span></button>
+                    <button id="btn-kanban" onclick="javascript:window.location.assign('{% url 'module_rh_list_departement' %}')" class="button btn-typeview btn-secondary"><span class="mif-apps"></span></button>
+                </div>
+            </div>
+        </div> 
+        
+
+    <hr class="hr-ligne">
+    <br><br>
+
+        <div id="jstree" >
+        </div>
+
+
+        <!-- Billeterie -->
+    <div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogOuverture">
+
+        <div class="row cells3 padding20" style="margin-top: 10px">
+            <h3 id="departmentTitle"></h3>
+            <div class="cells2">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p class="fg-gray">
+                                Code :<br>
+                                <span class="sub-alt-header fg-dark" id="departmentCode"></span>
+                            </p>
+                        <p class="fg-gray">
+                                Responsable :<br>
+                                <span class="sub-alt-header fg-dark" id="departmentResponsable"></span>
+                        </p>
+                        
+                        <p class="fg-gray">
+                            Label :<br>
+                            <span class="sub-alt-header fg-dark" id="departmentLabel"></span>
+                        </p>
+                        <p class="fg-gray">
+                            Organisation parente directe :<br>
+                            <span class="sub-alt-header fg-dark" id="departmentParent"></span>
+                        </p>
+                            
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="row">
+                <a id="goToModify" class="button small-button rounded primary chargement-au-click">Voir plus</a>
+                <!--button class="button small-button rounded" onclick="closeDialog('#dialogBillet')" style="margin-left: 5px">Annuler</!--button-->
+            </div>
+        </div>
+    </div>
+    <!-- Fin B -->
+    </div>
+    <!-- /.col-lg-12 -->
+     
+</div>
+</div>
+<script>
+    mes_donnees = [];
+    department_id = null;
+    {% for item in data %}
+        mes_donnees.push({id:"{{ item.id }}", parent:"{{ item.parent }}",
+        text:"{{ item.departement }}", code:"{{item.code}}", responsable:"{{item.responsable}}",
+         parent_libelle:"{{item.parent_libelle}}", label: "{{item.label}}" });
+    {% endfor %}
+    console.log(mes_donnees)
+    $(function () {
+        $('#jstree').jstree({ 'core' : {
+            'data' : mes_donnees,
+            "themes" : {
+                "variant" : "large"
+                }
+        } });
+
+
+      // 7 bind to events triggered on the tree
+      $('#jstree').on("changed.jstree", function (e, data) {
+        launchDialogOuverture(data.node.original)
+      });
+      // 8 interact with the tree - either way is OK
+      $('button').on('click', function () {
+        $('#jstree').jstree(true).select_node('child_node_1');
+        $('#jstree').jstree('select_node', 'child_node_1');
+        $.jstree.reference('#jstree').select_node('child_node_1');
+      });
+    });
+</script>
+
+<script>
+ function launchDialogOuverture(data){
+        $("#departmentTitle").html(data.text);
+        $("#departmentCode").html(data.code);
+        $("#departmentResponsable").html(data.responsable);
+        $("#departmentLabel").html(data.label);
+        $("#departmentParent").html(data.parent_libelle);
+        var progressUrl = '{% url "module_rh_detail_departement" "1000" %}';
+        progressUrl = progressUrl.replace('1000', data.id);
+        $("#goToModify").attr("href",progressUrl)
+
+        
+        $("#dialogOuverture")
+        .dialog("open");
+	}
+
+</script>
+   
+{% endblock %}

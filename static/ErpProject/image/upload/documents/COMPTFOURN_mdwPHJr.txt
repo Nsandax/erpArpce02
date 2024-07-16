@@ -1,0 +1,26 @@
+Liste des fournisseurs
+- Numéro de compte bancaire
+RIB
+- NIU
+- Personne à contact
+- Autres informations
+
+Facture fournisseurs
+-Numéro de sequence (ID)
+
+Rapport
+Ajouter dans balance des tiers recherche par tiers
+
+
+Facture 
+Add Autres informations
+
+Annuler facture la facture
+
+Proposition: Génération la balance en compte avec reduction de (-44, -46, -47)
+
+Facture avance 
+===============
+Génération des ecritures 409
+============================
+

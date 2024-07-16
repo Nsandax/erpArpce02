@@ -1,0 +1,354 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} {% block page %} {%load static %} {% load customfilter %}
+<style>
+    /* LE CODE DE TAUX DE FORMATION PAR FAMILLE PROF */
+
+    .tg {
+        border-collapse: collapse;
+        border-spacing: 0;
+        margin-left: 2%;
+    }
+
+    .tg td {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        padding: 10px 5px;
+        border-style: solid;
+        border-width: 1px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: black;
+    }
+
+    .tg th {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        padding: 10px 5px;
+        border-style: solid;
+        border-width: 1px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: black;
+    }
+
+    .tg .tg-u1oi {
+        font-weight: bold;
+        background-color: #1b1c36;
+        color: #ffffff;
+        border-color: inherit;
+        text-align: center;
+        vertical-align: top
+    }
+
+    .tg .tg-cnwr {
+        font-weight: bold;
+        background-color: #ffcc67;
+        border-color: inherit;
+        text-align: center;
+        vertical-align: top
+    }
+
+    .tg .tg-kbue {
+        font-weight: bold;
+        background-color: #9BADD2;
+        border-color: inherit;
+        text-align: left;
+        vertical-align: top
+    }
+
+    .tg .tg-61xu {
+        background-color: #B8B8B8;
+        border-color: inherit;
+        text-align: left;
+        vertical-align: top
+    }
+
+    .tg .tg-0pky {
+        border-color: inherit;
+        text-align: left;
+        vertical-align: top
+    }
+    /* LE CODE DE TAUX DE FORMATION PAR FAMILLE PROF */
+</style>
+<div id="vue_admin" class="container" style="width: 100%;">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a>
+            </li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="col-lg-12 head_grid" style="background-color:#fff;margin-bottom:3%;padding:1%;">
+        <h2>Taux de formation par famille professionnelle</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <!-- TAUX DE FORMATION PAR FAMILLE PROFESSIONNELLE  -->
+        <div class="col-md-12" style="padding-top: 15px!important;margin-bottom:2%;">
+            <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                <div class="row item_header">
+                    <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+            Taux de formation par famille professionnelle
+          </span>
+                </div>
+                <div class="row" style="height: 140px; padding-top: 20px">
+                    <canvas id="chart_formation_famille_pro" style="height: 120px!important; width: 100%"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- TAUX DE FORMATION PAR FAMILLE PROFESSIONNELLE  -->
+        <!--Tableau de taux de formation par famille prof -->
+        <table class="tg">
+            <tr>
+                <th class="tg-u1oi" colspan="15">Taux de formation par famille professionnelle</th>
+            </tr>
+            <tr>
+                <td class="tg-cnwr">Libellé</td>
+                {% for item in Keys_Taux_formation_direct %}
+                <td class="tg-cnwr">{{item}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-kbue">INFORMATIQUE</td>
+                {% for item in Tx_Info %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in Tx_Info %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in Tx_Info %}
+                <td class="tg-0pky">{{item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-kbue">RESSOURCES HUMAINES</td>
+                {% for item in Tx_Rh %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in Tx_Rh %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in Tx_Rh %}
+                <td class="tg-0pky">{{item.nbJr}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-kbue">COMPTABILITE-FINANCES</td>
+                {% for item in Tx_Compta %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in Tx_Compta %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in Tx_Compta %}
+                <td class="tg-0pky">{{item.nbJr}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-kbue">CONTROLE DE GESTION</td>
+                {% for item in tx_cg %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in tx_cg %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in tx_cg %}
+                <td class="tg-0pky">{{item.nbJr}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-kbue">TELECOM</td>
+                {% for item in tx_tel %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in tx_tel %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in tx_tel %}
+                <td class="tg-0pky">{{item.nbJr}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-kbue">ECONOMIE</td>
+                {% for item in tx_eco %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in tx_eco %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in tx_eco %}
+                <td class="tg-0pky">{{item.nbJr}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-kbue">LOGISTIQUE</td>
+                {% for item in tx_lg %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in tx_lg %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in tx_lg %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-kbue">AFFAIRE JURIDIQUE</td>
+                {% for item in tx_aj %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in tx_aj %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in tx_aj %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-kbue">LA COMMUNICATION</td>
+                {% for item in tx_com %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in tx_com %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in tx_com %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-kbue">POSTE</td>
+                {% for item in tx_poste %}
+                <td class="tg-61xu">{{item.nbAge|div:item.nbJr}}</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre d'agents</td>
+                {% for item in tx_poste %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-61xu">Nombre de jours de formation</td>
+                {% for item in tx_poste %}
+                <td class="tg-0pky">{{item.nbAge}}</td>
+                {% endfor %}
+            </tr>
+        </table>
+        <!-- Tableau de taux de formation par famille prof -->
+    </div>
+</div>
+
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+
+<!-- chart_formation_famille_pro -->
+<script>
+    var formation = []
+    var keys_formation_direct = []
+
+    formation = {
+        {
+            Tx_formation_pro
+        }
+    }
+    keys_formation_direct = {
+        {
+            Keys_Taux_formation_direct | safe
+        }
+    }
+    new Chart(document.getElementById("chart_formation_famille_pro"), {
+        type: 'bar',
+        data: {
+            labels: keys_formation_direct,
+            datasets: [{
+                label: 'Nombre de congé par mois',
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)', 'rgba(44, 62, 85, 0.5)', 'rgba(255, 99, 132, 0.5)',
+                    'rgba(153, 27, 88, 0.5)', 'rgba(44, 62, 85, 0.5)', 'rgba(255, 99, 132, 0.5)',
+                    'rgba(255, 99, 132, 0.5)', 'rgba(44, 62, 85, 0.5)', 'rgba(255, 99, 132, 0.5)',
+                    'rgba(153, 27, 88, 0.5)', 'rgba(44, 62, 85, 0.5)', 'rgba(255, 99, 132, 0.5)',
+                ],
+                data: formation
+            }]
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: false,
+                text: 'Part de recrutement via mobilité'
+            }
+        }
+    });
+</script>
+<!-- chart_formation_famille_pro  -->
+{% endblock %}

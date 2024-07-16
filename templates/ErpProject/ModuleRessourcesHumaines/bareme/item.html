@@ -1,0 +1,158 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_list_bareme' %}">Liste des Barêmes</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button onclick="testBareme('#dialog')" 
+        class="button rounded primary chargement-au-click primary_color_{{module.name|lower}}">Calcul Impôt</button-->
+        <button class="button rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_bareme' %}')" style="width:20%;margin-left: 5px">Créer</button>
+		<center><h4 style="color:red; font-weight: bold;">BAREME</h4></center>
+	</div>
+    <div data-role="dialog" data-close-button="true" id="dialog">       
+        <div class="row cells3 padding20" style="margin-top: 10px">
+            <h3>Calcul Impôt</h3>
+            <div class="cells2">                
+				<input id="submit" type="submit" style="display: none">
+				<div class="row cell">
+					<label>Montant Net Imposable</label>
+					<div class="input-control text full-size" data-role="input">
+						<input id="montant_ni" name="montant_ni" type="text" value="0">
+					</div>
+				</div>
+				<div class="row">
+					<h4 id="impot_value"></h4>
+				</div>
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+				<div class="row cell">
+					<button id="btn-calculer"  class="button rounded primary chargement-au-click primary_color_{{module.name|lower}}">Calculer</button>
+					<button class="button rounded" onclick="closeTestBareme('#dialog')" style="margin-left: 5px">Annuler</button>
+				</div>
+            </div>        
+        </div>
+    </div>
+    <hr class="hr-ligne">
+    <div class="row item-content" style="margin-top: 10px">
+        <!--p class="header">{{ model.designation }}</p-->
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Désignation :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Référence :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.reference }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Type :<br>
+                    <span class="sub-alt-header fg-dark">{{ model.type }}</span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Devise :<br>
+					<span class="sub-alt-header fg-dark">{{ model.devise }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Date de création :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.creation_date|date:"d/m/Y" }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Auteur :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.auteur.nom_complet }} </span>
+                </p>
+            </div>
+        </div>
+
+		<div class="row">
+			<table class="table border bordered">
+				<thead>
+					<tr class="primary_color_{{module.name|lower}}">
+						<th width="10%">Séquence</th>
+						<th width="15%">Pourcentage</th>
+						<th width="25%">Tranche début</th>
+						<th width="25%">Tranche fin</th>
+						<th width="25%">Montant</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for tranche in tranches %}
+						<tr class="table bordered border">
+							<td>{{ tranche.sequence}}</td>
+							<td>{{ tranche.pourcentage_net_impot }}</td>
+							<td>{{ tranche.tranche_debut }} {{ model.devise.symbole_devise }}</td>
+							<td>{{ tranche.tranche_fin }} {{ model.devise.symbole_devise }}</td>
+							<td>{{ tranche.montant_net_impot }} {{ model.devise.symbole_devise }}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>		
+    </div>
+    <script>
+        function testBareme(id){
+            var dialog = $(id).data('dialog');
+            dialog.open();
+        }
+        function closeTestBareme(id){
+			$("#impot_value").text("");
+			$("#montant_ni").val("");
+            var dialog = $(id).data('dialog');
+            dialog.close();
+        }
+
+        $(document).ready(function(){
+
+            $('#btn-calculer').click(function() {
+				
+				
+				if($("#montant_ni").val() != '0' && $("#montant_ni").val() != '' ) {
+					
+					if (isNaN($("#montant_ni").val())){
+						$("#impot_value").text("Entrez le nombre valide SVP");
+					}else{
+						var montant_ni = parseFloat($("#montant_ni").val());
+						$.get(
+							"{% url 'module_ressources_humaines_test_bareme' %}",
+							{ref : "{{ model.id }}", ref_montant : montant_ni},
+							function(data)
+							{
+								if(data != null)
+								{
+									$("#impot_value").text("IPR: " + data.impot);
+								}else{
+									$("#impot_value").text("Erreur dans le calcul de l'Impôt");
+								}
+							},
+							"json"
+						);
+					}
+				}else{
+					$("#impot_value").text("Entrez le montant du Net Imposable SVP");
+				}
+            })
+        
+        });
+
+    </script>
+{% endblock %}

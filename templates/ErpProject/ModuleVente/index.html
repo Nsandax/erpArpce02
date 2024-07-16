@@ -1,0 +1,607 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %}
+{%load static %}
+	<style type="text/css">
+		body{
+			background-color: grey!important;
+		}
+		.beautif{
+			background: #678DFB;
+			padding: 16%;
+			width: 37px;
+			border-radius: 50px;
+			text-align: center;
+			color: #fff
+		}
+		.epsace{
+			padding:10%;
+			padding-top: 5%;
+			padding-bottom: 0%;
+		}
+		.epsace h3{
+			text-align:center;
+			font-weight: 900;
+			font-size: 25px;
+		}
+		.epsace p{
+			text-align:center;
+			color:#c9c9c9;
+		}
+		.contenue{
+			font-family: 'Roboto medium' !important;
+    		font-size: initial;
+		}
+
+
+	</style>
+	<div id="vue_user" class="row" style="padding-top: 30px;">
+		<div class="col-lg-12">
+			<h2>Tableau de Bord</h2>
+			<strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+			<div class="separ" style="background-color: grey;opacity: 0.2"></div>
+			<div class="panel panel-default" style="border: none;">
+				<div style="padding-bottom:10px; margin-left:1%;">
+					<span class="text-capitalize text-bold" >Statistique</span>
+				</div>
+				<div class="row">
+					<div class="col-md-3">
+						<div class="panel panel-success p1" style="border-radius: 10px;border-bottom: none;">
+							<div class="panel-heading" style="background-color: transparent;color: white;">
+								<div class="row">
+									<div class="col-xs-9 text-left">
+										<div class="" style="font-weight: 500;">Client</div>
+										<p  style="font-size: 20px;font-family: gotham">{{numberclient}}</p>
+									</div>
+									<div class="col-xs-3 text-right">
+										<i class="fa fa-bank fa-2x" style="float: left;opacity: 0.3"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="panel panel-success p2" style="border-radius: 10px;border-bottom: none;">
+							<div class="panel-heading" style="background-color: transparent;color: white;">
+								<div class="row">
+									<div class="col-xs-9 text-left">
+										<div style="font-weight: 500;">Categorie Article</div>
+										<p  style="font-size: 20px;font-family: gotham">{{NumberCategorieArticle}}</p>
+									</div>
+									<div class="col-xs-3 text-right">
+										<i class="fa fa-folder-open fa-2x" style="float: left;opacity: 0.3"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="panel panel-success p3" style="border-radius: 10px;border-bottom: none;">
+							<div class="panel-heading" style="background-color: transparent;color: white;">
+								<div class="row">
+									<div class="col-xs-9 text-left">
+										<div style="font-weight: 500;">Facture Client</div>
+										<p  style="font-size: 20px;font-family: gotham">{{NumberFactureClient}}</p>
+									</div>
+									<div class="col-xs-3 text-right">
+										<i class="fa fa-bank fa-2x" style="float: left;opacity: 0.3"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+						<div class="col-md-4"style="padding: 10px;">
+							<div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+								<label style="font-weight: 900;display: flex; justify-content: center;">Bon Commande Récents </label>
+								<hr>
+								<ul style="width: 100%;padding: 10px;">
+									{% for item in  ListeBonComnande %}
+									<li>
+										<strong style="font-weight: 600;">
+												<a href="{% url 'module_vente_details_bon_commande' item.id %}">{{item.numero_commande}}</a>
+										</strong>
+											<p style="float: right;font-size: 12px;color: grey;">{{item.date_commande | date:"d-m-Y"}}
+											</p>
+											<p style="font-size: 13px;color: grey;">{{item.statut}}</p>
+									</li>
+									{% empty %}
+									<li>Sorry, non data.</li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+						<div class="col-md-4"style="padding: 10px;">
+								<div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+								<label style="font-weight: 900;display: flex; justify-content: center;">Documents Récents</label>
+								<hr>
+								<ul style="width: 100%;padding: 10px;">
+									{% for item in ListeBonLivraison %}
+									<li>
+										<strong style="font-weight: 600;">
+											<a href="{% url 'module_vente_details_bon_livraison' item.id %}">{{item.numero_livraison}}</a>
+										</strong>
+										<p style="float: right;font-size: 12px;color: grey;">{{item.date_livraison | date:"d-m-Y"}}
+										</p>
+										<p style="font-size: 13px;color: grey;">Bon de commande: {{item.bon_commande.numero_commande}}</p>
+									</li>
+									{% empty %}
+									<li>Sorry, non data.</li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+						<div class="col-md-4"style="padding: 10px;">
+								<div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+								<label style="font-weight: 900;display: flex; justify-content:center;">Les Entreprises </label>
+								<hr>
+								<ul style="width: 100%;padding: 10px;">
+									{% for item in ListeFour %}
+										<li>
+											<strong style="font-weight: 600;">
+											<a href="{% url 'module_achat_details_fournisseur' item.id %}">{{item.nom_complet}}</a>
+											</strong>
+											<p style="float: right;font-size: 12px;color: grey;">{{item.date_fondation | date:"d-m-Y"}}
+											</p>
+											<p style="font-size: 13px;color: grey;">
+												{% if item.est_particulier == True %}
+												Particulier
+												{% else %}
+												Entreprise
+												{% endif %}
+											</p>
+										</li>
+									{% empty %}
+										<li>Aucune donnée disponible.</li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<div id="vue_admin" class="row" style="padding-top: 30px;">
+		<div class="col-lg-12">
+			<h2>Tableau de Bord</h2>
+			<strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+			<div class="separ" style="background-color: grey;opacity: 0.2"></div>
+			<div class="panel panel-default" style="border: none;margin-top:2%;">
+				<div class="panel" style="background-color:#F9F9F9;border: none;">
+					<div class="row">
+						<div class="col-md-6" style="">
+                            <div class="card-item">
+                                <div class="epsace">
+                                    <h3>15</h3>
+                                    <p>Calcul du DSO (Non Encaissé)</p>
+                                </div>
+                                <div>
+                                    <div id="chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="">
+                            <div class="card-item">
+                                <div class="epsace">
+                                    <h3>35</h3>
+                                    <p>Calcul du DSO (Non Encaissé)</p>
+                                </div>
+                                <div>
+                                    <div id="second_chart"></div>
+                                </div>
+                            </div>
+                        </div>
+					</div>
+					<div class="row">
+						<div class="col-md-3">
+							<div class="panel panel-success p2 border-0" style="border-radius: 10px;border-bottom: none;">
+								<div class="panel-heading" style="background-color: transparent;color: white;">
+									<div class="row">
+										<div class="col-xs-9 text-left">
+											<div  class="header_vente_stat contenue" style="font-weight: 500;">Taux de réalisation par nature d’activité</div>
+											<p  style="font-size: 20px;font-family: gotham">40 %</p>
+										</div>
+										<div class="col-xs-3 text-right">
+											<i class="fa fa-file-signature fa-2x" style="float: left;opacity: 0.3"></i>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="panel panel-success p2" style="border-radius: 10px;border-bottom: none;">
+								<div class="panel-heading" style="background-color: transparent;color: white;">
+									<div class="row">
+										<div class="col-xs-9 text-left">
+											<div class="header_vente_stat contenue" style="font-weight: 500;">Taux de recouvrement par catégorie</div>
+											<p  style="font-size: 20px;font-family: gotham">65 %</p>
+										</div>
+										<div class="col-xs-3 text-right">
+											<i class="fa fa-folder-open fa-2x" style="float: left;opacity: 0.3"></i>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="panel panel-success p2" style="border-radius: 10px;border-bottom: none;">
+								<div class="panel-heading" style="background-color: transparent;color: white;">
+									<div class="row">
+										<div class="col-xs-9 text-left">
+											<div class="header_vente_stat contenue" style="font-weight: 500;">Taux de réalisation par agent de recouvrement</div>
+											<p  style="font-size: 20px;font-family: gotham">70 %</p>
+										</div>
+										<div class="col-xs-3 text-right">
+											<i class="fa fa-file fa-2x" style="float: left;opacity: 0.3"></i>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="panel panel-success p2 border-0" style="border-radius: 10px;border-bottom: none;">
+								<div class="panel-heading" style="background-color: transparent;color: white;">
+									<div class="row">
+										<div class="col-xs-9 text-left">
+											<div  class="header_vente_stat contenue" style="font-weight: 500;">Taux de recouvrement par portefeuille</div>
+											<p  style="font-size: 20px;font-family: gotham">55 %</p>
+										</div>
+
+										<div class="col-xs-3 text-right">
+											<i class="fa fa-wallet fa-2x" style="float: left;opacity: 0.3"></i>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12" style="background-color:#fff;">
+						<div class="row">
+							<div class="col-xs-12 col-md-3">
+								<div class="panel panel-success border-0" style="border-radius: 10px;border-bottom: none;border-color:#6282F3;border-width:4px;">
+									<div class="panel-heading" style="background-color: transparent;color: white;">
+										<div class="row">
+											<div class="col-xs-8 text-left">
+												<div class="header_vente_stat contenue" style="font-weight: 500;color:#000;">Taux de recouvrement par client</div>
+												<!-- <p  style="font-size: 20px;font-family: gotham;color:#000;">{{NumberParticulier}}</p> -->
+											</div>
+											<div class="col-xs-4 text-right" style="">
+												<p class="beautif" style="font-size: 16px;font-family: gotham;">65%</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-12 col-md-3">
+								<div class="panel panel-success" style="border-radius: 10px;border-bottom: none;border-color:#6282F3;border-width:4px;">
+									<div class="panel-heading" style="background-color: transparent;color: white;">
+										<div class="row">
+											<div class="col-xs-8 text-left">
+												<div class="header_vente_stat contenue" style="font-weight: 500;color:#000;">Délais moyen de règlement client</div>
+												<!-- <p  style="font-size: 20px;font-family: gotham;color:#000;">{{NumberEntreprise}}</p> -->
+											</div>
+											<div class="col-xs-4 text-right">
+												<p class="beautif" style="font-size: 16px;font-family: gotham;">2J</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-12 col-md-3">
+								<div class="panel panel-success " style="border-radius: 10px;border-bottom: none;border-color:#6282F3;border-width:4px;">
+									<div class="panel-heading" style="background-color: transparent;color: white;">
+										<div class="row">
+											<div class="col-xs-8 text-left">
+												<div class="header_vente_stat contenue" style="font-weight: 500;color:#000;">Total recouvré par année facturée</div>
+												<!-- <p  style="font-size: 20px;font-family: gotham;color:#000;"></p> -->
+											</div>
+											<div class="col-xs-4 text-right">
+												<p class="beautif" style="font-size: 16px;font-family: gotham;">55%</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-12 col-md-3">
+								<div class="panel panel-success " style="border-radius: 10px;border-bottom: none;border-color:#6282F3;border-width:4px;">
+									<div class="panel-heading" style="background-color: transparent;color: white;">
+										<div class="row">
+											<div class="col-xs-9 text-left">
+												<div class="header_vente_stat contenue" style="font-weight: 500;color:#000;">Délais de réponse aux demandes des clients</div>
+												<!-- <p  style="font-size: 20px;font-family: gotham;color:#000;">{{count_article}}</p> -->
+											</div>
+											<div class="col-xs-3 text-right">
+												<p class="beautif" style="font-size: 16px;font-family: gotham;">3J</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-12" style="background-color:#fff;">
+						<div class="" style="height: 5px;background-color: #6779F9;"></div>
+						<div class="row">
+							<div class="col-md-6"style="padding: 10px;">
+								<div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+									<label style="font-weight: 900;display: flex; justify-content: center;">Etat de facturation récentes </label>
+									<hr>
+									<ul style="width: 100%;padding: 10px;">
+											{% for item in  EtatFac|slice:":4" %}
+										<li>
+											<strong style="font-weight: 600;">
+													<a href="#">{{item.numero_etat_facturation}}</a>
+											</strong>
+												<p style="float: right;font-size: 12px;color: grey;">{{item.date_etat | date:"d-m-Y"}}
+												</p>
+												<p style="font-size: 13px;color: grey;">{{item.statut}}</p>
+										</li>
+										{% empty %}
+											<li>Aucune donnée disponible.</li>
+										{% endfor %}
+									</ul>
+								</div>
+							</div>
+							<div class="col-md-6"style="padding: 10px;">
+								<div class="item-dash col-md-12" style="overflow: auto;background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+									<label style="font-weight: 900;display: flex; justify-content:center;">Liste de CLIENTS</label>
+									<hr>
+									<ul style="width: 100%;padding: 10px;">
+										<!-- {% for item in Liste_Client %} -->
+											<li>
+												<strong style="font-weight: 600;">
+												<a href="">Monsieur Leon Bonde</a>
+												</strong>
+												<p style="float: right;font-size: 12px;color: grey;">10-02-2022
+												</p>
+												<p style="font-size: 13px;color: grey;">
+													<!-- {% if item.est_particulier == True %} -->
+													Particulier
+													<!-- {% else %} -->
+													<!-- Entreprise -->
+													<!-- {% endif %} -->
+												</p>
+											</li>
+											<li>
+												<strong style="font-weight: 600;">
+												<a href="">Ste Truck Service</a>
+												</strong>
+												<p style="float: right;font-size: 12px;color: grey;">13-02-2022
+												</p>
+												<p style="font-size: 13px;color: grey;">
+													<!-- {% if item.est_particulier == True %} -->
+													Entreprise
+													<!-- {% else %} -->
+													<!-- Entreprise -->
+													<!-- {% endif %} -->
+												</p>
+											</li>
+											<li>
+												<strong style="font-weight: 600;">
+												<a href="">Air France</a>
+												</strong>
+												<p style="float: right;font-size: 12px;color: grey;">02-02-2022
+												</p>
+												<p style="font-size: 13px;color: grey;">
+													<!-- {% if item.est_particulier == True %} -->
+													Entreprise
+													<!-- {% else %} -->
+													<!-- Entreprise -->
+													<!-- {% endif %} -->
+												</p>
+											</li>
+											<li>
+												<strong style="font-weight: 600;">
+												<a href="">MTN-CG</a>
+												</strong>
+												<p style="float: right;font-size: 12px;color: grey;">18-02-2022
+												</p>
+												<p style="font-size: 13px;color: grey;">
+													<!-- {% if item.est_particulier == True %} -->
+													Entreprise
+													<!-- {% else %} -->
+													<!-- Entreprise -->
+													<!-- {% endif %} -->
+												</p>
+											</li>
+											<li>
+												<strong style="font-weight: 600;">
+												<a href="">Huawei</a>
+												</strong>
+												<p style="float: right;font-size: 12px;color: grey;">10-02-2022
+												</p>
+												<p style="font-size: 13px;color: grey;">
+													<!-- {% if item.est_particulier == True %} -->
+													Entreprise
+													<!-- {% else %} -->
+													<!-- Entreprise -->
+													<!-- {% endif %} -->
+												</p>
+											</li>
+											<li>
+												<strong style="font-weight: 600;">
+												<a href="">Jacques Kalenga</a>
+												</strong>
+												<p style="float: right;font-size: 12px;color: grey;">05-02-2022
+												</p>
+												<p style="font-size: 13px;color: grey;">
+													<!-- {% if item.est_particulier == True %} -->
+													Particulier
+													<!-- {% else %} -->
+													<!-- Entreprise -->
+													<!-- {% endif %} -->
+												</p>
+											</li>
+											<li>
+												<strong style="font-weight: 600;">
+												<a href="">Monsieur Leon Bonde</a>
+												</strong>
+												<p style="float: right;font-size: 12px;color: grey;">10-02-2022
+												</p>
+												<p style="font-size: 13px;color: grey;">
+													<!-- {% if item.est_particulier == True %} -->
+													Particulier
+													<!-- {% else %} -->
+													<!-- Entreprise -->
+													<!-- {% endif %} -->
+												</p>
+											</li>
+										<!-- {% empty %} -->
+											<!-- <li>Sorry, non data.</li> -->
+										<!-- {% endfor %} -->
+									</ul>
+								</div>
+							</div>
+						</div>
+
+					</div>
+					</div>
+				</div>
+
+		</div>
+
+	</div>
+
+
+
+	</div>
+	<script>
+		Liste_libelle = new Array();
+		Number_Client = new Array();
+
+		{% for item in List_Client %}
+			Liste_libelle.push("{{item}}");
+			console.log(Liste_libelle);
+		{% endfor %}
+
+		{% for item in Nombre_Article %}
+			Number_Client.push("{{item}}");
+			console.log(Number_Client);
+		{% endfor %}
+	</script>
+	<script src="{% static 'ErpProject/js/frappe-charts.min.iife.js' %}"></script>
+	<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+	<script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+	<script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+	<script>
+		$(document).ready(function() {
+			$('#example').DataTable({
+				dom: 'Bfrtip',
+				buttons: [{
+						extend: 'copyHtml5',
+						text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+						titleAttr: "Copier"
+					}, {
+						extend: 'excelHtml5',
+						text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+						titleAttr: "Exporter en excel"
+					}, {
+						extend: 'csvHtml5',
+						text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+						titleAttr: "Exporter en csv"
+					}, {
+						extend: 'pdfHtml5',
+						text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+						titleAttr: "Exporter en pdf"
+					},
+					//'copyHtml5',
+					//'excelHtml5',
+					//'csvHtml5',
+					//'pdfHtml5'
+				]
+			});
+		});
+		var lesactions = new Array();
+		var booleen = false;
+		{% for action in actions %}
+		lesactions.push({droit:"{{ action.droit }}"});
+		{% endfor %}
+
+		$(document).ready(function() {
+
+				// Initialisation des sous-menus
+				 $("#vue_admin").hide();
+				 $("#vue_user").hide();
+
+				 for(var i = 1; i < lesactions.length; i++){
+					 act = lesactions[i];
+					if(act.droit==="CREER_RAPPORT")
+					{
+						 booleen = true;
+					}
+					}
+
+					if(booleen){
+						$("#vue_admin").show();
+					}
+					else{
+						$("#vue_user").show();
+					}
+		});
+
+	</script>
+<script>
+    const data = {
+        labels: ["Jan", "Fev", "Mars", "Avr",
+            "Mai", "Juin", "Jul", "Aout","Sept", "Oct", "Nov", "Déc"
+        ],
+        datasets: [
+            {
+                name: "", type: "line",
+                values: [25, 40, 30, 35, 8, 52, 17, -5, -8, 0, 10, 25]
+            },
+        ]
+    }
+
+    const chart1 = new frappe.Chart("#chart", {
+        title: "",
+        data: data,
+        type: 'line',
+        height: 150,
+        colors: ['#7cd6fd', '#743ee2'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    const datachart2 = {
+        labels: ["Jan", "Fev", "Mars", "Avr",
+            "Mai", "Juin", "Jul", "Aout","Sept", "Oct", "Nov", "Déc"
+        ],
+        datasets: [
+            {
+                name: "", type: "line",
+                values: [-5, 8, 20, 17, 9 ,20, 8, 1, -8, 5, 11]
+            },
+        ]
+    }
+    const chart2 = new frappe.Chart("#second_chart", {
+        title: "",
+        data: datachart2,
+        type: 'line',
+        height: 150,
+        colors: ['#7cd6fd', '#743ee2'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+
+
+{% endblock %}

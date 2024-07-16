@@ -1,0 +1,370 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+{% load timetags %}
+   <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_constante' %}">Liste des constantes</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:window.location.assign('{% url 'module_payroll_update_constante' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_payroll_list_constante' %})" class="theme-btn theme-btn-sm rounded chargement-au-click">Annuler</button>
+        <button id="supprimer" class="button theme-btn-sm rounded danger chargement-au-click" style="margin-left: 5px">Supprimer</button>
+    </div>
+    {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_payroll_add_constante" url_detail="module_payroll_details_constante" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Désignation  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Code:<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.code }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Référence  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.reference }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Type :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.value_type_constant }}</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px">
+            <div class="tabcontrol2" data-role="tabcontrol">
+                <ul class="tabs">
+                    <li class="active"><a href="#frame_constante">Paramètres</a></li>
+					<li class=""><a href="#frame_autres">Autres informations</a></li>
+                </ul>
+
+                <div class="frames">
+                    <div class="frame" id="frame_constante" style="display: block;">
+                        {% if model.type_constant == 1 %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table bordered no-margin" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th width="20%">Op.</th>
+                                            <th width="30%">Code</th>
+                                            <th width="50%">Intitulé</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbl_posts_body">
+                                        {% for item_calcul in model.parametres_calculs.all %}
+                                        <tr>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ item_calcul.value_type_operation }}</span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark">{% if item_calcul.code_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' item_calcul.code_const.id %}">{{ item_calcul.code_const.code }}</a> {% else %} {{ item_calcul.code }} {% endif %} </span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark">{% if item_calcul.code_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' item_calcul.code_const.id %}">{{ item_calcul.code_const.designation }}</a>{% else %} - {% endif %} </span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% elif model.type_constant == 2 %}
+                        <div class="row">
+                            <div class="col-md-9">
+                                <table class="table bordered no-margin" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th width="30%">Condition</th>
+                                            <th width="25%">Constante</th>
+                                            <th width="15%">Op.</th>
+                                            <th width="30%">Valeur</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="tbl_posts_body">
+                                        {% for item_test in model.parametres_tests.all %}
+                                        <tr>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ item_test.value_type_condition }}</span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark">{% if item_test.code_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' item_test.code_const.id %}">{{ item_test.code_const.code }}</a> {% else %} {{ item_test.code }} {% endif %} </span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ item_test.value_type_operation }}</span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark">{% if item_test.valeur_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' item_test.valeur_const.id %}">{{ item_test.valeur_const.code }}</a> {% else %} {{ item_test.valeur }} {% endif %} </span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="row">
+                                    <label>Alors</label>
+                                    <div class="input-control text full-size">
+                                        <p class="fg-gray">
+                                            <span class="sub-alt-header fg-dark">{% if model.alors_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.alors_const.id %}">{{ model.alors_const.code }}</a> {% else %} {{ model.alors }} {% endif %} </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label>Sinon</label>
+                                    <div class="input-control text full-size">
+                                        <p class="fg-gray">
+                                            <span class="sub-alt-header fg-dark">{% if model.sinon_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.sinon_const.id %}">{{ model.sinon_const.code }}</a> {% else %} {{ model.sinon }} {% endif %} </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif model.type_constant == 3 %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Base de test</label>
+                                <div class="input-control text full-size">
+                                    <p class="fg-gray">
+                                        <span class="sub-alt-header fg-dark">{% if model.base_test_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.base_test_const.id %}">{{ model.base_test_const.code }}</a> {% else %} {{ model.base_test }} {% endif %} </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table bordered no-margin" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th width="5%">N°</th>
+                                            <th width="40%" colspan="4">Base</th>
+                                            <th width="55%" colspan="4">Valeur</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="tbl_posts_body">
+                                        {% for item_tranche in model.parametres_tranches.all %}
+                                        <tr>
+                                            <td width="5%">
+                                                <p class="numero_ordre" style="font-size: 22px; text-align: center; margin-top: 10px;"> {{ item_tranche.sequence }}</p>
+                                            </td>
+                                            <td width="5%"><p style="font-size: 22px; text-align: center; margin-top: 10px;">Si</p></td>
+                                            <td width="15%">
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark">{% if item_tranche.tranche_debut_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' item_tranche.tranche_debut_const.id %}">{{ item_tranche.tranche_debut_const.code }}</a> {% else %} {{ item_tranche.tranche_debut }} {% endif %} </span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td width="5%"><p class="left_operation" id="left_operation-1" style="font-size: 24px; text-align: center; margin-top: 10px;">{{ item_tranche.value_type_operation_debut }} </p></td>
+                                            <td width="15%">
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark">{% if model.base_test_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.base_test_const.id %}">{{ model.base_test_const.code }}</a> {% else %} {{ model.base_test }} {% endif %} </span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td width="5%"><p class="right_operation" id="right_operation-1" style="font-size: 24px; text-align: center; margin-top: 10px;">{{ item_tranche.value_type_operation_fin }}</p></td>
+                                            <td  width="20%">
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark">{% if item_tranche.tranche_fin_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' item_tranche.tranche_fin_const.id %}">{{ item_tranche.tranche_fin_const.code }}</a> {% else %} {{ item_tranche.tranche_fin }} {% endif %} </span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td width="10%"><p style="font-size: 16px; text-align: center; margin-top: 10px;">Alors =</p></td>
+                                            <td width="20%">
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark">{% if item_tranche.valeur_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' item_tranche.valeur_const.id %}">{{ item_tranche.valeur_const.code }}</a> {% else %} {{ item_tranche.valeur }} {% endif %} </span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {% elif model.type_constant == 4 %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Valeur :<br>
+                                    <span class="sub-alt-header fg-dark">{% if model.valeur_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.valeur_const.id %}">{{ model.valeur_const.code }}</a> {% else %} {{ model.valeur }} {% endif %} </span>
+                                </p>
+                            </div>
+                        </div>
+                        {% elif model.type_constant == 5 %}
+                        <div class="row plage" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Rubrique :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.rubrique.code }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        {% elif model.type_constant == 6 %}
+                        <div class="row plage" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Fonction python prédefinie :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.fonction }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        {% elif model.type_constant == 7 %}
+                        <div class="row plage" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Fonction python Individuelle :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.fonction }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        {% elif model.type_constant == 8 %}
+                        <div class="row plage" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Période :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.value_periode_cumul }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        {% if model.periode_cumul == 5 %}
+                        <div class="row">
+                            <div class="col-md-2">
+                                <p class="fg-gray">
+                                    Date début :<br>
+                                    <span class="sub-alt-header fg-dark">{% if model.date_debut_cumul is None %}{% else %}{{ model.date_debut_cumul|timestamp_to_date }}{% endif %}</span>
+                                </p>
+                            </div>
+                            <div class="col-md-2">
+                                <p class="fg-gray">
+                                    Date fin :<br>
+                                    <span class="sub-alt-header fg-dark">{% if model.date_fin_cumul is None %}{% else %}{{ model.date_fin_cumul|timestamp_to_date }}{% endif %}</span>
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table bordered no-margin" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th width="20%">Op.</th>
+                                            <th width="30%">Code</th>
+                                            <th width="50%">Intitulé</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbl_posts_body">
+                                        {% for item_calcul in model.parametres_calculs.all %}
+                                        <tr>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ item_calcul.value_type_operation }}</span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ item_calcul.rubrique.reference }}</span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="input-control text full-size">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark">{{ item_calcul.rubrique.designation }}</span>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% elif model.type_constant == 9 %}
+                        <div class="row plage" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Date constante :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.date_constante }} ({{ model.date_constante|timestamp_to_datetime }})</span>
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="frame" id="frame_autres" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Description :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.description }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script>
+        //Dans le type tranche, Masquer l'opération de début et fin pour la première et dernière ligne
+        //Et Aussi Masquer la tranche de début et fin pour la première et dernière ligne
+	</script>
+{% endblock %}

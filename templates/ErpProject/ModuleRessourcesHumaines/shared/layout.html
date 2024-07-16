@@ -1,0 +1,156 @@
+{% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+{% if not isPopup %}
+<!-- Suite Menu Nav -->
+<!-- Menu lateral -->
+<div class="sidebar" role="navigation">
+    <div class="contenair-profil only-on-large-screen" style="background-color: transparent;">
+        <!-- <img src="/static/ErpProject/image/icone_profile.png" class="profil"> -->
+        {% if utilisateur.image != None and utilisateur.image != '' %}
+        <img src="{% static utilisateur.image %}"  class="profil">
+        {% else %}
+            <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+        {% endif %}
+        <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+        <p class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</p>
+        <div class="divider" style="background-color: transparent;"></div>
+    </div>
+    <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+        <ul class=" nav" id="side-menu" style="background-color: transparent;">
+            {% include 'ErpProject/ErpBackOffice/widget/menu.html' %}
+        </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+<!-- /.Menu lateral -->
+</nav>
+<!-- /.Menu Navbar -->
+
+<!-- Corps de la page (A définir dans chaque fonction du module) -->
+<div id="page-wrapper" style="background-color:#f9f9f9;">
+{% else %}
+<div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+    {% endif %}
+    {% block page %}{% endblock %}
+</div>
+<!-- Fin Corps de la page -->
+
+
+<!-- SCRIPT DE TRAITEMENT DES DROITS VISUELS -->
+<script>
+    var lesactions = new Array();
+    var menu1 = 0;
+    var menu2 = 0;
+    var menu3 = 0;
+    var menu4 = 0;
+    var menu5 = 0;
+    var menu6 = 0;
+    var menu7 = 0;
+    var menu8 = 0;
+    var menu9 = 0;
+    var menu10 = 0;
+
+
+    {% for action in actions %}
+    lesactions.push({droit:"{{ action.droit }}"});
+    {% endfor %}
+
+
+
+    //Initialisation des sous-menus
+    $("#employes").hide();
+    $("#departements").hide();
+    $("#categorie_echelon").hide();
+    $("#conges").hide();
+    $("#syndicat").hide();
+    $("#fiche_poste").hide();
+
+    $("#mouvement_personnel").hide();
+    $("#overview_mobilite").hide();
+
+    //$("#projet").hide();
+    $("#fonction").hide();
+
+    $("#dossier_social").hide();
+
+    $("#plan_formation").hide();
+    $("#formation_prevue").hide();
+    $("#formation_realisee").hide();
+    $("#formation_annulee").hide();
+
+
+    $("#emplois").hide();
+    $("#competences").hide();
+    $("#evaluation").hide();
+    $("#evolution_professionnelle").hide();
+    $("#recrutement_interne").hide();
+    $("#reconversion_pro").hide();
+    $("#plan_releve").hide();
+    $("#projet_professionnel").hide();
+    $("#bullletin_employe").hide();
+    $("#calcul_paie").hide();
+    $("#profil_paie").hide();
+    $("#lot_bulletin_paie").hide();
+    $("#element_bulletin").hide();
+    $("#bareme").hide();
+    $("#categorie_employe").hide();
+    $("#menuBI").hide();
+    $("#menu9").hide();
+    $("#menu10").hide();
+
+    for(var i = 1; i < lesactions.length; i++)
+
+    {
+        action = lesactions[i];
+        if(action.droit==="LISTER_EMPLOYE"){$("#employes").show(); menu1++;}
+        if(action.droit==="LISTER_EMPLOYE"){$("#mouvement_personnel").show(); menu1++;}
+        if(action.droit==="LISTER_FONCTION"){$("#fonction").show(); menu1++;}
+        if(action.droit==="LISTER_DEPARTEMENT"){$("#departements").show();menu1++;}
+        if(action.droit==="LISTER_FACTURE_FOURNISSEUR"){$("#categorie_echelon").show();menu1++;}
+        if(action.droit==="LISTER_CONGE"){$("#conges").show();menu1++;}
+        if(action.droit==="LISTER_SYNDICAT"){$("#syndicat").show();menu2++;}
+        if(action.droit==="LISTER_POSTE"){$("#fiche_poste").show();menu2++;}
+        if(action.droit==="LISTER_EMPLOI"){$("#emplois").show();menu2++;}
+        if(action.droit==="CREER_RAPPORT"){$("#menuBI").show();}
+        if(action.droit==="LISTER_COMPETENCE"){$("#competences").show();menu2++;}
+        if(action.droit==="LISTER_EVALUATION"){$("#evaluation").show();menu2++;}
+        if(action.droit==="LISTER_EVOLUTION"){$("#evolution_professionnelle").show();menu5++;}
+        if(action.droit==="LISTER_RECRUTEMENT_INTERNE"){$("#recrutement_interne").show();menu5++;}
+        if(action.droit==="LISTER_MOBILITE"){$("#reconversion_pro").show();menu5++;}
+        if(action.droit==="LISTER_MOBILITE"){$("#overview_mobilite").show();menu5++;}
+        if(action.droit==="LISTER_RELEVE"){$("#plan_releve").show();menu5++;}
+        if(action.droit==="LISTER_PROJET_PROFESSIONNEL"){$("#projet_professionnel").show();menu5++;}
+        if(action.droit==="LISTER_BULLETIN"){$("#bullletin_employe").show();menu7++;}
+        if(action.droit==="LISTER_PROFIL_PAIE"){$("#calcul_paie").show();menu7++;}
+        if(action.droit==="LISTER_PROFIL_PAIE"){$("#profil_paie").show();menu7++;}
+        if(action.droit==="LISTER_LOT_BULLETIN"){$("#lot_bulletin_paie").show();menu7++;}
+        if(action.droit==="LISTER_ELEMENT_BULLETIN"){$("#element_bulletin").show();menu7++;}
+        if(action.droit==="LISTER_BAREME"){$("#bareme").show();menu7++;}
+        if(action.droit==="LISTER_EMPLOYE"){$("#categorie_employe").show();menu8++;}
+
+        if(action.droit==="LISTER_FORMATION"){$("#plan_formation").show();menu4++;}
+        if(action.droit==="LISTER_FORMATION"){$("#formation_prevue").show();menu4++;}
+        if(action.droit==="LISTER_FORMATION"){$("#formation_realisee").show();menu4++;}
+        if(action.droit==="LISTER_FORMATION"){$("#formation_annulee").show();menu4++;}
+
+        if(action.droit==="LISTER_DOSSIER_SOCIAL"){$("#dossier_social").show();menu3++;}
+        if(action.droit==="LISTER_TOUT_ORDRE_MISSION"){$("#menu10").show();}
+        if(action.droit==="LISTER_TOUT_REQUETE"){$("#menu9").show();}
+
+
+    }
+    //Traitement des menus
+
+    if (menu1 == 0){ $("#menu1").hide();}
+    if (menu2 == 0){$("#menu2").hide();}
+    if (menu4 == 0){$("#menu4").hide();}
+    if (menu3 == 0){$("#menu3").hide();}
+    if (menu5 == 0){$("#menu5").hide();}
+    if (menu7 == 0){$("#menu7").hide();}
+    if (menu8 == 0){$("#menu8").hide();}
+
+
+    </script>
+
+
+
+{% endblock %}

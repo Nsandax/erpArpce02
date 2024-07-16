@@ -1,0 +1,84 @@
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Accueil</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_Stock_list_emplacementstock' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                <div class="row only-on-large-screen">
+                    <button
+                        onclick="javascript:window.location.assign('{% url 'module_Stock_update_emplacementstock' emplacementstock.id %}')"
+                        class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Modifier
+                    </button>
+                    <button
+                        onclick="javascript:window.location.assign('{% url 'module_Stock_list_emplacementstock' %}')"
+                        class="button small-button rounded chargement-au-click"
+                        style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button
+                        onclick="javascript:window.location.assign('{% url 'module_Stock_update_emplacementstock' emplacementstock.id %}')"
+                        class="button large-button rounded primary">Valider</button>
+                    <button
+                        onclick="javascript:window.location.assign('{% url 'module_Stock_list_emplacementstock' %}')"
+                        class="button large-button rounded chargement-au-click"
+                        style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="row padding20 no-padding-top no-padding-bottom"
+                            style="border-right: 1px solid #f7f5f5;">
+                            <p>
+
+                                Designation :
+                                <br>
+                                <span class="sub-alt-header">{{ emplacementstock.designation }}</span>
+                                <br>
+                                <br>
+
+                                Type :
+                                <br>
+                                <span class="sub-alt-header">{{ emplacementstock.type.designation }}</span>
+                                <br>
+                                <br>
+
+                                Entrepot:
+                                <br>
+                                <span class="sub-alt-header">{{ emplacementstock.entrepot.designation }}</span>
+                                <br>
+                                <br>
+
+                                Couloir / Rayon / Hauteur
+                                <br>
+                                <span class="sub-alt-header">{{ emplacementstock.couloir }}</span>
+                                /<span class="sub-alt-header">{{ emplacementstock.rayon }}</span>
+                                /<span class="sub-alt-header">{{ emplacementstock.hauteur }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+{% endblock %}}

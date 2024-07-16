@@ -1,0 +1,299 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %} {%load static %}
+{% load customfilter %}
+<style>
+     /* LE CODE DE L'INDICATEUR DE LA FORMATION PROFESSIONNELLE */
+     .tg  {border-collapse:collapse;border-spacing:0;margin-left:2%;}
+    .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+    .tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+    .tg .tg-mw2h{font-weight:bold;background-color:#ffcc67;color:#000000;border-color:inherit;text-align:center;vertical-align:top}
+    .tg .tg-u1oi{font-weight:bold;background-color:#1b1c36;color:#ffffff;border-color:inherit;text-align:center;vertical-align:top}
+    .tg .tg-oyd9{font-weight:bold;background-color:#ffcc67;border-color:inherit;text-align:left;vertical-align:top}
+    .tg .tg-kbue{font-weight:bold;background-color:#9BADD2;border-color:inherit;text-align:left;vertical-align:top}
+    .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+    .tg .tg-4m7p{background-color:#9BADD2;border-color:inherit;text-align:center;vertical-align:top}
+    /* LE CODE DE L'INDICATEUR DE LA FORMATION PROFESSIONNELLE */
+</style>
+  <div id="vue_admin" class="container" style="width: 100%;">
+      <div class="row">
+          <ul class="breadcrumb">
+              <li><a><span class="mif-home"></span></a></li>
+              <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+              <li>{{ title }}</li>
+          </ul>
+      </div>
+      <div class="col-lg-12 head_grid" style="background-color:#fff;margin-bottom:3%;padding:1%;">
+          <h2>Indicateurs de la formation professionnelle</h2>
+          <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+          <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+          <!-- Graphique -->
+            <div class="row" style="margin-bottom:5%;">
+              <div class="col-md-6" style="padding-top: 15px!important;margin-bottom:2%;">
+                  <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                      <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                      <div class="row item_header">
+                          <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                              Taux de départ en formation par cétégorie
+                          </span>
+                      </div>
+                      <div class="row" style="height: 140px; padding-top: 20px">
+                          <canvas id="chart_depart_formation_cat"  style="height: 120px!important; width: 100%"></canvas>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-6" style="padding-top: 15px!important;margin-bottom:2%;">
+                  <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                      <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                      <div class="row item_header">
+                          <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                              Taux de départ en formation par Direction
+                          </span>
+                      </div>
+                      <div class="row" style="height: 140px; padding-top: 20px">
+                          <canvas id="chart_depart_formation_direct"  style="height: 120px!important; width: 100%"></canvas>
+                      </div>
+                  </div>
+              </div>
+            </div>
+          <!-- Graphique -->
+          <!-- Tableau des indicateurs de la formation pro -->
+          <table class="tg">
+              <tr>
+                <th class="tg-u1oi" colspan="15">Indicateurs de la formation professionnelle</th>
+              </tr>
+              <tr>
+                <td class="tg-mw2h" colspan="2">Libellé</td>
+                {% for item in keys_Agent %}
+                <td class="tg-oyd9">{{item}}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-kbue" colspan="2">Taux départ en formation par catégorie</td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">A</td>
+                {% for item in TxA %}
+                <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">B</td>
+                {% for item in TxB %}
+                <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">C</td>
+                {% for item in TxC %}
+                <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">D</td>
+                {% for item in TxD %}
+                <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">E</td>
+                {% for item in TxE %}
+                <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">F</td>
+                {% for item in TxF %}
+                <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-kbue" colspan="2">Taux de formation par Direction</td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+                <td class="tg-0pky"></td>
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">DG</td>
+                {% for item in indice %}
+                <td class="tg-0pky">{{item.Taux_formation_DG|floatformat:2}}%</td>
+                {% endfor %}
+
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">DAFC</td>
+                {% for item in indice %}
+                <td class="tg-0pky">{{item.Taux_formation_DAFC|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">DRSCE</td>
+                {% for item in indice %}
+                <td class="tg-0pky">{{item.Taux_formation_DRSCE|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">DEM</td>
+                {% for item in indice %}
+                <td class="tg-0pky">{{item.Taux_formation_DEM|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">DAJ</td>
+                {% for item in indice %}
+                <td class="tg-0pky">{{item.Taux_formation_DG|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-4m7p" colspan="2">DMTHT</td>
+                {% for item in indice %}
+                <td class="tg-0pky">{{item.Taux_formation_DG|floatformat:2}}%</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td class="tg-kbue" colspan="2">Taux de participation à la formation</td>
+                {% for item in valeur_Taux_formation_direct %}
+                <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                {% endfor %}
+
+              </tr>
+          </table>
+          <!-- Tableau des indicateurs de la formation pro -->
+      </div>
+  </div>
+    <script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+    <script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+  <!-- chart_depart_formation_cat -->
+<script>
+  var keys_formation = [];
+  var values_formation = [];
+
+      keys_formation = {{Keys_Taux_formation | safe}}
+      values_formation = {{valeur_Taux_formation}}
+  new Chart(document.getElementById("chart_depart_formation_cat"),
+  {
+          type: 'bar',
+          data: {
+              labels: keys_formation,
+              datasets: [
+                  {
+                      label: 'Taux de Depart en Formation par Categorie',
+                      backgroundColor:[
+                              'rgba(255, 99, 132, 0.5)',
+                              'rgba(67, 83, 97, 0.5)',
+                              'rgba(153, 27, 88, 0.5)',
+                              'rgba(35, 82, 124, 0.5)',
+                              'rgba(119, 109, 80, 0.5)',
+                              'rgba(22, 13, 58, 0.5)',
+                              'rgba(235, 93, 57, 0.5)',
+                              'rgba(35, 82, 124, 0.5)',
+                              'rgba(153, 27, 88, 0.5)',
+                              'rgba(159, 218, 238, 0.5)',
+                              'rgba(67, 83, 97, 0.5)',
+                              'rgba(255, 99, 132, 0.5)'
+                              ],
+                      data: values_formation
+                  }
+              ]
+          },
+          options: {
+              legend: { display: false },
+              title: {
+                  display: false,
+                  text: 'Taux de Depart en Formation par Categorie'
+              },
+              scales: {
+                      yAxes: [{
+                          ticks: {
+                          maxTicksLimit: 5,
+                          padding: 10,
+                          // Include a dollar sign in the ticks
+                          callback: function(label, index, labels) {
+                              return label+'%';
+                              }
+                          },
+
+                      }],
+                  }
+          }
+      });
+</script>
+<!-- chart_depart_formation_cat  -->
+
+
+<!-- chart_depart_formation_direct -->
+<script>
+  var keys_formation_direct = [];
+  var values_formation_direct = [];
+
+      keys_formation_direct = {{Keys_Taux_formation_direct | safe}}
+      values_formation_direct = {{valeur_Taux_formation_direct}}
+  new Chart(document.getElementById("chart_depart_formation_direct"),
+  {
+          type: 'bar',
+          data: {
+              labels: keys_formation_direct,
+              datasets: [
+                  {
+                      label: 'Taux de depart en formation par direction',
+                      backgroundColor:[
+                              'rgba(255, 99, 132, 0.5)',
+                              'rgba(44, 62, 85, 0.5)',
+                              'rgba(153, 27, 88, 0.5)',
+                              'rgba(67, 83, 97, 0.5)',
+                              'rgba(153, 27, 88, 0.5)',
+                              'rgba(35, 82, 124, 0.5)',
+                              'rgba(119, 109, 80, 0.5)',
+                              'rgba(22, 13, 58, 0.5)',
+                              'rgba(235, 93, 57, 0.5)',
+                              'rgba(35, 82, 124, 0.5)',
+                              'rgba(153, 27, 88, 0.5)',
+                              'rgba(159, 218, 238, 0.5)',
+                              ],
+                      data: values_formation_direct
+                  }
+              ]
+          },
+          options: {
+              legend: { display: false },
+              title: {
+                  display: false,
+                  text: 'Taux de depart en formation par direction'
+              },
+              scales: {
+                      yAxes: [{
+                          ticks: {
+                          maxTicksLimit: 5,
+                          padding: 10,
+                          // Include a dollar sign in the ticks
+                          callback: function(label, index, labels) {
+                              return label+'%';
+                              }
+                          },
+
+                      }],
+                  }
+          }
+      });
+</script>
+<!-- chart_depart_formation_direct  -->
+{% endblock %}

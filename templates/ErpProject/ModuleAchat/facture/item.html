@@ -1,0 +1,116 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %} {% load humanize %}
+{% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_home' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_factures' %}">Liste des factures</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+<div class="row">
+    {% if model.est_soldee == False %} {% if can_create == True %}
+    <button onclick="javascript:window.location.assign('{% url 'module_achat_add_paiement' model.id %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Ajouter un paiement</button> {% endif %} {% if can_update
+    %}
+    <button onclick="javascript:window.location.assign('{% url 'module_achat_update_facture' model.id %}')" class="button small-button rounded chargement-au-click">Modifier</button> {% endif %} {% endif %}
+</div>
+
+<hr class="hr-ligne" />
+<br>
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<br>
+<div class="row item-content" style="margin-top: 20px">
+    <div class="cell padding30 shadow">
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Numéro Facture :<br> {% if model.numero_facture != None and model.numero_facture != "" %}
+                    <span class="sub-alt-header fg-dark">{{ model.numero_facture }}</span> {% else %}
+                    <span class="sub-alt-header fg-dark">-</span> {% endif %}
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Numéro de séquence :<br>
+                    <span class="sub-alt-header fg-dark">{{ model.id }}</span>
+                </p>
+            </div>
+
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Date de Facturation :<br> {% if model.date_facturation != None %}
+                    <span class="sub-alt-header fg-dark">{{ model.date_facturation|date:"d/m/Y" }}</span> {% else %}
+                    <span class="sub-alt-header fg-dark">-</span> {% endif %}
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Fournisseur :<br>
+                    <a class="sub-alt-header lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' bon.fournisseur.id %}"> {{ bon.fournisseur.nom_complet }} </a>
+                </p>
+            </div>
+
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Document externe :<br> {% if bon.reference_document != None and bon.reference_document != "" %}
+                    <span class="sub-alt-header fg-dark">{{ bon.reference_document }}</span> {% else %}
+                    <span class="sub-alt-header fg-dark">-</span> {% endif %}
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Condition de reglement :<br>
+                    <span class="sub-alt-header fg-dark"> {{ bon.condition_reglement.designation }} </span>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <table class="table border bordered">
+                <thead>
+                    <tr>
+                        <th width="37%">Article</th>
+                        <th width="25%">Quantité demandée</th>
+                        <th width="22%">Prix unitaire</th>
+                        <th width="39%">Prix total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ligne in lignes %}
+                    <tr class="table bordered border">
+                        <td>{{ ligne.nom_article}}</td>
+                        <td>{{ ligne.quantite_demandee }} {{ ligne.unite.symbole_unite }}</td>
+                        <td align="right">{{ ligne.prix_unitaire|intcomma }} {{ bon.devise.symbole_devise }}</td>
+                        <td align="right">{{ ligne.total|intcomma }} {{ bon.devise.symbole_devise }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td class="no-border">TOTAL</td>
+                        <td class="no-border"></td>
+                        <td class="no-border"></td>
+                        <td class="no-border" style="text-align:right;">{{ bon.prix_total|intcomma }} {{ bon.devise.symbole_devise }}</td>
+                    </tr>
+                    <tr>
+                        <td class="no-border">MONTANT PAYE</td>
+                        <td class="no-border"></td>
+                        <td class="no-border"></td>
+                        <td class="no-border" style="text-align:right;">{{ montant_paye|intcomma }} {{ bon.devise.symbole_devise }}</td>
+                    </tr>
+                    <tr>
+                        <td class="no-border">MONTANT RESTANT</td>
+                        <td class="no-border"></td>
+                        <td class="no-border"></td>
+                        <td class="no-border" style="text-align:right;">{{ montant_restant|intcomma }} {{ bon.devise.symbole_devise }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

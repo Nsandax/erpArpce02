@@ -1,0 +1,160 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %}{% block page %}
+{% load account_filters %}
+   <div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_tableau_de_bord' %}">Module Budget</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_lister_regroupement_lignebudgetaire' %}">Liste des regroupements Budgets</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_budget_add_budget" url_detail="module_budget_detail_budget" csrf_token=csrf_token module=module type_doc="" only %}
+
+{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<div class="row">
+    <!-- <button onclick="javascript:window.location.assign('{% url 'module_budget_update_budget' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button> -->
+    <button onclick="javascript:window.location.assign('{% url 'module_budget_lister_regroupement_lignebudgetaire' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Retour</button>
+    <button onclick="javascript:windowlocation.assign('{% url 'module_budget_delete_groupement_ligne_budget' model.id %}')" class="button theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer</button>
+</div>
+    <hr class="hr-ligne">
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Désignation  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Code:<br>
+                    <span class="sub-alt-header fg-dark"><span class="monetary"></span> {{item.code}}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Catégorie :<br>
+                    <span class="sub-alt-header fg-dark"> {{item.categoriebudget.designation}}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Budget engagé :<br>
+                    <span class="sub-alt-header fg-dark"><span class="monetary">
+                        {{model.montant_engage|monetary}} </span> {{model.devise}}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Budget disponible :<br>
+                    <span class="sub-alt-header fg-dark"><span class="monetary">{{model.montant_disponible|monetary}}</span> {{model.devise}}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p class="sub-header">Combinaisons Budgétaires</p>
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th width="15%">Combinaison</th>
+                            <th width="16%">Correspondants</th>
+                            <th width="16%">Désignation</th>
+                            <th width="16%">Centre de coûts</th>
+                            <th width="16%">Activité</th>
+                            <th width="16%">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in model.lignebudgetaire.all %}    
+                            <tr class="table bordered border">
+                                <td> <a class="lien chargement-au-click" href="{% url 'module_budget_detail_ligne_budgetaire' item.id %}">{{ item.code }}</a></td>
+                                <td>
+                                    {% if item.responsable == None %}
+                                        {% for i in item.correspondant.all %}
+                                            {{ i }} ,
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ item.responsable }}
+                                    {% endif %}
+                                </td>
+                                <td> {{ item.designation }}</td>
+                                <td>
+                                    {% if item.centre_cout != None %}
+                                        {{ item.centre_cout }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.activite != None %}
+                                        {{ item.activite }}
+                                    {% endif %}
+                                </td>
+                                <td class="monetary"> {{ item.separateur_montant_alloue |monetary}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<script>
+    function supprimer() {
+        // var id = {{model.id}}
+        //-------deux variables pour la suppression---------------------------------
+        var modele = "Model_Budget"
+        var the_url = "module_budget_list_budget"
+        //------- url de suppression ------------------------------------------------
+    }
+    $('#supprimer').on('click', function () {
+        Swal.fire({
+            title: 'Etes vous sure?',
+            text: "De vouloir supprimer cette item!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer();
+                Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+
+</script>
+<script>
+    //Script du droit supprimer
+    var lesactions = new Array();
+    var booleen = false;
+    {% for action in actions %}
+    lesactions.push({ droit: "{{ action.droit }}" });
+    {% endfor %}
+
+    $(document).ready(function () {
+
+        // Initialisation des sous-menus
+        $("#supprimer").hide();
+
+        for (var i = 1; i < lesactions.length; i++) {
+            act = lesactions[i];
+            if (act.droit === "CREER_RAPPORT") {
+                booleen = true;
+            }
+        }
+
+        if (booleen) {
+            $("#supprimer").show();
+        }
+    });
+</script>
+
+{% endblock %}

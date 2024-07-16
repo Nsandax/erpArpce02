@@ -1,0 +1,117 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote27A.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_27' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 47%">
+          <col style="width: 15%">
+          <col style="width: 19%">
+          <col style="width: 19%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td class="tg-nqil" colspan="4">NOTE 27A : CHARGES DE PERSONNEL</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Exercice clos&nbsp;&nbsp;le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Durée (en mois) :</td>
+              <td class="tg-cr4b">0</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-kf42">Libellés</td>
+              <td class="tg-kf42">Année N</td>
+              <td class="tg-kf42">Année N-1</td>
+              <td class="tg-kf42">Variation en %</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Rémunérations directes versées au personnel National</td>
+              <td class="tg-lvth">44 500 000</td>
+              <td class="tg-lvth">44 500 000</td>
+              <td class="tg-lvth">0,0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Rémunérations directes versées au personnel non National</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Indemnités forfaitaires versées au personnel</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Charges sociales</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Rémunérations et charges sociales de l'exploitant individuel</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Rémunération transférée de personnel extérieur</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Autres charges sociales</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-bn4c">TOTAL</td>
+              <td class="tg-kf42">44 500 000</td>
+              <td class="tg-kf42">44 500 000</td>
+              <td class="tg-kf42">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-km2t" colspan="4">Commentaires :</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="4">Toutes variations significatives ; l’indication de la nature et la durée du contrat du personnel extérieur.</td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+    {% endblock %}

@@ -1,0 +1,307 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+{%load static %}
+   <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_list_regle_salariale' %}">Liste des règles salariales</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_update_regle_salariale' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_list_regle_salariale' %})" class="theme-btn theme-btn-sm rounded chargement-au-click">Annuler</button>
+        <button id="supprimer" class="button theme-btn-sm rounded danger chargement-au-click" style="margin-left: 5px">Supprimer</button>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Désignation  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Code:<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.code }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Catégorie  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.categorie.designation }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Devise :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.devise.designation }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label class="input-control checkbox small-check full-size">
+                    <input name="apparait_dans_bulletin" id="apparait_dans_bulletin"  {% if model.apparait_dans_bulletin is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                    <span class="check"></span>
+                    <span class="caption">Apparaît sur le bulletin de paie</span>
+                </label>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Sequence :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.sequence }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Description :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.description }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+            <div class="tabcontrol2" data-role="tabcontrol">
+                <ul class="tabs">
+                    <li class="active"><a href="#frame_regle_salariale">Règle salariale</a></li>
+					<li class=""><a href="#frame_comptabilite">Comptabilité</a></li>
+                </ul>
+
+                <div class="frames">
+                    <div class="frame" id="frame_regle_salariale" style="display: block;">
+                        <div class="row">
+                            <p class="header">Conditions</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Condition basée sur :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.value_type_condition }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row plage" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Plage basée sur :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.plage_condition }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row plage" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Plage minimum :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.plage_min_condition }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row plage" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Plage maximale :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.plage_max_condition }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row expression" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Expression Python :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.code_condition }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p class="header">Calcul</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Type de calcul :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.value_type_calcul }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Quantité :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.quantite }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row fixe">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Montant fixe :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.montant_fixe }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row pourcentage" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Pourcentage basé sur :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.pourcentage_sur }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row pourcentage">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Pourcentage (%) :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.pourcentage }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row code" >
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Code Python :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.code_python }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row bareme">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Barême :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.bareme.designation }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="frame" id="frame_comptabilite" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Compte débit :<br>
+                                    <span class="sub-alt-header fg-dark">{{ model.compte_debit.numero }} {{ model.compte_debit.designation }}</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Compte crébit :<br>
+                                    <span class="sub-alt-header fg-dark">{{ model.compte_credit.numero }} {{ model.compte_credit.designation }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script>
+        $(document).ready(function(){
+			var type_condition = "{{ model.type_condition }}";
+			if(type_condition == "aucun"){
+				$(".plage").hide();
+				$(".expression").hide();
+			}else if (type_condition == "plage"){
+				$(".plage").show();
+				$(".expression").hide();
+			}else if (type_condition == "code"){
+				$(".plage").hide();
+				$(".expression").show();
+			}
+
+			var type_calcul = "{{ model.type_calcul }}";
+			if(type_calcul == "1"){
+				$(".fixe").show();
+				$(".pourcentage").hide();
+				$(".code").hide();
+				$(".bareme").hide();
+			}else if (type_calcul == "2"){
+				$(".fixe").hide();
+				$(".pourcentage").show();
+				$(".code").hide();
+				$(".bareme").hide();
+			}else if (type_calcul == "3"){
+				$(".fixe").hide();
+				$(".pourcentage").hide();
+				$(".code").show();
+				$(".bareme").hide();
+			}else if (type_calcul == "4"){
+				$(".fixe").hide();
+				$(".pourcentage").hide();
+				$(".code").hide();
+				$(".bareme").show();
+			}else if (type_calcul == "5"){
+				$(".fixe").show();
+				$(".pourcentage").hide();
+				$(".code").hide();
+				$(".bareme").hide();
+			}
+		});
+	</script>
+    <script>
+        function supprimer() {
+            var id = '{{model.id}}'
+            //-------deux variables pour la suppression---------------------------------
+            var modele = "Model_RegleSalariale"
+            var the_url = "module_ressources_humaines_list_regle_salariale"
+            //------- url de suppression ------------------------------------------------
+            url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+            url = url.replace('100', id);
+            url = url.replace('nom_modele', modele);
+            url = url.replace('url_retour', the_url);
+            document.location.href = url;
+        }
+        $('#supprimer').on('click', function () {
+            Swal.fire({
+                title: 'Etes vous sure?',
+                text: "De vouloir supprimer cette item!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, Supprime le!'
+            }).then((result) => {
+                if (result.value) {
+                    supprimer();
+                    Swal.fire(
+                        'Supprimé!',
+
+                        'Votre Item est supprimé',
+                        'Avec Succes',
+                    )
+                }
+            })
+        })
+    </script>
+    <script>
+        //Script du droit supprimer
+        var lesactions = new Array();
+        var booleen = false;
+        {% for action in actions %}
+        lesactions.push({ droit: "{{ action.droit }}" });
+        {% endfor %}
+
+        $(document).ready(function () {
+            // Initialisation des sous-menus
+            $("#supprimer").hide();
+
+            for (var i = 1; i < lesactions.length; i++) {
+                act = lesactions[i];
+                if (act.droit === "CREER_RAPPORT") {
+                    booleen = true;
+                }
+            }
+
+            if (booleen) {
+                $("#supprimer").show();
+            }
+        });
+    </script>
+{% endblock %}

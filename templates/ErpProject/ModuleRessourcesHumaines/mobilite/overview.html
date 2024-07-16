@@ -1,0 +1,275 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %} {%load static %}
+{% load customfilter %}
+    <style>
+        /* LE CODE DE TABLEAU DE MOBILITE */
+        .tg  {border-collapse:collapse;border-spacing:0;}
+        .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+        .tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+        .tg .tg-yosr{font-weight:bold;background-color:#1b1c36;color:#ffffff;text-align:center;vertical-align:top}
+        .tg .tg-yofg{background-color:#9BADD2;text-align:left;vertical-align:top}
+        .tg .tg-u4ur{background-color:#CCDBE0;text-align:left;vertical-align:top}
+        .tg .tg-adx7{background-color:#9BADD2;text-align:center;vertical-align:top}
+        .tg .tg-wv6t{font-weight:bold;background-color:#9BADD2;text-align:left;vertical-align:top}
+        .tg .tg-0lax{text-align:left;vertical-align:top}
+        /* LE CODE DE TABLEAU DE MOBILITE */
+
+    </style>
+    <div id="vue_admin" class="container">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="col-lg-12 head_grid" style="background-color:#fff;margin-bottom:3%;padding:1%;">
+
+            <h2>Overview Mobilité</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <!-- MOBILITE INFORMATION -->
+
+                <!-- Graphic Mobilité -->
+                <div class="row" style="margin-bottom:10%;">
+                    <div class="col-md-6" style="padding-top: 15px!important;margin-bottom:3%;">
+                        <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                            <div class="row item_header">
+                                <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                    Part de recrutement via mobilité
+                                </span>
+                            </div>
+                            <div class="row" style="height: 140px; padding-top: 20px">
+                                <canvas id="chart_mobilte_recru"  style="height: 120px!important; width: 100%"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" style="padding-top: 15px!important;margin-bottom:3%;">
+                        <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                            <div class="row item_header">
+                                <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                    Taux de mobilité dans la catégorie
+                                </span>
+                            </div>
+                            <div class="row" style="height: 140px; padding-top: 20px">
+                                <canvas id="chart_total_mobilite"  style="height: 120px!important; width: 100%"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Graphic Mobilité -->
+                <!-- Tableau de Mobilité  Interne -->
+                <table class="tg">
+                    <tr>
+                        <th class="tg-yosr" colspan="15">Mobilité Interne</th>
+                    </tr>
+                    <tr>
+                        <td class="tg-adx7" colspan="3"><span style="font-weight:bold">Libellé</span></td>
+                        {% for item in Keys_recru_year %}
+                        <td class="tg-yofg">{{item}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tg-wv6t" colspan="3">Taux de mobilité interne</td>
+                        {% for item in Taux %}
+                        <td class="tg-0lax">{{item |floatformat:2 }}%</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tg-wv6t" colspan="3">Part de recrutement via mobilité interne</td>
+                        {% for item in Part %}
+                        <td class="tg-0lax">{{item | floatformat:1}}%</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tg-u4ur">Mobilité interne par catégorie</td>
+                        <td class="tg-u4ur">Nombre d'agents mobiles</td>
+                        <td class="tg-u4ur">Taux de mobilité dans la catégorie</td>
+                        <td class="tg-0lax" colspan="15" rowspan="9"></td>
+                    </tr>
+                    <tr>
+                        <td class="tg-adx7">A</td>
+                        <td class="tg-0lax"></td>
+                        <td class="tg-0lax " style="text-align: center;">{{ListMobiliteByCategorie|get_item:'A'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tg-adx7">B devenus A</td>
+                        <td class="tg-0lax"></td>
+                        <td class="tg-0lax"style="text-align: center;">{{ListMobiliteByCategorie|get_item:'B_devenu_A'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tg-adx7">C devenus B</td>
+                        <td class="tg-0lax"></td>
+                        <td class="tg-0lax"style="text-align: center;">{{ListMobiliteByCategorie|get_item:'C_devenu_B'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tg-adx7">D devenus C</td>
+                        <td class="tg-0lax"></td>
+                        <td class="tg-0lax"style="text-align: center;">{{ListMobiliteByCategorie|get_item:'D_devenu_C'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tg-adx7">E devenus D</td>
+                        <td class="tg-0lax"></td>
+                        <td class="tg-0lax"style="text-align: center;">{{ListMobiliteByCategorie|get_item:'E_devenu_D'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tg-adx7">F devenus E</td>
+                        <td class="tg-0lax"></td>
+                        <td class="tg-0lax"style="text-align: center;">{{ListMobiliteByCategorie|get_item:'F_devenu_E'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tg-adx7">E</td>
+                        <td class="tg-0lax"></td>
+                        <td class="tg-0lax"style="text-align: center;">{{ListMobiliteByCategorie|get_item:'E'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tg-wv6t">Total d'agents mobiles</td>
+                        <td class="tg-u4ur"></td>
+                        <td class="tg-u4ur"style="text-align: center;">{{ListMobiliteByCategorie|somme_item}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tg-u4ur">Nombre de recrutement via mobilité interne dans l'année</td>
+                        <td class="tg-0lax" colspan="2"></td>
+                        {% for item in recru_total_mobilite %}
+                        <td class="tg-0lax"style="text-align: center;">{{item}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tg-u4ur">Nombre des agents permanents</td>
+                        <td class="tg-0lax" colspan="2"></td>
+                        {% for item in Agent_Permanent %}
+                        <td class="tg-0lax">{{item}}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tg-u4ur">Nombre de recrutement total dans l'année</td>
+                        <td class="tg-0lax" colspan="2"></td>
+                        {% for item in recrutement_total %}
+                        <td class="tg-0lax">{{item}}</td>
+                        {% endfor %}
+                    </tr>
+                </table>
+                <!-- Tableau de Mobilité  Interne -->
+            <!-- MOBILITE INFORMATION -->
+        </div>
+    </div>
+    <script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+    <script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+
+    <!-- Part Recru Mobilité Chart -->
+    <script>
+        var keys_recru_Mobilite = [];
+        var valuer_recru_Mobilite = [];
+        keys_recru_Mobilite = {{Keys_recru_year|safe}}
+        valuer_recru_Mobilite = {{valuer_recru_year}}
+        new Chart(document.getElementById("chart_mobilte_recru"),
+        {
+                type: 'bar',
+                data: {
+                    labels: keys_recru_Mobilite,
+                    datasets: [
+                        {
+                            label: '',
+                            backgroundColor:[
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(44, 62, 85, 0.5)',
+                                    'rgba(153, 27, 88, 0.5)',
+                                    'rgba(48, 62, 85, 0.5)',
+                                    'rgba(244, 62, 85, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    ],
+                            data: valuer_recru_Mobilite
+                        }
+                    ]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: false,
+                        text: 'Part de recrutement via mobilité'
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            // Include a dollar sign in the ticks
+                            callback: function(label, index, labels) {
+                                return label+'%';
+                                }
+                            },
+
+                        }],
+                    }
+
+                }
+            });
+    </script>
+    <!-- Part Recru Mobilité Chart -->
+
+    <!-- chart_Taux_mobilite -->
+    <script>
+        var keys_Mobilitie = [];
+        // var labels = new Array();
+        var values_Mobilitie = [];
+        keys_Mobilitie = {{keys_Mobilitie|safe}}
+        values_Mobilitie = {{values_Mobilitie}}
+        console.log(keys_Mobilitie)
+        new Chart(document.getElementById("chart_total_mobilite"),
+        {
+                type: 'bar',
+                data: {
+                    labels: keys_Mobilitie,
+                    datasets: [
+                        {
+                            label: 'Taux de Mobilité dans la categorie',
+                            backgroundColor:[
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(44, 62, 85, 0.5)',
+                                    'rgba(153, 27, 88, 0.5)'
+                                    ],
+                            data: values_Mobilitie
+                        }
+                    ]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: false,
+                        text: 'Taux de Mobilité dans la categorie'
+                    }
+                }
+            });
+    </script>
+    <!-- chart_total_mobilite  -->
+
+{% for item in modules %}
+            {% if module.value == item.numero_ordre %}
+             <div class="primary_color_{{ module.name|lower }}" style="display: none;" ></div>
+             <div class="secondary_color_{{ module.name|lower }}" style="display: none;" ></div>
+             <div class="thirdy_color_{{ module.name|lower }}" style="display: none;" ></div>
+             <script>
+             /* alert($(".primary_color_{{ module.name|lower }}").css('background-color'));*/
+              chart_pie($(".primary_color_{{ module.name|lower }}").css("background-color"));
+
+              chart_area($(".primary_color_{{ module.name|lower }}").css("background-color"),
+                         $(".secondary_color_{{ module.name|lower }}").css("background-color"),
+                         $(".thirdy_color_{{ module.name|lower }}").css("background-color"));
+            </script>
+    		{% endif %}
+{% endfor %}
+
+
+{% endblock %}

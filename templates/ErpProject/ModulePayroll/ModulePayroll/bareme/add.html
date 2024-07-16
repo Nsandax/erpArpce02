@@ -1,0 +1,218 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+	<div class="row">
+		<ul class="breadcrumb">
+			<li><a><span class="mif-home"></span></a></li>
+			<li><a class="leaf" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_payroll_list_bareme' %}">Liste des Bulletins</a></li>
+			<li>{{ title }}</li>
+		</ul>
+	</div>
+	<div class="row">
+		<div class="col-lg-12">
+			<h3>{{ title }}</h3>
+			<strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+			<div class="separ" style="background-color: grey;opacity: 0.2"></div>
+			<div class="panel panel-default" style="border: none;">
+				<div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+					<div class="row">
+						<button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="20%">
+							Valider
+						</button>
+						<button onclick="javascript:window.location.assign('{% url 'module_payroll_list_bareme' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="width:20%;margin-left: 5px">Annuler</button>
+					</div>
+
+					<hr class="hr-ligne">
+					<!-- Appel de la fonction message -->
+						{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+					<br><br>
+
+					<form id="form" method="POST" action="{% url 'module_payroll_post_add_bareme' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+						novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+						{% csrf_token %}
+						<input id="submit" type="submit" style="display: none">
+
+						<div class="row">
+							<div class="col-md-6">
+								<label>Désignation</label>
+								<div class="input-control text full-size" data-role="input">
+									<input name="designation" type="text" autocomplete="off" data-validate-func="required" data-validate-hint="Entrez la désignation du poste!">
+									<span class="input-state-error mif-warning"></span>
+									<span class="input-state-success mif-checkmark"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<label>Référence</label>
+								<div class="input-control text full-size">
+									<input type="text" name="reference" id="reference" autocomplete="off" data-validate-func="required" data-validate-hint="Entrez la reference!"/>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-6">
+								<label>Type</label>
+								<div class="input-control text full-size">
+									<input type="text" name="type" id="type" autocomplete="off" data-validate-func="required" data-validate-hint="Entrez le type!"/>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<label>Devise</label>
+								<div class="input-control text full-size">
+									<select name="devise_id" id="devise_id" onchange="choix_devise()"
+										data-validate-func=" min" 
+										data-validate-arg="1"
+										data-validate-hint="Sélectionnez la devise svp.">
+										<option value="0">Sélectionnez une devise</option>
+											{% for item in devises %}
+												<option value="{{ item.id }}"> {{ item.designation }} </option>
+											{% endfor %}
+										</select>
+								</div>
+							</div>
+						</div>
+
+							<div class="row">
+								<center><h4 style="color:red; font-weight: bold;">TRANCHES BARÊME</h4></center>
+							</div>
+							
+							<hr />
+
+							<div class="row margin20 no-margin-left no-margin-right">
+								<table class="table no-margin">
+									<thead class="no-border">
+										<tr class="primary_color_{{module.name|lower}}">
+											<th width="10%">Séquence</th>
+											<th width="10%">Pourcentage</th>
+											<th width="25%">Tranche début</th>
+											<th width="25%">Tranche fin</th>
+											<th width="25%">Montant</th>
+											<th width="5%"></th>
+										</tr>
+									</thead>
+									<tbody id="items">
+										<tr id="ligne1">
+											<td class="no-padding-top no-padding-left no-padding-bottom">
+												<input id="id1" type="hidden" value="0" />
+												<div class="input-control text full-size">
+													<input id="sequence1" name="sequence" type="text" placeholder="Ex: 1"
+														data-validate-func="number" 
+														data-validate-arg="1"
+														data-validate-hint="Précisez la séquence svp">
+												</div>
+											</td>
+											<td class="no-padding-top no-padding-bottom">
+												<div class="input-control text full-size">
+													<input id="pourcentage_ni1" name="pourcentage_ni" type="text" placeholder="Ex: 0.10" >
+												</div>
+											</td>
+											<td class="no-padding-top no-padding-bottom">
+												<div class="input-control text full-size">
+													<input id="tranche_debut1" name="tranche_debut" type="text" autocomplete="off" placeholder="Ex: 0"
+														data-validate-func="number"
+														data-validate-arg="1"
+														data-validate-hint="Précisez la tranche début svp">
+													<span class="prepend-icon" style="margin-left:75%">
+														<span style="margin-top: 1px;" class="sub-header place-right devise">$</span>
+													</span>
+												</div>
+											</td>
+											<td class="no-padding-top no-padding-bottom">
+												<div class="input-control text full-size">
+													<input id="tranche_fin1" name="tranche_fin" autocomplete="off" type="text" placeholder="Ex: 43680"
+														data-validate-func="number" 
+														data-validate-arg="1"
+														data-validate-hint="Précisez la tranche fin svp">
+													<span class="prepend-icon" style="margin-left:75%">
+														<span style="margin-top: 1px;" class="sub-header place-right devise">$</span>
+													</span>
+												</div>
+											</td>
+											<td class="no-padding-top no-padding-bottom">
+												<div class="input-control text full-size">
+													<input id="montant1" type="text" name="montant" autocomplete="off" placeholder="Ex: 43680"
+														data-validate-func="number"
+														data-validate-arg="1"
+														data-validate-hint="Précisez le montant à soustraire de la tranche svp">
+													<span class="prepend-icon" style="margin-left:75%">
+														<span style="margin-top: 1px;" class="sub-header place-right devise">$</span>
+													</span>
+												</div>
+											</td>
+											<td class="no-padding-top no-padding-bottom">
+												<div class="pagination no-border">
+													<span class="item" title="Supprimer la tranche" onclick="supprimerTranche(1)"><span class="mif-cross fg-red"></span></span>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="row margin10 no-margin-left no-margin-right">
+								<button type="button" class="button rounded" id="btnAjouterTranche">Ajouter une tranche</button>
+							</div>							
+						</form>
+        			</div>        
+    			</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		var nombreLignes = 1;
+		var nombreItems = 0;
+		var ligneActuelle = 0;
+		var compteur = 1;
+		
+		var deviseRef ="$";   
+		var lesDevises = new Array();
+
+		{% for item in devises %}
+			lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+		{% endfor %}
+
+		$(document).ready(function(){
+		
+			$("#devise_id").change(function() {
+				var id_devise = $("#devise_id").val();
+				if(id_devise =="0") deviseRef ="$";
+				else
+				{
+					for(var i = 0; i < lesDevises.length; i++)
+					{
+						var devise = lesDevises[i];
+						if(devise.id == id_devise)
+						{
+							deviseRef = devise.symbole_devise;
+							$(".devise").text(deviseRef);
+							break;
+						}
+					}
+				}			  
+			});
+			
+			$("#btnAjouterTranche").on("click", function () {
+				nombreLignes++;
+				compteur++;
+				var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+				nouvelleLigne += '<input id="id' + compteur + '" type="hidden" value="0" />';
+				nouvelleLigne += '<div class="input-control text full-size"><input id="sequence ' + compteur + '" name="sequence" type="text" placeholder="Ex: 1" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez la séquence svp"></div></td>';									
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input id="pourcentage_ni ' + compteur + '" name="pourcentage_ni" type="text" placeholder="Ex: 0.10"></div></td>';								
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input id="tranche_debut ' + compteur + '" name="tranche_debut" type="text" autocomplete="off" placeholder="Ex: 0" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez la tranche début svp"><span class="prepend-icon" style="margin-left:75%"><span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span></div></td>';								
+				nouvelleLigne += ' <td class="no-padding-top no-padding-bottom"> <div class="input-control text full-size"> <input id="tranche_fin ' + compteur + '" name="tranche_fin" type="text" placeholder="Ex: 43680" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez la tranche fin svp"><span class="prepend-icon" style="margin-left:75%"><span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span></div></td>';																		
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input id="montant ' + compteur + '" name="montant" type="text" autocomplete="off" placeholder="Ex: 43680" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le montant à soustraire de la tranche svp"><span class="prepend-icon" style="margin-left:75%"> <span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span></div></td>';								
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border"><span class="item" title="Supprimer la tranche" onclick="supprimerTranche( ' + compteur + ')"><span class="mif-cross fg-red"></span></span></div></td></tr>';		
+				$("#items").append(nouvelleLigne);
+			});					
+		});
+		
+		function supprimerTranche(indice) {
+			nombreLignes--;
+			compteur--;
+			if($("#id" + indice).val() !="0")
+			{
+				fournitureLocal.supprimerTranche($("#id" + indice).val());
+			}
+			$("#ligne" + indice).remove();
+		}				
+	</script>	
+{% endblock %}

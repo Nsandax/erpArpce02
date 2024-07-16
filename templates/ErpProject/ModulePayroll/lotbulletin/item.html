@@ -1,0 +1,355 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+<style>
+	#progress-bar {
+        margin-top: 1em;
+    }
+</style>
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_lotbulletin' %}">Lots de bulletins de paie</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_payroll_add_lotbulletin" url_detail="module_payroll_details_lotbulletin" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <div class="row">
+        {% if model.lignes.all %}
+        <button id="progress-bar-trigger" onclick="javascript:window.location.assign('#')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">
+            <span id="calculateLabel">Lancer le calcul </span>
+        </button>
+        {% else %}
+        <button onclick="javascript:window.location.assign('{% url 'module_payroll_update_lotbulletin' model.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;margin-left: 5px">Modifier</button>
+        {% endif %}
+        <button onclick="generateBulletin('#dialog')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Configurer les salariés</button>
+    </div>
+    <div id="progress-wrapper">
+        <div id="progress-bar" style="background-color: green; width: 0%;">&nbsp;</div>
+        <div id="progress-bar-message">En attente du traitement...</div>
+    </div>
+
+    <div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialog">
+        <div class="row cells3 padding20" style="margin-top: 10px">
+            <h3>Configurer les salariés</h3>
+            <hr style="background-color: #f7f5f5;">
+            <div class="cells2">
+                <form id="form" method="POST" action="{% url 'module_payroll_post_generer_ligne_lot' %}"
+                    data-role="validator"
+                    data-show-required-state="false"
+                    data-hint-mode="line"
+                    data-hint-background="bg-red"
+                    data-hint-color="fg-white"
+                    data-hide-error="5000"
+                    novalidate="novalidate"
+                    data-on-error-input="notifyOnErrorInput"
+                    data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    <input name="lot_id" type="text" value="{{ model.id }}" style="display: none">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- <h4>Cet assistant va générer les fiches de paie de(s) l'employé(s) sélectionné(s) sur base des dates et des structures salariales.</h4> -->
+                            <h4>Ajouter, Supprimer, Modifier les informations sur les salariés concernés</h4>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p class="sub-header">Employés</p>
+                            <table class="table no-margin" style="overflow: auto; position: relative; display: inline-block; height: 300px; width: 100%;">
+                                <thead class="no-border">
+                                    <tr>
+                                        <th width="35%">Nom de l'employé</th>
+                                        <th width="30%">Organisation</th>
+                                        <th width="30%">Poste</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-12">
+                            <button type="button" class="theme-btn theme-btn-sm rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                        </div>
+                    </div>
+
+                    <br>
+                    <hr style="background-color: #f7f5f5;">
+                    <div class="row">
+                        <button onclick="javascript:generer()"  class="theme-btn theme-btn-sm rounded primary chargement-au-click" type="submit">Configurer</button>
+                        <button onclick="javascript:closeGenerateBulletin('#dialog')" class="theme-btn theme-btn-sm rounded"  style="margin-left: 5px">Annuler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row item-content" style="margin-top: 10px">
+        <div id="dossiersocialePrint" class="panel panel-default" style="border: none;">
+            <div  class="panel panel-body" style="background-color:white;">
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                    <h2 style="color: red; font-weight: bold">LOT DE BULLETINS {{model.numero_dossier_social}}</h2>
+                        {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                    </div>
+                    <div class="col-md-6" style="text-align: right;">
+                        <h3>{{model.designation}}</h3>
+                        {% if bulletins|length != 0 %}
+                            <a href="{% url 'module_payroll_post_generer_lot_bulletin' model.id %}" class="btn btn-default" style="background-color: #41435d;border:none;color: white;">Imprimer le lot</a>
+                        {% endif %}
+                    </div>
+                    <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                        <div class="col-md-6">
+                            <h3><strong> Référence : </strong> {{ model.reference }} </h3><br>
+                        </div>
+                        <div class="col-md-12" style="text-align: justify;">
+                            <p><strong><span style="font-size: 20px;">Type du lot: </span></strong> <span style="font-size: 18px;">{{model.value_type}}  </span></p>
+                            <p><strong><span style="font-size: 20px;">Modèle de bulletin associé : </span></strong> <span style="font-size: 18px;">{{model.value_type_modele}} {% if model.type_modele == 2 %}({{model.modele_bulletin.designation}}){% endif %}</span></p>
+                            <p><strong><span style="font-size: 20px;">Dossier de paie : </span></strong> <span style="font-size: 18px;"> {{ model.dossier_paie }}</span></p>
+                            <p><strong><span style="font-size: 20px;">Date du dossier: </span> </strong><span style="font-size: 18px;"> {{ model.date_dossier|date:"d/m/Y" }}  </span></p>
+                            <p><strong><span style="font-size: 20px;">Période du : </span> </strong><span style="font-size: 18px;"> {{ model.date_debut|date:"d/m/Y" }}  </span></p>
+                            <p><strong><span style="font-size: 20px;">Au : </span> </strong><span style="font-size: 18px;"> {{ model.date_fin|date:"d/m/Y" }}  </span></p>
+                            <p><strong><span style="font-size: 20px;">Observation : </span></strong><span style="font-size: 18px;">{% if model.description != None %}{{model.description}}{% else %} Aucune observation émise {% endif %} </span></p>
+                            <p><strong><span style="font-size: 20px;">Enregistré le : </span></strong><span style="font-size: 18px;"> {{model.creation_date|date:"d M. Y" }} <strong>à</strong> {{model.creation_date| date:"H:i" }}  </span></p>
+                            <p><strong><span style="font-size: 20px;">Par : </span></strong><span style="font-size: 18px;">{{ model.auteur.nom_complet}} </span></p>
+                        </div>
+                        <br><br>
+                        {% if bulletins|length != 0 %}
+                            <div class="col-md-12">
+                                <h3>Bulletins de paie  </h3>
+                                <table class="table border bordered" >
+                                    <thead>
+                                        <tr class="thead">
+                                            <th width="30%">Référence</th>
+                                            <th width="23%">Designation</th>
+                                            <th width="23%">Employé</th>
+                                            <th width="24%">Période</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in bulletins %}
+                                            <tr class="table bordered border">
+                                                <td><a class="lien chargement-au-click" href="{% url 'module_payroll_details_bulletin' item.id %}">{{ item.reference }}</a></td>
+                                                <td>{{item.designation}}</td>
+                                                <td>{{item.employe.nom_complet}}</td>
+                                                <td>{{item.periode}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                        {% if documents %}
+                            <h2>Documents en attaches : </h2>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <ol>
+                                        {% for item in documents %}
+                                            <li style="margin-bottom: 0.25em">
+                                                <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ol>
+                                </div>
+                            </div>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Gestion ecritures (OneToMany - Modification)
+        var lesEmployes = new Array();
+
+        function generateBulletin(id){
+            var dialog = $(id).data('dialog');
+            dialog.open();
+        }
+        function closeGenerateBulletin(id){
+            console.log("closeGenerateBulletin")
+            var dialog = $(id).data('dialog');
+        }
+
+        {% for item in employes %}
+            lesEmployes.push({ id: "{{ item.id }}", nom_complet: "{{ item.nom_complet }}", departement: "{{ item.unite_fonctionnelle.libelle }}", poste: "{{ item.poste.designation }}" });
+        {% endfor %}
+
+        var nombreLignes = 0;
+        var compteur = 0;
+
+        {% for item in employes %}
+            nombreLignes++;
+            compteur++;
+
+            employe_id = "{{ item.id }}";
+            nom_complet = "{{ item.nom_complet }}";
+            departement = "{{ item.unite_fonctionnelle.libelle }}";
+            poste = "{{ item.poste.designation }}";
+
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<select name="employe_id" id="employe_id' + compteur + '" readonly><option value="0">Sélectionnez un employé</option>';
+            nouvelleLigne += renvoyerOptionsEmployesDuBulletin(employe_id);
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input value="' + departement + '" id="departement' + compteur + '" name="departement" type="text" readonly></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input value="' + poste + '" name="poste" id="poste' + compteur + '" type="text" readonly> </div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+
+        {% endfor %}
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(' + compteur + ')" name="employe_id" id="employe_id' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un employé svp"><option value="0">Sélectionnez un employé</option>';
+            nouvelleLigne += renvoyerOptionsEmployes();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="departement' + compteur + '" name="departement" type="text" readonly></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="poste" id="poste' + compteur + '" type="text" readonly> </div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+
+        function renvoyerOptionsEmployes() {
+            var ligne = "";
+            for (var i = 0; i < lesEmployes.length; i++) {
+                var employe = lesEmployes[i];
+                ligne += '<option value="' + employe.id + '">' + employe.nom_complet + '</option>';
+            }
+            return ligne;
+        }
+
+        function renvoyerOptionsEmployesDuBulletin(employe_id){
+            var ligne = "";
+            for(var i = 0; i < lesEmployes.length; i++)
+            {
+                var employe = lesEmployes[i];
+                var selected = "";
+                if (employe.id == employe_id){
+                    selected = "selected";
+                }
+                ligne += '<option ' + selected + ' value="' + employe.id + '">' + employe.nom_complet + '</option>';
+            }
+            return ligne;
+        }
+
+        function selectChange(indice)
+        {
+            if($("#employe_id" + indice).val() != "0")
+            {
+                var idEmploye = parseInt($("#employe_id" + indice).val());
+                console.log("ID EMPLOYE : " + idEmploye);
+
+                for(var i = 0; i < lesEmployes.length; i++)
+                {
+                    var employe = lesEmployes[i];
+                    if (employe.id == idEmploye){
+                        $("#departement" + indice).val(employe.departement);
+                        $("#poste" + indice).val(employe.poste);
+                    }
+                }
+            }
+        }
+
+       function generer(){
+            if(parseInt(nombreLignes) > 0){
+                document.getElementById('submit').click();
+            }else{
+                console.log("Aucune ligne saisie");
+                $.Notify({
+                    caption: 'Erreur',
+                    content: 'Ajouter au moins une ligne SVP',
+                    type: 'alert'
+                });
+            }
+        }
+    </script>
+
+    <script>
+        var is_success_one_time = false;
+        var bar = document.getElementById("progress-bar");
+        var barMessage = document.getElementById("progress-bar-message");
+        function updateProgress (progressUrl) {
+            if (!is_success_one_time ){
+                    fetch(progressUrl).then(function(response) {
+                        response.json().then(function(data) {
+                            // update the appropriate UI components
+                            setProgress(data.state, data.details);
+                            setTimeout(updateProgress, 500, progressUrl);
+                        });
+                    });
+            }else{
+                location.reload();
+            }
+        }
+        function setProgress(state, details ){
+
+            if (state == "SUCCESS"){
+                bar.style.width = "100%";
+                barMessage.innerHTML = '100 sur 100 % effectués.';
+                $("#calculateLabel").text("Relancer le calcul");
+                is_success_one_time = true;
+            } else if(state == "EN COURS"){
+                var current = details.current * 100 / details.total;
+                bar.style.width =  current + "%";
+                barMessage.innerHTML = current + ' sur 100 % effectués.';
+
+            }
+        }
+
+        var trigger = document.getElementById('progress-bar-trigger');
+        trigger.addEventListener('click', async function(e) {
+                await kick_off_paiement();
+                $("#calculateLabel").text("En cours de calcul");
+                var progressUrl = '{% url "task_status" "1000" %}';  // django template usage
+                progressUrl = progressUrl.replace('1000', task_id);
+                updateProgress(progressUrl);
+        })
+
+        let identifiant = "{{ model.id }}";
+        async function kick_off_paiement() {
+            if (identifiant !== 0){
+                showDialog("chargement");
+                await $.get(
+                    "{% url 'module_payroll_process_calcul_payment' %}",
+                    {ref:identifiant}
+                    ,
+                    function (response) {
+                        task_id = response[0].task_id
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+        }
+    </script>
+{% endblock %}

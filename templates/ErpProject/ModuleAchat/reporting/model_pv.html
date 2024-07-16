@@ -1,0 +1,88 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="facture" style="font-size: 12pt!important;">
+            <div id="lettre">
+                <div class="title_lettre">
+                    <h4>{{ title }}</h4>
+                </div>
+                <div style="margin-top:3%;font-size:14px;">
+                    <p style="text-align:center;text-decoration: underline;">PROCES-VERBAL DE RECEPTION N°003/21</p>
+                </div>
+                <div>
+                    <p style="font-size:13px;">
+                        L’an deux mille vingt et un, le 17 septembre, à 11 Heures 00 minutes ; le Comité de réception du marché
+                        relatif à <b>L’acquisition, Installation Et Mise En Service D’un Outil De Contrôle Automatisé Des Tarifs De Détails
+                        Des Services De Communication (Tariffs Tracker)</b> crée par note de service <b>n°003/ARPCE-DG/DAFC/CGMP/21</b>, <br>
+                        Composé de :
+                    </p>
+                    <br>
+                    <ul style="font-size:13px;">
+                        <li><b>Cédric BUITYS</b> : Chef de service Budget et Achats ;</li>
+                        <li><b>Tony MALELA</b>  : Chef de service Audit et Evaluation Economique ;</li>
+                        <li><b>Gerda EBIEMI</b> : Chef de bureau Achats.</li>
+                    </ul>
+                </div>
+                <div style="font-size:13px;">
+                    <p>S’est réuni pour la réception de la commande détaillée ainsi qu’il suit :</p>
+                </div>
+                <div style="font-size:13px;">
+                    <ul>
+                        <li>Raison sociale du titulaire : SFM Technologies</li>
+                        <li>Objet du marché : L’acquisition, Installation Et Mise En Service D’un Outil De Contrôle Automatisé Des Tarifs De Détails Des Services De Communication (Tariffs Tracker)</li>
+                        <li>Contrat/Bon de commande : n°022-SRC/ARPCE-DG/CGMP/21</li>
+                    </ul>
+                </div>
+                <div>
+                    <table class="display table nowrap border bordered" cellspacing="0" style="width:100%">
+                        <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                            <td width="10%"></td>
+                            <td width="30%">Désignation</td>
+                            <td width="20%">Conformité(OUI/NON)</td>
+                            <td width="20%">Commentaires</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Plateforme matérielle</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                Modem Multi Sim 8 ports:
+                                Module SIMCOM 7600E
+                                Compatibilité réseaux 2G/3G/4G
+                            </td>
+                            <td>OUI</td>
+                            <td>Câble d'alimentation 8 antennes</td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="font-size:13px;margin-top:5%;">
+                    <p>Le Comité de réception, certifies-en la personne de <b>Monsieur Victor MABIALA</b>, la livraison conforme à la commande</p>
+                </div>
+                <br><br><br>
+                <div class="row" style="">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5" style="text-align:center;">
+                        <p class="invoice-text" style="font-size:13px;">Fait à Brazzaville, le 17 septembre 2021</p>
+                        <p class="invoice-text" style="font-weight:bold;font-size:13px;">Le Directeur Administratif; Financier et Comptable.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5" style="text-align:center;">
+                        <p class="invoice-text" style="font-size:13px;font-weight:bold;">Victor MABIALA</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

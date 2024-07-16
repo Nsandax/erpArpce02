@@ -1,0 +1,411 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote27B.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_27B' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 5%">
+          <col style="width: 14%">
+          <col style="width: 6%">
+          <col style="width: 5%">
+          <col style="width: 6%">
+          <col style="width: 5%">
+          <col style="width: 5%">
+          <col style="width: 5%">
+          <col style="width: 5%">
+          <col style="width: 7%">
+          <col style="width: 6%">
+          <col style="width: 6%">
+          <col style="width: 5%">
+          <col style="width: 8%">
+          <col style="width: 6%">
+          <col style="width: 6%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td class="tg-r9sn" colspan="16">NOTE 27B : EFFECTIF, MASSE SALARIALE ET  PERSONNEL EXTERIEUR</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b" colspan="3">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Exercice clos&nbsp;&nbsp;le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b" colspan="3">SIGLE :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b" colspan="3">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Durée (en mois) :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-dbtv"><br><br></td>
+              <td class="tg-y9b0">Effectif et masse  salariale</td>
+              <td class="tg-m9t7" colspan="7">EFFECTIFS</td>
+              <td class="tg-m9t7" colspan="7">MASSE SALARIALE</td>
+            </tr>
+            <tr>
+              <td class="tg-dbtv"></td>
+              <td class="tg-cb43"></td>
+              <td class="tg-m9t7" colspan="2">Nationaux</td>
+              <td class="tg-m9t7" colspan="2">Autres Etats OHADA</td>
+              <td class="tg-m9t7" colspan="2">Hors OHADA</td>
+              <td class="tg-m9t7" rowspan="2">Total</td>
+              <td class="tg-m9t7" colspan="2">Nationaux</td>
+              <td class="tg-m9t7" colspan="2">Autres Etats OHADA</td>
+              <td class="tg-m9t7" colspan="2">Hors OHADA</td>
+              <td class="tg-m9t7" rowspan="2">Total</td>
+            </tr>
+            <tr>
+              <td class="tg-dbtv"></td>
+              <td class="tg-nybd">Qualifications</td>
+              <td class="tg-m9t7">M</td>
+              <td class="tg-m9t7">F</td>
+              <td class="tg-m9t7">M</td>
+              <td class="tg-m9t7">F</td>
+              <td class="tg-m9t7">M</td>
+              <td class="tg-m9t7">F</td>
+              <td class="tg-m9t7">M</td>
+              <td class="tg-m9t7">F</td>
+              <td class="tg-m9t7">M</td>
+              <td class="tg-m9t7">F</td>
+              <td class="tg-m9t7">M</td>
+              <td class="tg-m9t7">F</td>
+            </tr>
+            <tr>
+              <td class="tg-jbor">YA</td>
+              <td class="tg-cey4">Cadres sup‚rieurs</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-jbor">YB</td>
+              <td class="tg-cey4">Techniciens sup‚rieurs et cadres moyens</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-jbor">YC</td>
+              <td class="tg-cey4">Techniciens, Agent de maitrise et ouvriers qualifiés</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-jbor">YD</td>
+              <td class="tg-cey4">Employés, manoeuvres, ouvriers, apprentis</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-jbor">YE</td>
+              <td class="tg-cey4">TOTAL (1)</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-jbor">YF</td>
+              <td class="tg-cey4">Permanents</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-jbor">YG</td>
+              <td class="tg-cey4">Saisonniers</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-yc9w" colspan="2">Personnel extérieur</td>
+              <td class="tg-hmm7" colspan="12"></td>
+              <td class="tg-yc9w" colspan="2">Facturation à l'entité</td>
+            </tr>
+            <tr>
+              <td class="tg-l93j">YH</td>
+              <td class="tg-cey4">Cadres supérieurs</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-l93j">YI</td>
+              <td class="tg-cey4">Techniciens supérieurs et cadres moyens</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-l93j">YJ</td>
+              <td class="tg-cey4">Techniciens, Agent de maitrise et ouvriers qualifiés</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-l93j">YK</td>
+              <td class="tg-cey4">Employés, manoeuvres, ouvriers, apprentis</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-l93j">YL</td>
+              <td class="tg-cey4">TOTAL (2)</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-l93j">YM</td>
+              <td class="tg-cey4">Permanents</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-l93j">YN</td>
+              <td class="tg-cey4">Saisonniers</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-l93j">YO</td>
+              <td class="tg-cey4">TOTAL (1 + 2)</td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+              <td class="tg-cey4"></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b" colspan="16"><br><br>Le commentaire de la Note 27B porte essentiellement : si nécessaire en cas de mouvement significatif du personnel.<br><br></td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+    {% endblock %}

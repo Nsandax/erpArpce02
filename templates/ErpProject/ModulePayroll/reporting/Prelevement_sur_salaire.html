@@ -1,0 +1,99 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Prévelement sur salaire">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}{%load static %}
+
+    <body>
+        <div id="invoice_custom">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                <div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <th>
+                                <div>
+                                    <p><strong style="font-size:17px;">ARPCE</strong></p>
+                                    <p>Boite Postal: BP 2490</p>
+                                    <p>Ville: Brazzaville</p>
+                                </div>
+                            </th>
+                            <th>
+                                <div style="margin-bottom:4%;text-align: center;">
+                                    <img src="{% static 'ErpProject/image/upload/organisation/header.png' %}" style="height:100px;width:350px;">
+                                    <!-- <img src="static/ErpProject/image/upload/organisation/header.png" style="height:100%;width:100%;"> -->
+                                </div>
+                            </th>
+                            <th style="vertical-align: middle;">
+                                <strong style="font-size:11px;font-weight:300;">Page</strong><br>
+                            </th>
+                        </tr>
+                    </table>
+                    <br>
+                    <br>
+                    <p class="align-center title">{{title}}</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            Exercice : {{ date_periode |date:"Y" }} <br>
+                            Mois : {{ date_periode |date:"M" }}
+                        </div>
+                        <div class="col-md-6" style="text-align: end;">
+                            N° d'Ordre:
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <th width="5%">Matricule</th>
+                            <th width="30%">Nom et Prénoms</th>
+                            <th width="10%">Dette à terme</th>
+                            <th width="10%">Montant du prêt</th>
+                            <th width="10%">Mensualité</th>
+                            <th width="5%">Nbre de Mensualité</th>
+                            <th width="10%">Prélèvement anterieurs</th>
+                            <th width="10%">Montant du prélèvement</th>
+                            <th width="10%">Reste à recouvrer</th>
+                        </tr>
+
+                        {% for item in model %}
+                        <tr>
+                            <td >{{ item.employe.profilrh.matricule }}</td>
+                            <td>{{ item.employe.nom_complet }}</td>
+                            <td >{{ item.dette_a_terme |monetary }} {{ item.devise.symbole_devise }}</td>
+                            <td>{{ item.montant |monetary }} {{ item.devise.symbole_devise }}</td>
+                            <td>{{ item.mensualite |monetary}} {{ item.devise.symbole_devise }}</td>
+                            <td >{{ item.nbre_mensualite }} </td>
+                            <td >{{ item.prelevement_anterieur |monetary }} {{ item.devise.symbole_devise }}</td>
+                            <td >{{ item.mensualite |monetary }} {{ item.devise.symbole_devise }}</td>
+                            <td >{{ item.reste_a_recouvrer |monetary }} {{ item.devise.symbole_devise }}</td>
+                        </tr>
+                        {% endfor %}
+
+
+                        <tr>
+                            <th>TOTAUX</th>
+                            <th ></th>
+                            <th ></th>
+                            <th ></th>
+                            <th ></th>
+                            <th></th>
+                            <th>-</th>
+                            <th >-</th>
+                            <th >-</th>
+                        </tr>
+                    </table>
+                    <br>
+                    <br>
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

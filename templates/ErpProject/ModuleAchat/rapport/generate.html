@@ -1,0 +1,19 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %}
+{%load static %}
+
+
+<div class="row">
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_tableau_de_bord' %}">Module Achat</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+
+{% include 'ErpProject/ErpBackOffice/chart/builder.html' with utilisateur=utilisateur models=models csrf_token=csrf_token post_url="module_achat_post_generate_report" only %}
+
+
+
+{% endblock %}

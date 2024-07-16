@@ -1,0 +1,202 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{%load static %}
+{% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_immobilisations' %}">Liste des immobilisations</a></li>
+        <li>{{ title }}</li>
+</div>
+
+<!-- GESTION DU WORKFLOW -->
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_comptabilite_add_immobilisation" url_detail="module_comptabilite_details_immobilisation" csrf_token=csrf_token module=module type_doc="immobilisation" only %}
+<!--FIN GESTION DU WORKFLOW-->
+
+
+<!--div class="row">
+        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_update_immobilisation' model.id %}')" class="button rounded primary_color_{{module.name|lower}}">Modifier</button>
+        <button class="button rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_immobilisation' %}')" style="margin-left: 5px">Créer</button>
+</!div-->
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+    <br>
+    <div id="TraiteImmobilisationPrint" class="row item-content" style="margin-top: 20px">
+        <div class="col-md-12">
+            <div class="col-md-6">
+                {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+            </div>
+            <div class="col-md-6" style="text-align: right;">
+                <h3>Immobilisation</h3>
+                <h4 style="margin-bottom: 17px">{{ model.immobilier.numero_identification }}</h4>
+                <!-- Impression -->
+                    <form method="POST" action="{% url 'back_office_print_objet' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value={{model.id}}>
+                        <input type="hidden" name="dao" value="print_immobilisation(id)">
+                        <input type="hidden" name="previous" value="{{ request.path }}">
+                        <button type="submit" class="btn btn-default" style="background-color: #41435d;border:none;color: white;">Imprimer</button>
+                    </form>
+            <!-- Fin impression -->
+                <h3 style="color: red; font-weight: bold">N° {{model.code}}</h3>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Code :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.code }} </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Immobilier :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.immobilier.article.designation }} {{ model.immobilier.numero_identification }}  </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Taux d'amortissement :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.valeur_taux_amortissement }} %</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Duree de vie :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.duree_vie }} ans</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Valeur de la dotation :<br>
+                        {% if model.is_available %}
+                    <span class="sub-alt-header fg-dark"> {{ model.valeur_dotation |monetary}} {{ devise_ref.symbole_devise }}</span>
+                    {% else %}
+                    <span class="sub-alt-header fg-dark"> IMMOBILISATION AMORTIE!</span>
+                    {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Cumul des amortissements :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.valeur_cumul_amortissement |monetary}} {{ devise_ref.symbole_devise }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Valeur residuelle :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.valeur_residuelle |monetary}} {{ devise_ref.symbole_devise }} </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Date d'acquisition de l'immobilier :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.date_acquisition|date:"d/m/Y" }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Type d'amortissement<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.value_type_amortissement }}</span>
+                     </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        Enregistrée par<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.auteur.nom_complet }}</span>
+                        <br>
+                        <span class="sub-alt-header fg-dark"> {{ model.date_creation|date:"d/m/Y" }}</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <p class="sub-header">Tableau d'amortissement</p>
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th width="20%">Année</th>
+                            <th width="25%">Base d'amortissement</th>
+                            <th width="20%">Dotation</th>
+                            <th width="20%">Cumul</th>
+                            <th width="30%">Valeur Résiduelle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in lignes_amortissements %}
+                        <tr class="table bordered border">
+
+                                <td> {{ligne.annee}}</td>
+                                <td> {{ligne.base_amortissement}} </td>
+                                <td> {{ligne.dotation}} </td>
+                                <td> {{ligne.cumul}} </td>
+                                <td> {{ligne.valeur_residuelle |monetary}} </td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Print Info -->
+<button type="button" id="lancermodal" data-toggle="modal" data-target="#monmodal" style="display: none;">executer</button>
+<div id="monmodal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <center>
+                    <iframe id="iframemodal" frameborder="0" style="width: 100%;" height="600px"></iframe>
+                </center>
+                <hr>
+                <center>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">FERMER</button>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/print.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.debug.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/cell.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.plugin.autotable.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/from_html.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/html2canvas.min.js' %}"></script>
+    <!-- Print Document Function -->
+    <script>
+    function printScreen() {
+        const filename = 'Traitement immobilisation.pdf';
+        var pdf = new jsPDF('l', 'pt', 'ledger');
+
+        pdf.html($('#TraiteImmobilisationPrint')[0], {
+            callback: function (pdf) {
+                var string = pdf.output('datauristring');
+                $('#iframemodal').attr('src', string);
+                $('#lancermodal').click();
+            }
+        });
+
+        margins = {
+            top: 0,
+            bottom: 0,
+            left: 0,
+            width: 0
+        };
+    }
+    </script>
+{% endblock %}

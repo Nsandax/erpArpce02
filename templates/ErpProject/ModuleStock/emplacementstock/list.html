@@ -1,0 +1,158 @@
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Accueil</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                <!-- <button onclick="javascript:window.location.assign('{% url 'module_Stock_add_emplacementstock' %}')"
+                    class="button small-button rounded primary chargement-au-click">Creer</button>
+                 -->
+                <div class="row">
+                    <div class="col-md-2">
+                        <button style="width: 100%;"
+                            onclick="javascript:window.location.assign('{% url 'module_Stock_add_emplacementstock' %}')"
+                            class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                            Créer
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <div id="btn-view" data-role="group" data-group-type="one-state">
+                            <button id="btn-tree"
+                                onclick="javascript:window.location.assign('{% url 'module_Stock_list_emplacementstock' %}?view=list')"
+                                class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}">
+                                <span class="mif-list"></span></button>
+                            <button id="btn-kanban"
+                                onclick="javascript:window.location.assign('{% url 'module_Stock_list_emplacementstock' %}?view=kanban')"
+                                class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}">
+                                <span class="mif-apps"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+                {% if view == "list" %}
+                <div id="list-view" class="row" style="margin-top: 10px;">
+                    <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="width: 20px; background-color:#2e416a; white"></th>
+                                <th>Désignation</th>
+                                <th>Type</th>
+                                <th>Entrepôt</th>
+                                <th>couloir</th>
+                                <th>rayon</th>
+                                <th>hauteur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in model %}
+                            <tr>
+                                <td>
+                                    <label class="small-check">
+                                        <input type="checkbox">
+                                        <span class="check"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <a class="lien chargement-au-click" href="{% url 'module_Stock_detail_emplacementstock' item.id %}">{{item.designation}}</a>
+                                </td>
+                                <td>{{item.type.designation}}</td>
+                                <td>{{item.entrepot.designation}}</td>
+                                <td>{{item.couloir}}</td>
+                                <td>{{item.rayon}}</td>
+                                <td>{{item.hauteur}}</td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                {% elif view == "kanban" %}
+                     <!-- Vue de type card-->
+                     <div id="kanban-view" class="row" style="margin-top:10px;">
+                        {% for item in model %}
+                        <div class="col-md-4">
+                            <div class="card-item" style="margin-top: 10px; margin-bottom: 15px;">
+                                <div class="card-item-content">
+                                    <div class="thumb">
+                                    </div>
+                                    <div class="texts" style="overflow: hidden;padding: 5px;min-width: 0;text-overflow: ellipsis;white-space: nowrap;">
+                                        <a class="link chargement-au-click"
+                                            href="{% url 'module_Stock_detail_emplacementstock' item.id %}">
+                                            {{ item.id }}
+                                        </a><br>
+                                        <div class="mt-2"></div>
+                                        <span class="inner-text">Désignation :
+                                            {{item.designation}}</span><br>
+                                        <br>
+                                        <span>Type</span>:  <strong>{{item.type.designation}}</strong>
+                                        <span>Entrepôt</span>: <strong>{{item.entrepot.designation}}</strong>
+                                        <span>couloir</span>: <strong>{{item.couloir}}</strong>
+                                        <span>rayon</span>: <strong>{{item.rayon}}</strong>
+                                        <span>hauteur</span>: <strong>{{item.hauteur}}</strong>
+                                        <a href="{% url 'module_Stock_detail_emplacementstock' item.id %}"
+                                            class="mt-3 btn btn-block btn-wide rounded chargement-au-click">voir detail</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        });
+    });
+</script>
+{% endblock %}

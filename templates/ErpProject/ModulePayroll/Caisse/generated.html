@@ -1,0 +1,81 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+    {% block page %}
+        {%load static %}
+        {% load account_filters %}
+        <style>
+
+        </style>
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="row">
+            <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+            <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+            <!-- <button onclick="javascript:window.location.assign('{% url 'module_payroll_generate_Balance_paie' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Retour</button> -->
+        </div>
+        <form id="form" method="POST" action="{% url 'module_payroll_to_print_caisse' %}">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input type="text" name="exercice" value="{{ exercice }}" style="display: none">
+            <input type="text" name="periode" value="{{ periode }}" style="display: none">
+            <input type="number" name="employe_id" value="{{ employe_id }}" style="display: none">
+        </form>
+        <hr class="hr-ligne">
+
+        <div id="divTo#print" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <div style="display:flex;justify-content: center;">
+                <img src="{% static 'ErpProject/image/upload/organisation/header.png' %}" style="height:40%;width:40%;">
+            </div>
+            <br>
+            <br>
+            <div style="margin-left:0px;margin-right:0px;display:flex;align-items: center;">
+                <table id="rapport" class="table bordered no-margin" style="width:70%;">
+                    <tr>
+                        <td style="border-top: 0px #999999 solid!important;border-left: 0px #999999 solid!important;"></td>
+                        <td colspan="2" align="center"><strong>{{title}}</strong></td>
+                        <td style="border-top: 0px #999999 solid!important;border-right: 0px #999999 solid!important;"></td>
+                    </tr>
+                    <tr>
+                        <td width="8%">
+                            <strong>N°</strong>
+                            <strong style="float:right;">{{models.reference}}</strong>
+                        </td>
+                        <td width="30%">
+                            <strong>NOM : </strong>
+                            <strong style="float:right;">{{models.employe.nom}}</strong>
+                        </td>
+                        <td width="30%">
+                            <strong>PRENOM :</strong>
+                            <strong style="float:right;">{{models.employe.prenom}}</strong>
+                        </td>
+                        <td width="10%">
+                            <strong>MONTANT(FCFA) :</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <strong>Total</strong>
+                            <strong style="float:right;">{{montant_net|monetary}}</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                       <td colspan="4" height="250px">Visas Responsable RHD</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" height="250px">Signature DAFC</td>
+                    </tr>
+
+                </table>
+            </div>
+
+            <br>
+            <br>
+
+
+        </div>
+        {% include 'ErpProject/ErpBackOffice/widget/export_excel.html' with btn_id="btn_export" table_id="rapport" filename="journal" only %}
+{% endblock %}

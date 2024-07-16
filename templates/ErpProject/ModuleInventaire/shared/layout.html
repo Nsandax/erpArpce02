@@ -1,0 +1,103 @@
+{% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+<link rel="stylesheet" href="{% static 'ErpProject/css/profil.css' %}" />
+<link rel="stylesheet" href="{% static 'ErpProject/css/radial/radial.css' %}" />
+<style type="text/css">
+    .head{
+        background-color: #d64f0d;
+        padding: 10px;
+        color: white;
+    }
+    .td{
+        padding: 10px;
+        border-bottom: 1px solid #e2dee3;
+    }
+</style>
+{% if not isPopup %}
+<!-- Suite Menu Nav -->
+<!-- Menu lateral -->
+<div class="sidebar" role="navigation">
+    <div class="contenair-profil only-on-large-screen" style="background-color: transparent;"  >
+        <!-- <img src="/static/ErpProject/image/icone_profile.png" class="profil"> -->
+        {% if utilisateur.image != None and utilisateur.image != '' %}
+        <img src="{% static utilisateur.image %}"  class="profil">
+        {% else %}
+            <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+        {% endif %}
+        <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+        <p class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</p>
+        <div class="divider" style="background-color: transparent;"></div>
+    </div>
+    <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+        <ul class=" nav" id="side-menu" style="background-color: transparent;">
+            {% include 'ErpProject/ErpBackOffice/widget/menu.html' %}
+        </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+<!-- /.Menu lateral -->
+</nav>
+<!-- /.Menu Navbar -->
+
+<!-- Corps de la page (A définir dans chaque fonction du module) -->
+<div id="page-wrapper" style="background-color:#f9f9f9;">
+{% else %}
+<div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+    {% endif %}
+    {% block page %}{% endblock %}
+</div>
+<!-- Fin Corps de la page -->
+
+
+
+<!-- SCRIPT DE TRAITEMENT DES DROITS VISUELS -->
+<script>
+    var lesactions = new Array();
+    var menu1 = 0;
+    var menu2 = 0;
+    var menu3 = 0;
+
+
+    {% for action in actions %}
+    lesactions.push({droit:"{{ action.droit }}"});
+    {% endfor %}
+
+
+
+
+    //Initialisation des sous-menus
+    $("#bon_entree_stock").hide();
+    $("#bon_transmission").hide();
+    $("#sortie_materiel").hide();
+    $("#stock").hide();
+    $("#asset").hide();
+    $("#articles").hide();
+    $("#controle_stock").hide();
+    $("#immobilisation").hide();
+    $("#traitement_immobilisation").hide();
+    for(var i = 1; i < lesactions.length; i++)
+
+    {
+        action = lesactions[i];
+        if(action.droit==="LISTER_BONENTREE"){$("#bon_entree_stock").show(); menu1++;}
+        if(action.droit==="LISTER_TRANSFERT_STOCK"){$("#bon_transmission").show();menu1++;}
+        if(action.droit==="LISTER_TRANSFERT_INTERNAL"){$("#sortie_materiel").show();menu1++;}
+        if(action.droit==="LISTER_CONTROLE_STOCK"){$("#stock").show();menu2++;}
+        if(action.droit==="LISTER_ARTICLE_INVENTAIRE"){$("#asset").show();menu2++;}
+        if(action.droit==="LISTER_ARTICLE_INVENTAIRE"){$("#articles").show();menu2++;}
+        if(action.droit==="LISTER_CONTROLE_STOCK"){$("#controle_stock").show();menu2++;}
+        if(action.droit==="LISTER_TRAITEMENT_IMMOBILISATION"){$("#immobilisation").show();menu3++;}
+        if(action.droit==="LISTER_TRAITEMENT_IMMOBILISATION"){$("#traitement_immobilisation").show();menu3++;}
+
+
+    }
+    //Traitement des menus
+
+    if (menu1 == 0){ $("#menu1").hide();}
+    if (menu2 == 0){$("#menu2").hide();}
+    if (menu3 == 0){$("#menu3").hide();}
+
+
+    </script>
+    <!-- FIN SCRIPT -->
+
+{% endblock %}

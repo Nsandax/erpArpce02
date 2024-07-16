@@ -1,0 +1,93 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Invoice</title>
+        <meta name="description" content="Invoice demo sample">
+        <meta name="author" content="Kozea">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <p>
+                    Période :<br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                    <br>
+                    <br>
+                    Devise :<br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </p>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+            {% for journal in journaux %}
+                <tr style="background-color:#f1f1f1">
+                    <th width="5%">JI</th>
+                    <th width="10%">Numéro de Compte</th>
+                    <th width="25%">Intitulé du compte</th>
+                    <th width="30%">Libéllé de l'écriture</th>
+                    <th width="15%">Débit</th>
+                    <th width="15%">Crédit</th>
+                </tr>
+                <tr><td colspan="6" style="border-left: none!important; border-right: none!important;"></td></tr>
+                <tr style="background-color:#ffb871; text-align: left">
+                    <td colspan="6">JOURNAL {{ journal.designation }} ({{ journal.code }})</td>
+                </tr>
+                <tr>
+                    <td colspan="6" style="border-left: none!important; border-right: none!important;"></td>
+                </tr>
+                {% for piece in pieces_comptables %}
+                    {% if piece.journal_comptable_id == journal.id %}
+                        <tr class="thead" style="background-color:#8baee9">
+                            <td colspan="6">Pièce: {{ piece.designation }}&nbsp;&nbsp;&nbsp;Date d'écriture: {{ piece.date_piece|date:"d/m/Y" }}&nbsp;&nbsp;&nbsp;Réf: {{ piece.reference }}</td>
+                        </tr>
+                        {% for item in model %}
+                            {% if item.piece_comptable_id == piece.id %}
+                                <tr>
+                                    <td width="5%">{{ journal.code }}</td>
+                                    <td width="10%"> {{ item.compte.numero }} </td>
+                                    <td width="25%"> {{ item.compte.designation }} </td>
+                                    <td width="30%"> {{ item.designation }} </td>
+                                    <td width="15%" align="right"> {% if item.debit == "0.00" %}  - {% else %}  {{ item.debit|monetary }} {% endif %} </td>
+                                    <td width="15%" align="right"> {% if item.credit == "0.00" %}  - {% else %}  {{ item.credit|monetary }} {% endif %} </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        <tr style="font-style: normal;font-weight: 700;">
+                            <td width="70%" colspan="4"> TOTAL {{ piece.designation }}</td>
+                            <td width="15%" align="right">  {{ piece.valeur_debit|monetary }} </td>
+                            <td width="15%" align="right">  {{ piece.valeur_credit|monetary }} </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                <tr style="background-color:#ffd5aa;font-style: normal;font-weight: 700;">
+                    <td width="70%" colspan="4"> TOTAL JOURNAL {{ journal.designation }} ({{ journal.code }}) A LA PERIODE</td>
+                    <td width="15%" align="right">  {{ equilibre_credit|monetary }}  </td>
+                    <td width="15%" align="right">  {{ equilibre_debit|monetary }}  </td>
+                </tr>
+                <tr><td colspan="6" style="border-left: none!important; border-right: none!important;"></td></tr>
+                <tr style="background-color:#ffb871;font-style: normal;font-weight: 700;">
+                    <td width="70%" colspan="4">TOTAL JOURNAL {{ journal.designation }} ({{ journal.code }})</td>
+                    <td width="15%" align="right">  {{ total_equilibre_credit|monetary }}  </td>
+                    <td width="15%" align="right">  {{ total_equilibre_credit|monetary }}  </td>
+                </tr>
+                <tr><td colspan="6" style="border: none!important;"></td></tr>
+                <tr><td colspan="6" style="border: none!important;"></td></tr>
+                <tr><td colspan="6" style="border: none!important;"></td></tr>
+                <tr><td colspan="6" style="border: none!important;"></td></tr>
+            {% endfor %}
+                <tr style="background-color:#f1f1f1">
+                    <td width="70%" colspan="4">TOTAL DES JOURNAUX {{ journal.designation }} ({{ journal.code }})</td>
+                    <td width="15%" align="right">  {{ journal.valeur_debit|monetary }}  </td>
+                    <td width="15%" align="right">  {{ journal.valeur_debit|monetary }}  </td>
+                </tr>
+            </table>            
+        </div>
+    </body>
+</html>

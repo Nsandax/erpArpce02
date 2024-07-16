@@ -1,0 +1,116 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <ul class="breadcrumbs2 small">
+        <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+        <li>{{ title }}</li>
+    </ul>
+
+    <hr class="hr-ligne" />
+
+	<div class="container">
+		<!--div class="row" style="display:block; height: 300px; /*background-image: url('/static/ErpProject/image/upload/organisation/cover.jpg'); background-size: 100% 100%; background-position: center*/"></div-->
+		<div class="row padding30 no-padding-left no-padding-right">
+			<div class="tile-container">
+					<a href="{% url 'module_achat_list_fournitures' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Articles entrants</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_list_bons_achat' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Bons d'achat</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_list_fournisseurs' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Fournisseurs</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_list_factures' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Factures fournisseurs</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_list_articles' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Articles</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_report' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Rapports</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_list_categorie_articles' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Catégories d'articles</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_list_unite' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Unités de mésure</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_list_categorie_unites' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Catégories d'unité de mésure</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_list_reglement' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Condition de réglement</span>
+							</p>
+						</div>
+					</a>
+					<a href="{% url 'module_achat_configuration' %}" class="tile bg-white fg-steel chargement-au-click" data-role="tile">
+						<div class="tile-content iconic">
+							<img src="{% static 'ErpProject/image/icone-comptabilite.png' %}" style="">
+							<p class="align-center padding10" style="margin-top: 100px">
+								<span class="text-bold">Paramètrage</span>
+							</p>
+						</div>
+					</a>
+
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+
+
+
+<div class="col-md-4 ser-left wow fadeInDown animated" data-wow-duration=".8s" data-wow-delay=".2s" style="visibility: visible; animation-duration: 0.8s; animation-delay: 0.2s; animation-name: fadeInDown;">
+	<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>
+	<h4>Clean Modern Code</h4>
+	<p>Lorem ipsum dolor sit amet, consectetur adipisc elit. Proin ultricies vestibulum velit sit amet.</p>
+</div>

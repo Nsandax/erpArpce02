@@ -1,0 +1,84 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+    {% load printabletags %}
+
+    <body>
+        <div id="invoice">
+            <div class="separ col-md-12" style="background-color: grey;opacity: 0.3;margin-bottom: 10px;"></div>
+            <h1 class="align-center" style="color: red; font-weight: bold; font-size: 20px; text-transform: uppercase;">{{ title }}</h1>
+            <h3 style="text-align:center;font-weight: bold; font-size: 18px">ARPCE</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>
+                        <strong>République du Congo</strong> <br>
+                        <strong>91 bis Boulvard du 30 juin</strong> <br>
+                        <strong>+ 242 05 510 72 72</strong> <br>
+                        <strong>contact@arpce.cg</strong> <br>
+                    </p>
+                </div>
+                <div class="col-md-6" style="text-align: right;">
+                    <h3> {{contrat.type_marche}}</h3>
+                    <h3 style="color: red; font-weight: bold">{{contrat.numero_reference}}</h3>
+                </div>
+                <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                <div class="col-md-6">
+                    <p>
+                        <strong>Demande de cotation: </strong> {{contrat.demande_cotation}}
+                        <br>
+                        <strong>Financement :</strong> {{contrat.demande_cotation}}
+                        <br>
+                        <strong>Type de Marché :</strong> {{contrat.type_marche}}
+                        <br>
+                        <strong>Montant :</strong> {{contrat.montant}}
+                        <br>
+                        <strong>Objet :</strong> {{contrat.objet}}
+                        <br>
+                        <strong>Modalités :</strong> {{contrat.modalite}}
+                    </p>
+
+                </div>
+                <div class="col-md-6" style="margin-bottom: 40px">
+                    <p style="float: right;">
+                    </p>
+                </div>
+            </div>
+
+            <br>
+            <br>
+
+
+
+        </div>
+       <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#D64F0D;color:#fff;font-weight:500">
+                    <td class="head">DATE</td>
+                    <td class="head">DESIGNATION</td>
+                    <td class="head">CATEGORIE</td>
+                    <td class="head">TYPE</td>
+                    <td class="head">VALEUR</td>
+                    <td class="head">DESCRIPTION</td>
+                </tr>
+                {% for item in contrat.operations %}
+                <tr>
+                    <td class="td">{{ item.created_at }}</td>
+                    <td class="td">{{ item.designation }}</td>
+                    <td class="td"> {{item.value_categorie}} </td>
+                    <td class="td">{{ item.value_type }} </td>
+                    <td class="td">{{ item.valeur }} </td>
+                    <td class="td">{{ item.description }} </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+            <h4 style="color: green; font-weight: bold">Solde: {{contrat.solde}} {{ contrat.devise.symbole_devise}}</h3>
+
+    </body>
+</html>

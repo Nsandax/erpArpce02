@@ -1,0 +1,65 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_rh_list_employe' %}">Module Ressources humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary chargement-au-click">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_details_poste' model.id %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+    <div class="row cells3 item-content" style="margin-top: 10px">
+        <div class="cell">
+            <form id="form" method="POST" action="{% url 'module_ressources_humaines_post_update_poste' %}"
+                data-role="validator" 
+                data-show-required-state="false"
+                data-hint-mode="line"
+                data-hint-background="bg-red"
+                data-hint-color="fg-white"
+                data-hide-error="5000"
+                novalidate="novalidate"
+                data-on-error-input="notifyOnErrorInput"
+                data-show-error-hint="false">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+                <input name="ref" type="hidden" value="{{ model.id }}" >
+                <div class="row">
+
+                </div>
+                <div class="row">
+                    <label>Nom</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="designation" value="{{ model.designation }}" type="text" 
+                            data-validate-func="required" 
+                            data-validate-hint="Entrez la désignation de la categorie !">
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+				<div class="row">
+                    <label>Département</label>
+					<div class="input-control text full-size">
+						<select name="departement" id="departement">
+							<option  value="0">Sélectionnez un département</option>
+							{% for item in departements %}
+								<option {% if model.departement.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.libelle }} </option>
+							{% endfor %}
+						</select>
+					</div>
+                </div>
+                <div class="row">
+                    <label>Description</label>
+                    <div class="input-control textarea full-size" data-role="input">
+                        <textarea name="description" >{{ model.description }}</textarea>
+                    </div>
+                </div>                
+            </form>
+        </div>        
+    </div>
+{% endblock %}

@@ -1,0 +1,78 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="invoice">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                    <tr>
+                        <th width="30%">
+                            <div style="height: 100px;">
+                                <div class=""  style="margin-bottom:17%;">
+                                    <strong style="font-size:20px;">ARPCE</strong>
+                                </div>
+                                <div class="">Brazzaville</div>
+                            </div>
+                        </th>
+                        <th width="40%">
+                            <div style="margin-bottom:4%;text-align: center;">
+                                <strong style="font-size:20px;">{{title}}</strong>
+                            </div>
+                            <p class="mb-2">Exercice: {{title}}</p>
+                            <div class="row" style="text-align:start;">
+                                <span class="col-md-6">Mois: {{ lot.date_fin|date:"M" }}</span>
+                                <span class="col-md-6">N° d'Ordre: {{lot.id}}</span>
+                            </div>
+                        </th>
+                        <!--th width="30%" style="vertical-align: middle;">Page 1 / 1</th-->
+                    </tr>
+                </table>
+                <!-- <p class="align-center header">{{title}}</p> -->
+                <br>
+                <br>
+                <h4>Recette principale Brazaville</h4>
+                <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                    <tr>
+                        <th class="pos" width="20%" rowspan="2">Nom et Prénom</th>
+                        <th class="pos" width="8%" rowspan="2">Numéro d'identification Unique (NIU)</th>
+                        <td colspan="2" class="pos">Part Employé</td>
+                        <td colspan="3" class="pos">Part Employeur</td>
+                        <td class="pos" rowspan="2">Total Impôts</td>
+                    </tr>
+                    <tr>
+                        <td class="pos">Base IRPP</td>
+                        <td class="pos">Montant IRPP</td>
+                        <td class="pos">Base TUS</td>
+                        <td class="pos">Montant TUS</td>
+                        <td class="pos">Total Employeur</td>
+                    </tr>
+                    {% for item in models %}
+                    <tr>
+                        <td>{{item.employe}}</td>
+                        <td>{{item.niu}}</td>
+                        <td>{{item.base_irpp|monetary}}</td>
+                        <td>{{item.montant_irpp|monetary}}</td>
+                        <td>{{item.base_tus|monetary}}</td>
+                        <td>{{item.montant_tus|monetary}}</td>
+                        <td>{{item.total_employeur|monetary}}</td>
+                        <td>{{item.total_impots|monetary}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <br>
+                <br>
+            </div>
+
+        </div>
+    </body>
+</html>

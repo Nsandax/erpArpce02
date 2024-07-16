@@ -1,0 +1,66 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="invoice">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <p>
+                    A la date du :<br>
+                    <span class="sub-header">{{ date_fin }}</span>
+                    <br>
+                    <br>
+                    Devise :<br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </p>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                    <td width="12%" colspan="2">Date facture</td>
+                    <td width="20%">Libellé de la facture</td>
+                    <td width="8%">Numéro</td>
+                    <td width="12%">Montant</td>
+                    <td width="12%">Reglèment</td>
+                    <td width="12%">Date de paiement</td>
+                    <td width="12%">Type de paiement</td>
+                    <td width="12%">Solde</td>
+                </tr>
+                {% for facture in factures %}
+                    <tr class="tr-toggle" style="background-color:#f1f1f1;font-weight:700!important;" data-toggle="collapse" data-target=".paiement{{ facture.id }}" daria-expanded="false">
+                        <td width="12%" colspan="2">{{ facture.date_facturation|date:"d/m/Y" }}</td>
+                        <td width="20%">{{ facture.numero_facture }}</td>
+                        <td width="8%">{{ facture.numero_facture }}</td>
+                        <td width="12%" style="text-align: right" width="12%">{{ facture.montant|monetary }} </td>
+                        <td width="12%" style="text-align: right" width="12%">{{ facture.montant_paye|monetary }} </td>
+                        <td width="12%" style="text-align: right" width="12%"></td>
+                        <td width="12%" style="text-align: right" width="12%"></td>
+                        <td width="12%" style="text-align: right" width="12%">{{ facture.montant_restant|monetary }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td style="text-align: left" colspan="4">Total</td>
+                    <td style="text-align: right" width="12%">{{ total_montant|monetary }} </td>
+                    <td style="text-align: right" width="12%">{{ total_montant_paye|monetary }} </td>
+                    <td style="text-align: right" width="12%"></td>
+                    <td style="text-align: right" width="12%"></td>
+                    <td style="text-align: right" width="12%">{{ total_solde|monetary }}</td>
+                </tr>
+                <tr style="background-color:#7c984a;color:#fff!important;">
+                    <th style="text-align: left" colspan="8">SOLDE (+Débiteur/-Crediteur)</th>
+                    <th style="text-align: right">{{ total_montant_solde|monetary }}</th>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

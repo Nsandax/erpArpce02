@@ -1,0 +1,149 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+{% load account_filters %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_pret' %}">Liste des demandes de pret</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="button rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_pret' %}')" class="button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+                    
+
+                    <div class="row item-content" style="margin-top: 10px">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Référence :<br>
+                                        <span id="numero" class="fg-dark">{{ demande_pret.reference }}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Date première échéance :<br>
+                                        <span id="date_facturation" class="fg-dark">{{ demande_pret.date_premiere_echeance }}</span>
+                                    </p>
+                                </div>
+                                
+                            </div>
+                            <div class="row">
+                               
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Employé :<br>
+                                        <span class="fg-dark">{{ demande_pret.employe }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Description :<br>
+                                        <span id="description" class="fg-dark">{{ demande_pret.description }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Montant :<br>
+                                        <span class="fg-dark"> {{ demande_pret.montant }} {{ demande_pret.devise.symbole_devise }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Document externe :<br>
+                                        <span id="reference_document" class="fg-dark"></span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Rubrique :<br>
+                                        <span class="fg-dark"> {{ demande_pret.rubrique }} </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <h3>Echéanciers</h3>
+                                <table class="table border bordered">
+                                    <thead>
+                                        <tr>
+                                            <th width="20%">Date</th>
+                                            <th width="10%">Montant du pret</th>
+                                            <th width="15%">Mensualité</th>
+                                            <th width="15%">Prélèvement antérieur</th>
+                                            <th width="15%">Montant du prélèvement</th>                                            
+                                            <th width="15%">Reste à recouvrer</th>                                            
+                                            <th width="20%"> Total général</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items">
+                                        {% for item in lignes_remboursement %}
+                                            <tr>
+                                                <td>{{ item.date_remboursement }}</td>
+                                                <td align="right">{{ item.montant_pret |monetary}} {{ item.devise_iso }}</td>
+                                                <td align="right">{{ item.mensualite |monetary}} {{ item.devise_iso }}</td>
+                                                <td align="right">{{ item.prelevement_anterieur |monetary}} {{ item.devise_iso }}</td>
+                                                <td align="right">{{ item.montant_du_prelevement |monetary}} {{ item.devise_iso }}</td>
+                                                <td align="right">{{ item.reste_a_recouvrer |monetary}} {{ item.devise_iso }}</td>
+                                                
+                                                <td align="right">-</td>
+                                                
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <!--tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td style="text-align: right; border:1px #999999 solid">TOTAL</td>
+                                            <td style="text-align: right; border:1px #999999 solid" id="total_ht">{{ demande_pret.montant_ht }} {{ devise.symbole_devise }}</td>
+                                            <td style="text-align: right; border:1px #999999 solid" id="total">-</td>
+                                            <td style="text-align: right; border:1px #999999 solid" id="total_tt">{{ demande_pret.montant_taxe_total }} {{ devise.symbole_devise }}</td>
+                                            <td style="text-align: right; border:1px #999999 solid" id="total">{{ demande_pret.montant_total }} {{ devise.symbole_devise }}</td>
+                                            
+                                        </tr>
+                                        
+                                    </tfoot-->
+                                </table>
+                            </div>
+                            <hr style="margin: 20px -15px 15px; background-color: #999999; height: 1px;">
+                       
+                            <form id="form" method="POST" action="{% url 'module_ressourceshumaines_post_add_pret' %}">
+                                {% csrf_token %}
+                                <input id="submit"   type="submit" style="display: none">
+                                <input type="hidden" name="reference" id="reference" value="{{ demande_pret.reference }}">
+                                <input type="hidden" name="date_premiere_echeance" id="date_premiere_echeance" value="{{ demande_pret.date_premiere_echeance }}">
+                                <input type="hidden" name="devise_id" id="devise_id" value="{{ demande_pret.devise_id }}">
+                                <input type="hidden" name="montant" id="montant" value="{{ demande_pret.montant }}">
+                                <input type="hidden" name="employe_id" id="employe_id" value="{{ demande_pret.employe_id }}">
+                                <input type="hidden" name="nbre_mensualite" value="{{ demande_pret.nbre_mensualite }}">
+                                <input type="hidden" name ="taux_interet" value="{{demande_pret.taux_interet}}">
+                                <input type="hidden" name ="description" value="{{demande_pret.description}}">
+                                <input type="hidden" name ="rubrique_id" value="{{demande_pret.rubrique_id}}">
+                                <input type="hidden" name="document_upload" value="{{demande_pret.document_upload}}">                                   </table>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

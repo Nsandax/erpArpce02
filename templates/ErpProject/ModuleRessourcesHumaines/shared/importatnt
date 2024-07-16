@@ -1,0 +1,311 @@
+{% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+{% if not isPopup %}
+<!-- Suite Menu Nav -->
+<!-- Menu lateral -->
+<div class="sidebar" role="navigation">
+    <div class="contenair-profil only-on-large-screen" style="background-color: transparent;">
+        <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+        <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+        <p class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</p>
+        <div class="divider" style="background-color: transparent;"></div>
+    </div>
+    <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+        <ul class=" nav" id="side-menu" style="background-color: transparent;">
+            <li class="li-menu">
+                <a href="{% url 'module_rh_tableau_de_bord' %}" class="a-menu"><img src="/static/ErpProject/image/icones/new/dashboard.svg" style="margin-right: 10px;width:22px;"> Tableau de bord </a>
+            </li>
+
+            <li class="li-menu" id="menu1">
+                <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/achats.svg" style="margin-right: 10px;width: 22px;color: white;"></i> Gestion Administrative <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+                    <li id="employes" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_rh_list_employe' %}" class="a-menu">Employés</a></li>
+                    <li id="departements" class="{% if menu == 2 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_rh_list_departement' %}" class="a-menu">Départements</a></li>
+                    <li id="categorie_echelon" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_categorie_employe' %}" class="a-menu">Catégorie & Echelon</a>
+                        <li id="conges" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_index_conge' %}" class="a-menu">Congés</a>
+                    </li>
+                    <!--li class="{% if menu == 3 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#">Requetes</a></li-->
+                </ul>
+                 <!--nav-second-niveau -->
+            </li>
+
+            <li class="li-menu" id="menu2">
+                    <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/achats.svg" style="margin-right: 10px;width: 22px;color: white;"></i> Gestion des emplois et compétences <span class="fa fa arrow"></span></a>
+                    <!-- nav-second-niveau -->
+                    <ul class="nav nav-second-level">
+                        <li id="syndicat" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_syndicat' %}" class="a-menu">Affiliation syndicale</a></li>
+                        <li id="fiche_poste" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressources_humaines_list_postes' %}" class="a-menu">Fiche de poste</a></li>
+                        <li id="emplois" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_employe_for_emploi' %}" class="a-menu">Référentiel des emplois</a></li>
+                        <li id="competences" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_employe_for_competence' %}" class="a-menu">Référentiel des compétences</a></li>
+                        <li id="evaluation" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_employe_for_evaluation' %}" class="a-menu">Evaluation</a></li>
+
+                        <!--li class="{% if menu == 3 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#">Requetes</a></li-->
+                    </ul>
+                     <!--nav-second-niveau -->
+                </li>
+            <li class="li-menu" id="menu3">
+                <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/achats.svg" style="margin-right: 10px; width: 22px;color: white;">Gestion du Social <span class="fa fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li id="dossier_social" class="{% if menu == 3 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressources_humaines_list_dossier_social' %}" class="a-menu">Dossier du social</a></li>
+                </ul>
+            </li>
+            <li class="li-menu" id="menu4">
+                    <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/achats.svg" style="margin-right: 10px;width: 22px;color: white;"></i> Gestion de formation<span class="fa fa arrow"></span></a>
+                    <!-- nav-second-niveau -->
+                    <ul class="nav nav-second-level">
+                        <li id="plan_formation" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_formation' %}" class="a-menu">Plan de formation</a></li>
+                        <li id="formation_prevue" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_formation' %}?created" class="a-menu">Formation prévue</a></li>
+                        <li id="formation_realisee" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_formation' %}?success" class="a-menu">Formation réalisée</a></li>
+                        <li id="formation_annulee" class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_formation' %}?cancel" class="a-menu">Formation annulée</a></li>
+
+                        <!--li class="{% if menu == 3 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#">Requetes</a></li-->
+                    </ul>
+                     <!--nav-second-niveau -->
+                </li>
+                <li class="li-menu" id="menu5">
+                    <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/achats.svg" style="margin-right: 10px; width: 22px;color: white;">Gestion de Mobilité Interne <span class="fa fa arrow"></span></a>
+                    <!-- nav-second-niveau -->
+                    <ul class="nav nav-second-level">
+                        <li id="evolution_professionnelle" class="{% if menu == 11 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_evolution' %}" class="a-menu">Evolutions Professionnelles des cadres</a></li>
+                    </ul>
+                    <ul class="nav nav-second-level">
+                        <li id="recrutement_interne" class="{% if menu == 12 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_recrutement_interne' %}" class="a-menu">Récrutement en Interne</a></li>
+                    </ul>
+                    <ul class="nav nav-second-level">
+                        <li id="reconversion_pro" class="{% if menu == 13 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_mobilite' %}" class="a-menu">Reconversion professionnelle</a></li>
+                    </ul>
+                    <ul class="nav nav-second-level">
+                        <li id="plan_releve" class="{% if menu == 13 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_plan_releve' %}" class="a-menu">Plan de rélève</a></li>
+                    </ul>
+                    <ul class="nav nav-second-level">
+                        <li id="projet_professionnel" class="{% if menu == 14 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_projet_professionnel' %}" class="a-menu">Projets professionnels</a></li>
+                    </ul>
+                    <!-- /.nav-second-niveau -->
+                </li>
+
+                <li class="li-menu" id="menu6">
+                    <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/achats.svg" style="margin-right: 10px; width: 22px;color: white;"> Gestion personnelle <span class="fa fa arrow"></span></a>
+                    <!-- nav-second-niveau -->
+                    <ul class="nav nav-second-level">
+                        <li class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#" class="a-menu">Vos informations</a></li>
+                        <li class="{% if menu == 2 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_ressourceshumaines_list_conge' %}" class="a-menu">Demande de congé</a></li>
+                        <li class="{% if menu == 2 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#" class="a-menu">Requête de compétence</a></li>
+                        <li class="{% if menu == 13 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_projet_professionnel' %}" class="a-menu">Mes Projets professionnels</a></li>
+                        <!--li class="{% if menu == 3 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#">Requetes</a></li-->
+                    </ul>
+                     <!--nav-second-niveau -->
+                </li>
+
+
+
+            <!--li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Présences <span class="fa fa arrow"></span></a>
+
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_presence' %}" class="a-menu">Présences</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_presence_employe' %}" class="a-menu">Employés</a></li>
+                </ul>
+
+
+            </li>
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Congé <span class="fa fa arrow"></span></a>
+
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_type_conge' %}" class="a-menu">Type des congés</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_demande_conge' %}" class="a-menu">Demande de congés</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_conge_approuve' %}" class="a-menu">Congés accordés</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_conge_reject' %}" class="a-menu">Congés réfusés</a></li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} "><a href="{% url 'module_ressourceshumaines_list_conge' %}" class="a-menu">Demande de congés</a></li>
+                </ul>
+
+            </li-->
+
+            <li class="li-menu" id="menu7">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Paie <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+                     <li id="bullletin_employe" class="{% if menu == 7 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_bulletin' %}">Bulletins de l'employé</a>
+                    </li>
+                    <li id="calcul_paie" class="{% if menu == 12 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_calcul_paie_list' %}">Calcul paie</a>
+                    </li>
+                    <li id="profil_paie" class="{% if menu == 11 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_profilpaie' %}">Profil paie</a>
+                    </li>
+                    <li id="lot_bulletin_paie" class="{% if menu == 8 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_lotbulletin' %}">Lots de bulletins de paie</a>
+                    </li>
+                    <li id="element_bulletin" class="{% if menu == 9 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_element' %}">Elements du bulletin</a>
+                    </li>
+                    <li id="bareme" class="{% if menu == 10 %}{{ 'active' }}{% endif %} ">
+                        <a class="a-menu" href="{% url 'module_ressources_humaines_list_bareme' %}">Barêmes</a>
+                    </li>
+                </ul>
+                <!-- /.nav-second-niveau -->
+            </li>
+
+
+            <li class="li-menu" id="menuBI">
+                <a href="#" class="a-menu"><img  src="/static/ErpProject/image/icones/new/line-chart-for-business.svg" style="margin-right: 10px;width: 22px;color: white;">Business intelligence <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 11 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Presences</a></li>
+                </ul>
+                <!-- /.nav-second-niveau -->
+            </li>
+
+            <li class="li-menu" id="menu8">
+                <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/new/settings.svg" style="margin-right: 10px;width: 22px;">Configurations <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+
+
+                    <li id="categorie_employe" class="{% if menu == 13 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#" class="a-menu">Catégorie des employés</a></li>
+
+                    <!--li class="{% if menu == 14 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Congés</a></li>
+                    <li class="{% if menu == 15 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Congé à approuver</a></li>
+
+                    <li class="{% if menu == 16 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Demande de congés</a></li>
+
+                    <li class="{% if menu == 17 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Presence</a></li>
+
+                    <li class="{% if menu == 18 %}{{ 'active' }}{% endif %} "><a href="#" class="a-menu">Type de congés</a></li-->
+                </ul>
+                <!-- /.nav-second-niveau -->
+            </li>
+
+        </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+<!-- /.Menu lateral -->
+</nav>
+<!-- /.Menu Navbar -->
+
+<!-- Corps de la page (A définir dans chaque fonction du module) -->
+<div id="page-wrapper" style="background-color:#f9f9f9;">
+{% else %}
+<div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+    {% endif %}
+    {% block page %}{% endblock %}
+</div>
+<!-- Fin Corps de la page -->
+
+
+<!-- SCRIPT DE TRAITEMENT DES DROITS VISUELS -->
+<script>
+    var lesactions = new Array();
+    var menu1 = 0;
+    var menu2 = 0;
+    var menu3 = 0;
+    var menu4 = 0;
+    var menu5 = 0;
+    var menu6 = 0;
+    var menu7 = 0;
+    var menu8 = 0;
+
+
+    {% for action in actions %}
+    lesactions.push({droit:"{{ action.droit }}"});
+    {% endfor %}
+
+
+
+    //Initialisation des sous-menus
+    $("#employes").hide();
+    $("#departements").hide();
+    $("#categorie_echelon").hide();
+    $("#conges").hide();
+    $("#syndicat").hide();
+    $("#fiche_poste").hide();
+
+    $("#dossier_social").hide();
+
+    $("#plan_formation").hide();
+    $("#formation_prevue").hide();
+    $("#formation_realisee").hide();
+    $("#formation_annulee").hide();
+
+
+    $("#emplois").hide();
+    $("#competences").hide();
+    $("#evaluation").hide();
+    $("#evolution_professionnelle").hide();
+    $("#recrutement_interne").hide();
+    $("#reconversion_pro").hide();
+    $("#plan_releve").hide();
+    $("#projet_professionnel").hide();
+    $("#bullletin_employe").hide();
+    $("#calcul_paie").hide();
+    $("#profil_paie").hide();
+    $("#lot_bulletin_paie").hide();
+    $("#element_bulletin").hide();
+    $("#bareme").hide();
+    $("#categorie_employe").hide();
+    $("#menuBI").hide();
+
+    for(var i = 1; i < lesactions.length; i++)
+
+    {
+        action = lesactions[i];
+        if(action.droit==="LISTER_EMPLOYE"){$("#employes").show(); menu1++;}
+        if(action.droit==="LISTER_DEPARTEMENT"){$("#departements").show();menu1++;}
+        if(action.droit==="LISTER_FACTURE_FOURNISSEUR"){$("#categorie_echelon").show();menu1++;}
+        if(action.droit==="LISTER_CONGE"){$("#conges").show();menu1++;}
+        if(action.droit==="LISTER_SYNDICAT"){$("#syndicat").show();menu2++;}
+        if(action.droit==="LISTER_POSTE"){$("#fiche_poste").show();menu2++;}
+        if(action.droit==="LISTER_EMPLOI"){$("#emplois").show();menu2++;}
+        if(action.droit==="CREER_RAPPORT"){$("#menuBI").show();}
+        if(action.droit==="LISTER_COMPETENCE"){$("#competences").show();menu2++;}
+        if(action.droit==="LISTER_EVALUATION"){$("#evaluation").show();menu2++;}
+        if(action.droit==="LISTER_EVOLUTION"){$("#evolution_professionnelle").show();menu5++;}
+        if(action.droit==="LISTER_RECRUTEMENT_INTERNE"){$("#recrutement_interne").show();menu5++;}
+        if(action.droit==="LISTER_MOBILITE"){$("#reconversion_pro").show();menu5++;}
+        if(action.droit==="LISTER_RELEVE"){$("#plan_releve").show();menu5++;}
+        if(action.droit==="LISTER_PROJET_PROFESSIONNEL"){$("#projet_professionnel").show();menu5++;}
+        if(action.droit==="LISTER_BULLETIN"){$("#bullletin_employe").show();menu7++;}
+        if(action.droit==="LISTER_PROFIL_PAIE"){$("#calcul_paie").show();menu7++;}
+        if(action.droit==="LISTER_PROFIL_PAIE"){$("#profil_paie").show();menu7++;}
+        if(action.droit==="LISTER_LOT_BULLETIN"){$("#lot_bulletin_paie").show();menu7++;}
+        if(action.droit==="LISTER_ELEMENT_BULLETIN"){$("#element_bulletin").show();menu7++;}
+        if(action.droit==="LISTER_BAREME"){$("#bareme").show();menu7++;}
+        if(action.droit==="LISTER_EMPLOYE"){$("#categorie_employe").show();menu8++;}
+
+        if(action.droit==="LISTER_FORMATION"){$("#plan_formation").show();menu4++;}
+        if(action.droit==="LISTER_FORMATION"){$("#formation_prevue").show();menu4++;}
+        if(action.droit==="LISTER_FORMATION"){$("#formation_realisee").show();menu4++;}
+        if(action.droit==="LISTER_FORMATION"){$("#formation_annulee").show();menu4++;}
+
+        if(action.droit==="LISTER_DOSSIER_SOCIAL"){$("#dossier_social").show();menu3++;}
+
+
+    }
+    //Traitement des menus
+
+    if (menu1 == 0){ $("#menu1").hide();}
+    if (menu2 == 0){$("#menu2").hide();}
+    if (menu4 == 0){$("#menu4").hide();}
+    if (menu3 == 0){$("#menu3").hide();}
+    if (menu5 == 0){$("#menu5").hide();}
+    if (menu7 == 0){$("#menu7").hide();}
+    if (menu8 == 0){$("#menu8").hide();}
+
+
+    </script>
+
+
+
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_payroll_list_profilpaie' %}">Liste des Profils Paie</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <!--button onclick="javascript:window.location.assign('{% url 'module_payroll_add_element' %}')" class="button small-button rounded primary chargement-au-click">Modifier</button-->
+        <button cclass="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;" onclick="javascript:window.location.assign('{% url 'module_payroll_add_profilpaie' %}')" style="margin-left: 5px">Créer</button>
+		<center><h4 style="color:red; font-weight: bold;">PROFIL PAIE</h4></center>
+	</div>
+      {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_payroll_add_profilpaie" url_detail="module_payroll_details_profilpaie" csrf_token=csrf_token module=module type_doc="" only %}
+
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+		{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+	<br>
+	
+
+    <div class="row item-content" style="margin-top: 10px">
+        <!--p class="header">{{ model.designation }}</p-->
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Désignation :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Référence :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.reference }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Type :<br>
+                    <span class="sub-alt-header fg-dark">{{ model.type }}</span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Employé :<br>
+					<span class="sub-alt-header fg-dark">{{ model.employe.nom_complet }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Date de création :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.creation_date|date:"d/m/Y" }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Auteur :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.auteur.nom_complet }} </span>
+                </p>
+            </div>
+        </div>
+
+		<div class="row">
+			<table class="table border bordered">
+				<thead>
+					<tr>
+						<th width="25%">Désignation</th>
+						<th width="10%">Type</th>
+						<th width="10%">Catégorie</th>
+						<th width="15%">Type de calcul</th>
+						<th width="8%">basé sur</th>
+						<th width="15%">Valeur du %</th>
+						<th width="15%">Montant fixe</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item_profil in item_profilpaies %}
+						<tr class="table bordered border">
+							<td>{{ item_profil.element.designation}}</td>
+							<td>
+								{% for item in types_element %}
+									{% if item.id == item_profil.element.type_element %}
+										{{ item.designation }}
+									{% endif %}
+								{% endfor %}
+							</td>
+							<td>
+								{% for item in categories_element %}
+									{% if item.id == item_profil.element.categorie_element %}
+										{{ item.designation }}
+									{% endif %}
+								{% endfor %}
+							</td>
+							<td>
+								{% for item in types_calcul %}
+									{% if item.id == item_profil.element.type_calcul %}
+										{{ item.designation }}
+									{% endif %}
+								{% endfor %}
+							</td>
+							<td>
+								{% for item in types_resultat %}
+									{% if item.id == item_profil.element.type_resultat %}
+										{{ item.designation }}
+									{% endif %}
+								{% endfor %}
+							</td>
+							<td>{{ item_profil.valeur_pourcentage }}</td>
+							<td>{{ item_profil.montant }} {{ devise_ref.symbole }}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>		
+    </div>
+{% endblock %}

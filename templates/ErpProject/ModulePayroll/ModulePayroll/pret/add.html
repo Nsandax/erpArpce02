@@ -1,0 +1,155 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_pret' %}">Liste des prets</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row only-on-small-screen">
+                        <h2 class="text-light no-margin-left">{{ title }}</h2>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2">
+                            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+                        </div>
+                        <div class="col-md-2">
+                            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_payroll_list_pret' %}')" class="theme-btn theme-btn-sm rounded">
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+                    <form id="form" method="POST" action="{% url 'module_payroll_validate_pret' %}"
+                        enctype="multipart/form-data"
+                        data-role="validator"
+                        data-show-required-state="false"
+                        data-hint-mode="line"
+                        data-hint-background="bg-red"
+                        data-hint-color="fg-white"
+                        data-hide-error="5000"
+                        novalidate="novalidate"
+                        data-on-error-input="notifyOnErrorInput"
+                        data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none"><br/>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>N° Référence</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="reference" readonly value="{{ reference }}" style="background-color:rgb(226,224,224);"/>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Devise</label>
+                                <div class="input-control text full-size">
+                                    <select name="devise_id" class="form-control" style="border: none;" id="devise_id" >
+                                        {% for item in devises %}
+                                            <option value="{{ item.id }} "> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-md-6">
+                                <label>Montant</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="montant" class="monetary" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Date de la première échéance</label>
+                                <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                    <input readonly type="text" name="date_premiere_echeance" value="{% now 'd/m/Y' %}" data-validate-func="required"
+                                    data-validate-hint="Précisez la date de facturation svp.">
+                                    <div class="button"><span class="mif-calendar"></span></div>
+                                </div>
+                            </div>
+                         <div class="col-md-6">
+                                <label>Employe</label>
+                                <div class="input-control text full-size">
+                                    <select id="employe_id" name="employe_id"
+                                    >
+                                        <option value="{{ utilisateur.id }}">{{ utilisateur.nom_complet }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Document en attache</label>
+                                <div class="input-control text full-size">
+                                    <input id="document_upload" name="document_upload" type="file" multiple>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Rubrique</label>
+                                <div class="input-control text full-size">
+                                    <select name="rubrique_id" class="form-control" style="border: none;" id="rubrique_id" >
+                                        <option value="">Selectionnez une rubrique</option>
+                                        {% for item in rubriques %}
+                                            <option value="{{ item.id }} "> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Nombre de mensualité</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="nbre_mensualite" readonly value="10"  style="background-color:rgb(226,224,224);"/>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Taux d'intérêt (en %)</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="taux_interet" readonly value="0" style="background-color:rgb(226,224,224);"/>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                   <label>Description</label>
+                                   <div class="input-control text full-size">
+                                       <textarea name="description" id="description" data-validate-func="required" data-validate-hint="Entrez une description !"></textarea>
+                                   </div>
+                               </div>
+                           </div><br><br><br><br><br>
+
+
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+{% endblock %}

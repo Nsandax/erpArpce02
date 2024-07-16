@@ -1,0 +1,87 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="invoice">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+
+            <div class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                <div id="divTo#print" class="row item-content">
+                    <div style="display:flex;justify-content: center;">
+                        <img src="static/ErpProject/image/upload/organisation/header.png" style="height:40%;width:40%;">
+                    </div>
+                        <h4 style="text-align:center;">JOURNAL COMPARATIF</h4>
+                    <br>
+                    <br>
+
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <th width="30%">Nom et Prenom</th>
+                            <th width="20%">Rubrique</th>
+                            <th width="10%">Jan 2021</th>
+                            <th width="10%">Fév 2021</th>
+                            <th width="10%">Ecart</th>
+                            <th>Observation</th>
+                        </tr>
+
+                        <tr>
+                           <td>DIMINAT, Wilfrid Nilson Serge</td>
+                           <td>NET_A_PAYER</td>
+                           <td>1.250.500 CFA</td>
+                           <td>1.000.500 CFA</td>
+                           <td></td>
+                           <td></td>
+                        </tr>
+                        <tr>
+                            <td>ADOUA ENGOUEH, Rey Yann</td>
+                            <td>NET_A_PAYER</td>
+                            <td>8.250.500 CFA</td>
+                            <td>3.000.500 CFA</td>
+                            <td></td>
+                            <td></td>
+                         </tr>
+                         <tr>
+                            <td>ALOUNA, Fidèle</td>
+                            <td>NET_A_PAYER</td>
+                            <td>2.250.500 CFA</td>
+                            <td>4.000.500 CFA</td>
+                            <td></td>
+                            <td></td>
+                         </tr>
+                         <tr>
+                            <td>AMPAT, Judicael</td>
+                            <td>NET_A_PAYER</td>
+                            <td>5.250.500 CFA</td>
+                            <td>3.000.500 CFA</td>
+                            <td></td>
+                            <td></td>
+                         </tr>
+
+                         <tr>
+                            <td>BLABITEAU, Magalie Griffith Zeldha</td>
+                            <td>NET_A_PAYER</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                         </tr>
+
+                    </table>
+                    <br>
+                    <br>
+
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,96 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %}
+{% block page %}
+{% load account_filters %} 
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">           
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_facture_client' %}')"  class="button small-button rounded primary_color_{{module.name|lower}}">Créer</button>
+                    <br><br>
+                    <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="width: 20px; background-color:#2e416a; white"></th>
+                                <th>Numéro</th>
+                                <th>Fournisseur</th>
+                                <th>Date de facturation</th>
+                                <th>Date d'échéance</th>
+                                <th>Total</th>
+                                <th>A payer</th>
+                                <th>Etat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in model %}
+                                <tr>
+                                    <td>
+                                        <label class="small-check">
+                                            <input type="checkbox">
+                                            <span class="check"></span>
+                                        </label>
+                                    </td>
+                                    <td> 
+                                        <a class="lien chargement-au-click" href="{% url 'module_vente_details_facture_client' item.id %}">{{ item.numero_facture }}</a> 
+                                    </td>
+                                    <td> 
+                                        <a class="lien chargement-au-click" href="#">{{ item.bon_reception.fournisseur.nom_complet }}</a> 
+                                    </td>
+                                    <td> {{ item.date_facturation|date:"d/m/Y" }} </td>
+                                    <td> {{ item.date_echeance|date:"d/m/Y" }} </td>
+                                    <td><span class="monetary">{{ item.montant |monetary}}</span>  {{ item.bon_reception.devise.symbole_devise }}</td>
+                                    <td> <span class="monetary">{{ item.montant_restant |monetary}}</span>{{ item.bon_reception.devise.symbole_devise }}</td>
+                                    <td> {{ item.etat_facture }} </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+   
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable( {
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'copyHtml5',
+                        text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                        titleAttr: "Copier"
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                        titleAttr: "Exporter en excel"
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                        titleAttr: "Exporter en csv"
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                        titleAttr: "Exporter en pdf"
+                    },
+                    //'copyHtml5',
+                    //'excelHtml5',
+                    //'csvHtml5',
+                    //'pdfHtml5'
+                ]
+            } );
+        } );
+    </script>
+{% endblock %}

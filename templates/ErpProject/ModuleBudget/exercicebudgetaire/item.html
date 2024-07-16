@@ -1,0 +1,246 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %}
+{% block page %}
+{% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_tableau_de_bord' %}">Module Budget</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_list_exercicebudgetaire' %}">Liste des exercices
+                budgétaires</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_budget_add_exercicebudgetaire" url_detail="module_budget_detail_exercicebudgetaire" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }} 
+            {% if exercicebudgetaire.is_active %} 
+                <span class="badge" style="background-color:#548829;">en cours</span> 
+            {% else %}
+                <span class="badge" style="background-color:#E74032;">Cloturé</span>
+            {% endif %}
+        </h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    {% if type != 3 %}
+                    <button
+                        onclick="javascript:window.location.assign('{% url 'module_budget_update_exercicebudgetaire' exercicebudgetaire.id %}')"
+                        class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Modifier</button>
+                    <button
+                        onclick="javascript:window.location.assign('{% url 'module_budget_list_exercicebudgetaire' %}')"
+                        class="theme-btn theme-btn-sm rounded chargement-au-click"
+                        style="margin-left: 5px">Annuler</button>
+                    {% endif %}
+                    {% if type == 1 %}
+                    <button onclick="cloturer({{exercicebudgetaire.id}})"
+                        class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click"
+                        style="margin-left: 5px">Cloturer</button>
+                    <!-- id="cloture"  utiliser dans button cloture pour fermer l'exercice avec callback de jquery -->
+                    {% elif type == 3 %}
+                    <button id="rapport"
+                        class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Rapport</button>
+                    {% else %}
+                    <button id="ouverture"
+                        class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Ouverture</button>
+                    {% endif %}
+                    <!--button id="supprimer" class="button theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer </!--button-->
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="row padding20 no-padding-top no-padding-bottom"
+                            style="border-right: 1px solid #f7f5f5;">
+                            <p>
+
+                                <strong>Designation :</strong>
+                                <br>
+                                <span class="sub-alt-header">{{ exercicebudgetaire.designation }}</span>
+                                <br>
+                                <br>
+
+                                <strong>Montant :</strong>
+                                <br>
+                                <span class="sub-alt-header"> {{ exercicebudgetaire.separateur_montant |monetary}}
+                                    {{exercicebudgetaire.devise}} </span>
+                                <br>
+                                <br>
+
+                                <strong>Annee :</strong>
+                                <br>
+                                <span class="sub-alt-header">{{ exercicebudgetaire.annee }}</span>
+                            </p>
+                        </div> 
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Date debut :</strong>
+                                <br>
+                                <span class="sub-alt-header">{{ exercicebudgetaire.date_debut }}</span>
+                                <br>
+                                <br>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Date fin :</strong>
+                                <br>
+                                <span class="sub-alt-header">{{ exercicebudgetaire.date_fin }}</span>
+                                <br>
+                                <br>
+                            </div>
+                        </div>
+                               
+                               
+
+                            
+                    </div>
+                </div>
+                <script>
+                    function cloturer(_id) {
+                        console.log('mon id ' + _id)
+                        url = '{% url 'module_budget_to_get_cloture_exercice' %}?ref=' + _id
+                        newwindow = window.open(url, '', '_blank, height = 9000, width = 9000');
+                        //newwindow.print()
+                    }
+                </script>
+                <script>
+
+
+                    function supprimer() {
+                        var id = '{{exercicebudgetaire.id}}'
+                        //-------deux variables pour la suppression---------------------------------
+                        var modele = "Model_Exercicebudgetaire"
+                        var the_url = "module_budget_list_exercicebudgetaire"
+                        //------- url de suppression ------------------------------------------------
+                        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+                        url = url.replace('100', id);
+                        url = url.replace('nom_modele', modele);
+                        url = url.replace('url_retour', the_url);
+                        document.location.href = url;
+
+
+                    }
+                    $('#supprimer').on('click', function () {
+
+
+                        Swal.fire({
+                            title: 'Etes vous sure?',
+                            text: "De vouloir supprimer cette item!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Oui, Supprime le!'
+                        }).then((result) => {
+                            if (result.value) {
+                                supprimer();
+                                Swal.fire(
+                                    'Supprimé!',
+
+                                    'Votre Item est supprimé',
+                                    'Avec Succes',
+                                )
+                            }
+                        })
+                    })
+
+
+
+                </script>
+
+                <script>
+                    active_exist = false;
+                    var exercice_id = '{{exercicebudgetaire.id}}'
+
+                    $('#ouverture').on('click', function () {
+                        $.get(
+                            "{% url 'module_budget_get_active_exercice_budgetaire' %}",
+
+                            function (response) {
+                                console.log(response)
+                                if (response[0]) {
+                                    console.log("kdkjdk")
+                                    active_exist = true;
+                                    designation = response[0].designation
+                                    annee = response[0].designation
+                                    Swal.fire({
+                                        title: designation + ' est en cours d\'éxécution',
+                                        text: "Veuillez le clôturer au préalable",
+
+                                    })
+                                }
+                                else {
+                                    launchDialogOuverture('{% url 'module_budget_add_ouverture_exercice' %}?ref=' + exercice_id)
+                                }
+                            },
+                            "json"
+                        );
+                    })
+
+                    // Dialogue Lignes ouverture
+                    function launchDialogOuverture(url) {
+                        console.log(window)
+                        var newwindow = window.open(url, '', '_blank, height = 690, width = 850');
+                        console.log(newwindow)
+                    }
+
+
+                    $('#cloture').on('click', function () {
+                        Swal.fire({
+                            title: 'Confirmation de clôture?',
+                            text: "Voulez-vous clôturer cet exercice budgétaire ?",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Oui, procéder à la clôture!'
+                        }).then((result) => {
+                            if (result.value) {
+
+                                //Operation de cloture
+                                $.get(
+                                    "{% url 'module_budget_set_active_exercice_budgetaire' %}", { ref: exercice_id },
+
+                                    function (response) {
+                                        console.log(response)
+                                        if (response[0]) {
+                                            console.log("i'm inside")
+                                            launchDialogOuverture('{% url 'module_budget_rapport_cloture_exercice' %}?ref=' + exercice_id)
+                                        }
+                                        else {
+                                            Swal.fire({
+                                                title: 'Echec de clôture',
+                                                text: "L'opération de clôture a échoué",
+                                            })
+                                        }
+                                    },
+                                    "json"
+                                );
+
+
+
+                            }
+                        })
+                    })
+
+
+
+                    $('#rapport').on('click', function () {
+                        url = '{% url 'module_budget_rapport_cloture_exercice' %}?ref=' + exercice_id
+                        newwindow = window.open(url, '', '_blank, height = 9000, width = 9000');
+                    })
+
+                </script>
+
+
+
+                {% endblock %}

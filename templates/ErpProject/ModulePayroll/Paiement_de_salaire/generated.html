@@ -1,0 +1,87 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+    {% block page %}
+        {%load static %}
+        {% load account_filters %}
+        <style>
+            /* #rapport th
+            {
+                text-align: center;
+                vertical-align: middle;
+            } */
+        </style>
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="row">
+            <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+            <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+            <button onclick="javascript:window.location.assign('{% url 'module_payroll_generate_Balance_paie' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Retour</button>
+        </div>
+        <form id="form" method="POST" action="{% url 'module_payroll_to_print_paiement_sal' %}">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input type="text" name="exercice" value="{{ exercice_id }}" style="display:none;">
+            <input type="text" name="periode" value="{{ periode_id }}" style="display:none;">
+            <input type="number" name="banque_id" value="{{ banque_id }}" style="display:none;">
+        </form>
+        <hr class="hr-ligne">
+        <div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr>
+                    <th width="30%">
+                        <div style="height: 100px;">
+                            <div class=""  style="margin-bottom:17%;">
+                                <strong style="font-size:20px;">ARPCE</strong>
+                            </div>
+                            <div class="">Siege ARPCE</div>
+                        </div>
+                    </th>
+                    <th width="40%">
+                        <div style="margin-bottom:4%;text-align: center;">
+                            <strong style="font-size:20px;">{{title}}</strong>
+                        </div>
+                        <p class="mb-2 ml-2">Exercice: {{exercice}}</p>
+                        <div class="row" style="text-align:start;">
+                            <span class="col-md-6">Mois: {{month}}</span>
+                            <span class="col-md-6">N° d'Ordre: 1</span>
+                        </div>
+                    </th>
+                    <th width="30%" style="vertical-align: middle;">Page 1 / 1</th>
+                </tr>
+            </table>
+            <!-- <p class="align-center header">{{title}}</p> -->
+            <br>
+            <br>
+            <h4>{{banking}}</h4>
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr>
+                    <th width="22%">Nom</th>
+                    <th width="22%">Prénom</th>
+                    <th width="12%">Matricule</th>
+                    <th width="22%">N° Comptes</th>
+                    <th width="22%">Montant à payer</th>
+                </tr>
+                {% for item in models %}
+                <tr>
+                    <td width="22%">{{item.employe_name}}</td>
+                    <td width="22%">{{item.employe_firstname}}</td>
+                    <td width="12%">{{item.matricule}}</td>
+                    <td width="22%">{{item.numero_compte}}</td>
+                    <td width="22%">{{item.Montant_pay|monetary}}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <th colspan="4" style="text-align:end;">TOTAUX</th>
+                    <th width="">{{sommes|monetary}} FCFA</th>
+                </tr>
+            </table>
+            <br>
+            <br>
+
+        </div>
+        {% include 'ErpProject/ErpBackOffice/widget/export_excel.html' with btn_id="btn_export" table_id="rapport" filename="journal" only %}
+{% endblock %}

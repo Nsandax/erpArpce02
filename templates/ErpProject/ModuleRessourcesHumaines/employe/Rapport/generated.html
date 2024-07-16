@@ -1,0 +1,142 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+{%load static %}
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <br>
+        <div class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style="background-color:white;">
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                        {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                    </div>
+                    <div class="col-md-12">
+                        <h3><center><strong>{{title}}</strong></center></h3>
+                    </div>
+                    <div class="col-md-6">
+                       <h4>Nombre Employés : {{nombre}}</h4>
+                    </div>
+                    <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                    <div class="col-md-12">
+                        <!-- <table id="data_table" class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;">
+                             -->
+                            <table id="example" class="display nowrap border bordered striped"  style="width:100%">
+                            <thead>
+                                <tr style="">
+                                    <td class="head"></td>
+                                    <td class="head">EMPLOYE</td>
+                                    <td class="head">DEPARTEMENT</td>
+                                    <td class="head">MATRICULE</td>
+                                    <td class="head">GRADE</td>
+                                    <td class="head">GENRE</td>
+                                    <td class="head">DATE ENGAGEMENT</td>
+                                    <td class="head">STATUT</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in model %}
+                                <tr>
+                                    <td>
+                                        <label class="small-check">
+                                            <input type="checkbox">
+                                            <span class="check"></span>
+                                        </label>
+                                    </td>
+                                    <td>{{item.nom_complet}}</td>
+                                    <td>{{item.unite_fonctionnelle.libelle}}</td>
+                                    <td>{{item.profilrh.matricule}}</td>
+                                    <td>{{item.grade}}</td>
+                                    <td>{{item.profilrh.genre}}</td>
+                                    <td>{{item.profilrh.date_engagement}}</td>
+                                    <td>{{item.statutrh.designation}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        } );
+    } );
+</script>
+<script>
+
+    $(document).ready(function(){
+
+        $("tr > td > i").removeClass("fa-caret-down");
+        $("tr > td > i").addClass("fa-caret-right");
+        $("tr > td > i").data("show", false);
+
+        $(".tr-toggle").click(function() {
+            var icone = $(this).find("i");
+            if (icone.data("show") === true) {
+                icone.removeClass("fa-caret-down");
+                icone.addClass("fa-caret-right");
+                icone.data("show", false);
+
+            } else {
+                icone.removeClass("fa-caret-right");
+                icone.addClass("fa-caret-down");
+                icone.data("show", true);
+            }
+        });
+
+        $(".main").click(function() {
+            var icone = $(this).find("i");
+            if (icone.data("show") === true) {
+
+            }else {
+
+                id = $(this).attr('id');
+
+                el = $('.main'+id);
+                el.removeClass('in');
+                el.attr('aria-expanded','false');
+
+                ic = $('.icon'+id);
+                ic.removeClass("fa-caret-down");
+                ic.addClass("fa-caret-right");
+                ic.data("show", false);
+            }
+        });
+
+    });
+</script>
+
+{% endblock %}

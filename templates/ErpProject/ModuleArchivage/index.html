@@ -1,0 +1,360 @@
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %} {% block page %} {%load static %}
+<style type="text/css">
+    body {
+        background-color: grey!important;
+    }
+</style>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+        <div class="row" style="padding-top: 2%;padding-bottom: 2%;">
+            <div class="col-md-3"><img  src="{%static 'ErpProject/image/archivage/clone-guidance.9c5387c9.svg'%}"></div>
+            <div class="col-md-9">
+                <h3><strong>Archivages</strong> </h3>
+                <p style="font-size: 0.6cm; text-align: justify; font-family: Arial, Helvetica, sans-serif;">
+                   Les archives sont un ensemble de documents conservés pour pouvoir prouver des droits ou témoigner de certaines activités. Par métonymie, elles désignent également l'emplacement où l'on conserve ces documents
+                </p>
+            </div>
+        </div>
+
+            <!-- Header Bar pour le filtre-->
+            <div class="col-lg-12" style="background-color:#fff;">
+                <div class="col-md-9">
+                             <div class="" style="display: inline; ">
+
+                            <strong class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                                <select style="height:100%;" onchange="choix_year_()" class="champ" name="year" id="year" data-validate-func="min" data-validate-arg="1"
+                                data-validate-hint="Sélectionnez le responsable direct svp.">
+                                <option value="0">Sélectionnez une année</option>
+                                {% for item in doc_by_year%}
+                                <option value="{{item}}">{{item}}</option>
+                                {% endfor%}
+                            </select>
+
+                            </strong>
+
+                        </div>
+
+
+                </div>
+
+            </div>
+            <!-- Header Bar pour le filtre-->
+            <!-- Graphic Content -->
+            <div class="panel" style="background-color:#f5f5f5;border: none;">
+                <div class="col-md-12">
+                    <div>
+                        <div class="mb-4">
+
+                            <div class="card-body">
+                                <div class="chart-area item-dash" style="padding: 15px;background-color: white;">
+
+                                    <canvas id="myChart" width="400" height="100"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- Graphic Content -->
+
+
+        <div class="row">
+        <img style="width: 40px;width: 40px; margin-right: 1%;" src="{%static 'ErpProject/image/archivage/open.png'%}" alt=""><img style="width: 20px;" src="{%static 'ErpProject/image/archivage/s.png'%}" alt="">
+        <strong><hr></strong>
+        </div>
+        <div class="row">
+            <div class="row">
+                <div class="col-md-1"> </div>
+                <div class="col-md-7" style="margin-left: -4%;"><strong>NOM</strong></div>
+                <div class="col-md-2"><strong>DATE</strong></div>
+                <div class="col-md-2"><strong>TAILLE</strong></div>
+             </div>
+        <strong><hr></strong>
+        {%for dossier in dossier_tree %}
+            <div class="row">
+               <div class="col-md-1"> <img style="width: 40px;width: 40px; margin-right: 1%;" src="{%static 'ErpProject/image/archivage/open.png'%}" alt=""></div>
+               <div class="col-md-7" style="margin-left: -4%;"><a style="font-style: none;" href="{% url 'module_archivageListDossierByClick' dossier.id %} "><h2>{{dossier.designation}}</h2></a></div>
+               <div class="col-md-4">{{dossier.created_at}}</div>
+            </div>
+        {%endfor%}
+        </div>
+
+        <div class="row">
+            {%for doc in document_tree%}
+
+            <div class="row" style="padding: 0.6%;">
+             {% if ".JPG" in doc.url_document|upper %}
+             <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/jpg.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+             {%elif ".PDF" in doc.url_document|upper %}
+             <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/pdf.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+             {%elif ".DOC" in doc.url_document|upper %}
+             <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/doc.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+             {%elif ".DOCX" in doc.url_document|upper %}
+             <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/doc.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+             {%elif ".PPT" in doc.url_document|upper %}
+             <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/ppt.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+             {%elif ".TXT" in doc.url_document|upper %}
+             <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/txt.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+             {%elif ".XLSX" in doc.url_document|upper %}
+             <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/excel.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+             {%else %}
+             <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/file_.svg'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+             {%endif%}
+             <div class="col-md-7"  style="margin-left: -4%;"><a href="{% url 'module_archivage_detail_document' doc.id %}" class="a-menu"><span style="color: black;">{{doc.type_document}}</span> </a></div>
+             <div class="col-md-2">{{doc.created_at}}</div>
+             <div class="col-md-2">{{doc.taille}}</div>
+
+            </div>
+
+           {%endfor%}
+        </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+<script>
+    var ctx ;
+    var myChart ;
+</script>
+
+<script>
+      ctx = document.getElementById('myChart').getContext('2d');
+      myChart1 = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            datasets: [{
+                label: 'Quantite Dossier',
+                data: {{ dossier}},
+
+        // this dataset is drawn below
+        order: 1,
+        backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+    },
+
+        {
+            label: 'Quantite Doccuments',
+            data: {{ document }},
+
+    type: 'line',
+        // this dataset is drawn on top
+        order: 2, backgroundColor: [
+            'rgba(255, 255, 255, 0.1)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+        ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+                borderWidth: 1
+            }],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+    });
+
+</script>
+
+
+<script>
+
+    function choix_year_() {
+
+
+  var year = $("#year").val();
+
+        if (year != 0) {
+
+            $.get(
+                "{% url 'module_archivage_doc_dos_json' %}",
+                { year: year },
+                function (response) {
+                    console.log(response);
+
+                    var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            datasets: [{
+                                label: 'Quantite Dossier',
+                                data: response[0],
+
+                                // this dataset is drawn below
+                                order: 1,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            },
+
+                            {
+                                label: 'Quantite Doccuments',
+                                data: response[1],
+
+                                type: 'line',
+                                // this dataset is drawn on top
+                                order: 2, backgroundColor: [
+                                    'rgba(255, 255, 255, 0.1)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }],
+                            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+
+                    myChart1.destroy();
+                },
+                "json"
+            );
+        }
+        else {
+             myChart1= new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                datasets: [{
+                                    label: 'Quantite Dossier',
+                                    data: {{ dossier }},
+
+                            // this dataset is drawn below
+                            order: 1,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        },
+
+                            {
+                                label: 'Quantite Doccuments',
+                                data: {{ document }},
+
+                    type: 'line',
+                        // this dataset is drawn on top
+                        order: 2, backgroundColor: [
+                            'rgba(255, 255, 255, 0.1)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                                borderWidth: 1
+                }],
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+    });
+
+
+        }
+
+    }
+
+</script>
+
+
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+    {% block page %}
+        {%load static %}
+        {% load account_filters %}
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_achat_tableau_de_bord' %}">Module Achat</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="row">
+            <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+            <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+            <button onclick="javascript:window.location.assign('{% url 'module_achat_rapports_generer_analyse_achat' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Retour</button>
+        </div>
+        <form id="form" method="POST" action="{% url 'module_budget_post_imprimer_analyse_achat' %}">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input type="text" name="date_debut" value="{{ date_debut }}" style="display: none">
+            <input type="text" name="date_fin" value="{{ date_fin }}" style="display: none">
+            <input type="text" name="type_extraction" value="{{typeExtraction}}" style="display:none">
+        </form>
+        <hr class="hr-ligne">
+        <div id="divToPrint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <p class="align-center header">{{ title }}</p>
+            <div class="row">
+                <p>
+                    Période :<br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                    <br>
+                    <br>
+                </p>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#f1f1f1">
+                    <th>Référence</th>
+                    <th>Date de création</th>
+                    <th>Statut</th>
+                    <th>
+                        {% if typeExtraction == 1 %}
+                            Demandeur
+                        {% else %}
+                            Fournisseur
+                        {% endif %}
+                    </th>
+                    {% if typeExtraction == 3 %}
+                        <th>Montant</th>
+                    {% endif %}
+
+                </tr>
+                {% for item in model %}
+                <tr>
+                    {% if typeExtraction == 1 %}
+                        <td>{{item.numero_expression}}</td>
+                    {% elif typeExtraction == 2 %}
+                        <td>{{item.numero_demande}}</td>
+                    {% elif typeExtraction == 3 %}
+                        <td>{{item.numero_reception}}</td>
+                    {% endif %}
+                    <td>{{item.creation_date}}</td>
+                    <td>{{item.statut}}</td>
+                    {% if typeExtraction == 1 %}
+                        <td>{{item.demandeur}}</td>
+                    {% else %}
+                        <td>{{item.fournisseur}}</td>
+                    {% endif %}
+                    {% if typeExtraction == 3 %}
+                        <td> {{item.montant_total}} {{item.devise.symbole_devise}}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% include 'ErpProject/ErpBackOffice/widget/export_excel.html' with btn_id="btn_export" table_id="rapport" filename="analyse_achat" only %}
+{% endblock %}

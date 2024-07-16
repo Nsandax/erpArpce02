@@ -1,0 +1,160 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    <div class="col-md-6">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_lister_journaux' %}">Liste des journaux</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_details_journal' model.id %}">{{ model.designation }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color:grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <div class="col-md-2">
+                            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+                        </div>
+                        <div class="col-md-2">
+                            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_details_journal' model.id %}')" class="theme-btn theme-btn-sm rounded">
+                                Annuler 
+                            </button>
+                        </div>
+                    </div> 
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+                    
+                    <br>
+                    <div class="row" style="margin-top: 10px">
+                        <form id="form" method="POST" action="{% url 'module_comptabilite_post_modifier_journal' %}"
+                            data-role="validator" 
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input name="ref" type="hidden" value="{{ model.id }}" >
+
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <div class="col-md-6">
+                                            <label>Désignation</label>
+                                            <div class="input-control text full-size">
+                                                <input type="text" name="designation" id="designation" 
+                                                    data-validate-func="required" value="{{ model.designation }}"
+                                                    data-validate-hint="Entrez la désignation du journal svp." />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Code du journal</label>
+                                            <div class="input-control text full-size">
+                                                <input type="text" name="code" id="code" 
+                                                    data-validate-func="maxlength" 
+                                                    data-validate-arg="6"  value="{{ model.code }}"
+                                                    data-validate-hint="Entrez un code du journal ayant au plus 6 caractères svp." />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="col-md-6">
+                                            <label>Type de journal</label>
+                                            <div class="input-control text full-size">
+                                                <select name="type_journal" id="type_journal"
+                                                    data-validate-func="min" 
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez le type du journal svp.">
+                                                    <option value="0">Sélectionnez un type</option>
+                                                    {% for item in types_journal %}
+                                                        <option {% if item.id == model.type_journal %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Devise par défaut</label>
+                                            <div class="input-control select full-size">
+                                                <select name="devise_id" id="devise_id" >
+                                                    <option value="0">Sélectionnez une devise</option>
+                                                    {% for item in devises %}
+                                                        <option {% if model.devise != None and item.id == model.devise.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="tabcontrol2" data-role="tabcontrol">
+                                    <ul class="tabs">
+                                        <li class="active"><a href="#frame_autres_informations">Informations pour les pièces comptables</a></li>
+                                        <li class=""><a href="#frame_more_informations">Autres informations</a></li>
+                                    </ul>
+                                    <div class="frames">
+                                        <div class="frame" id="frame_autres_informations" style="display: block;">                            
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label>Compte de debit par défaut</label>
+                                                        <div class="input-control select full-size">
+                                                            <select name="compte_debit_id" id="compte_debit_id" >
+                                                                <option value="0">Sélectionnez un compte</option>
+                                                                {% for item in comptes %}
+                                                                    <option {% if model.compte_debit != None and item.id == model.compte_debit.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.numero }} {{ item.designation }} </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label>Compte de crédit par défaut</label>
+                                                        <div class="input-control select full-size">
+                                                            <select name="compte_credit_id" id="compte_credit_id" >
+                                                                <option value="0">Sélectionnez un compte</option>
+                                                                {% for item in comptes %}
+                                                                    <option {% if model.compte_credit != None and item.id == model.compte_credit.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.numero }} {{ item.designation }} </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="frame" id="frame_more_informations" style="display: none;">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="input-control checkbox small-check full-size">
+                                                            <input value="1" name="est_affiche" id="est_affiche" {% if model.est_affiche == True %}{{ "checked" }}{% endif %} type="checkbox">
+                                                            <span class="check"></span>
+                                                            <span class="caption">Afficher ce journal dans le tableau de bord</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}

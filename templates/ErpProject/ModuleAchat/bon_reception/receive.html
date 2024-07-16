@@ -1,0 +1,114 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %}
+{% load account_filters %} 
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_bons_achat' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_bons_achat' %}">Liste des bons d'achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_details_bon_achat' model.id %}">{{ title }}</a></li>
+        <li>Réceptionner les articles</li>
+    </ul>
+</div>
+<div class="row">
+    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">Valider</button> {% if model.est_modifiable == True %}
+    <button onclick="javascript:window.location.assign('{% url 'module_achat_add_bon_reception' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Modifier</button>
+    <button onclick="javascript:window.location.assign('{% url 'module_achat_add_bon_reception' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler la commande</button> {% endif %}
+</div>
+
+<hr class="hr-ligne" /> {% if messages %} {% for message in messages %} {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+<div class="row" style="margin:10px 0">
+    <div class="row cells12 padding10 fg-white" style="background-color:#ff6a00;">
+        <div class="cell colspan3" style="width: 32px;">
+            <span class="mif-info mif-2x"></span>
+        </div>
+        <div class="cell colspan9" style="margin-left: 10px">
+            <span class="notify-title"><b>Information :</b></span><br>
+            <span class="notify-text">
+                                {{ message }}
+                            </span>
+        </div>
+    </div>
+</div>
+{% endif %} {% endfor %} {% endif %}
+<form action="{% url 'module_achat_post_receive_bon_achat' %}" method="POST" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+    data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+    {% csrf_token %}
+    <input id="submit" type="submit" style="display: none">
+    <input type="hidden" name="bon_id" value="{{ model.id }}">
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="cell padding30 shadow">
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Numéro du bon d'achat :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.numero }} </span>
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Date prévue :<br>
+                        <span class="sub-alt-header fg-dark">{{ model.date_prevue|date:"d/m/Y" }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Fournisseur :<br>
+                        <a class="sub-alt-header lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' model.fournisseur.id %}"> {{ model.fournisseur.nom_complet }} </a>
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Modalité de réglèment :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.condition_reglement.designation }} </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row cells3">
+                <div class="cell">
+                    <label>Agent receveur :</label>
+                    <div class="input-control text full-size">
+                        <select type="text" name="receveur_id" id="receveur_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez l'agent svp.">
+                                <option value="{{  user.id }}"> {{  user.username }} </option>
+                            </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th width="25%">Article</th>
+                            <th width="18%">Quantité demandée</th>
+                            <th width="18%">Quantité déjà fournie</th>
+                            <th width="19%">Quantité fournie</th>
+                            <th width="20%">Prix unitaire</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in lignes %}
+                        <input type="hidden" name="ligne_id" value="{{ ligne.id }}">
+                        <tr class="table bordered border">
+                            <td>{{ ligne.nom_article}}</td>
+                            <td>{{ ligne.quantite_demandee }} {{ ligne.unite.symbole_unite }}</td>
+                            <td>{{ ligne.quantite_fournie }} {{ ligne.unite.symbole_unite }}</td>
+                            <td class="no-padding-top no-padding-bottom">
+                                <div class="input-control text full-size">
+                                    <input name="quantite_fournie" type="text" placeholder="Ex: 10" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez la quantité fournie svp">
+                                    <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">{{ ligne.unite.symbole_unite }}</span>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>{{ ligne.prix_unitaire |monetary}} {{ model.devise.symbole_devise }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

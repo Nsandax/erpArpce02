@@ -1,0 +1,49 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Tableau des flux de trésorerie</title>
+        <meta name="description" content="Tableau des flux de trésorerie">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <span>Période :</span> <br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                </div>
+                <div class="col-md-6">
+                    <span>Devise :</span> <br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </div>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#91a7c3;color:#fff;font-weight:500">
+                    <td width="5%"  align="center"> REF </td>
+                    <td width="35%" align="center" colspan="2">LIBELLES</td>
+                    <td width="5%" align="center">NOTE</td>
+                    <td width="25%" align="center">Exercice au 31/12/N</td>
+                    <td width="25%" align="center">Exercice au 31/12/N-1</td>
+                </tr>
+                {% for item in donnees_flux_tresorerie %}
+                    <tr {% if item.est_total %} {% if item.reference == "ZA" or item.reference == "ZH" %}style="background-color:#7c984a;color:#fff!important;font-weight:300" {% elif item.reference == "ZB" or item.reference == "ZC" or item.reference == "ZF"%} style="background-color:#002060;color:#fff!important;font-weight:300"{% else %} style="background-color:#f2eee8;color:#000;font-weight:300" {% endif %}{% else %}{% if item.reference == "" %} style="background-color:#f1f1f1;color:#000;font-weight:500" {% endif %}{% endif %}>
+                        <td >{{ item.reference }}</td>
+                        <td >{{ item.libelle }}</td>
+                        <td >{{ item.lettre }}</td>
+                        <td >{{ item.note }}</td>
+                        <td align="right"> {% if item.balance_n == "0.00" %}  - {% else %}  {{ item.balance_n|monetary }} {% endif %}</td>
+                        <td align="right"> {% if item.balance_n1 == "0.00" %}  - {% else %}  {{ item.balance_n1|monetary }} {% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>            
+        </div>
+    </body>
+</html>

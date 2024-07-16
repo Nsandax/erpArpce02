@@ -1,0 +1,275 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+
+
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+                <div class="panel panel-default" style="border: none;">
+                
+                    <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+                        
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  class="button small-button rounded primary" val="Valider"%}                        <button class="button small-button rounded">Annuler</button>
+                        
+                        <hr class="hr-ligne">
+                        <br>
+
+                        <form action="{% url 'module_achat_post_update_expression' %}" method="POST"
+                            enctype="multipart/form-data"
+                            data-role="validator" 
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+                
+                            <input id="submit" type="submit" style="display: none">
+                            <input id="nombreLigne" type="hidden" value="0" />
+                            <input name="ref" type="hidden" value="{{ model.id }}">
+                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                            <label>Numéro de l'expression</label>
+                                            <div class="input-control text full-size">
+                                                <input type="text" id="numero" disabled="true" autocomplete="off" value="{{model.numero_expression}}" readonly/>
+                                            </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                            <label>Date d'enregistrement</label>
+                                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input name="date_prevue" id="date_prevue" type="text" data-validate-func="required" data-validate-hint="Entrez date_debut !" value = "{{model.date_expression}}" readonly>
+                                            </div>
+                                    </div>
+                                </div>
+                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Demandeur</label>
+                                        <div class="input-control text full-size">
+                                            <select type="text" name="demandeur_id" id="demandeur_id"
+                                                data-validate-hint="Sélectionnez le demandeur svp.">
+                                                <option value="{{model.demandeur.id}}">{{model.demandeur}}</option>
+                                                </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label>Service référent</label>
+                                        <div class="input-control text full-size">
+                                            <!--select onclick="fill_account()" type="text" id="service_ref_id" name="service_ref_id"
+                                                data-validate-hint="Sélectionnez le service référent svp."-->
+                                                <select type="text" id="service_ref_id" name="service_ref_id"
+                                                data-validate-hint="Sélectionnez le service référent svp.">
+                                                <option value="{{model.services_ref.id}}">{{model.services_ref.libelle}}</option>
+                                                
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+
+                                
+
+                                <div class="row">
+                                     <div class="col-md-6">
+                                        <label>Justification</label>
+                                        <div class="input-control text full-size">
+                                            <textarea name="justification" id="justification">
+                                                {{model.justification}}
+                                            </textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br>
+                            
+                            <br>
+                            <br>
+
+
+
+                            <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                                <table class="table no-margin">
+                                    <thead class="no-border">
+                                        <tr>
+                                            <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Article</th>
+                                            <th width="20%">Quantité demandée</th>
+                                            <th width="25%">Description</th>
+                                            <th width="5%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items">
+                                    {% if lignes.count > 0 %}
+                                    {% for item in lignes %}
+                                        <!-- on recupere tous les ids_ligne-->
+                                        <input name="all_ligne_id" id="all_ligne_id{{forloop.counter}}" value="{{item.id}}" type="hidden" autocomplete="off">
+                                        <!-- on recupere tous les ids_ligne end-->
+                                        <tr id="ligne{{forloop.counter}}">
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <input name="ligne_id" id="ligne_id{{forloop.counter}}" type="hidden" value="{{ item.id }}" autocomplete="off">
+
+                                                <input id="id1" type="hidden" name="article_id" value="{{item.article.id}}" />
+
+                                                <input id="stock1" type="hidden" value="0" />
+
+                                                <div class="input-control select full-size">
+                                                    <select  id="item{{forloop.counter}}" name="article"
+                                                        data-validate-func="min" 
+                                                        data-validate-arg="1"
+                                                        data-validate-hint="Sélectionnez un article svp">
+                                                        <option value="{{item.article.id}}">{{item.article.designation}}</option>
+                                                        
+                                                    </select>
+                                                </div>
+                                            </td>
+
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="quantite_demandee" id="quantite{{forloop.counter}}" type="text" placeholder="Ex: 10" value="{{item.quantite_demande}}"
+                                                        data-validate-func="number" 
+                                                        data-validate-arg="1"
+                                                        data-validate-hint="Précisez la quantité svp">
+                                                    <span class="prepend-icon" style="margin-left:75%">
+                                                        <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="description" id="description{{forloop.counter}}" type="text" autocomplete="off" value="{{item.description}}" >
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="pagination no-border">
+                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne({{forloop.counter}})">
+                                                        <span class="mif-cross fg-red"></span>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                         {% else %}
+                                        <tr id="ligne1">
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <input name="ligne_id" name="ligne_id1" type="hidden" value="0">
+                                                <!--
+                                                                                                     
+                                                 <input id="id1" type="hidden" name="article_id" value="{{item.article.id}}" />
+                                                <input id="stock1" type="hidden" value="0" /> -->
+                                                
+                                                <div class="input-control select full-size">
+                                                    <select id="item1" name="article" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un article svp">
+                                                        {% for art in articles %}
+                                                        <option value="{{art.id}}">{{art.designation}}</option>
+                                                        {%endfor%}
+                                                    </select>
+                                                </div>
+                                            </td>
+                                        
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="quantite_demandee" id="quantite1" type="text" placeholder="Ex: 10"  
+                                                        data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez la quantité svp">
+                                                    <span class="prepend-icon" style="margin-left:75%">
+                                                        <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="description" id="description1" type="text" autocomplete="off"  >
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="pagination no-border">
+                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)">
+                                                        <span class="mif-cross fg-red"></span>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                         {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" id="btnAjouterLigne_">Ajouter une ligne</button>
+                            </div>
+                        </form>
+            
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+<script>
+    $('.chosen-select').chosen();
+</script>
+
+<script src="/static/ErpProject/js/fourniture-local.js"></script>
+<script>
+/*************************** Mesthode rétouchée*********************************/
+    var lataille = 0;
+    var nombreLignes = 1;
+    var compteur = 1;
+
+    {% for item in lignes %}
+    lataille += 1
+    {% endfor %}
+
+    console.log("taille", lataille);
+    if (lataille != 0) {
+        nombreLignes = lataille;
+        compteur = lataille;
+    } 
+/******fonction de génération des input********/
+    $("#btnAjouterLigne_").on("click", function () {
+        
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+        nouvelleLigne += '<input name="ligne_id" name="ligne_id' + compteur + '" type="hidden" value="0" />';
+        nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+        nouvelleLigne += '<select onchange="chosen-select" name="article" id="item' + compteur + '" data-validate-func="min"';
+        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article"><option value="0">Sélectionnez un article</option>';
+        nouvelleLigne += '{% for item in articles %}<option value="{{ item.id }}"> {{ item.designation }} </option>{% endfor %}';
+        nouvelleLigne += '</select></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+      
+        nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+       
+        nouvelleLigne += '<div class="input-control text full-size">';
+        nouvelleLigne += '<input id="description' + compteur + '" name="description" type="text">';
+        nouvelleLigne += '</span></div>';
+        nouvelleLigne += '</td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+        nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+        nouvelleLigne += '</div></td></tr>';
+
+        $("#items").append(nouvelleLigne);
+    });
+
+    /*******************Script bouton suppression*********************/
+    function supprimerLigne(indice) {
+        nombreLignes--;
+        $("#ligne" + indice).remove();
+    }
+
+/**********************************************/
+     
+/*##############################################################################*/
+</script>
+
+{% endblock %}

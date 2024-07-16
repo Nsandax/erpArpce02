@@ -1,0 +1,114 @@
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_index' %}">Module Document</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_list_document' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Aperçu Document</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+            <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_update_document' document.id %}')" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Modifier
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_list_document' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_update_document' document.id %}')" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_list_document' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row padding20 no-padding-top no-padding-bottom" style="border-right: 1px solid #f7f5f5;">
+                                    <p>  
+                    
+            Type document :
+                    <br>
+                    <span class="sub-alt-header">{{ document.type_document }}</span>
+                    <br>
+                    <br>
+            
+            Url document :
+                    <br>
+                    <span class="sub-alt-header">{{ document.url_document }}</span>
+                    <br>
+                    <br>
+            
+            Numero document :
+                    <br>
+                    <span class="sub-alt-header">{{ document.numero_document }}</span>
+                    <br>
+                    <br>
+            
+            Description :
+                    <br>
+                    <span class="sub-alt-header">{{ document.description }}</span>
+                    <br>
+                    <br>
+            
+            Est_verifie :
+                    <br>
+                    <span class="sub-alt-header">{{ document.est_verifie }}</span>
+                    <br>
+                    <br>
+            
+            Status :
+                    <br>
+                    <span class="sub-alt-header">{{ document.status }}</span>
+                    <br>
+                    <br>
+            
+            <!--Metadonnees :
+                    <br>
+                    <span class="sub-alt-header">{{ document.metadonnees }}</span>
+                    <br>
+                    <br>-->
+            
+            Dossier :
+                    <br>
+                    <span class="sub-alt-header">{{ document.hisdossier }}</span>
+                    <br>
+                    <br>
+
+            
+        </p>
+
+        <br><br><br>
+        <p>
+            <center><span class="sub-alt-header">INDEX</span></center>
+            <hr class="hr-ligne">
+
+            <br><br>
+
+            {{ document.metadonnees }}
+
+        </p>
+                                </div>
+                            </div>              
+                        </div>
+            
+           {% endblock %}}

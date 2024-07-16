@@ -1,0 +1,150 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+    {% load inventaire_filter %}
+    {%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_list_asset_emplacements' %}">Emplacement de stock</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+ {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="" url_detail="module_inventaire_item_asset_emplacement" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- <h2>{{ title }}</h2> -->
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div id="btn-view" data-role="group" data-group-type="one-state">
+                                <button id="btn-tree"
+                                    onclick="javascript:window.location.assign('{% url 'module_inventaire_item_asset_emplacement' ref %}?view=list')"
+                                    class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}">
+                                    <span class="mif-list"></span></button>
+                                <button id="btn-kanban"
+                                    onclick="javascript:window.location.assign('{% url 'module_inventaire_item_asset_emplacement' ref %}?view=kanban')"
+                                    class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}">
+                                    <span class="mif-apps"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <hr class="hr-ligne" style="background-color:grey; opacity: 0.1;">
+
+                    <!-- Vue de type list -->
+                    {% if view == "list" %}
+                    <div id="list-view" class="row" style="margin-top: 10px;">
+                        <table id="data_table" class="display nowrap border bordered striped"  style="width: 100%">
+                                <thead>
+                                    <tr>
+                                            <th width="25%">Article</th>
+                                            <th width="16%">Numéro de série</th>
+                                            <th width="16%">Description</th>
+                                            <th width="16%">Emplacement</th>
+                                            <th width="16%">Etat</th>
+                                            <th width="16%">Alloué à</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="items">
+                                        {% for ligne in assets %}
+                                        <tr id="ligne{{ligne.id}}" class="table bordered border">
+                                            <td>
+                                                {% if ligne.article %}
+                                                    {{ligne.article.designation}}
+                                                {% else %}
+                                                    {{ ligne.serial_number}}
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ ligne.numero_identification }}</td>
+                                            <td>
+                                                {% if not ligne.est_immobilise %}
+                                                    {% if ligne.description != None %}
+                                                        {{ ligne.attribute_categorie_code }}
+                                                    {% else %}
+                                                        Aucun détail
+                                                    {% endif %}
+                                                {% else %}
+                                                    ASSET IMMOBILISE
+
+                                                {% endif %}
+                                             </td>
+                                             <td>
+                                                 {{ligne.emplacement}}
+                                             </td>
+                                                {% if ligne.employe != None %}
+                                                    <td>Attribué
+                                                    ({{ ligne.employe.nom_complet }})</td>
+                                                {% else %}
+                                                    <td>Vacant</td>
+                                                {% endif %}
+                                            <td>Aucun employé</td>
+
+
+                                        </tr>
+                                        {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% elif view == "kanban" %}
+                        <!-- Vue de type card -->
+                        <div id="kanban-view" class="row" style="margin-top:10px;">
+                            {% for ligne in assets %}
+                            <div class="col-md-4">
+                                <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                                    <div class="card-item-content">
+                                        <div class="thumb">
+                                        </div>
+                                        <div class="texts">
+                                            <a class="link chargement-au-click"
+                                                href="">
+                                                {{ ligne.article.designation}}
+                                            </a><br>
+                                            <div class="mt-2"></div>
+                                            <span class="inner-text">Numéro de série :
+                                                {{ ligne.numero_identification }}</span><br>
+                                            <span class="inner-text">Description :
+                                                {% if not ligne.est_immobilise %}
+                                                    {% if ligne.description != None %}
+                                                        {{ ligne.description }}
+                                                    {% else %}
+                                                        Aucun détail
+                                                    {% endif %}
+                                                {% else %}
+                                                ASSET IMMOBILISE
+                                                {% endif %}
+                                            </span><br>
+                                            <span class="inner-text">Etat : {{ligne.emplacement}} </span><br>
+                                                {% if ligne.employe != None %}
+                                                    <span class="inner-text">Emplacement :Attribué </span><br>
+                                                    <span class="inner-text">Alloué à : {{ ligne.employe.nom_complet }}</span>
+                                                {% else %}
+                                                    <span class="inner-text">Emplacement : Vacant</span><br>
+                                                    <span class="inner-text">Alloué à :  Aucun employé </span>
+                                                {% endif %}
+                                            <br>
+                                            <br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/ErpProject/js/inventaire-local.js"></script>
+<!-- Appel widget datatable -->
+{% include 'ErpProject/ErpBackOffice/widget/datatable.html' with type_view=view %}
+{% endblock %}

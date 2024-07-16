@@ -1,0 +1,133 @@
+
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+    {%load static %}{% load humanize %}
+    {% load account_filters %}
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">12:45, Mercredi 23 Janvier 2019</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="row">
+                <div class="col-md-1">
+                    <!-- {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider"%} -->
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary">Valider</button>
+                </div>
+                <!-- <div class="col-md-1">
+                    <button style="width: 150%;" onclick="javascript:window.location.assign('{% url 'module_achat_list_bon_reception' %}')" class="theme-btn theme-btn-sm rounded">
+                        Cloturer
+                    </button>
+                </div> -->
+            </div>
+            <br>
+
+            <hr class="hr-ligne" style="background-color:grey; opacity: 0.1;">
+            <br>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:white;">
+                    <form method="POST" action="{% url 'module_achat_post_get_traitement_duree_bc' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                        <div class="col-md-12">
+                            <input name="ref" type="hidden" value="{{ model.id }}">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span class="caption"  style="color: red;">Prolonger la durée de bon de commande ?</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="input-control checkbox small-check full-size">
+                                            <input value="0" name="est_prolonger" id="est_prolonger" type="checkbox" onclick="estgroupe()">
+                                            <span class="check"></span>
+                                            <span class="caption"  style="color: rgb(0, 0, 0);">OUI</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="input-control checkbox small-check full-size">
+                                            <input value="0" name="not_prolonger" id="not_prolonger" type="checkbox" onclick="Notgroupe()">
+                                            <span class="check"></span>
+                                            <span class="caption"  style="color: rgb(0, 0, 0);">NON</span>
+                                        </label>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="div_life" style="display: none;">
+                                <label>Durée de vie <strong style="color: red;">*</strong></label>
+                                <div class="input-control text full-size">
+                                    <select type="text" name="duree_vie" class="form-control"  id="duree_vie">
+                                        <option value="-1">Sélectionnez la durée de vie de ce bon de commande</option>
+                                        <option value="1">6 Mois</option>
+                                        <option value="2">12 Mois</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    var checkBox = document.getElementById("est_prolonger");
+    var checkBoxNotgroupe = document.getElementById("not_prolonger");
+    function estgroupe(){
+            if (checkBox.checked == true){
+                console.log('YESSSSS')
+               document.getElementById("div_life").style.display="block";
+               document.getElementById("not_prolonger").checked = false;
+            }else{
+                console.log('Nonnn')
+                document.getElementById("div_life").style.display="none";
+            }
+    }
+
+    function Notgroupe(){
+            if (checkBoxNotgroupe.checked == true){
+                console.log('YESSSSS')
+               document.getElementById("div_life").style.display="none";
+               document.getElementById("est_prolonger").checked = false;
+            }
+            else{
+                console.log('Nonnn')
+                document.getElementById("div_life").style.display="none";
+            }
+    }
+
+    function supprimer() {
+        var id = '{{model.id}}'
+        //-------deux variables pour la suppression---------------------------------
+        var modele = "Model_Bon_reception"
+        var the_url = "module_achat_list_bon_reception"
+        // url de suppression ------------------------------------------------------
+        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+        url = url.replace('100', id);
+        url = url.replace('nom_modele', modele);
+        url = url.replace('url_retour', the_url);
+        document.location.href = url;
+
+
+    }
+    $('#supprimer').on('click', function () {
+        Swal.fire({
+            title: 'Etes vous sure?',
+            text: "De vouloir supprimer cette item!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer();
+                Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+</script>
+{% endblock %}

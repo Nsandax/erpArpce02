@@ -1,0 +1,534 @@
+{% extends "ErpProject/ModuleContrat/shared/layout.html" %}
+    {% block page %}
+    {%load static %}
+    {% load humanize %}
+    <link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+    <script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+<style type="text/css">
+    body {background-color: grey!important;}
+    .titleP{
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .org{
+        text-align: center;
+        padding-top: 2%;
+    }
+    .ligne{
+        border-right: 1px solid #d9d9d9;
+    }
+    .pgrid{
+        background-image: linear-gradient(to left bottom, #074c76, #1e5d95, #396db4, #597dd2, #7c8cf0);
+    }
+    #containerT {
+	width: 100%;
+	margin: 20px auto;
+	box-shadow: 0 0 3px rgba(0,0,0,0.1);
+	background-color: #f7f7f7;
+    }
+
+    .completed {
+        color: gray;
+        /* text-decoration: line-through; */
+    }
+
+    h4{
+        background-color: #2980b9;
+        color: white;
+        margin: 0;
+        padding: 10px 20px;
+        text-transform: capitalize;
+        font-size: 17px;
+        font-weight: normal;
+    }
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .mylist li {
+        background-color: white;
+        height: 40px;
+        line-height: 40px;
+        color:	#666;
+    }
+
+    .mylist li:nth-child(2n) {
+        background-color: #f7f7f7;
+    }
+
+    .fa-plus {
+        float: right;
+    }
+
+    .mylist li span {
+        background-color: #03611f;
+        height: 40px;
+        margin-right: 20px;
+        text-align: center;
+        color: white;
+        width: 0;
+        display: inline-block;
+        transition: 0.2s linear;
+        opacity: 0;
+
+    }
+
+    .mylist li:hover span {
+        width: 40px;
+        opacity: 1.0;
+    }
+    .spantext{
+        font-size: 15px;
+        font-family:monospace;
+        color:#fff;
+    }
+</style>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <!--Notification-->
+        <div class="panel panel-default" style="border: none;">
+            <div class="panel" style="background-color:#f5f5f5;border: none;">
+                {% if temp_notif_count > 0 %}
+                <div class="col-md-12" style="padding: 10px;">
+                    {% for item in temp_notif_list %}
+                    <div class="col-md-4" style="padding: 10px;">
+                        <div style="">
+                            <div class="mb-4 ">
+                                <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                    <div style="width: 100%;background-color: white;/*padding: 10px;">
+                                        <div style="padding: 10px;">
+                                            <strong class="sub-header" style="margin: 10px;font-weight: 900;">Notification</strong>
+                                            <small style="margin-right:50">{{item.notification.created_at}}</small>
+                                            <button onclick="javascript:window.location.assign('{% url 'module_achat_notification' item.id %}')" type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                                </button>
+                                        </div>
+                                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                    </div>
+                                    <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                        <p>
+                                            {{item.notification.text}}<br> {% if item.notification.expression != None %} Etat: {{item.notification.expression.etat}}<br> {% endif %} {% if item.notification.demande != None %} Etat: {{item.notification.demande.etat}}<br>                                        {% endif %} {% if item.notification.bon_reception != None %} Etat: {{item.notification.bon_reception.etat}}<br> {% endif %}
+                                        </p>
+
+                                    </div>
+                                    <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                    <div style="padding: 15px;padding-top: 0px;">
+                                        {% if item.type_action == "Link" %}
+                                        <button class="btn rounded primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button> {% endif %}
+                                    </div>
+                                    <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <!--  -->
+                <div class="mt-2">
+                    {% for item in types %}
+                    <div class="col-md-6">
+                        <div class="panel panel-success pgrid"  style="border-radius: 10px;border-bottom: none;height: 120px;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-9 text-left">
+                                        <div style="font-weight: 900;">{{ item.designation }}</div>
+                                    </div>
+                                    <div class="col-xs-3 text-right">
+                                        <p class="graphic_number">{{item.code}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="padding-top:2%;">
+                                <span class="col-md-4 col-xs-6 spantext">Nombre Contrat: <br> {{item.nbcontrat}}</span>
+                                <span class="col-md-4 col-xs-6 spantext">Nombre Lettre:  <br> {{item.nbLettreC}}</span>
+                                <span class="col-md-4 col-xs-6 spantext">Nombre Demande: <br> {{item.nbdemandeCot}}</span>
+                            </div>
+                            <!-- <button id="btn" class="btn btn-outline-info btn-sm" onclick="openmarche({{item.id}})" style="margin:3px 0px 0px 3px;">Créer</button> -->
+                        </div>
+                    </div>
+                    {% endfor %}
+
+
+                </div>
+                <br> <br>
+                <div class="col-md-12">
+                    <div class="col-md-3">
+                        <div class="panel panel-success p1" style="border-radius: 10px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div style="font-weight: 500;">Lettre de Commande</div>
+                                        <p style="font-size: 20px;font-family: gotham">{{lettreC}}</p>
+                                    </div>
+                                    <div class="col-xs-5 text-right">
+                                        <i class="fa fa-bank fa-3x" style="float: left;opacity: 0.3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success p2" style="border-radius: 10px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-9 text-left">
+                                        <div style="font-weight: 500;">Demande de Cotation</div>
+                                        <p style="font-size: 20px;font-family: gotham">{{demandeDC}}</p>
+                                    </div>
+                                    <div class="col-xs-3 text-right">
+                                        <i class="fa fa-bank fa-3x" style="float: left;opacity: 0.3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success p3" style="border-radius: 10px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div style="font-weight: 500;">Appel d'offre</div>
+                                        <p style="font-size: 20px;font-family: gotham">{{demandeDC}}</p>
+                                    </div>
+                                    <div class="col-xs-5 text-right">
+                                        <i class="fa fa-bank fa-3x" style="float: left;opacity: 0.3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success p4" style="border-radius: 10px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div style="font-weight: 500;">Mode Gré à Gré</div>
+                                        <p style="font-size: 20px;font-family: gotham">0</p>
+                                    </div>
+                                    <div class="col-xs-5 text-right">
+                                        <i class="fa fa-bank fa-3x" style="float: left;opacity: 0.3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-6" style="padding: 10px;">
+                    <div class="mb-4">
+                        <!-- Card Body -->
+                        <div class="card-item epsace">
+                            <p style="text-align: center;margin-top:8px;font-weight: 900;">FREQUENCE DE CONTRAT SIGNE PAR PERIODE</p>
+                            <div id="chart2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" style="padding: 10px;">
+                    <div style="">
+                        <div class="mb-4">
+                            <!-- Card Body -->
+                            <div class="card-item epsace">
+                                <p style="text-align: center;margin-top:8px;font-weight: 900;">FREQUENCE CONTRAT SIGNE PAR AN</p>
+                                <div id="chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <p><strong>Derniers Contrats</strong></p>
+                <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                    <thead>
+                        <tr class="table-light">
+                            <th>N° Contrat</th>
+                            <th>Prestataire</th>
+                            <th>Nature</th>
+                            <th>Montant Contrat</th>
+                            <th>Montant Consommé</th>
+                            <th>Montant à Consommer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if lastcontrat %}
+                            {% for item in lastcontrat %}
+                                <tr>
+                                    <td>
+                                        <a class="lien chargement-au-click" href="{% url 'module_contrat_detail_contrat' item.id %}">{{ item.numero_reference }}</a>
+                                    </td>
+                                    <td>{{item.fournisseur}}</td>
+                                    <td>{{item.type_marche}}</td>
+                                    <td>{{item.montant|intcomma}} {{item.devise.symbole_devise}}</td>
+                                    <td>{{item.totalconsome|intcomma}} {{item.devise.symbole_devise}}</td>
+                                    <td>{{item.solde|intcomma}} {{item.devise.symbole_devise}}</td>
+
+                                </tr>
+                            {% endfor %}
+                         {% else %}
+                                <tr>
+                                    <td colspan="6" align="center">
+                                        Pas de données disponibles
+                                    </td>
+                                </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <br><br><br>
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <p><strong>Contrat Signé ({{ contratSign|length }})</strong></p>
+                    <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr class="table-light">
+                                <th>N° Contrat</th>
+                                <th>Prestataire</th>
+                                <th>Montant Contrat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if contratSign %}
+                                {% for item in contratSign %}
+                                <tr>
+                                    <td>
+                                        <a class="lien chargement-au-click" href="{% url 'module_contrat_detail_contrat' item.id %}">{{ item.numero_reference }}</a>
+                                    </td>
+                                    <td>{{item.fournisseur}}</td>
+                                    <td>{{item.montant|intcomma}} {{item.devise.symbole_devise}}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" align="center">
+                                        Pas de données disponibles
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Contrat En attente ({{ contratWaiting|length }})</strong></p>
+                    <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr class="table-light">
+                                <th>N° Contrat</th>
+                                <th>Prestataire</th>
+                                <th>Montant Contrat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if contratWaiting %}
+                            {% for item in contratWaiting %}
+                                <tr>
+                                    <td>
+                                        <a class="lien chargement-au-click" href="{% url 'module_contrat_detail_contrat' item.id %}">{{ item.numero_reference }}</a>
+                                    </td>
+                                    <td>{{item.fournisseur}}</td>
+                                    <td>{{item.montant|intcomma}} {{item.devise.symbole_devise}}</td>
+
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                                <tr>
+                                    <td colspan="3" align="center">
+                                        Pas de données disponibles
+                                    </td>
+                                </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br><br>
+            <div class="col-md-12">
+                <p><strong>Dernières lettres de commande</strong></p>
+                <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                    <thead>
+                        <tr class="table-light">
+                            <th>N° Contrat</th>
+                            <th>Prestataire</th>
+                            <th>Nature</th>
+                            <th>Montant Contrat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% if lettreCommande %}
+                        {% for item in lettreCommande %}
+                            <tr>
+                                <td>{{item.numero_reference}}</td>
+                                <td>{{item.fournisseur}}</td>
+                                <td>{{item.type_marche}}</td>
+                                <td>{{item.montant}} {{item.devise.symbole_devise}}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" align="center">
+                                Pas de données disponibles
+                            </td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogBillet">
+    <div class="row cells3 padding20" style="margin-top:0px">
+        <!-- <h3>Mode de Passation</h3> -->
+        <div id="containerT">
+            <h4>Mode de Passation</h4>
+            <ul class="mylist">
+                <li style="margin-top: 5%;">
+                    <span><i class="fas fa-arrow-right"></i> </span>Lettre de commande
+                </li>
+                <li>
+                    <span><i class="fas fa-arrow-right"></i> </span>Demande de cotation
+                </li>
+                <li>
+                    <span><i class="fas fa-arrow-right"></i> </span>Appel d'offre
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script src="{% static 'ErpProject/js/frappe-charts.min.iife.js' %}"></script>
+<script>
+    function openmarche(idtype){
+        // console.log(idtype);
+        var dialog = $("#dialogBillet").data('dialog');
+	    dialog.open();
+    }
+</script>
+
+<script>
+    // Toggle li elements on click
+    $(".mylist").on("click", "li", function(){
+        $(this).toggleClass("completed");
+    });
+
+    // Click on Bin Icon to delete Todo
+    // $(".mylist").on("click", "span", function(event){
+    //     $(this).parent().fadeOut(500, function(){
+    //         $(this).remove();
+    //     });
+    //     event.stopPropagation();
+    // });
+</script>
+
+<script>
+    const data = {
+        labels: {{labelcontrat|safe}},
+        datasets: [
+            {
+                name: "", type: "bar",
+                values: {{valuecontrat}}
+            },
+        ]
+    }
+
+    const chart1 = new frappe.Chart("#chart", {
+        title: "",
+        data: data,
+        type: 'bar',
+        height: 150,
+        colors: ['#7cd6fd', '#743ee2'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    listThemeC = [];
+    listNbC = [];
+    newNbC = [];
+    {% for item in dataC %}
+        listThemeC.push("{{item.label}}");
+        listNbC.push("{{item.value}}");
+    {% endfor %}
+
+
+    listNbC.forEach(element => {
+        newNbC.push(parseInt(element))
+    });
+    // console.log('Resultat', newNbC)
+
+    const datachart2 = {
+        labels:listThemeC,
+        datasets: [
+            {
+                name: "", type: "bar",
+                values: newNbC
+            },
+        ]
+    }
+
+    const chart2 = new frappe.Chart("#chart2", {
+        title: "",
+        data: datachart2,
+        type: 'bar',
+        height: 150,
+        colors: ['#743ee2', '#7cd6fd'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [{
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                }, {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                }, {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                }, {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        });
+    });
+</script>
+    {% endblock %}

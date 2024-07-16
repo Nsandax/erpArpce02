@@ -1,0 +1,287 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{%load static %}
+{% load account_filters %}
+<div class="row " style="background-color: #f5f5f5;">
+
+    <div class="row">
+        <div class="row">
+            <!--button onclick="printScreen();"
+                class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button-->
+        </div>
+
+        <div  id="divToPrint" class="col-lg-12">
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color:floralwhite;opacity: 0.2"></div>
+
+            <div class="panel panel-default" style="border: none;">
+                <div id="export" class="panel panel-body"
+                    style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                  <img src="{% static 'ErpProject\image\header_rapport_o.png'%}" alt="" style="width: 400px;height: 150px;">
+
+                    <br>
+                    <center>
+                        <h1>{{title}} {{ligne_operation.reference}}</h1>
+                    </center>
+                    <center>
+                        <h2>Du {{ligne_operation.date_ligne_operation|date:'d/m/Y'}}</h2>
+                    </center>
+
+                    <br>
+                    <br>
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-md-8"> </div>
+                        <div class="col-6 col-md-4"><h2><span>MONTANT</span> : {{ligne_operation.montant |monetary}} {{ligne_operation.devise}}</h2></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-md-8"><h2><span>Bénéficiaire(s)</span>: {{ligne_operation.libelle}}</h2></div>
+                        {% if ligne_operation.facture %}
+                        <div class="col-12 col-sm-6 col-md-8"><h2><span>Facture</span>: {{ligne_operation.facture.numero_facture}}</h2></div>
+                        {% endif %}
+
+                    </div>
+                    <div class="row">
+
+                        <table class="display table nowrap border bordered" cellspacing="0" style="width:100%">
+                            <tbody>
+                                <tr style="background-color:#91a7c3;color:#fff;font-weight:1000; font-size: 17;">
+                                    <th  width="30%"><h2>Libelle</h2></th>
+                                    <th  width="20%"><h2>Type opération</h2></th>
+                                    <th  width="50%"><h2>Description</h2></th>
+                                </tr>
+                                <tr >
+                                    <td><h3>{{ligne_operation.libelle}}</h3></td>
+                                    <td><h3>{{ligne_operation.value_type_operation}}</h3></td>
+                                    <td><h3>{{ligne_operation.description}}</h3></td>
+
+                                </tr>
+                                <tr>
+                                    <td ><h4>Montant en lettres :</h4><h2> <em id="montant_lettre"></h2></em> </td>
+                                    <td colspan=2> <h3>{{ligne_operation.montant |monetary}} {{ligne_operation.devise}} </h3> </td>
+
+                                </tr>
+                                <tr>
+                                    <td><pre><h3>Le Caissier : {{auteur.nom_complet}}</h3></pre></td>
+                                    <td colspan=2><h4>signature du bénéficiaire :</h4></td>
+
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<button type="button" id="lancermodal" data-toggle="modal" data-target="#monmodal"
+    style="display: none;">executer</button>
+<div id="monmodal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <center>
+                    <iframe id="iframemodal" frameborder="0" style="width: 100%;" height="600px"></iframe>
+                </center>
+                <hr>
+                <center>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">FERMER</button>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/print.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.debug.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/cell.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.plugin.autotable.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/from_html.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/html2canvas.min.js' %}"></script>
+<script>
+
+    /*
+    '***********
+    ' Devise=0   aucune
+    '       =1   Euro ?
+    '       =2   Dollar $
+    ' Langue=0   Fran?ais
+    '       =1   Belgique
+    '       =2   Suisse
+    '***********
+    ' Conversion limit?e ? 999 999 999 999 999 ou 9 999 999 999 999,99
+    ' si le nombre contient plus de 2 d?cimales, il est arrondit ? 2 d?cimales
+    */
+
+
+
+        function ConvNumEnt(Nombre, Langue) {
+            var byNum, iTmp, dblReste;
+            var StrTmp = new String();
+            var NumEnt;
+            iTmp = Nombre - (parseInt(Nombre / 1000) * 1000);
+            NumEnt = ConvNumCent(parseInt(iTmp), Langue);
+            dblReste = parseInt(Nombre / 1000);
+            iTmp = dblReste - (parseInt(dblReste / 1000) * 1000);
+            StrTmp = ConvNumCent(parseInt(iTmp), Langue);
+            switch (iTmp) {
+                case 0:
+                    break;
+                case 1:
+                    StrTmp = "mille ";
+                    break;
+                default:
+                    StrTmp = StrTmp + " mille ";
+            }
+            NumEnt = StrTmp + NumEnt;
+            dblReste = parseInt(dblReste / 1000);
+            iTmp = dblReste - (parseInt(dblReste / 1000) * 1000);
+            StrTmp = ConvNumCent(parseInt(iTmp), Langue);
+            switch (iTmp) {
+                case 0:
+                    break;
+                case 1:
+                    StrTmp = StrTmp + " million ";
+                    break;
+                default:
+                    StrTmp = StrTmp + " millions ";
+            }
+            NumEnt = StrTmp + NumEnt;
+            dblReste = parseInt(dblReste / 1000);
+            iTmp = dblReste - (parseInt(dblReste / 1000) * 1000);
+            StrTmp = ConvNumCent(parseInt(iTmp), Langue);
+            switch (iTmp) {
+                case 0:
+                    break;
+                case 1:
+                    StrTmp = StrTmp + " milliard ";
+                    break;
+                default:
+                    StrTmp = StrTmp + " milliards ";
+            }
+            NumEnt = StrTmp + NumEnt;
+            dblReste = parseInt(dblReste / 1000);
+            iTmp = dblReste - (parseInt(dblReste / 1000) * 1000);
+            StrTmp = ConvNumCent(parseInt(iTmp), Langue);
+            switch (iTmp) {
+                case 0:
+                    break;
+                case 1:
+                    StrTmp = StrTmp + " billion ";
+                    break;
+                default:
+                    StrTmp = StrTmp + " billions ";
+            }
+            NumEnt = StrTmp + NumEnt;
+            return NumEnt;
+        }
+
+        function ConvNumDizaine(Nombre, Langue) {
+            var TabUnit, TabDiz;
+            var byUnit, byDiz;
+            var strLiaison = new String();
+
+            TabUnit = Array("", "un", "deux", "trois", "quatre", "cinq", "six", "sept",
+                "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze",
+                "seize", "dix-sept", "dix-huit", "dix-neuf");
+            TabDiz = Array("", "", "vingt", "trente", "quarante", "cinquante",
+                "soixante", "soixante", "quatre-vingt", "quatre-vingt");
+            if (Langue == 1) {
+                TabDiz[7] = "septante";
+                TabDiz[9] = "nonante";
+            }
+            else if (Langue == 2) {
+                TabDiz[7] = "septante";
+                TabDiz[8] = "huitante";
+                TabDiz[9] = "nonante";
+            }
+            byDiz = parseInt(Nombre / 10);
+            byUnit = Nombre - (byDiz * 10);
+            strLiaison = "-";
+            if (byUnit == 1) strLiaison = " et ";
+            switch (byDiz) {
+                case 0:
+                    strLiaison = "";
+                    break;
+                case 1:
+                    byUnit = byUnit + 10;
+                    strLiaison = "";
+                    break;
+                case 7:
+                    if (Langue == 0) byUnit = byUnit + 10;
+                    break;
+                case 8:
+                    if (Langue != 2) strLiaison = "-";
+                    break;
+                case 9:
+                    if (Langue == 0) {
+                        byUnit = byUnit + 10;
+                        strLiaison = "-";
+                    }
+                    break;
+            }
+            var NumDizaine = TabDiz[byDiz];
+            if (byDiz == 8 && Langue != 2 && byUnit == 0) NumDizaine = NumDizaine + "s";
+            if (TabUnit[byUnit] != "") {
+                NumDizaine = NumDizaine + strLiaison + TabUnit[byUnit];
+            }
+            else {
+                NumDizaine = NumDizaine;
+            }
+            return NumDizaine;
+        }
+
+
+        function ConvNumCent(Nombre, Langue) {
+            var TabUnit;
+            var byCent, byReste;
+            var strReste = new String();
+            var NumCent;
+            TabUnit = Array("", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix");
+
+            byCent = parseInt(Nombre / 100);
+            byReste = Nombre - (byCent * 100);
+            strReste = ConvNumDizaine(byReste, Langue)
+            switch (byCent) {
+                case 0:
+                    NumCent = strReste;
+                    break;
+                case 1:
+                    if (byReste == 0)
+                        NumCent = "cent";
+                    else
+                        NumCent = "cent " + strReste;
+                    break;
+                default:
+                    if (byReste == 0)
+                        NumCent = TabUnit[byCent] + " cents";
+                    else
+                        NumCent = TabUnit[byCent] + " cent " + strReste;
+            }
+            return NumCent;
+        }
+//Cnversion en chiffre en lettre plus impression
+var d= ConvNumEnt({{ ligne_operation.montant }}, 'fr')
+$('#montant_lettre').text(d)
+function printScreen() {
+        const filename = 'journal.pdf';
+        var pdf = new jsPDF('l', 'pt', 'ledger');
+        pdf.html($('#divToPrint')[0], {
+            callback: function (pdf) {
+
+                var string = pdf.output('datauristring');
+                $('#iframemodal').attr('src', string);
+                $('#lancermodal').click();
+            }
+        });
+
+         margins = {
+            top: 70,
+            bottom: 40,
+            left: 30,
+            width: 550
+        };
+    }
+</script>
+{% endblock %}

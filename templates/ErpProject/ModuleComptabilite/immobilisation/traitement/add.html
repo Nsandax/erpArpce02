@@ -1,0 +1,299 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %}
+{%load static %}
+<link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+
+<script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_inventaire_detail_traitement_immobilisation' traitement_immobilisation.id %}">{{traitement_immobilisation.numero_traitement}}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+                <div class="panel panel-default" style="border: none;">
+
+                    <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                        <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+
+                {% for ligne in lignes_traitements %}
+                <br>
+                <br>
+                <hr class="hr-ligne">
+                    <h3 style="float:left">{{forloop.counter}}. Immobilisation {{ ligne.immobilisation.code }} {{ ligne.immobilisation.immobilier.numero_identification }} {{ ligne.immobilisation.immobilier.article.designation }}</h3>
+
+                        <br>
+                        <br>
+
+
+                        <form action="{% url 'module_comptabilite_post_add_piece_traitement_immobilisation' %}" method="POST"
+                            enctype="multipart/form-data"
+                            data-role="validator"
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+
+                            <input id="submit{{forloop.counter}}" type="submit" style="display: none">
+                            <input name="ref" type="hidden" value="{{traitement_immobilisation.id}}">
+                            <input name="ligne_traitement_id" type="hidden" value="{{ligne.id}}">
+                            <input name="immobilisation_id" type="hidden" value="{{ligne.immobilisation.id}}">
+
+                           <br>
+                           <div class="row margin20 no-margin-left no-margin-right">
+                            <p class="sub-header"><br>
+                                Ecritures comptables...</p>
+                            <table class="table no-margin">
+                                <thead class="no-border">
+                                    <tr>
+                                        <th class="no-padding-top no-padding-left no-padding-bottom" width="35%">Compte</th>
+                                        <th width="26%">Libellé</th>
+                                        <th width="17%">Débit</th>
+                                        <th width="17%">Crédit</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items{{forloop.counter}}">
+                                    <tr id="ligne1">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                <select id="compte_id1" name="compte_id"
+                                                    data-validate-func="min"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez un compte svp">
+                                                    <option value="{{ ligne.immobilisation.compte_depreciation.id }}">{{ ligne.immobilisation.compte_depreciation.numero }} {{ ligne.immobilisation.compte_depreciation.designation }}</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="libelle1" name="libelle" type="text"
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Entrez le libellé de l'écriture svp" value="Amortissement ">
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="montant_debit1" name="montant_debit" type="text" placeholder="Ex: 100"
+                                                    data-validate-func="number" value="{{ligne.immobilisation.valeur_cumul_amortissement}}"
+                                                    data-validate-hint="Précisez le montant du debit svp">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" id="unite1" class="sub-header place-right devise">CFA</span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="montant_credit1" name="montant_credit" type="text" placeholder="Ex: 100"
+                                                    data-validate-func="number" value="0">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">CFA</span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr id="ligne2">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                <select id="compte_id2" name="compte_id"
+                                                    data-validate-func="min"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez un compte svp">
+                                                   <option value="{{ ligne.immobilisation.compte_immobilier.id }}">{{ ligne.immobilisation.compte_immobilier.numero }} {{ ligne.immobilisation.compte_immobilier.designation }}</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="libelle2" name="libelle" type="text"
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Entrez le libellé de l'écriture svp" value="Article">
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="montant_debit2" name="montant_debit" type="text" placeholder="Ex: 100"
+                                                    data-validate-func="number" value="0"
+                                                    data-validate-hint="Précisez le montant du debit svp" >
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" id="unite1" class="sub-header place-right devise">CFA</span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input id="montant_credit2" name="montant_credit" type="text" placeholder="Ex: 100"
+                                                    data-validate-func="number" value="{{ligne.immobilisation.valeur_immobilier}}"
+                                                    data-validate-hint="Précisez le montant du crédit svp">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">CFA</span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(2)"><span class="mif-cross fg-red"></span></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                            <div class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" name="{{forloop.counter}}" id="btnAjouterLigne{{forloop.counter}}" onClick="reply_click(this.id, this.name)">Ajouter une ligne</button>
+                            </div>
+
+                            <button style="float:right;" onclick="javascript:document.getElementById('submit{{forloop.counter}}').click()" class="button rounded primary_color_{{module.name|lower}}">Valider</button>
+                        </form>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+
+<script>
+    $('.chosen-select').chosen();
+</script>
+
+
+   <script>
+       var lataille = 0;
+       var nbr = 0;
+       var lesComptes = new Array();
+       var deviseRef = "CFA";
+       var nombreLignes = 1;
+        var compteur = 1;
+
+        {% for item in lignes_traitements %}
+            nbr +=1
+        {% endfor %}
+
+        {% for item in comptes %}
+            lesComptes.push({id:"{{ item.id }}", designation:"{{ item.numero }} {{ item.designation }}"});
+        {% endfor %}
+
+    console.log("taille",lataille);
+    if (lataille != 0) {
+            nombreLignes = lataille;
+            compteur = lataille;
+        }
+
+        function reply_click(clicked_id, clicked_name)
+        {
+
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<select name="compte_id" id="compte_id' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un compte svp"><option value="0">Sélectionnez un compte</option>';
+            nouvelleLigne += renvoyerOptionsComptes();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="libelle' + compteur +'" name="libelle" type="text" data-validate-func="required" ';
+            nouvelleLigne += 'data-validate-hint="Entrez le libellé de l\'écriture svp"></div></td>'
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input class="monetary" name="montant_debit" id="montant_debit' + compteur + '" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-hint="Précisez le montant du débit svp" type="text" value="0" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input class="monetary" name="montant_credit" id="montant_credit' + compteur + '" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-hint="Précisez le montant du crédit svp" type="text" value="0" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items"+clicked_name).append(nouvelleLigne);
+        }
+
+
+        function renvoyerOptionsComptes()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesComptes.length; i++)
+            {
+                var compte = lesComptes[i];
+                ligne += '<option value="' + compte.id + '">' + compte.designation + '</option>';
+            }
+            return ligne;
+        }
+
+
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+
+
+    </script>
+
+<script>
+    var lesfacturesfill = new Array();
+    function fill_facture(indice) {
+
+            var choixTypeFacture = $("#type_facture"+indice).val();
+            var fournisseur_id = $("#partenaire_id"+indice).val();
+
+
+            if (choixTypeFacture !== ""){
+                showDialog("chargement");
+                console.log(choixTypeFacture)
+
+                $.get(
+                    "{% url 'module_comptabilite_get_facture_non_solde' %}",
+                    {ref:choixTypeFacture, fournisseur_id:fournisseur_id}
+                    ,
+                    function (response) {
+                        console.log(response)
+                        $("#facture_id"+indice).children().remove();
+                        $("#facture_id"+indice).append("<option value='0'>Sélectionnez une facture "+ choixTypeFacture +" </option>");
+                            lesfacturesfill = [];
+                            for (var i = 0; i < response.length; i++) {
+                            var unefacture = response[i];
+                            lesfacturesfill.push({id:unefacture.id, numero_facture:unefacture.numero_facture, date_facturation: unefacture.date_facturation});
+
+                            var option = "<option value='" + unefacture.id + "'>" + unefacture.numero_facture + ""+" du "+unefacture.date_facturation+"</option>";
+                            $("#facture_id"+indice).append(option);
+                        }
+                       showDialog("chargement");
+                    },
+                    "json"
+                );
+
+            }
+
+
+
+        }
+    </script>
+
+
+
+{% endblock %}

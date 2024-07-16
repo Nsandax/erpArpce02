@@ -1,0 +1,68 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {%load static %}{% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Désignation :<br>
+                        <span class="sub-alt-header">{{ model.designation }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Date de l'action :<br>
+                        <span class="sub-alt-header">{{model.date_action|date:"d/m/Y"}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Montant de l'action :<br>
+                        <span class="sub-alt-header">{{model.montant_action|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Type action :<br>
+                        <span class="sub-alt-header">{{ model.value_type_action }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Observation :<br>
+                        <span class="sub-alt-header">{{ model.observation }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Statut de l'action :<br>
+                        <span class="sub-alt-header">{{ model.value_statut_action }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Dossier recouvremnet :<br>
+                        {% if model.dossier_recouvrement is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.dossier_recouvrement }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Facture :<br>
+                        {% if model.facture is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.facture }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

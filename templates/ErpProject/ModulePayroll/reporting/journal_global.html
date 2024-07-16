@@ -1,0 +1,100 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+    <body>
+        <div id="invoice_custom">
+            <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                <div id="divTo#print" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                    <div style="display:flex;justify-content: center;">
+                        <img src="{% static 'ErpProject/image/upload/organisation/header.png' %}" style="height:40%;width:40%;">
+                    </div>
+                        <h4 style="text-align:center;">{{title}}</h4>
+                    <br>
+                    <br>
+
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <th>Nom Complet</th>
+                            <th>Matricule</th>
+                            <th>Genre</th>
+                            <th>Fonction</th>
+                            <th>Grade</th>
+                            <th>Echelon</th>
+                            <th>Dépt</th>
+                            <th>Periode</th>
+                            <th>Sal base</th>
+                            <th>Sur Salaire</th>
+                            <th>Prime Anc.</th>
+                            <th>Prime Fonct.</th>
+                            <th>Prime Lgt.</th>
+                            <th>Prime Diplome</th>
+                            <th>Prime Domest.</th>
+                            <th>Prime Eloign.</th>
+                            <th>Prime Caisse</th>
+                            <th>Prime Risk</th>
+                            <th>All. Conge</th>
+                            <th>Prime Astr.</th>
+                            <th>Prime Paie</th>
+                            <th>Sal Brut.</th>
+                            <th>Cnss</th>
+                            <th>Ac_irpp</th>
+                            <th>Prel Mutuel</th>
+                            <th>Prim Rep</th>
+                            <th>Indemn Trans</th>
+                            <th>Cplt Indemn Trans</th>
+                            <th>Pret</th>
+                            <th>Net_A_Payer</th>
+                        </tr>
+                        {% for item in models %}
+                        <tr>
+                            <th>{{item.nom_complet}}</th>
+                            <th>{{item.matricule}}</th>
+                            <th>{{item.genre}}</th>
+                            <th>{{item.fonction}}</th>
+                            <th>{{item.grade}}</th>
+                            <th>{{item.echelon}}</th>
+                            <th>{{item.dept}}</th>
+                            <th>{{item.end_date|date:'d/m/Y'}}</th>
+                            <th>{{item.sal_base|monetary}}</th>
+                            <th>{{item.sur_salaire|monetary}}</th>
+                            <th>{{item.prim_anc|monetary}}</th>
+                            <th>{{item.prim_fonct|monetary}}</th>
+                            <th>{{item.prim_lgt|monetary}}</th>
+                            <th>{{item.prim_diplome|monetary}}</th>
+                            <th>{{item.prim_domesticite|monetary}}</th>
+                            <th>{{item.prim_eloignement|monetary}}</th>
+                            <th>{{item.prim_caisse|monetary}}</th>
+                            <th>{{item.prim_risque|monetary}}</th>
+                            <th>{{item.allocation_conge|monetary}}</th>
+                            <th>{{item.prim_astrinte|monetary}}</th>
+                            <th>{{item.prim_paie|monetary}}</th>
+                            <th>{{item.sal_brut|monetary}}</th>
+                            <th>{{item.cnss|monetary}}</th>
+                            <th>{{item.ac_irpp|monetary}}</th>
+                            <th>{{item.prel_mutuel|monetary}}</th>
+                            <th>{{item.prim_rep|monetary}}</th>
+                            <th>{{item.indemn_trans|monetary}}</th>
+                            <th>{{item.cplt_indemn_trans|monetary}}</th>
+                            <th>{{item.pret|monetary}}</th>
+                            <th>{{item.net_a_payer|monetary}}</th>
+                        </tr>
+                        {% endfor %}
+
+                    </table>
+                    <br>
+                    <br>
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

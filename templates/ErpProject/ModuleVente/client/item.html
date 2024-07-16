@@ -1,0 +1,234 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %} {%load static %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_tableau_de_bord' %}">Module Vente</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_clients' %}">Liste des Clients</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_vente_add_client" url_detail="module_vente_details_client" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row">
+    <div class="col-md-2">
+        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_update_client' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+            Modifier
+        </button>
+    </div>
+    <div class="col-md-2">
+        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_list_clients' %}')" class="theme-btn theme-btn-sm rounded">
+            Annuler
+        </button>
+    </div>
+    <div class="col-md-2">
+        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_add_client' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+           Créer
+        </button>
+    </div>
+</div>
+
+<hr class="hr-ligne">
+<!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<br>
+
+
+<div class="row item-content" style="margin-top: 10px">
+    <p class="header shadow" style="height: 100px; width: 100px;">
+        {% if model.image != None and model.image != "" %}
+        <img src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/"> {% else %}
+        <img src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/"> {% endif %}
+    </p>
+    <p class="header">{{ model.nom_complet }}</p>
+    <p class="minor-header fg-gray">
+        <div class="row">
+            <div class="col-md-6">
+                {% if model.est_particulier %} Particulier
+                {% else %} Entreprise {% endif %}
+                <br>
+                <br>
+                Adresse complète :
+                <br>
+                <span class="sub-alt-header fg-dark">{{ model.adresse_complete }}</span>
+                <br>
+                <br> Adresse email :
+                <br> {% if model.email != None and model.email != "" %}
+                <a href="mailto:{{ model.email }}" target="blank" class="sub-alt-header lien chargement-au-click">{{ model.email }}</a> {% else %}
+                <span class="sub-alt-header lien chargement-au-click">-</span> {% endif %}
+                <br>
+                <br> Numéro de téléphone :
+                <br> {% if model.phone != None and model.phone != "" %}
+                <span class="sub-alt-header fg-dark">{{ model.phone }}</span> {% else %}
+                <span class="sub-alt-header lien chargement-au-click">-</span> {% endif %}
+            </div>
+            <div class="col-md-6">
+                Compte Bancaire :
+                <br>
+                <span class="sub-alt-header fg-dark">{{ model.numero_compte_b }}</span>
+                <br>
+                NUI :
+                <br>
+                <span class="sub-alt-header fg-dark">{{ model.nui }}</span>
+                <br>
+                Personne Contact :
+                <br>
+                <span class="sub-alt-header fg-dark">{{ model.personne_contact }}</span>
+                <br>
+                BP :
+                <br>
+                <span class="sub-alt-header fg-dark">{{ model.bp }}</span>
+                <br>
+                Mode Règlement :
+                <br>
+                <span class="sub-alt-header fg-dark">{{ model.mode_reglement }}</span>
+                <br>
+            </div>
+        </div>
+
+
+
+        <br>
+
+        <br><br><br>
+        <center><span class="sub-alt-header fg-dark">SUIVI DU CLIENT</span></center>
+        <hr class="hr-ligne">
+        <br><br>
+
+
+        <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="width: 20px; background-color:#2e416a; white"></th>
+                        <th>Numéro</th>
+                        <th>Date de facturation</th>
+                        <th>Date d'échéance</th>
+                        <th>Total</th>
+                        <th>A payer</th>
+                        <th>Etat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in factures %}
+                        <tr>
+                            <td>
+                                <label class="small-check">
+                                    <input type="checkbox">
+                                    <span class="check"></span>
+                                </label>
+                            </td>
+                            <td>
+                                <a class="lien chargement-au-click" href="{% url 'module_comptabilite_details_facture_client' item.id %}">{{ item.numero_facture }}</a>
+                            </td>
+                            <td> {{ item.date_facturation|date:"d/m/Y" }} </td>
+                            <td> {{ item.date_echeance|date:"d/m/Y" }} </td>
+                            <td> {{ item.montant }} {{ item.bon_reception.devise.symbole_devise }}</td>
+                            <td> {{ item.montant_restant }} {{ item.bon_reception.devise.symbole_devise }}</td>
+                            <td> {{ item.etat_facture }} </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+    </p>
+</div>
+<script>
+    function supprimer() {
+        var id = '{{model.id}}'
+        //-------deux variables pour la suppression---------------------------------
+        var modele = "Model_Client"
+        var the_url = "module_vente_list_clients"
+        // url de suppression ------------------------------------------------------
+        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+        url = url.replace('100', id);
+        url = url.replace('nom_modele', modele);
+        url = url.replace('url_retour', the_url);
+        document.location.href = url;
+
+
+    }
+    $('#supprimer').on('click', function () {
+
+
+        Swal.fire({
+            title: 'Etes vous sure?',
+            text: "De vouloir supprimer cette item!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer();
+                Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+
+</script>
+<script>
+    //Script du droit supprimer
+    var lesactions = new Array();
+    var booleen = false;
+    {% for action in actions %}
+    lesactions.push({ droit: "{{ action.droit }}" });
+    {% endfor %}
+
+    $(document).ready(function () {
+
+        // Initialisation des sous-menus
+        $("#supprimer").hide();
+
+        for (var i = 1; i < lesactions.length; i++) {
+            act = lesactions[i];
+            if (act.droit === "CREER_RAPPORT") {
+                booleen = true;
+            }
+        }
+
+        if (booleen) {
+            $("#supprimer").show();
+        }
+    });
+</script>
+
+
+<script>
+        $(document).ready(function() {
+            $('#example').DataTable( {
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'copyHtml5',
+                        text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                        titleAttr: "Copier"
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                        titleAttr: "Exporter en excel"
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                        titleAttr: "Exporter en csv"
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                        titleAttr: "Exporter en pdf"
+                    },
+                    //'copyHtml5',
+                    //'excelHtml5',
+                    //'csvHtml5',
+                    //'pdfHtml5'
+                ]
+            } );
+        } );
+    </script>
+{% endblock %}

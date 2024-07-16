@@ -1,0 +1,632 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %} {%load static %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_vente_tableau_de_bord' %}">Module Vente</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_clients' %}">Liste des Clients</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_details_client' model.id %}">{{ model.nom_complet}}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row" style="padding-top: 30px;">
+                <div class="col-lg-12">
+                    <h2>{{title}}</h2>
+                <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+                    <dir class="separ" style="background-color: grey;opacity: 0.2"></dir>
+                       <div class="panel panel-default" style="border: none;">
+
+                        <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                            <div class="row">
+                                <div class="col-md-2">
+                                    {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+                                </div>
+                                <div class="col-md-2">
+                                    <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_list_clients' %}')" class="theme-btn theme-btn-sm rounded">
+                                        Annuler
+                                    </button>
+                                </div>
+                            </div>
+
+
+                <!-- DIALOG POUR CAPTURE OU SELECTION PHOTO -->
+                <div data-role="dialog" data-close-button="true" data-place="top-center" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialog">
+                    <div id="dialog-buttons" class="row cells3 padding20" style="margin-top: 10px">
+                        <div class="cells2">
+                            <hr style="background-color: #f7f5f5;">
+                            <div class="row cell">
+                                <button onclick="openCapture()" class="button small-button rounded danger" type="submit"><span class="mif-camera"></span> Prendre une photo</button>
+                                <button class="button small-button rounded warning" onclick="selectImage('#dialog')" style="margin-left: 5px"><span class="mif-image"></span> Sélectionner une image</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="capture-content" class="row padding20" style="margin-top: 10px; display: none;">
+                        <div class="cells3">
+                            <div id="my_camera"></div>
+                            <div id="results"></div>
+                            <hr style="background-color: #f7f5f5;">
+                            <div class="row cell">
+                                <button id="btn-active-camera" class="button small-button rounded danger" onClick="configure()">Activer camera</button>
+                                <button id="btn-take-camera" class="button small-button rounded warning" onClick="take_snapshot()">Prendre la photo</button>
+                                <button id="btn-save-camera" class="button small-button rounded info" onClick="saveSnap()">Enregistrer</button>
+                                <button id="btn-cancel-camera" class="button small-button rounded" onClick="closeCapture()">Annuler</button>
+                            </div>
+                            <hr style="background-color: #f7f5f5;">
+                        </div>
+                    </div>
+                </div>
+                <!-- FIN DIALOG POUR CAPTURE OU SELECTION PHOTO -->
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+
+                <div class="row cells12" style="margin-top: 10px">
+
+                    <form id="form" method="POST" action="{% url 'module_vente_post_update_client' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+                        <input type="hidden" name="ref" value="{{model.id}}" >
+
+                        <div class="row">
+                            <label class="input-control radio small-check">
+                            <input id="est_particulier"  value="1" name="est_particulier" {% if model.est_particulier %} checked {% endif %} type="radio">
+                            <span class="check"></span>
+                            <span class="caption">Particulier</span>
+                        </label>
+                            <label class="input-control radio small-check" style="margin-left: 15px">
+                            <input id="est_entreprise" value="2" {% if not model.est_particulier %} checked {% endif %} name="est_particulier" type="radio">
+                            <span class="check"></span>
+                            <span class="caption">Entreprise</span>
+                        </label>
+                        </div>
+
+                        <div class="row">
+                            <input id="image_upload" name="image_upload" type="file" accept="image/*" style="display:none;">
+                            <!-- NOUVEL INPUT CONTENANT L'IMAGE EN BASE64-->
+                            <input id="image_upload_string" name="image_upload_string" type="hidden">
+                            <div class="tile-container">
+                                <a onclick="selectChoice('#dialog')" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+                                    <div class="tile-content slide-up">
+                                        <div class="slide">
+                                            <img id="image_preview" src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                        </div>
+                                        <div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+                                            <span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Nom</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="nom_complet" value="{{model.nom_complet}}" type="text" data-validate-func="required" data-validate-hint="Entrez le nom du fournisseur !">
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Pays</label>
+                                <div class="input-control select full-size" data-role="input">
+                                    <select onchange="choix_pays()" id="choixPays">
+                                        <!--option value="{{ model.adresse }}"> {{ model.adresse }} </option-->
+                                        <option value="">Sélectionnez un pays</option>
+                                        {% for item in pays %}
+                                        <option {% if le_pays.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }}</option>
+                                         {% endfor %}
+
+                                </select>
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+                                <div class="col-md-6">
+                                    <label>Département</label>
+                                <div class="input-control select full-size" data-role="input">
+                                    <select onchange="choix_province()" id="choixProvince">
+                                    <option value="">Sélectionnez un département</option>
+                                    {% for item in provinces %}
+                                        <option {% if la_province.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }}</option>
+                                    {% endfor %}
+
+                                </select>
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+                        <div class="col-md-6">
+                            <label>Ville</label>
+                                <div class="input-control select full-size" data-role="input">
+                                    <select onchange="choix_ville()" id="choixVille">
+                                    <option value="">Sélectionnez une ville</option>
+                                    {% for item in villes %}
+                                        <option {% if la_ville.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }}</option>
+                                    {% endfor %}
+                                </select>
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Arrondissement</label>
+                                <div class="input-control select full-size" data-role="input">
+                                    <select name="commune_quartier_id" id="choixCommune">
+                                    <option value="">Sélectionnez un arrondissement</option>
+                                    {% for item in communes %}
+                                        <option {% if la_commune.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }}</option>
+                                    {% endfor %}
+                                </select>
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Adresse</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="adresse" type="text" value="{{ model.adresse }}" placeholder="Rue...">
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                    <label>Téléphone</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="phone" value="{{model.phone}}" type="text">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Courriel</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="email" value="{{ model.email }}" type="email" data-validate-func="email" data-validate-hint="Entrez une adresse email valide !">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+
+                        </div>
+
+                        <div id="more" style="display: none">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Langue</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="langue" value="{{ model.langue }}" type="text">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Compte comptable</label>
+                                    <div class="input-control select full-size" data-role="input">
+                                        <select name="compte_id">
+                                            <option value="">Sélectionnez un compte comptable</option>
+                                            {% for item in comptes %}
+                                                <option {% if model.compte_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item }}</option>
+                                            {% endfor %}
+                                                </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" id="div_particulier">
+                                <div class="col-md-6">
+                                    <label>Compte Bancaire</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="compteB" value="{{ model.numero_compte_b}}" type="text">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Civilité</label>
+                                    <div class="input-control select full-size" data-role="input">
+                                        <select name="civilite_id">
+                                            <option value="">Sélectionnez une civilite</option>
+                                            {% for item in civilites %}
+                                                <option value="{{ item.id }}"> {{ item.designation }}</option>
+                                            {% endfor %}
+                                                </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                      <label>Date de naissance</label>
+                                      <div class="input-control text full-size"  data-format="yyyy-mm-dd" data-role="datepicker" data-locale="fr">
+                                          <input readonly type="text" name="date_naissance" readonly value="{{model.date_de_naissance}}"
+                                              data-validate-func="required"
+                                              data-validate-hint="Précisez la date de naissance svp.">
+                                          <div class="button"><span class="mif-calendar"></span></div>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label>Lieu de naissance</label>
+                                      <div class="input-control text full-size" data-role="input">
+                                          <input name="lieu_naissance" type="text" value="{{model.lieu_de_naissance}}">
+                                          <span class="input-state-error mif-warning"></span>
+                                          <span class="input-state-success mif-checkmark"></span>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-6">
+                                    <label>Personne à contacter</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="personne_contact" value="{{model.personne_contact}}" type="text">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>NUI</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="nui" type="text" value="{{model.nui}}" >
+                                                <span class="input-state-error mif-warning"></span>
+                                                <span class="input-state-success mif-checkmark"></span>
+                                        </div>
+                                    </div>
+                                    <!--  -->
+                                    <div class="col-md-6">
+                                        <label>Boite Postal</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="bp"  value="{{model.bp}}"  type="text">
+                                            <span class="input-state-error mif-warning"></span>
+                                            <span class="input-state-success mif-checkmark"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Raison Sociale</label>
+                                        <div class="input-control select full-size" data-role="input">
+                                            <div class="input-control text full-size" data-role="input">
+                                                <input name="raison_soc" value="{{model.raison_sociale}}"  type="text">
+                                                <span class="input-state-error mif-warning"></span>
+                                                <span class="input-state-success mif-checkmark"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Fax</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="fax" value="{{model.fax}}" type="text">
+                                            <span class="input-state-error mif-warning"></span>
+                                            <span class="input-state-success mif-checkmark"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                            <label>Mode de règlement</label>
+                                            <div class="input-control select full-size" data-role="input">
+                                                <select name="reglement">
+                                                    <option value="">Sélectionnez la modalité de réglèment</option>
+                                                    {% for item in conditions_reglement %}
+                                                        <option {% if item.id == model.mode_reglement.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Genre</label>
+                                        <div class="input-control select full-size" data-role="input">
+                                            <select name="sexe">
+                                                <option value="">Sélectionnez votre genre</option>
+                                                <option {% if model.sexe == "M" %}{{ "selected" }}{% endif %} value="M">Masculin</option>
+                                                <option {% if model.sexe == "F" %}{{ "selected" }}{% endif %} value="F">Feminin</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Dénomination fiscale</label>
+                                        <div class="input-control select full-size" data-role="input">
+                                            <div class="input-control text full-size" data-role="input">
+                                                <input name="fiscal" value="{{model.fiscale}}"  type="text">
+                                                <span class="input-state-error mif-warning"></span>
+                                                <span class="input-state-success mif-checkmark"></span>
+                                            </div>
+                                        </div>
+                                   </div>
+                                   <div class="col-md-6">
+                                    <label>Autres informations</label>
+                                    <div class="input-control select full-size" data-role="input">
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="autre_info" value="{{model.autre_info}}" type="text">
+                                            <span class="input-state-error mif-warning"></span>
+                                            <span class="input-state-success mif-checkmark"></span>
+                                        </div>
+                                    </div>
+                                    </div>
+                              </div>
+                              <div class="row" id="div_entreprise">
+                                <div class="col-md-6">
+                                      <label>Date de création</label>
+                                      <div class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                          <input readonly type="text" name="date_creation" readonly value="{{model.date_de_naissance}}"
+                                              data-validate-func="required"
+                                              data-validate-hint="Précisez la date de naissance svp.">
+                                          <div class="button"><span class="mif-calendar"></span></div>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-6">
+                                      <label>Siège principal</label>
+                                      <div class="input-control text full-size" data-role="input" >
+                                          <input name="siege" type="text" value="{{model.lieu_de_naissance}}">
+                                          <span class="input-state-error mif-warning"></span>
+                                          <span class="input-state-success mif-checkmark"></span>
+                                      </div>
+                                  </div>
+                              </div>
+
+                        </div>
+                        <div class="cell colspan5">
+                            <button id="btnMore" class="button link" type="button">Plus d'information</button>
+                            <button id="btnLess" class="button link" type="button" style="display: none">Moins d'information</button>
+                            <script>
+                                $("#btnMore").on("click", function() {
+                                    $("#more").css("display", "block");
+                                    $("#btnLess").css("display", "block");
+                                    $("#btnMore").css("display", "none");
+                                });
+                                $("#btnLess").on("click", function() {
+                                    $("#more").css("display", "none");
+                                    $("#btnMore").css("display", "block");
+                                    $("#btnLess").css("display", "none");
+                                });
+                            </script>
+                        </div>
+                    </form>
+
+                </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+
+
+<!-- JS POUR CAPTURE ET SELECTION D'UNE IMAGE -->
+<script type="text/javascript" src="{% static 'ErpProject/js/webcam.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        var resultType = "{{ model.est_particulier }}"
+        if(resultType == "True"){
+            $("#div_particulier").show();
+            $("#div_entreprise").hide();
+        }else{
+            $("#div_particulier").hide();
+            $("#div_entreprise").show();
+        }
+
+  });
+
+   $("#est_particulier").on('click', function (event) {
+       $("#div_particulier").show();
+       $("#div_entreprise").hide();
+       });
+       $("#est_entreprise").on('click', function (event) {
+           $("#div_particulier").hide();
+           $("#div_entreprise").show();
+       });
+</script>
+
+<script type="text/javascript">
+    // Configure a few settings and attach camera
+    function configure() {
+        $('#my_camera').css('display', 'block');
+        $('#results').css('display', 'none');
+        Webcam.set({
+            width: 320,
+            height: 240,
+            image_format: 'jpeg',
+            jpeg_quality: 90
+        });
+        Webcam.attach('#my_camera');
+        $("#btn-active-camera").prop('disabled', true);
+        $("#btn-take-camera").prop('disabled', false);
+        $("#btn-save-camera").prop('disabled', true);
+    }
+    // A button for taking snaps
+    function take_snapshot() {
+        $('#my_camera').css('display', 'none');
+        $('#results').css('display', 'block');
+        // take snapshot and get image data
+        Webcam.snap(function(data_uri) {
+            // display results in page
+            document.getElementById('results').innerHTML =
+                '<img id="imageprev" src="' + data_uri + '"/>';
+
+        });
+        Webcam.reset();
+        $("#btn-active-camera").prop('disabled', false);
+        $("#btn-take-camera").prop('disabled', true);
+        $("#btn-save-camera").prop('disabled', false);
+    }
+
+    function saveSnap() {
+        // Get base64 value from <img id='imageprev'> source
+        var base64image = document.getElementById("imageprev").src;
+        $('#image_preview').attr('src', base64image);
+        compresserImage(base64image);
+        closeCapture();
+        var dialog = $('#dialog').data('dialog');
+        dialog.close();
+        $("#btn-active-camera").prop('disabled', false);
+        $("#btn-take-camera").prop('disabled', true);
+        $("#btn-save-camera").prop('disabled', true);
+    }
+
+    function compresserImage(file) {
+        var img = document.createElement('img');
+        var newImageData = "";
+        var compress = 0.7;
+        //COMPRESS WHEN FILE SIZE IS MORE THAN 1 Mo
+        if (file.size > 1048576) {
+            compress = 0.3;
+        }
+        img.src = file;
+
+        img.onload = function() {
+            console.log("START ONLOAD");
+            var canvas = document.createElement('canvas');
+            canvas.width = this.naturalWidth;
+            canvas.height = this.naturalHeight;
+
+            var context = canvas.getContext("2d").drawImage(this, 0, 0);
+            newImageData = canvas.toDataURL("image/jpeg", compress);
+            console.log(newImageData);
+            document.getElementById('image_upload_string').value = newImageData;
+            //$('#image_upload_string').val("UN TEXT");
+        }
+    }
+
+    function selectChoice(id) {
+        var dialog = $(id).data('dialog');
+        dialog.open();
+    }
+
+    function openCapture() {
+        $('#capture-content').css('display', 'block');
+        $('#dialog-buttons').css('display', 'none');
+        $("#btn-active-camera").prop('disabled', false);
+        $("#btn-take-camera").prop('disabled', true);
+        $("#btn-save-camera").prop('disabled', true);
+    }
+
+    function closeCapture() {
+        $('#my_camera').css('display', 'none');
+        $('#results').css('display', 'none');
+        $('#capture-content').css('display', 'none');
+        $('#dialog-buttons').css('display', 'block');
+        $("#btn-active-camera").prop('disabled', false);
+        $("#btn-take-camera").prop('disabled', true);
+        $("#btn-save-camera").prop('disabled', true);
+    }
+
+    function selectImage(id) {
+        var dialog = $(id).data('dialog');
+        dialog.close();
+        $('input[id=image_upload]').click();
+    }
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#image_preview').attr('src', e.target.result);
+                compresserImage(e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+
+        }
+    }
+
+    $("#image_upload").change(function() {
+        readURL(this);
+    });
+</script>
+<!-- FIN JS POUR CAPTURE ET SELECTION D'UNE IMAGE -->
+
+<script>
+    function choix_pays() {
+        var idPays = $("#choixPays").val();
+
+        if (idPays != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'backoffice_list_places_filles' %}", {
+                    ref: idPays
+                },
+                function(response) {
+                    $("#choixProvince").children().remove();
+                    $("#choixProvince").append("<option value='0'>Sélectionnez le département</option>");
+                    console.log(response);
+                    for (var i = 0; i < response.length; i++) {
+                        var laProvince = response[i];
+
+                        var option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                        $("#choixProvince").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else supprimer_provinces();
+    }
+
+    function choix_province() {
+        var idProvince = $("#choixProvince").val();
+
+        if (idProvince != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'backoffice_list_places_filles' %}", {
+                    ref: idProvince
+                },
+                function(response) {
+                    $("#choixVille").children().remove();
+                    $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laVille = response[i];
+
+                        var option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                        $("#choixVille").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else supprimer_villes();
+    }
+
+    function choix_ville() {
+        var idVille = $("#choixVille").val();
+
+        if (idVille != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'backoffice_list_places_filles' %}", {
+                    ref: idVille
+                },
+                function(response) {
+                    $("#choixCommune").children().remove();
+                    $("#choixCommune").append("<option value='0'>Sélectionnez l'arrondissement</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laCommune = response[i];
+
+                        var option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                        $("#choixCommune").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else supprimer_communes();
+    }
+
+    function supprimer_communes() {
+        $("#choixCommune").children().remove();
+        $("#choixCommune").append("<option value='0'>Sélectionnez l'arrondissement</option>");
+    }
+
+    function supprimer_villes() {
+        $("#choixVille").children().remove();
+        $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+        supprimer_communes();
+    }
+
+    function supprimer_provinces() {
+        $("#choixProvince").children().remove();
+        $("#choixProvince").append("<option value='0'>Sélectionnez la ville</option>");
+        supprimer_villes();
+    }
+</script>
+{% endblock %}

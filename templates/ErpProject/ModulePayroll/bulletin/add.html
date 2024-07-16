@@ -1,0 +1,328 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+	<div class="row">
+		<ul class="breadcrumb">
+			<li><a><span class="mif-home"></span></a></li>
+			<li><a class="leaf" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_payroll_list_bulletin' %}">Liste des Bulletins</a></li>
+			<li>{{ title }}</li>
+		</ul>
+	</div>
+	<div class="row">
+		<div class="col-lg-12">
+			<h3>{{ title }}</h3>
+			<strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+			<div class="separ" style="background-color: grey;opacity: 0.2"></div>
+			<div class="panel panel-default" style="border: none;">
+				<div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+					<div class="row">
+						<button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+							Valider
+						</button>
+						<button onclick="javascript:window.location.assign('{% url 'module_payroll_list_bulletin' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="width: 20%;margin-left: 5px">Annuler</button>
+					</div>
+
+					<hr class="hr-ligne">
+					<!-- Appel de la fonction message -->
+						{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+					<br><br>
+					<form id="form" method="POST" action="{% url 'module_payroll_post_add_bulletin' %}"
+						data-role="validator" 
+						data-show-required-state="false"
+						data-hint-mode="line"
+						data-hint-background="bg-red"
+						data-hint-color="fg-white"
+						data-hide-error="5000"
+						novalidate="novalidate"
+						data-on-error-input="notifyOnErrorInput"
+						data-show-error-hint="false">
+						{% csrf_token %}
+						<input id="submit" type="submit" style="display: none">
+
+						<div class="row">
+							<div class="col-md-6">
+								<label>Employé</label>
+								<div class="input-control text full-size">
+									<select name="employe_id" id="employe_id" 
+										data-validate-func="min" 
+										data-validate-arg="1"
+										data-validate-hint="Sélectionnez un employé svp.">
+										<option value="0">Sélectionnez un employé</option>
+											{% for item in employes %}
+												<option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+							<div class="col-md-6">
+								<label>Lot de bulletins</label>
+								<div class="input-control text full-size">
+									<select name="lot_id" id="lot_id" 
+										data-validate-func="min" 
+										data-validate-arg="1"
+										data-validate-hint="Sélectionnez un lot de bulletin svp.">
+										<option value="0">Sélectionnez un lot</option>
+										{% for item in lots %}
+											<option value="{{ item.id }}"> {{ item.designation }} </option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-6">
+								<label>Désignation</label>
+								<div class="input-control text full-size" data-role="input">
+									<input name="designation" id="designation_bulletin" type="text" autocomplete="off"
+										data-validate-func="required" 
+										data-validate-hint="Entrez la désignation du poste!">
+									<span class="input-state-error mif-warning"></span>
+									<span class="input-state-success mif-checkmark"></span>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<label>Référence</label>
+								<div class="input-control text full-size">
+									<input type="text" name="reference" id="reference_bulletin" autocomplete="off" />
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-6">
+								<label>Période</label>
+								<div class="input-control text full-size">
+									<input type="text" name="periode" autocomplete="off" />
+								</div>
+							</div>
+							<div class="col-md-6">
+								<label>Devise</label>
+									<div class="input-control text full-size">
+									<select name="devise_id" id="devise_id"
+										data-validate-func="min" 
+										data-validate-arg="1"
+										data-validate-hint="Sélectionnez la devise svp.">
+										<option value="0">Sélectionnez une devise</option>
+										{% for item in devises %}
+											<option value="{{ item.id }}"> {{ item.designation }} </option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+						</div>
+						
+						<br/>
+
+						<div class="row" style="margin-top: 20px">
+							<div class="tabcontrol2" data-role="tabcontrol">
+								<ul class="tabs">
+									<!--li class="active"><a href="#frame_a_payer">A payer</a></li>
+									<li class=""><a href="#frame_a_retenir">A retenir</a></li-->
+									<li class="active"><a href="#frame_regles">Règles salariales</a></li>
+									<li class=""><a href="#frame_comptabilite">Comptabilité</a></li>
+								</ul>
+								<div class="frames">
+									<div class="frame" id="frame_regles" style="display: block;">
+										<table class="table no-margin">
+											<thead class="no-border">
+												<tr class="primary_color_{{module.name|lower}}">
+													<th width="30%">Règle</th>
+													<th width="15%">Temps</th>
+													<th width="25%">Taux</th>
+													<th width="25%">Montant</th>
+													<th width="5%"></th>
+												</tr>
+											</thead>
+											<tbody id="items">
+												<tr id="ligne1">
+													<td class="no-padding-top no-padding-left no-padding-bottom">
+														<input id="id1" type="hidden" value="0" />
+														<div class="input-control select full-size">
+															<select onchange="selectChangeRegle(event)" name="regle_id" id="regle1">
+																<option value="0">Sélectionnez une règle salariale</option>
+																{% for item in regles_salariales %}
+																	<option data-ligne="1" data-categorie="{{ item.categorie }}" data-type="{{ item.type_element }}" data-montant="{{ item.montant }}" value="{{ item.id }}">{{ item.designation }}</option>
+																{% endfor %}
+															</select>
+														</div>
+													</td>
+													<td class="no-padding-top no-padding-bottom">
+														<div class="input-control text full-size">
+															<input onchange="inputChange(event)" data-ligne="1" id="temps1" name="temps" type="text" placeholder="Ex: 10">
+														</div>
+													</td>
+													<td class="no-padding-top no-padding-bottom">
+														<div class="input-control text full-size">
+															<input onchange="inputChange(event)" data-ligne="1" id="taux1" name="taux" type="text" placeholder="Ex: 100">
+															<span class="prepend-icon" style="margin-left:75%">
+																<span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole_devise }}</span>
+															</span>
+														</div>
+													</td>
+													<td class="no-padding-top no-padding-bottom">
+														<div class="input-control text full-size">
+															<input class="monetary" id="montant1" name="montant" type="text" placeholder="Ex: 100">
+															<span class="prepend-icon" style="margin-left:75%">
+																<span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole_devise }}</span>
+															</span>
+														</div>
+													</td>
+													<td class="no-padding-top no-padding-bottom">
+														<div class="pagination no-border">
+															<span class="item" title="Supprimer la règle" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+														</div>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+										<div class="row margin10 no-margin-left no-margin-right">
+											<button type="button" class="button rounded" id="btnAjouterLigne">Ajouter une règle</button>
+										</div>
+									</div>
+
+									<div class="frame" id="frame_comptabilite" style="display: none;">
+										<div class="row cells3">
+											<div class="cell">
+												<div class="row">
+													<label>Comptabilité</label><br>
+													<label class="input-control checkbox small-check full-size" >
+														<input value="1" name="est_comptabilisable" id="est_comptabilisable" type="checkbox">
+														<span class="check"></span>
+														<span class="caption">Établir l'ordre de paiement</span>
+													</label>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>				
+					</form>
+        		</div>        
+    		</div>
+		</div>
+	</div>
+	<script>
+		var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+		
+		var deviseRef = "$";   
+        var lesDevises = new Array();
+		var lesRegleSalariales = new Array();
+
+        {% for item in devises %}
+            lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+        {% endfor %}
+		
+		{% for item in regles_salariales %}
+            lesRegleSalariales.push({id:"{{ item.id }}", designation:"{{ item.designation }}", type_element:"{{ item.type_element }}", categorie_element:"{{ item.categorie }}", montant:"{{ item.montant }}"});
+        {% endfor %}
+
+		
+        $(document).ready(function(){		
+			$("#devise_id").change(function() {			  
+				var id_devise = $("#devise_id").val();
+				if(id_devise == "0") deviseRef = "$";
+				else
+				{
+					for(var i = 0; i < lesDevises.length; i++)
+					{
+						var devise = lesDevises[i];
+						if(devise.id == id_devise)
+						{
+							deviseRef = devise.symbole_devise;
+							$(".devise").text(deviseRef);
+							break;
+						}
+					}
+				}			  
+			});
+			
+			$("#btnAjouterLigne").on("click", function () {
+				nombreLignes++;
+				compteur++;
+				var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+				nouvelleLigne += '<input id="id' + compteur + '" type="hidden" value="0" />';
+				nouvelleLigne += '<div class="input-control select full-size"> <select onchange="selectChangeRegle(event)" name="regle_id" id="regle' + compteur + '"><option value="0">Sélectionnez une règle salariale</option>';
+				nouvelleLigne += renvoyerRegleSalariales(compteur);
+				nouvelleLigne += '</select></div></td>';
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input onchange="inputChangeRegle(event)" data-ligne="' + compteur + '" id="temps' + compteur + '" name="temps" type="text" placeholder="Ex: 0.10"></div></td>';								
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input onchange="inputChangeRegle(event)" data-ligne="' + compteur + '"  id="taux' + compteur + '" name="taux" type="text" autocomplete="off" placeholder="Ex: 0" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le taux svp"><span class="prepend-icon" style="margin-left:75%"><span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span></div></td>';																									
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input class="monetary"  id="montant' + compteur + '" name="montant" type="text" autocomplete="off" placeholder="Ex: 43680" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le montant à payer svp"><span class="prepend-icon" style="margin-left:75%"> <span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span></div></td>';								
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border"><span class="item" title="Supprimer l\'élément" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span></div></td></tr>';		
+				$("#items").append(nouvelleLigne);
+			});	
+		});
+		
+		function selectChangeRegle(event)
+        {
+            $select = $(event.target); 
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 5) == "regle")
+            {
+                //ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+				var ligneActuelle = $( "#" + id_element + " option:selected" ).data("ligne");
+				console.log("Ligne Actuelle : " + ligneActuelle);
+
+				var typeActuelle = $( "#" + id_element + " option:selected" ).data("type");
+				console.log("Type Actuelle : " + typeActuelle);
+
+				var montantActuelle = $( "#" + id_element + " option:selected" ).data("montant");
+				console.log("Montant Actuelle : " + montantActuelle);
+				
+                if($("#" + id_element).val() != "0")
+                {
+                    nombreItems += 1;
+                    $("#temps" + ligneActuelle).val("1");
+					$("#taux" + ligneActuelle).val(montantActuelle);
+					$("#montant" + ligneActuelle).val(montantActuelle);
+					
+                }
+                else nombreItems -= 1;
+            }
+        }
+		
+		function inputChangeRegle(event)
+        {
+            $input = $(event.target); 
+            var id_element = $input[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+			var ligneActuelle = $( "#" + id_element ).data("ligne");
+			console.log("Ligne Actuelle : " + ligneActuelle);
+			var temps = parseFloat($("#temps" + ligneActuelle).val());
+			console.log("Temps : " + temps);
+			var taux = parseFloat($("#taux" + ligneActuelle).val()).toFixed(2);
+			console.log("Taux : " + taux);
+			
+            if(!isNaN(temps) && !isNaN(taux))
+            {
+                console.log("Is Float ");
+				var montantActuelle = temps * taux ;
+				montantActuelle = parseFloat(montantActuelle).toFixed(2)
+				$("#montant" + ligneActuelle).val(montantActuelle);
+            }
+        }
+		
+        function supprimerLigne(indice) {
+            nombreLignes--;           
+            $("#ligne" + indice).remove();
+        }
+		
+		function renvoyerRegleSalariales(compteur)
+        {
+			var ligne = "";
+            for(var i = 0; i < lesRegleSalariales.length; i++)
+            {
+                var regle = lesRegleSalariales[i];
+				ligne += '<option data-ligne="' + compteur + '" data-categorie="' + regle.categorie + '" data-type="' + regle.type_element + '" data-montant="' + regle.montant + '" value="' + regle.id + '">' + regle.designation + '</option>';
+            }
+            return ligne;
+        }
+		
+	</script>
+{% endblock %}

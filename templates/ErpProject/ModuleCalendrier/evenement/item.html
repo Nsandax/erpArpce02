@@ -1,0 +1,402 @@
+{% extends "ErpProject/ModuleCalendrier/shared/layout.html" %}{% block page %}
+   <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_calendrier_list_evenement' %}">Module Calendrier</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_calendrier_list_evenement' %}">Liste des évènements</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:window.location.assign('{% url 'module_calendrier_update_evenement' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button> 
+        <button onclick="javascript:window.location.assign('{% url 'module_calendrier_list_evenement' %})" class="theme-btn theme-btn-sm rounded chargement-au-click">Annuler</button>
+        <button id="supprimer" class="theme-btn theme-btn-sm rounded danger chargement-au-click" style="margin-left: 5px">Supprimer</button>
+    </div>
+    {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_calendrier_add_evenement" url_detail="module_calendrier_details_evenement" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    <label>Titre de l'évènement :</label><br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    <label>Type d'evenement:</label><br>
+                    <span class="sub-alt-header fg-dark"> {{ model.type_evenement }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    <label>Lieu :</label><br>
+                    <span class="sub-alt-header fg-dark"> {{ model.local }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    <label>Rappels :</label><br>
+                    {% for item in rappels %}
+                        <span class="sub-alt-header badge badge-light"> {{ item.designation }} </span><br>
+                    {% endfor %}                     
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    <label>Description :</label><br>
+                    <span class="sub-alt-header fg-dark"> {{ model.description }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="tabcontrol2" data-role="tabcontrol">
+                <ul class="tabs">
+                    <li class="active"><a href="#frame_option">Options</a></li>
+                    <li class=""><a href="#frame_invitations">Invitations</a></li>
+                    <li class=""><a href="#frame_autres">Autres informations</a></li>
+                </ul>
+                <div class="frames">
+                    <div class="frame" id="frame_option" style="display: block;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div id="div_date_heure_debut" class="col-md-12">
+                                        <label>Date début</label>
+                                        <div class="row">
+                                            <div id="div_date_debut" class="col-md-6">
+                                                <p class="fg-gray">
+                                                    <span class="sub-alt-header fg-dark"> {{ model.date_debut|date:'d/m/Y' }}</span>
+                                                </p>
+                                            </div>
+                                            <div id="div_heure_debut" class="col-md-6">
+                                                <p class="fg-gray">
+                                                    <span class="sub-alt-header fg-dark"> {{ model.date_debut|date:'H:i' }}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="div_date_fin" class="col-md-12">
+                                        <label>Date fin</label>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="fg-gray">
+                                                    <span class="sub-alt-header fg-dark"> {{ model.date_fin|date:'d/m/Y' }}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="div_duree" class="col-md-12">
+                                        <p class="fg-gray">
+                                            <label>Durée (en heure) :</label><br>
+                                            <span class="sub-alt-header fg-dark"> {{ model.duree }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="input-control checkbox small-check full-size">
+                                            <input name="journee" id="journee"  {% if model.journee is True %}{{ "checked" }}{% endif %}  type="checkbox" disabled="disabled">
+                                            <span class="check"></span>
+                                            <span class="caption">Toute la journée</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>  
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label class="input-control checkbox small-check full-size">
+                                            <input name="est_recurrent" id="est_recurrent"  {% if model.est_recurrent is True %}{{ "checked" }}{% endif %}  type="checkbox" disabled="disabled">
+                                            <span class="check"></span>
+                                            <span class="caption">Est récurrent</span>
+                                        </label>
+                                    </div>
+                                    <div id="div_est_recurrent">
+                                        <div class="col-md-12">
+                                            <label>Répéter tous les</label>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ model.interval_recurrent }}</span>
+                                                    </p>
+                                                </div>
+                                                <div  class="col-md-6">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ model.value_type_recurrent }}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label>Jusqu'à</label>
+                                            <div class="row">
+                                                <div  class="col-md-6">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ model.value_type_fin_recurrent }}</span>
+                                                    </p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p id="div_compte_recurrent" class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ model.compte_recurrent }}</span>
+                                                    </p>
+                                                    <p id="div_date_fin_recurrent" class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ model.date_fin_recurrent|date:'d/m/Y' }}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12" id="div_jour_du_mois">
+                                            <label>Jour du mois</label>
+                                            <div class="row">
+                                                <div  id="div_par_mois" class="col-md-6">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ model.value_par_mois }}</span>
+                                                    </p>
+                                                </div>
+                                                <div  class="col-md-3" id="div_par_jour">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ model.value_par_jour }}</span>
+                                                    </p>
+                                                </div>
+                                                <div  class="col-md-3" id="div_jour_de_semaine">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ model.value_jour_de_semaine }}</span>
+                                                    </p>
+                                                </div>
+                                                <div id="div_date_mois" class="col-md-6">
+                                                    <p class="fg-gray">
+                                                        <span class="sub-alt-header fg-dark"> {{ model.date_du_mois }}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="div_les_jours" class="col-md-12">
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input name="lundi" id="lundi"  {% if model.lundi is True %}{{ "checked" }}{% endif %}  type="checkbox" disabled="disabled">
+                                                <span class="check"></span>
+                                                <span class="caption">Lundi</span>
+                                            </label>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input name="mardi" id="mardi"  {% if model.mardi is True %}{{ "checked" }}{% endif %}  type="checkbox" disabled="disabled">
+                                                <span class="check"></span>
+                                                <span class="caption">Mardi</span>
+                                            </label>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input name="mercredi" id="mercredi"  {% if model.mercredi is True %}{{ "checked" }}{% endif %}  type="checkbox" disabled="disabled">
+                                                <span class="check"></span>
+                                                <span class="caption">Mercredi</span>
+                                            </label>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input name="jeudi" id="jeudi"  {% if model.jeudi is True %}{{ "checked" }}{% endif %}  type="checkbox" disabled="disabled">
+                                                <span class="check"></span>
+                                                <span class="caption">Jeudi</span>
+                                            </label>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input name="vendredi" id="vendredi"  {% if model.vendredi is True %}{{ "checked" }}{% endif %}  type="checkbox" disabled="disabled">
+                                                <span class="check"></span>
+                                                <span class="caption">Vendredi</span>
+                                            </label>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input name="samedi" id="samedi"  {% if model.samedi is True %}{{ "checked" }}{% endif %}  type="checkbox" disabled="disabled">
+                                                <span class="check"></span>
+                                                <span class="caption">Samedi</span>
+                                            </label>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input name="dimanche" id="dimanche" {% if model.dimanche is True %}{{ "checked" }}{% endif %}  type="checkbox" disabled="disabled">
+                                                <span class="check"></span>
+                                                <span class="caption">Dimanche</span>
+                                            </label>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                                                         
+                        </div>
+                    </div>
+                    <div class="frame" id="frame_invitations" style="display: block;">
+                        <div class="row">
+                            <div class="margin20 no-margin-left no-margin-right">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        <label>Confidentialité :</label><br>
+                                        <span class="sub-alt-header fg-dark"> {{ model.value_confidentialite }}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-12">
+                                    <br><p class="fg-gray">Participants: </p>
+                                    <table class="table no-margin">
+                                        <thead class="no-border">
+                                            <tr>
+                                                <th width="50%">Nom</th>
+                                                <th width="50%">Courriel</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="items">
+                                            {% for item in model.participants.all %}
+                                                <tr>                                            
+                                                    <td class="no-padding-top  no-padding-bottom">
+                                                        <span class="fg-dark"> {{ item.nom_participant }} </span>
+                                                    </td>
+                                                    <td class="no-padding-top no-padding-bottom">
+                                                        <span class="fg-dark"> {{ item.email_participant }} </span>
+                                                    </td>
+                                                </tr>                                                                                    
+                                            {% endfor %}    
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="frame" id="frame_autres" style="display: block;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    <label>Propriétaires :</label><br>
+                                    {% for item in proprietaires %}
+                                        <span class="sub-alt-header badge badge-secondary"> {{ item.nom_complet }} </span><br>
+                                    {% endfor %}    
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        {% if model.journee is True %}
+            $("#div_date_debut").show();
+            $("#div_heure_debut").hide();
+            $("#div_duree").hide();
+            $("#div_date_fin").show();
+        {% else %}
+            $("#div_date_debut").show();
+            $("#div_heure_debut").show();
+            $("#div_duree").show();
+            $("#div_date_fin").hide();
+        {% endif %}
+
+        
+        {% if model.par_mois == 1 %}
+            $("#div_par_jour").hide();
+            $("#div_jour_de_semaine").hide();
+            $("#div_date_mois").show();
+        {% elif model.par_mois == 2 %}
+            $("#div_par_jour").show();
+            $("#div_jour_de_semaine").show();
+            $("#div_date_mois").hide();
+        {% endif %}
+
+        {% if model.type_fin_recurrent == 1 %}
+            $("#div_date_fin_recurrent").hide();
+            $("#div_compte_recurrent").show();
+        {% elif model.type_fin_recurrent == 2 %}
+            $("#div_date_fin_recurrent").show();
+            $("#div_compte_recurrent").hide();
+        {% endif %}
+
+
+        {% if model.type_recurrent == 1 %}
+            $("#div_les_jours").hide();
+
+            $("#div_par_jour").hide();
+            $("#div_jour_de_semaine").hide();
+            $("#div_date_mois").show();
+
+            $("#div_jour_du_mois").hide();
+        {% elif model.type_recurrent == 2 %}
+            $("#div_par_jour").hide();
+            $("#div_jour_de_semaine").hide();
+            $("#div_date_mois").show();
+
+            $("#div_jour_du_mois").hide();
+
+            $("#div_les_jours").show();
+        {% elif model.type_recurrent == 3 %}
+            $("#div_les_jours").hide();
+            $("#div_jour_du_mois").show();
+        {% elif model.type_recurrent == 4 %}
+            $("#div_les_jours").hide();
+            
+            $("#div_par_jour").hide();
+            $("#div_jour_de_semaine").hide();
+            $("#div_date_mois").show();
+
+            $("#div_jour_du_mois").hide();
+        {% endif %}
+
+
+        {% if model.est_recurrent is True %}
+            $("#div_est_recurrent").show();
+        {% else %}
+            $("#div_est_recurrent").hide();
+        {% endif %}
+
+        function supprimer() {
+            var id = '{{model.id}}'
+            //-------deux variables pour la suppression---------------------------------
+            var modele = "Model_Evenement"
+            var the_url = "module_calendrier_list_evenement"
+            //------- url de suppression ------------------------------------------------
+            url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+            url = url.replace('100', id);
+            url = url.replace('nom_modele', modele);
+            url = url.replace('url_retour', the_url);
+            document.location.href = url;
+        }
+        $('#supprimer').on('click', function () {
+            Swal.fire({
+                title: 'Etes vous sure?',
+                text: "De vouloir supprimer cette item!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, Supprime le!'
+            }).then((result) => {
+                if (result.value) {
+                    supprimer();
+                    Swal.fire(
+                        'Supprimé!',
+
+                        'Votre Item est supprimé',
+                        'Avec Succes',
+                    )
+                }
+            })
+        })
+    </script>
+    <script>
+        //Script du droit supprimer
+        var lesactions = new Array();
+        var booleen = false;
+        {% for action in actions %}
+        lesactions.push({ droit: "{{ action.droit }}" });
+        {% endfor %}
+
+        $(document).ready(function () {
+            // Initialisation des sous-menus
+            $("#supprimer").hide();
+
+            for (var i = 1; i < lesactions.length; i++) {
+                act = lesactions[i];
+                if (act.droit === "CREER_RAPPORT") {
+                    booleen = true;
+                }
+            }
+
+            if (booleen) {
+                $("#supprimer").show();
+            }
+        });
+    </script>
+{% endblock %}

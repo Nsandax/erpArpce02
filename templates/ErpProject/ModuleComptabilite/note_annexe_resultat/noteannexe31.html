@@ -1,0 +1,287 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote31.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_31' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 45%">
+          <col style="width: 11%">
+          <col style="width: 12%">
+          <col style="width: 11%">
+          <col style="width: 11%">
+          <col style="width: 10%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td class="tg-nqil" colspan="6">NOTE 31 : REPARTITION DU RESULTAT ET AUTRES ELEMENTS  CARACTERISTIQUES DES CINQ DERNIERS EXERCICES</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Exercice clos&nbsp;&nbsp;le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">SIGLE :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Durée (en mois) :</td>
+              <td class="tg-cr4b">0</td>
+            </tr>
+            <tr>
+              <td class="tg-jtjr">                                                                                Exercices concernés(1)Nature des indications</td>
+              <td class="tg-2gyq" rowspan="2">N</td>
+              <td class="tg-2gyq" rowspan="2">N-1</td>
+              <td class="tg-2gyq" rowspan="2">N-2</td>
+              <td class="tg-2gyq" rowspan="2">N-3</td>
+              <td class="tg-2gyq" rowspan="2">N-4</td>
+            </tr>
+            <tr>
+              <td class="tg-bn4c">Nature des indications</td>
+            </tr>
+            <tr>
+              <td class="tg-eroe">STRUCTURE DU CAPITAL A LA CLOTURE DE L EXERCICE(2)</td>
+              <td class="tg-lvth">116 700 000</td>
+              <td class="tg-lvth">116 700 000</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Capital social</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Actions ordinaires</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Actions à dividendes prioritaires (A.D.P) sans droit de vote</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Actions nouvelles à émettre :</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- par conversion d'obligations</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- par exercice de droits de souscription</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-eroe">OPERATIONS ET RESULTATS DE L'EXERCICE(3)</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Chiffre d'affaires hors taxes</td>
+              <td class="tg-lvth">765 921 650</td>
+              <td class="tg-lvth">765 921 650</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Résultat des activités ordinaires (R.A.O) hors dotations et reprises (exploitation et financières)</td>
+              <td class="tg-lvth">70 591 650</td>
+              <td class="tg-lvth">70 591 650</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Participation des travailleurs aux bénéfices</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Impôt sur le résultat</td>
+              <td class="tg-lvth">18 302 253</td>
+              <td class="tg-lvth">18 302 253</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">R‚sultat net(4)</td>
+              <td class="tg-lvth">33 149 897</td>
+              <td class="tg-lvth">33 149 897</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-eroe">RESULTAT ET DIVIDENDE DISTRIBUES</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Résultat distribué(5)</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Dividende attribuée à chaque action</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-eroe">PERSONNEL ET POLITIQUE SALARIALE</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Effectif moyen des travailleurs au cours de l'exercice(6)</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Effectif moyen de personnel ext‚rieur</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Masse salariale distribu‚e au cours de l'exercice(7)</td>
+              <td class="tg-lvth">44 500 000</td>
+              <td class="tg-lvth">44 500 000</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Avantages sociaux vers‚s au cours de l'exercice(8) [S‚curit‚ sociale,&nbsp;&nbsp;uvres sociales]</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Personnel extérieur facturé à l'entité (9)</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-czno"></td>
+              <td class="tg-d2d2"></td>
+              <td class="tg-d2d2"></td>
+              <td class="tg-d2d2"></td>
+              <td class="tg-d2d2"></td>
+              <td class="tg-d2d2"></td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="6">(1) Y compris l'exercice dont les états financiers sont soumis à l'approbation de l'Assemblée</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="6">(2) Indication, en cas de libération partielle du capital, du montant du capital non appelé</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="6">(3) Les éléments de cette rubrique sont ceux figurant au compte de résultat</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="6">(4) Le résultat, lorsqu'il est négatif, doit être mis entre parenthèses</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="6">(5) L'exercice N correspond au dividende propos‚ du dernier exercice</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="6">(6) Personnel propre</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="6">(7) Total des comptes 661, 662, 663</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="6">(8) Total des comptes 664, 668</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="6">(9) Compte 667</td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+    {% endblock %}

@@ -1,0 +1,164 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+			<li><a><span class="mif-home"></span></a></li>
+			<li><a class="leaf" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+			<li><a class="leaf" href="{% url 'module_inventaire_list_bon_inventaire' %}">Ajustements de stock</a></li>
+			<li>{{ title }}</li>
+        </ul>
+    </div>
+ {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_inventaire_add_bon_inventaire" url_detail="module_inventaire_detail_bon_inventaire" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+					<button onclick="javascript:window.location.assign('{% url 'module_inventaire_add_bon_inventaire' %}')"
+					 class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Créer</button>
+
+					<hr class="hr-ligne">
+					<!-- Appel de la fonction message -->
+						{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+					<br>
+
+                    <div class="row">
+                        <div class="col-md-6">
+							<p class="fg-gray">
+								Référence de l'inventaire
+								<span class="">{{ model.numero_inventaire }}</span>
+							</p>
+                        </div>
+                        <div class="col-md-6">
+							<p class="fg-gray">
+								Emplacement inventorié :<br>
+								<span class="fg-dark"> {{ model.emplacement.designation }} </span>
+							</p>
+                        </div>
+                        <div class="col-md-6">
+							<p class=" fg-gray">
+								Document externe :<br>
+								<span id="reference_document" class=" fg-dark">{{ model.reference_document }}</span>
+							</p>
+                        </div>
+                        <div class="col-md-6">
+							<p class="fg-gray">
+								Date d'inventaire :<br>
+								<span id="date_inventaire"class="fg-dark">{{ model.date_inventaire|date:"d/m/Y H:i" }} </span>
+							</p>
+                        </div>
+					</div>
+			<!--div class="row cells2">
+				<div class="cell">
+					<p class="minor-header fg-gray">
+						Inventaire de :<br>
+						<span id="inventaire_de" class="sub-alt-header fg-dark"> </span>
+					</p>
+				</div>
+				<div class="cell">
+					<p id="p_article_id" class="minor-header fg-gray">
+						Article inventorié :<br>
+						<span id="article_id" class="sub-alt-header fg-dark"></span>
+					</p>
+					<p id="p_categorie_id" class="minor-header fg-gray">
+						Catégorie inventoriée :<br>
+						<span id="categorie_id" class="sub-alt-header fg-dark"> </span>
+					</p>
+				</div>
+			</div-->
+
+					<div class="row">
+						<div class="tabcontrol2" data-role="tabcontrol">
+							<ul class="tabs">
+								<li class="active"><a href="#frame_ligne_inventaires">Détails de stock</a></li>
+								<li class=""><a href="#frame_mouvements">ajustements de stock</a></li>
+							</ul>
+							<div class="frames">
+								<div class="frame" id="frame_ligne_inventaires" style="display: block;">
+									<table class="table border bordered">
+										<thead>
+											<tr>
+												<th width="25%">Article</th>
+												<th width="18%">Emplacement</th>
+												<th width="18%">Quantité théorique</th>
+												<th width="19%">Quantité réelle</th>
+											</tr>
+										</thead>
+										<tbody id="items">
+											{% for ligne in lignes %}
+												<tr id="ligne{{ligne.id}}" class="table bordered border">
+													<td>{{ ligne.nom_article}}</td>
+													<td>{{ ligne.emplacement }}</td>
+													<td>{{ ligne.quantite_demandee }} {{ ligne.unite.symbole_unite }} </td>
+													<td>{{ ligne.quantite_fournie }} {{ ligne.unite.symbole_unite }} </td>
+												</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+								<div class="frame" id="frame_mouvements" style="display: none;">
+									<table class="table border bordered" >
+										<thead>
+											<tr>
+												<th>Référence</th>
+												<th>Date</th>
+												<th>Article</th>
+												<th>Quantité</th>
+												<th>Emplacement d'origine</th>
+												<th>Emplacement de destination</th>
+											</tr>
+										</thead>
+										<tbody>
+											{% for item in mouvements %}
+												<tr>
+													<td> {{ item.reference }} </td>
+													<td> {{ item.creation_date|date:"d/m/Y" }} </td>
+													<td> {{ item.article.designation }} </td>
+													<td> {{ item.quantite_mouvement }} {{ item.article.unite.symbole_unite }} </td>
+													<td>
+														{% if item.stock_article_entrant_id != None and item.stock_article_entrant_id != 0 %}
+															{{ item.stock_article_entrant.emplacement.designation }}
+														{% else %}
+															{% if item.type == "INVENTAIRE" %}
+																{{ "Emplacement Virtuel/Ajustement de stock" }}
+															{% else %}
+																{{ "Emplacement du fournisseur" }}
+															{% endif %}
+														{% endif %}
+													</td>
+													<td>
+														{% if item.stock_article_sortant_id != None and item.stock_article_sortant_id != 0  %}
+															{{ item.stock_article_sortant.emplacement.designation }}
+														{% else %}
+															{% if item.type == "INVENTAIRE" %}
+																{{ "Emplacement Virtuel/Ajustement de stock" }}
+															{% else %}
+																{{ "Emplacement du client" }}
+															{% endif %}
+														{% endif %}
+													</td>
+												</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+
+    <script src="/static/ErpProject/js/inventaire-local.js"></script>
+    <script>
+        $(document).ready(function(){
+            inventaireLocal.supprimerInventaire();
+            inventaireLocal.supprimerToutesLignes();
+        });
+    </script>
+{% endblock %}

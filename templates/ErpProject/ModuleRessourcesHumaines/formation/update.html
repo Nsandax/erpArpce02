@@ -1,0 +1,196 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_formation' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Modifier Formation</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_formation' %}')"  class="theme-btn theme-btn-sm rounded " style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_formation' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+            <form id="form" method="POST" action="{% url 'module_ressourceshumaines_post_update_formation' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                             <input name="ref" type="hidden" value="{{ model.id }}">
+                            <div class="row">
+
+                <div class="col-md-6">
+                            <label>Departement</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="departement" id="departement" type="text" data-validate-func="required" data-validate-hint="Entrez departement !" value = "{{model.departement}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Theme</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="theme" id="theme" type="text" data-validate-func="required" data-validate-hint="Entrez theme !" value = "{{model.theme}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Objectif</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="objectif" id="objectif" type="text" data-validate-func="required" data-validate-hint="Entrez objectif !" value = "{{model.objectif}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Public cible</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="public_cible" id="public_cible" type="text" data-validate-func="required" data-validate-hint="Entrez public_cible !" value = "{{model.public_cible}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Annee</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="annee" id="annee" type="text" data-validate-func="required" data-validate-hint="Entrez annee !" value = "{{model.annee}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Nombre jour formation</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="nombre_jour_formation" id="nombre_jour_formation" type="text" data-validate-func="required" data-validate-hint="Entrez nombre_jour_formation !" value = "{{model.nombre_jour_formation}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Type</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="type" id="type" type="text" data-validate-func="required" data-validate-hint="Entrez type !" value = "{{model.type}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Organisme formation</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="organisme_formation" id="organisme_formation" type="text" data-validate-func="required" data-validate-hint="Entrez organisme_formation !" value = "{{model.organisme_formation}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Localite organisme</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="localite_organisme" id="localite_organisme" type="text" data-validate-func="required" data-validate-hint="Entrez localite_organisme !" value = "{{model.localite_organisme}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Nombre heure par jour</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="nombre_heure_par_jour" id="nombre_heure_par_jour" type="text" data-validate-func="required" data-validate-hint="Entrez nombre_heure_par_jour !" value = "{{model.nombre_heure_par_jour}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Cout formation (CFA)</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input  name="cout_formation" id="cout_formation" type="text" data-validate-func="required" data-validate-hint="Entrez cout_formation !" value = "{{model.cout_formation}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Nombre de participant par jour</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="nombre_participant_par_jour" id="nombre_participant_par_jour" type="text" data-validate-func="required" data-validate-hint="Entrez nombre_participant_par_jour !" value = "{{model.nombre_participant_par_jour}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Frais mission hebergement (CFA)</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input  name="frais_mission_hebergement" id="frais_mission_hebergement" type="text" data-validate-func="required" data-validate-hint="Entrez frais_mission_hebergement !" value = "{{model.frais_mission_hebergement}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Frais de deplacement HT (CFA)</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input   name="frais_deplacement_ht" id="frais_deplacement_ht" type="text" data-validate-func="required" data-validate-hint="Entrez frais_deplacement_ht !" value = "{{model.frais_deplacement_ht}}">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Priorite</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="priorite" id="priorite" type="text" data-validate-func="required" data-validate-hint="Entrez priorite !" value = "{{model.priorite}}">
+                            </div>
+
+                </div>
+                <div class="col-md-6">
+                    <label>Date de début</label>
+                    <div id="date_debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_debut" value = "{{model.date_debut|date:'d/m/Y'}}" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez la date de début svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Date de fin</label>
+                        <div id="date_fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                            <input readonly type="text" name="date_fin" value = "{{model.date_fin|date:'d/m/Y'}}" readonly
+                                data-validate-func="required"
+                                data-validate-hint="Precisez la date de fin svp.">
+                            <div class="button"><span class="mif-calendar"></span></div>
+                        </div>
+                        </div>
+
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+{% endblock %}

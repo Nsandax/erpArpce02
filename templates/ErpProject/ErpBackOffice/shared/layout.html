@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <title>{{ title }}</title>
+    {%load static %}
+
+    <link rel="shortcut icon" href="{% static organisation.icon %}">
+
+    <link href="{% static 'ErpProject/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/sweetcss.css' %}">
+    <link href="{% static 'ErpProject/css/metisMenu.min.css' %}" rel="stylesheet">
+    <link href="{% static 'ErpProject/css/custom.css' %}" rel="stylesheet">
+    <link href="{% static 'ErpProject/css/control.css' %}" rel="stylesheet">
+    <link href="{% static 'ErpProject/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="{% static 'ErpProject/css/jquery-ui.theme.min.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/jquery-ui.structure.min.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/buttons.dataTables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/rowGroup.dataTables.min.css' %}">
+
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metro.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metro-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metro-schemes.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/timepicki.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/notes.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/semantic.min.css' %}">
+
+    <link rel="stylesheet" href="{% static 'ErpProject/css/jkanban.min.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/lib/fullcalendar/core/main.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'ErpProject/lib/fullcalendar/daygrid/main.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'ErpProject/lib/fullcalendar/timegrid/main.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'ErpProject/lib/fullcalendar/list/main.min.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'ErpProject/css/fontawesome_5/css/all.css' %}" />
+
+    <!-- <link rel="stylesheet" href="{% static 'ErpProject/organigram/css/organigram.css' %}" /> -->
+    <link rel="stylesheet" href="{% static 'ErpProject/css/profil.css' %}" />
+    <link rel="stylesheet" href="{% static 'ErpProject/css/multi-select.css' %}" />
+    <!-- <link href="{% static 'ErpProject/css/css_circle/progress-circle.css' %}" rel="stylesheet"> -->
+    <!-- <link href="{% static 'ErpProject/css/css_circle/layout.css' %}" rel="stylesheet"> -->
+    <link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-datetimepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-select.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/wildewidgets/css/wildewidgets.css' %}">
+
+
+    <style>
+        #DataTables_Table_0_wrapper {
+            width: 100%
+        }
+
+        #calendar {
+            min-width: 600px;
+            margin: auto;
+            margin-bottom: 20px;
+            padding-top: 30px;
+            padding-right: 10px;
+            padding-bottom: 0px;
+            padding-left: 10px;
+            background: #fff;
+        }
+
+        #calendar thead {
+            background-color: #f1f1f1 !important;
+            color: #000;
+            font-weight: bold;
+        }
+
+        #calendar thead th,
+        #calendar thead td {
+            color: #000 !important;
+        }
+
+        #calendar th {
+            border: 1px gray solid;
+        }
+
+        #calendar a {
+            text-decoration: none !important;
+        }
+    </style>
+
+    <script src="{% static 'ErpProject/js/canvasjs.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/sweetalert2.all.js' %}"></script>
+    <script src="{% static 'ErpProject/js/jquery-2.1.3.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+    <script src="{% static 'ErpProject/js/timepicki.js' %}"></script>
+
+    <script src="{% static 'ErpProject/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/metisMenu.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/custom.js' %}"></script>
+
+    <script src="{% static 'ErpProject/js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/dataTables.rowGroup.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/buttons.print.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/metro.js' %}"></script>
+    <script src="{% static 'ErpProject/js/jszip.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/pdfmake.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/vfs_fonts.js' %}"></script>
+    <script src="{% static 'ErpProject/js/AutoNumeric.js' %}"></script>
+    <script src="{% static 'ErpProject/js/autonumeric.class.js' %}"></script>
+    <script src="{% static 'ErpProject/js/accounting.js' %}"></script>
+    <script src="{% static 'ErpProject/js/waitingfor.js' %}"></script>
+    <script src="{% static 'ErpProject/js/semantic.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/related-object-lookups.js' %}"></script>
+
+
+    <script src="{% static 'ErpProject/js/jkanban.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'ErpProject/js/jquery.quicksearch.js' %}"></script>
+    <script src="{% static 'ErpProject/js/moment.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/bootstrap-select.js' %}"></script>
+    <script src="{% static 'ErpProject/lib/fullcalendar/core/main.min.js' %}"></script>
+    <script src="{% static 'ErpProject/lib/fullcalendar/core/locales/fr.js' %}"></script>
+    <script src="{% static 'ErpProject/lib/fullcalendar/interaction/main.min.js' %}"></script>
+    <script src="{% static 'ErpProject/lib/fullcalendar/daygrid/main.min.js' %}"></script>
+    <script src="{% static 'ErpProject/lib/fullcalendar/timegrid/main.min.js' %}"></script>
+    <script src="{% static 'ErpProject/lib/fullcalendar/list/main.min.js' %}"></script>
+</head>
+
+<body>
+    <div class="{{ module.name|lower }}">
+        {% if not isPopup %}
+        <!-- Navbar Menu horizontal -->
+        <header class="app-bar red" data-role="appbar" style="padding:0 10px">
+            <div class="app-bar-divider only-on-small-screen"></div>
+            <div class="app-bar-divider only-on-small-screen"></div>
+            <a href="/" class="app-bar-element branding only-on-large-screen chargement-au-click">
+                <img src="{% static organisation.image %}" style="height: 40px; display: inline-block; margin-right: 10px;">
+            </a>
+            <div class="app-bar-divider only-on-large-screen"></div>
+            <ul class="app-bar-menu">
+                {% for item in modules %}
+                <li class="active_{% if module.value == item.numero_ordre %}{{ module.name|lower }}{% endif %}  chargement-au-click" style="/*padding-bottom:11px;*/">
+                    <a class="{% if module.value == item.numero_ordre %}{{ " active " }}{% endif %}  chargement-au-click" href="/{{ item.url_vers }}">{{ item.nom_module }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="app-bar-element place-right">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-user fa-fw"></i> {{ utilisateur.nom_complet }}
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu d-menu place-right">
+                    <li><a href="{% url 'backoffice_profile' %}"><i class="fa fa-user fa-fw"></i> Profil d'utilisateur</a>
+                    </li>
+                    <li><a href="{% url 'backoffice_change_password' %}"><i class="fa fa-cog fa-fw"></i> Paramètres</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="{% url 'backoffice_deconnexion' %}"><i class="fa fa-sign-out-alt fa-fw"></i> Déconnexion</a>
+                    </li>
+                </ul>
+                <!-- <ul class="d-menu place-right" data-role="dropdown">
+                <li><a href="{% url 'backoffice_profile' %}"><i class="fa fa-user fa-fw"></i> Profil d'utilisateure</a>
+                </li>
+                <li><a href="{% url 'backoffice_change_password' %}"><i class="fa fa-cog fa-fw"></i>paramètres</a>
+                </li>
+                <li class="divider"></li>
+                <li><a href="{% url 'backoffice_deconnexion' %}"><i class="fa fa-sign-out-alt fa-fw"></i> Déconnexion</a>
+                </li>
+            </ul> -->
+            </div>
+        </header>
+        <!-- /.Reste du menu -->
+        {% endif %}
+
+        <!-- Contenu personalisé   INFO: Le menu latéral et le corp de la page se trouve dans le layout de chaque module dans le dossier shared-->
+        {% block content %}{% endblock %}
+        <!-- /.Contenu personalisé -->
+
+        <div id="chargement" data-role="dialog" class="padding20 dialog fg-white" data-close-button="false" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" style="max-width: 300px; visibility: hidden; background-color: transparent;">
+            <div data-role="preloader" data-type="ring" style="margin: auto"></div>
+        </div>
+        <script>
+            $("#submit").on('click', function(event) {
+                // alert()
+                $(this).off('click');
+
+                /*var el = $(this);
+                el.prop('disabled', true);
+                setTimeout(function () { el.prop('disabled', false); }, 3000);
+                event.preventDefault();*/
+            });
+
+
+            function wrapper_resize() {
+                var screenHeight = window.screen.height;
+                var wrapperHeight = $("#page-wrapper").height();
+                //console.log("screenHeight: "+screenHeight);
+                //console.log("wrapperHeight: "+wrapperHeight);
+                if (wrapperHeight > screenHeight && wrapperHeight > 1200) {
+                    newHeight = wrapperHeight;
+                } else {
+                    newHeight = screenHeight + 500;
+                }
+                //console.log("height: "+newHeight);
+                $("#page-wrapper").height(newHeight);
+            }
+
+            function readImageURL(input) {
+                //console.log("readImageURL ......")
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        //console.log('src ' + e.target.result);
+                        $(input).parent().find(".image_preview").attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            $(document).ready(function() {
+                $('.ui.dropdown').dropdown();
+                $('.multi_select2').multiSelect();
+                wrapper_resize();
+                $(".a-menu").click(function() {
+                    wrapper_resize();
+                });
+                $(window).resize(function() {
+                    wrapper_resize();
+                });
+                if ($(window).width() <= 769) {
+                    $('#navbar-collapse').collapse("toggle");
+                }
+                $('.datetimepicker').datetimepicker({
+                    "allowInputToggle": true,
+                    "showClose": true,
+                    "showClear": true,
+                    "showTodayButton": true,
+                    "format": "DD/MM/YYYY HH:mm:ss",
+                    "locale": "fr",
+                });
+                $(".trigger-input-file").click(function() {
+                    $(this).parent().find(".image_upload").click();
+                });
+                $(".image_upload").change(function () {
+                    readImageURL(this);
+                });
+                $(document).delegate('.add-record', 'click', function(e) {
+                    e.preventDefault();
+                    var content = $(this).parent().find('.sample_table tr');
+                    var compteur = $(this).parent().attr('data-compteur');
+                    compteur = parseInt(compteur);
+                    compteur++;
+                    $(this).parent().attr('data-compteur', compteur);
+                    element = null;
+                    element = content.clone();
+                    $(this).parent().find('.tbl_posts_body').append(element);
+
+                    //Initialiser les IDs
+                    select_name = element.find('select').attr('name');
+                    element.find('select').attr('id', select_name+'-'+compteur);
+                });
+
+
+                $(document).delegate('.delete-record', 'click', function(e) {
+                    e.preventDefault();
+                    var didConfirm = confirm("Etes-vous sûr de vouloir supprimer cette ligne");
+                    if (didConfirm == true) {
+                        $(this).parent().parent().parent().remove();
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+            });
+
+            function number_format(number, decimals, dec_point, thousands_sep) {
+                // *     example: number_format(1234.56, 2, ',', ' ');
+                // *     return: '1 234,56'
+                number = (number + '').replace(',', '').replace(' ', '');
+                var n = !isFinite(+number) ? 0 : +number,
+                    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                    sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                    dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                    s = '',
+                    toFixedFix = function(n, prec) {
+                        var k = Math.pow(10, prec);
+                        return '' + Math.round(n * k) / k;
+                    };
+                // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+                s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+                if (s[0].length > 3) {
+                    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                }
+                if ((s[1] || '').length < prec) {
+                    s[1] = s[1] || '';
+                    s[1] += new Array(prec - s[1].length + 1).join('0');
+                }
+                return s.join(dec);
+            }
+        </script>
+
+        <script type="text/javascript">
+            function showDialog(id) {
+                var dialog = $("#" + id).data('dialog');
+                if (!dialog.element.data('opened')) dialog.open();
+                else dialog.close();
+            }
+
+            function notifyOnErrorInput(input) {
+                var message = input.data('validateHint');
+                $.Notify({
+                    caption: 'Error',
+                    content: message,
+                    type: 'alert'
+                });
+            }
+
+            /*function showCharm(id) {
+                var charm = $("#" + id).data("charm");
+                if (charm.element.data("opened") === true) {
+                    charm.close();
+                    $("#btn-menu").removeClass("active");
+                } else {
+                    charm.open();
+                    $("#btn-menu").addClass("active");
+                }
+            }
+
+            $(document).on("click", function(event) {
+                var element = event.target;
+
+                if (element.id.length == 0 || (element.id != "btn-menu" && element.id != "span-menu")) {
+                    var charm = $("#menu").data("charm");
+                    if (charm.element.data("opened") === true) {
+                        charm.close();
+                        $("#btn-menu").removeClass("active");
+                    }
+                }
+            });
+
+            $("#toggle-tiles-dropdown").on("click", function(event) {
+                var charm = $("#menu").data("charm");
+                if (charm.element.data("opened") === true) {
+                    charm.close();
+                    $("#btn-menu").removeClass("active");
+                }
+            });*/
+            window.addEventListener("hashchange", function(e) {
+                console.log(window.status);
+                console.log(e);
+            })
+        </script>
+        <script>
+            // Item menu lien vers autre pages
+            $(function() {
+                $('.item-menu-click').on('click', function(e) {
+                    location.assign(location.origin + '/' + $(e.currentTarget).attr('href'));
+                });
+            })
+        </script>
+
+        <script>
+            /* separateur in puts*/
+            jQuery(function($) {
+                $('.monetary').autoNumeric('init');
+            });
+
+            /* end separateur*/
+            jQuery(function($) {
+                $('.cursor').css("cursor", "pointer");
+
+            });
+        </script>
+
+
+        <script>
+            var somme_total = $('.monetaryF').text();
+            $('.monetaryF').text(accounting.formatMoney(somme_total));
+            /*
+            var somme_total = $('.monetaryF');
+              var somme = somme_total.text();
+              var s = parseInt(somme);
+              var n = new Intl.NumberFormat('fr-CA', { style: 'decimal' }).format(s);
+              $('.monetaryF').text(n);
+              */
+        </script>
+        <script>
+            // elimination de enter pour eviter les erreurs
+            window.addEventListener("keydown", checkey, false);
+
+            function checkey(key) {
+                if (key.keyCode == "13") {
+                    key.preventDefault()
+                }
+            }
+        </script>
+
+</body>
+
+</html>

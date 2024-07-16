@@ -1,0 +1,131 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %} {%load static %}
+
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_add_facture_avoir' %}">Générer une facture d'avoir</a></li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row only-on-small-screen">
+                        <h2 class="text-light no-margin-left">{{ title }}</h2>
+                    </div>
+
+                    <div class="row only-on-large-screen">
+                        <button onclick="printScreen();" class="button small-button rounded primary_color_{{module.name|lower}}">
+                            Imprimer
+                        </button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_facture_avoir' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <div class="row only-on-small-screen">
+                        <button onclick="printScreen();" class="button large-button rounded primary">I</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_facture_avoir' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+                    <div class="col-lg-12" id="divToPrint" style="background-color: #f5f5f5; padding-left:50px; padding-right:50px">
+                        <div style="display: flex;">
+                            <div class="col-md-6" style="float : left; width: 180px;">
+                                <img src="{% static 'ErpProject/image/logo_arpce.png' %}" alt="" style=" width: 150px; height: 130px;">
+                                <br>
+                                <h4><em><strong>{{ facture_ap.numero_facture }}</strong></em></h4>
+                            </div>
+                            <h1><strong><span style="color : rgb(88, 197, 88);">Agence de Régulation des Postes et des Communications Eletroniques</span></strong></h1>
+                            <br>
+
+                        </div>
+                        <div class="col-md-6" style="float: right; padding-right:0; width: 250px;">
+                            <em><span>Brazzaville, {% now "jS F Y " %}</span></em>
+                            <br>
+                            <br>
+
+                            à
+                            <br>
+                            <br>
+                            <strong><span>{{ destinataire }} de la société {{ client.nom_complet|upper }} </span></strong>
+
+                        </div>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <div class="col-md-6" style="float: left; padding-right:0; width: 250px; margin-top:50px; padding-top: 50px;">
+                            <span><strong> <u> Objet </u></strong> : {{ objet }}</span>
+                            <br>
+                            <br>
+                            <span>{{ destinataire }},</span>
+                        </div>
+                        <br>
+                        <br>
+                        <br>
+                        <div class="row" style="margin-top: 50px; padding-top: 50px;">
+                            <p>
+                                J’ai l’honneur de vous transmettre, pour règlement la facture<strong> N° {{ facture_av.numero_facture }} </strong>relative aux redevances annuelles pour les réseaux BLR ouverts au public au titre de l’exercice 2019. Le montant de ladite facture s’élève à la somme de <strong> {{ facture_av.montant_paye }} Francs CFA. </strong><br>
+                                Je vous saurai gré des dispositions que vous voudrez bien prendre en vue de son règlement. <br>
+                                Veuillez agréer, Monsieur le Directeur Général, mes salutations distinguées.
+                            </p>
+                        </div>
+                        <br>
+                        <div class="col-md-6" style="float: right; padding-right:0; width: 250px; margin-top:30px; padding-top: 30px;">
+                            <center>
+                                <span><strong>Le Directeur Général,</strong></span>
+                                <br>
+                                <br>
+                                <br>
+                                <br>
+                                <span><strong>Yves CASTANOU.</strong></span>
+                            </center>
+                        </div>
+                        <br>
+                        <div style="margin-top:10px; padding-top: 230px; width: 100%;">
+                            <div style="padding-right: 50px; padding-left: 50px;">
+                                <img src="{% static 'ErpProject/image/souligner.PNG' %}" alt="" style="width: 100%;">
+                                <center>
+                                    Etablissement public administratif doté de la personnalité juridique et de l’autonomie financière placé sous la tutelle du MPT <br>|Adresse Imm Arpce 91bis avenue de l’Amitié Centre-Ville| BP : 2490 Brazzaville - Congo
+                                    Téléphone : +242.05.512.07.07/ 05.510.72.72
+                                    Email : contact@arpce.cg  | Site Internet : http://www.arpce.cg
+                                </center>
+                            </div>
+                        </div>
+                    <!-- <p>Client : {{ client.nom_complet }}</p>
+
+                    <p>Facture Avant : {{ facture_av.numero_facture }}</p>
+
+                    <p>Facture Après : {{ facture_ap.numero_facture }}</p> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function printScreen() {
+            var prtContent = document.getElementById("divToPrint");
+            var WinPrint = window.open('', '', 'left=0,top=0,width=1024,height=1200,toolbar=0,scrollbars=0,status=0');
+            var htmlToPrint = '' +
+        '<style type="text/css">' +
+        'table th, table td {' +
+        'border:1px solid #000;' +
+        'padding:0.5em;' +
+        '}' +
+        '</style>';
+            //prtContent = prtContent+htmlToPrint.outerHTML;
+            //htmlToPrint += divToPrint.outerHTML;
+            WinPrint.document.write(prtContent.innerHTML);
+            WinPrint.document.close();
+            WinPrint.focus();
+            WinPrint.print();
+            WinPrint.close();
+        }
+    </script>
+{% endblock %}

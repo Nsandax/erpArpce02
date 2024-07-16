@@ -1,0 +1,89 @@
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+
+	<div class="row" style="padding-top: 30px;">
+		<div class="col-lg-12">
+			 <h2>{{title}}</h2>
+		<strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+			<div class="separ" style="background-color: grey;opacity: 0.2"></div>
+			   <div class="panel panel-default" style="border: none;">
+
+				<div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+		<hr class="hr-ligne">
+		<br>
+
+
+
+
+		<form method="GET">
+			<div class="inner-form">
+
+				<div class="input-control text full-size">
+					<input type="text"  autocomplete="off" id="q" name="q" placeholder="Saisir votre texte ici !!!"
+						data-validate-func="required"
+						data-validate-hint="Entrez le code de l'article svp." />
+				</div>
+
+				<br>
+
+				<button type="submit" class="button small-button rounded primary_color_{{module.name|lower}}">RECHERCHE</button>
+
+			</div>
+
+			<br><br>
+
+			<hr class="hr-ligne">
+
+			{% if posts == "Non trouvé" %}
+			  <h2>Aucun document trouvé</h2>
+			{% else %}
+			  {% for item in posts %}
+
+
+				<h1>{{item.type_document}}</h1>
+
+				<br><br>
+				<strong>Description : {{item.description}} </strong>
+				<br>
+
+				<br><br>
+
+
+				{{item.metadonnees|truncatechars:500}} <br>
+
+				<br>
+				<a href="{% static item.url_document %}" class="button small-button rounded primary_color_{{module.name|lower}}">Télécharger</a> <br>
+				<br><br> <br> <br>
+
+
+
+			  {% endfor %}
+
+			{% endif %}
+
+		  </form>
+
+
+
+
+
+
+
+				</div>
+			</div>
+		</div>
+		<!-- /.col-lg-12 -->
+	</div>
+
+	<script type="text/javascript">
+		/*
+		$(document).ready(function(e) {
+			$('iframe').attr('src','http://dev:Password01@chanyngoy-pc/ReportServer/Pages/ReportViewer.aspx?%2fARPCE_Reports%2fModule_Achat%2fBonReception&rs:Command=Render&id={{id}}');
+		});
+		*/
+	</script>
+
+{% endblock %}

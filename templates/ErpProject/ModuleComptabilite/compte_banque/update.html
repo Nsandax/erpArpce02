@@ -1,0 +1,110 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_compte_banque' %}">Liste des banques</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Modifier Banque</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_compte_banque' %}')" class="theme-btn theme-btn-sm rounded">
+                            Annuler 
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne">
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+            <form id="form" method="POST" action="{% url 'module_comptabilite_post_update_compte_banque' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                             <input name="ref" type="hidden" value="{{ model.id }}">
+                             <input name="journal_id" type="hidden" value="{{ model.journal_id }}">
+                            <div class="row">
+                <div class="col-md-6">
+                    <label>Numero de compte</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="numero_compte" id="numero_compte" type="text" value="{{model.numero_compte}}" readonly style="background-color:cornsilk;">
+                    </div>
+                                    
+                </div>
+
+                <div class="col-md-6">
+                    <label>Type de compte</label>
+                    <div class="input-control text full-size">
+                        <select name="type_compte" class="form-control" style="border: none;" id="type_compte">
+                            <option value="{{model.type_compte}}">{{model.type_compte}}</option>                            
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Compte comptable</label>
+                    <div class="input-control text full-size">
+                        <select name="compte_id" id="compte_id">
+                            <option value="{{model.compte_comptable.id}}">{{model.compte_comptable}}</option>
+                            {% for item in comptes %}
+                                <option value="{{ item.id }} "> {{ item }} </option>
+                            {% endfor %}                                
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label>Banque</label>
+                    <div class="input-control text full-size">
+                        <select name="banque_id" class="form-control" style="border: none;" id="banque_id">
+                            <option value="{{model.banque_id}}">{{model.banque.designation}}</option>                            
+                        </select>
+                    </div>
+                </div> 
+
+                <div class="col-md-6">
+                            <label>Designation</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="designation" id="designation" type="text" data-validate-func="required" data-validate-hint="Entrez designation !" value = "{{model.designation}}">
+                            </div>
+                            
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="description" id="description" type="text" data-validate-func="required" data-validate-hint="Entrez description !" value = "{{model.description}}">
+                            </div>
+                            
+                </div>
+            
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+    
+{% endblock %}

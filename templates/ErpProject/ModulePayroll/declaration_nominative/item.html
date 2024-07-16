@@ -1,0 +1,225 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+    {% block page %}
+        {%load static %}
+        {% load account_filters %}
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a><span class="mif-home"></span></a></li>
+                <li><a class="leaf" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+                <li><a class="leaf" href="{% url 'module_payroll_list_declaration_nominative' %}">Générer des déclarations nominatives</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="row">
+            <button onclick="printScreen();" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+            <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+            <button onclick="javascript:window.location.assign('{% url 'module_payroll_list_declaration_nominative'  %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Retour</button>
+        </div>
+          {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="" url_detail="module_payroll_details_declaration_nominative" csrf_token=csrf_token module=module type_doc="" only %}
+
+        <hr class="hr-ligne">
+        <div id="divToPrint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <p class="align-center header">{{ title }}</p>
+            <p class="align-center header">{{ model.date_fin|date:"B Y" }} N<sup>o</sup> d'ordre {{ model.id }}</p>
+            <br>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#f1f1f1">
+                    <th rowspan="2" style="text-align: center" width="2%">N<sup>o</sup></th>
+                    <th rowspan="2" style="text-align: center" width="15%">Nom et Prénom</th>
+                    <th rowspan="2" style="text-align: center" width="8%">Matricule CNSS</th>
+                    <th rowspan="2" style="text-align: center" width="9%">Salaire brut</th>
+                    <th rowspan="2" style="text-align: center" width="9%">Salaire brut imposable</th>
+                    <th rowspan="2" style="text-align: center" width="8%">s/plafonné<br>PVID<br>1 200 000/mois<br>14 400 000/an</th>
+                    <th rowspan="2" style="text-align: center" width="8%">s/plafonné<br>AF.AT/MP<br>600 000/mois<br>7 200 000/an</th>
+                    <th colspan="2" style="text-align: center" width="16%">Cotisation PVID</th>
+                    <th rowspan="2" style="text-align: center" width="8%">Cotisation AF<br>(10,03%)</th>
+                    <th rowspan="2" style="text-align: center" width="8%">Cotisation AT/MP<br>(2,25%)</th>
+                    <th rowspan="2" style="text-align: center" width="9%">Total</th>
+                </tr>
+                <tr style="background-color:#f1f1f1">
+                    <th style="text-align: center" width="8%">Part<br>patronale<br>(8%)</th>
+                    <th style="text-align: center" width="8%">Part<br>employé<br>(4%)</th>
+                </tr>
+                {% for item in bulletins %}
+                <tr>
+                    <td style="text-align: center" width="2%">{{item.id}}</td>
+                    <td style="text-align: center" width="15%">{{item.employe.nom_complet}}</td>
+                    <td style="text-align: center" width="8%">{{item.employe.profilrh.matricule}}</td>
+                    <td style="text-align: right" width="9%">{{item.brut_totale}}</td>
+                    <td style="text-align: right" width="9%">{{item.brut_imposable}}</td>
+                    <td style="text-align: right" width="8%">0.0</td>
+                    <td style="text-align: right" width="8%">0.0</td>
+                    <td style="text-align: right" width="8%">0.0</td>
+                    <td style="text-align: right" width="8%">0.0</td>
+                    <td style="text-align: right" width="8%">0.0</td>
+                    <td style="text-align: right" width="8%">0.0</td>
+                    <td style="text-align: right" width="9%">0.0</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <button type="button" id="lancermodal" data-toggle="modal" data-target="#monmodal" style="display: none;">executer</button>
+        <div id="monmodal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <center>
+                            <iframe id="iframemodal" frameborder="0" style="width: 98%;" height="500" ></iframe>
+                        </center><hr>
+                        <center>
+                            <button type="button" class="btn btn-danger" onclick="close();">FERMER</button>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/print.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.debug.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/cell.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.plugin.autotable.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/from_html.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/html2canvas.min.js' %}"></script>
+        <script>
+            var devise = "";
+
+            function printScreen() {
+                const filename  = 'journal.pdf';
+
+                /*var pdf = new jsPDF('p', 'pt', 'a4');
+                pdf.addHTML(document.getElementById('divToPrint'), 25, 50, {
+                    retina: true,
+                    pagesplit: true,
+                    margin: {
+                    top: 50,
+                    right: 25,
+                    bottom: 50,
+                    left: 25,
+                    useFor: 'page' // This property is mandatory to keep the margin to supsequent pages
+                    }
+                }, function() {
+                    pdf.save('test.pdf');
+                });*/
+
+                var pdf = new jsPDF('l', 'pt', 'letter');
+                pdf.html($('#divToPrint')[0], {
+                    callback: function (pdf) {
+                        //pdf.save();
+                        //headerFooterFormatting(pdf, pdf.internal.getNumberOfPages());
+                        var string = pdf.output('datauristring');
+                        $('#iframemodal').attr('src', string);
+                        $('#lancermodal').click();
+                    }
+                });
+
+                /*html2canvas(document.querySelector('#divToPrint')).then(canvas => {
+                    let pdf = new jsPDF('p', 'mm', 'a4');
+                    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 211, 298);
+                    pdf.save(filename);
+                });*/
+
+                //Imprimer avec plus de fonctionnalités sur sheetjs
+
+                margins = {
+                    top: 70,
+                    bottom: 40,
+                    left: 30,
+                    width: 550
+                };
+
+                /*var pdf = new jsPDF('p', 'pt', 'a4');
+                pdf.setFontSize(18);
+                pdf.fromHTML(document.getElementById('divToPrint'),
+                    margins.left, // x coord
+                    margins.top,
+                    {
+                        // y coord
+                        width: margins.width// max width of content on PDF
+                    },function(dispose) {
+                        headerFooterFormatting(pdf, pdf.internal.getNumberOfPages());
+                    },
+                    margins);
+
+                //pdf.save();
+                var string = pdf.output('datauristring');
+                $('#iframemodal').attr('src', string);
+                $('#lancermodal').click();*/
+            }
+            var base64Img = null;
+            imgToBase64('{% static 'ErpProject/image/logo_arpce_large.png' %}', function(base64) {
+                base64Img = base64;
+            });
+
+            //Fonction to convert image to base64
+            function imgToBase64(url, callback, imgVariable) {
+                if (!window.FileReader) {
+                    callback(null);
+                    return;
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.responseType = 'blob';
+                xhr.onload = function() {
+                    var reader = new FileReader();
+                    reader.onloadend = function() {
+                        imgVariable = reader.result.replace('text/xml', 'image/jpeg');
+                        callback(imgVariable);
+                    };
+                    reader.readAsDataURL(xhr.response);
+                };
+                xhr.open('GET', url);
+                xhr.send();
+            };
+
+            //Fonction pour le header
+            function header(doc)
+            {
+                doc.setFontSize(30);
+                doc.setTextColor(40);
+                doc.setFontStyle('normal');
+                if (base64Img) {
+                    doc.addImage(base64Img, 'JPEG', margins.left, 10, 40,40);
+                }
+                doc.text("Report Header Template", margins.left + 50, 40 );
+                doc.setLineCap(2);
+                doc.line(3, 70, margins.width + 43,70); // horizontal line
+            };
+
+            //Fonction pour le footer
+            function footer(doc, pageNumber, totalPages){
+                var str = "Page " + pageNumber + " of " + totalPages
+                doc.setFontSize(10);
+                doc.text(str, margins.left, doc.internal.pageSize.height - 20);
+            };
+
+            //Fonction de configuration pour le header et footer
+            function headerFooterFormatting(doc, totalPages)
+            {
+                for(var i = totalPages; i >= 1; i--)
+                {
+                    doc.setPage(i);
+                    //header
+                    header(doc);
+                    footer(doc, i, totalPages);
+                    doc.page++;
+                }
+            };
+
+            //Exporter en Excel
+            var wb = XLSX.utils.table_to_book(document.getElementById('rapport'), {sheet:"Sheet JS"});
+            var wopts = { bookType:'xlsx', bookSST:true, type: 'binary' };
+            var wbout = XLSX.write(wb, wopts);
+            function s2ab(s) {
+                var buf = new ArrayBuffer(s.length);
+                var view = new Uint8Array(buf);
+                for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+            $("#btn_export").click(function(){
+                console.log("btn_export cliquee");
+                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'test.xlsx');
+            });
+        </script>
+{% endblock %}
+

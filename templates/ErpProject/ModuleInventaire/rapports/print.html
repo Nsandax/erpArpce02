@@ -1,0 +1,78 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Mouvement de Stock">
+        <meta name="author" content="MKman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="invoice">
+            <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+            <!-- <h2 class="align-center header">{{ title }}</h2> -->
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-12" style="text-align: right;">
+                    <h3><center><strong>{{title}}</strong></center></h3>
+                </div>
+                <div class="col-md-6">
+                    {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                </div>
+                <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                <div class="col-md-6">
+                    <p>
+                        <strong> Date:</strong> {{dates}}
+                        <br>
+                        <strong>Emplacement :</strong>{{txt_emplacement}}
+                        <br>
+                        <strong>Filtre :</strong> {{txt_filtre}}
+                        <br>
+                        <strong>Rapport sur </strong>
+                        {% if rapport_de == 0 %} <strong>: {{rapport}} </strong> {% endif%}
+                        {% if rapport_de == 1 %} <strong>  Catégorie :</strong> {{rapport}} {% endif%}
+                        {% if rapport_de == 2 %} <strong>  Article :</strong> {{rapport}} {% endif%}
+                    </p>
+                </div>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#499672;color:#fff;font-weight:500">
+                    <td class="head">Date</td>
+                    <td class="head">Article</td>
+                    <td class="head">Quantité</td>
+                    <td class="head">Type</td>
+                    <td class="head">Emplacement origine</td>
+                    <td class="head">Emplacement final</td>
+                    <td class="head">Numero</td>
+                </tr>
+                {% for item in model %}
+                <tr>
+                    <td class="td">{{ item.creation_date | date:'d/m/Y H:i'}}</td>
+                    <td class="td">{{ item.stock_article_entrant.article }}</td>
+                    <td class="td"> {{item.quantite_mouvement}} </td>
+                    <td class="td">{{ item.type }} </td>
+                    <td class="td">
+                        {% if item.stock_article_entrant %}
+                            {{ item.stock_article_entrant.emplacement.designation}}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="td">
+                        {% if item.stock_article_sortant %}
+                            {{ item.stock_article_sortant.emplacement.designation}}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="td">{{ item.reference }} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>

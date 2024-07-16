@@ -1,0 +1,84 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+    <body>
+        <div id="invoice">
+            <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                <div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <th width="30%">
+                                <div style="height: 100px;">
+                                    <div class=""  style="margin-bottom:17%;">
+                                        <strong style="font-size:20px;">ARPCE</strong>
+                                    </div>
+                                    <br>
+                                    <div class="">Siege ARPCE</div>
+                                </div>
+                            </th>
+                            <th width="40%">
+                                <div style="margin-bottom:4%;text-align: center;">
+                                    <strong style="font-size:20px;">{{title}}</strong>
+                                </div>
+                                <p class="mb-2">Exercice: {{exercice}}</p>
+                                <table class="table no-margin" style="border: transparent 1px solid; ">
+                                    <tr style="border: transparent 1px solid; ">
+                                        <td style="border: transparent 1px solid; ">Mois: {{month}}</td>
+                                        <td style="border: transparent 1px solid; "></td>
+                                        <td style="border: transparent 1px solid; "></td>
+                                        <td style="border: transparent 1px solid; "></td>
+                                        <td style="border: transparent 1px solid; ">N° d'Ordre: 1</td>
+                                    </tr>
+                                </table>
+                                <!-- <div class="row" style="text-align:start;">
+                                    <span class="col-md-6"></span>
+                                    <span class="col-md-6"></span>
+                                </div> -->
+                            </th>
+                            <th width="30%" style="vertical-align: middle;">Page 1 / 1</th>
+                        </tr>
+                    </table>
+                    <!-- <p class="align-center header">{{title}}</p> -->
+                    <br>
+                    <br>
+                    <h4>{{banking}}</h4>
+                    <table id="rapport" cellspacing="3" cellpadding="2" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <th width="22%">Nom</th>
+                            <th width="22%">Prénom</th>
+                            <th width="12%">Matricule</th>
+                            <th width="22%">N° Comptes</th>
+                            <th width="22%">Montant à payer</th>
+                        </tr>
+                        {% for item in models %}
+                        <tr>
+                            <td width="22%">{{item.employe_name}}</td>
+                            <td width="22%">{{item.employe_firstname}}</td>
+                            <td width="12%">{{item.matricule}}</td>
+                            <td width="22%">{{item.numero_compte}}</td>
+                            <td width="22%">{{item.Montant_pay|monetary}}</td>
+                        </tr>
+                        {% endfor %}
+
+                        <tr>
+                            <th colspan="4" style="text-align:end;">TOTAUX</th>
+                            <th width="">{{sommes|monetary}} FCFA</th>
+                        </tr>
+                    </table>
+                    <br>
+                    <br>
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

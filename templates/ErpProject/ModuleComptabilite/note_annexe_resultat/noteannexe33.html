@@ -1,0 +1,424 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote33.css' %}" rel="stylesheet">
+    <style type="text/css">
+      .tg  {border-collapse:collapse;border-spacing:0; width: 100%}
+      .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg .tg-jdaz{background-color:#c0c0c0;font-size:16px;text-align:left;vertical-align:top}
+      .tg .tg-q7e8{background-color:#efefef;font-size:16px;font-weight:bold;text-align:left;vertical-align:top}
+      .tg .tg-x5q1{font-size:16px;text-align:left;vertical-align:top}
+      .tg .tg-2gyq{background-color:#c0c0c0;font-size:16px;font-weight:bold;text-align:center;vertical-align:middle}
+      .tg .tg-bn4c{background-color:#c0c0c0;font-size:16px;font-weight:bold;text-align:left;vertical-align:top}
+      .tg .tg-tl3h{background-color:#c0c0c0;font-size:16px;text-align:center;vertical-align:top}
+      .tg .tg-cnka{background-color:#9b9b9b;border-color:inherit;color:#000000;font-size:20px;font-weight:bold;text-align:center;
+        vertical-align:middle}
+      .tg .tg-cr4b{border-color:#ffffff;font-size:16px;font-weight:bold;text-align:left;vertical-align:top}
+      .tg .tg-kf42{background-color:#c0c0c0;font-size:16px;font-weight:bold;text-align:center;vertical-align:top}
+      .tg .tg-v4j2{background-color:#c0c0c0;font-weight:bold;text-align:center;vertical-align:middle}
+      .tg .tg-lvth{font-size:16px;text-align:center;vertical-align:top}
+      .tg .tg-0lax{text-align:left;vertical-align:top}
+      .tg .tg-22f5{background-color:#efefef;font-size:16px;text-align:left;vertical-align:top}
+      .tg .tg-8zbj{background-color:#efefef;font-size:16px;text-align:center;vertical-align:top}
+      </style>
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_33' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+        <col style="width: 24%">
+        <col style="width: 12%">
+        <col style="width: 9%">
+        <col style="width: 10%">
+        <col style="width: 8%">
+        <col style="width: 9%">
+        <col style="width: 9%">
+        <col style="width: 9%">
+        <col style="width: 10%">
+        </colgroup>
+        <tbody>
+          <tr>
+            <td class="tg-cnka" colspan="9">NOTE 33 : ACHATS DESTINÉS À LA PRODUCTION	<br></td>
+          </tr>
+          <tr>
+            <td class="tg-cr4b">Désignation de l'entreprise :</td>
+            <td class="tg-cr4b">0</td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b">Exercice clos le</td>
+            <td class="tg-cr4b">00/01/1900</td>
+          </tr>
+          <tr>
+            <td class="tg-cr4b">SIGLE</td>
+            <td class="tg-cr4b">0</td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b">Durée(en mois)</td>
+            <td class="tg-cr4b">0</td>
+          </tr>
+          <tr>
+            <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+            <td class="tg-cr4b">0</td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+            <td class="tg-cr4b"></td>
+          </tr>
+          <tr>
+            <td class="tg-2gyq" rowspan="4">DESIGNATION DES MATIERES ET PRODUITS</td>
+            <td class="tg-2gyq" rowspan="4">UNITE  DE QUANTITE CHOISIE</td>
+            <td class="tg-kf42" colspan="6">ACHATS  EFFECTUES AU COURS  DE L'EXERCICE</td>
+            <td class="tg-v4j2" rowspan="3">VARIATION DES STOCKS</td>
+          </tr>
+          <tr>
+            <td class="tg-2gyq" colspan="2" rowspan="2">PRODUITS DE L'ETAT</td>
+            <td class="tg-kf42" colspan="4">PRODUITS IMPORTES</td>
+          </tr>
+          <tr>
+            <td class="tg-kf42" colspan="2">ACHETES DANS L'ETAT</td>
+            <td class="tg-kf42" colspan="2">ACHETES HORS DE L'ETAT</td>
+          </tr>
+          <tr>
+            <td class="tg-kf42">Quantité</td>
+            <td class="tg-kf42">Valeur</td>
+            <td class="tg-kf42">Quantité</td>
+            <td class="tg-kf42">Valeur</td>
+            <td class="tg-kf42">Quantité</td>
+            <td class="tg-kf42">Valeur</td>
+            <td class="tg-kf42">Valeur</td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-0lax"><br></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+          </tr>
+          <tr>
+            <td class="tg-0lax"><br></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+          </tr>
+          <tr>
+            <td class="tg-0lax"><br></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+          </tr>
+          <tr>
+            <td class="tg-0lax"><br></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+            <td class="tg-0lax"></td>
+          </tr>
+          <tr>
+            <td class="tg-x5q1"><br></td>
+            <td class="tg-x5q1"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+            <td class="tg-lvth"></td>
+          </tr>
+          <tr>
+            <td class="tg-q7e8" rowspan="2">NON VENTILE</td>
+            <td class="tg-22f5" rowspan="2"></td>
+            <td class="tg-8zbj"><br></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+          </tr>
+          <tr>
+            <td class="tg-8zbj"><br></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+            <td class="tg-8zbj"></td>
+          </tr>
+          <tr>
+            <td class="tg-bn4c" rowspan="2">TOTAL</td>
+            <td class="tg-jdaz" rowspan="2"></td>
+            <td class="tg-tl3h">0</td>
+            <td class="tg-tl3h"></td>
+            <td class="tg-tl3h">0</td>
+            <td class="tg-tl3h"></td>
+            <td class="tg-tl3h">0</td>
+            <td class="tg-tl3h"></td>
+            <td class="tg-tl3h"></td>
+          </tr>
+          <tr>
+            <td class="tg-kf42">0</td>
+            <td class="tg-kf42"></td>
+            <td class="tg-kf42">0</td>
+            <td class="tg-kf42"></td>
+            <td class="tg-kf42">0</td>
+            <td class="tg-kf42"></td>
+            <td class="tg-kf42"></td>
+          </tr>
+        </tbody>
+        </table>
+    </div>
+    {% endblock %}

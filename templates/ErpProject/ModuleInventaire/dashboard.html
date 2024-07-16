@@ -1,0 +1,53 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+	{% load inventaire_filter %}
+    <ul class="breadcrumbs2 small">
+        <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_inventaire_home' %}">Module Inventaire</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <!--div class="row">
+        <button class="button small-button rounded primary" onclick="javascript:window.location.assign('{% url 'module_pos_add_pos' %}')" style="margin-left: 5px">Créer</button>
+    </div-->
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+		{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+	<br>
+	
+
+	<div class="row cells3" style="margin-top: 10px">
+		{% for item in model %}
+			<div class="cell padding10">
+				<div class="shadow padding20">
+					
+					<p>
+						<span class="sub-header">{{ item.designation }}</span>
+						<br>
+						<!--span class="sub-alt-header">Type : {{ item.type }}</span-->
+						<br>
+						<br>
+					</p>
+					{% if item.type == "TRANSFERT" %}
+						{% if item.reference == "IN" %}
+						<h6>Fournisseur &#10132 Contrôle Qualité</h6><br>
+							<button onclick="javascript:window.location.assign('{% url 'module_inventaire_list_bons_achat' %}')" class="button rounded primary chargement-au-click">{{ total_reception_bon }} A recevoir</button>
+							<br><button onclick="javascript:window.location.assign('{% url 'module_inventaire_add_fourniture' %}')" class="button rounded chargement-au-click">Reception Article</button>
+						{% elif item.reference == "RESERVE" %}
+						<h6>Stock &#10132 Sortie</h6><br>
+							<button onclick="javascript:window.location.assign('{% url 'module_inventaire_list_ordres_transfert' %}?op={{ item.reference }}')" class="button rounded primary chargement-au-click">{{ item|count_todo_transfert:item.type }} A faire</button>
+							<br><button onclick="javascript:window.location.assign('{% url 'module_inventaire_add_ordre_transfert' %}?op={{ item.id }}')" class="button rounded chargement-au-click">Nouveau Transfert</button>
+						{% else %}
+						<h6>Contrôle Qualité &#10132 Stock</h6><br>
+							<button onclick="javascript:window.location.assign('{% url 'module_inventaire_list_ordres_transfert' %}?op={{ item.reference }}')" class="button rounded primary chargement-au-click">{{ item|count_todo_transfert:item.type }} Transfert(s)</button>
+							<br><button onclick="javascript:window.location.assign('{% url 'module_inventaire_add_ordre_transfert' %}?op={{ item.id }}')" class="button rounded chargement-au-click">Nouveau Transfert</button>
+						{% endif %}						
+					{% else %}
+						<button onclick="javascript:window.location.assign('')" class="button rounded primary chargement-au-click">0 A faire</button>
+					{% endif %}
+				</div>                        
+			</div>
+		{% endfor %}
+	</div>
+	
+
+{% endblock %}

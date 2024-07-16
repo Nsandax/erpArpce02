@@ -1,0 +1,183 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="invoice">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+
+            <div class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                <div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                    <p class="align-center header">{{title}}</p>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-6">
+                            Paie : <strong class="">ARPCE BG</strong>
+                            <br>
+                            Matricule :<strong class="">MK0214235</strong>
+                        </div>
+                        <div class="col-md-6" style="text-align:end;">
+                            Date édition :<strong class="">26/04/2021</strong>
+                            <br>
+                            Heure d'édition :<strong class="">11:04:38</strong>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <th width="5%">Code rubrique</th>
+                            <th width="30%">Libéllé</th>
+                            <th width="10%">Effectif mois précédant</th>
+                            <th width="10%">Effectif de ce mois</th>
+                            <th width="15%">Montant mois précédant</th>
+                            <th width="15%">Montant de ce mois</th>
+                            <th width="15%">Total Annuel</th>
+                        </tr>
+                    </table>
+                    <br>
+                    <br>
+
+
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr style="color:rgb(236, 119, 119)">
+                            <td colspan="7">Gains</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">020</td>
+                            <td width="30%">SALAIRE DE BASE</td>
+                            <td width="10%">0</td>
+                            <td width="10%">265</td>
+                            <td width="15%">0</td>
+                            <td width="15%">214532</td>
+                            <td width="15%">25354125475</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">020</td>
+                            <td width="30%">PRIME ANCIENNETE</td>
+                            <td width="10%">0</td>
+                            <td width="10%">233</td>
+                            <td width="15%">0</td>
+                            <td width="15%">702215</td>
+                            <td width="15%">82233641221</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">020</td>
+                            <td width="30%">PRIME SITE RISQUE</td>
+                            <td width="10%">0</td>
+                            <td width="10%">285</td>
+                            <td width="15%">0</td>
+                            <td width="15%">214532</td>
+                            <td width="15%">65423642125</td>
+                        </tr>
+                        <tr>
+                            <th width="5%"></th>
+                            <th width="30%">Total Gains</th>
+                            <th width="10%">0</th>
+                            <th width="10%">1643</th>
+                            <th width="15%">0</th>
+                            <th width="15%">10254254753</th>
+                            <th width="15%">270550004055221</th>
+                        </tr>
+
+                    </table>
+                    <br>
+                    <br>
+
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr style="color:rgb(236, 119, 119)">
+                            <td colspan="7">Avanes</td>
+                        </tr>
+                        <tr>
+                            <th width="5%"></th>
+                            <th width="30%">Total Avances</th>
+                            <th width="10%">0</th>
+                            <th width="10%">1643</th>
+                            <th width="15%">0</th>
+                            <th width="15%">10254254753</th>
+                            <th width="15%">270550004055221</th>
+                        </tr>
+                        <tr style="color:rgb(236, 119, 119)">
+                            <td colspan="7">Retenues</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">020</td>
+                            <td width="30%">RETENUE EMP CNSS</td>
+                            <td width="10%">0</td>
+                            <td width="10%">233</td>
+                            <td width="15%">0</td>
+                            <td width="15%">702215</td>
+                            <td width="15%">82233641221</td>
+
+                        </tr>
+                        <tr>
+                            <td width="5%">020</td>
+                            <td width="30%">IRPP</td>
+                            <td width="10%">0</td>
+                            <td width="10%">285</td>
+                            <td width="15%">0</td>
+                            <td width="15%">214532</td>
+                            <td width="15%">65423642125</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">020</td>
+                            <td width="30%">PRET</td>
+                            <td width="10%">0</td>
+                            <td width="10%">285</td>
+                            <td width="15%">0</td>
+                            <td width="15%">214532</td>
+                            <td width="15%">65423642125</td>
+                        </tr>
+                        <tr>
+                            <th width="5%"></th>
+                            <th width="30%">Total Retenues</th>
+                            <th width="10%">0</th>
+                            <th width="10%">1643</th>
+                            <th width="15%">0</th>
+                            <th width="15%">10254254753</th>
+                            <th width="15%">270550004055221</th>
+                        </tr>
+                        <tr style="color:rgb(236, 119, 119)">
+                            <td colspan="7">Charges Patronales</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">020</td>
+                            <td width="30%">CNSS EMPLOYEUR</td>
+                            <td width="10%">0</td>
+                            <td width="10%">285</td>
+                            <td width="15%">0</td>
+                            <td width="15%">214532</td>
+                            <td width="15%">65423642125</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">020</td>
+                            <td width="30%">CNSS ALLOC FAM</td>
+                            <td width="10%">0</td>
+                            <td width="10%">285</td>
+                            <td width="15%">0</td>
+                            <td width="15%">214532</td>
+                            <td width="15%">65423642125</td>
+                        </tr>
+                        <tr>
+                            <th width="5%"></th>
+                            <th width="30%">Total Charges patronales</th>
+                            <th width="10%">0</th>
+                            <th width="10%">1643</th>
+                            <th width="15%">0</th>
+                            <th width="15%">10254254753</th>
+                            <th width="15%">270550004055221</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

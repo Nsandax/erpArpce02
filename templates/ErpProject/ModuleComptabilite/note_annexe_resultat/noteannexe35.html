@@ -1,0 +1,199 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote35.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_35' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 30%">
+          <col style="width: 14%">
+          <col style="width: 11%">
+          <col style="width: 13%">
+          <col style="width: 16%">
+          <col style="width: 16%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="tg-kugc" colspan="6">NOTE 35 : LISTE DES INFORMATIONS SOCIALES, ENVIRONNEMENTALES ET SOCIETALES A FOURNIR</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Exercice clos&nbsp;&nbsp;le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">SIGLE :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Durée (en mois) :</td>
+              <td class="tg-cr4b">0</td>
+            </tr>
+            <tr>
+              <td class="tg-kf42" colspan="6">Liste des informations sociales, environnementales et sociétales</td>
+            </tr>
+            <tr>
+              <td class="tg-h2g2" colspan="6">INFORMATIONS SOCIALES</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Emploi :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       L’effectif total et la répartition des salariés par sexe, âge et zone géographique</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les embauches et les licenciements</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les rémunérations et leur évolution</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Relations sociales :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">        L’organisation du dialogue social</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Le bilan des accords collectifs </td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Santé et sécurité :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les conditions de santé et de sécurité au travail</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Le bilan des accords signés avec les organisations syndicales ou les représentants du personnel en matière de santé et de sécurité au travail</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Formation :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">        Les politiques mises en oeuvre en matière de formation ;</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">        Le nombre total d’heures de formation</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Egalité de traitement :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les mesures prises en faveur de l’égalité entre femmes et hommes</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les mesures prises en faveur de l’emploi et de l’insertion des personnes handicapées</td>
+            </tr>
+            <tr>
+              <td class="tg-h2g2" colspan="6">INFORMATIONS ENVIRONNEMENTALES</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Politique générale en matiŹre environnementale :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       L’organisation de la société pour prendre en compte les questions environnementales et le cas échéant, les démarches d’évaluation ou de certification en matière d’environnement ;</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les actions de formation et d’information des salariés menées en matière de protection de l’environnement</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les moyens consacrés ą la prévention des risques environnementaux et des pollutions</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Pollution et gestion des déchets :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les mesures de prévention, de réduction ou de réparation de rejets dans l’air, l’eau et le sol affectant gravement l’environnement ;</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les mesures de prévention, de recyclage et d’élimination des déchets</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       La prise en compte des nuisances sonores et toutes autres formes de pollution spécifique ą une activité</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Utilisation durable des ressources :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       La consommation d’eau et l’approvisionnement en eau en fonction des contraintes locales ;</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       La consommation de matiŹres premiŹres et les mesures prises pour améliorer l’efficacité dans leur utilisation ;</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       La consommation d’énergie, les mesures prises pour améliorer l’efficacité énergétique et le recours aux énergies renouvelables</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Changement climatique :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les rejets de gaz à effet de serre</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Protection de la biodiversité :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">       Les mesures prises pour préserver ou développer la biodiversité</td>
+            </tr>
+            <tr>
+              <td class="tg-h2g2" colspan="6">INFORMATIONS RELATIVES AUX ENGAGEMENTS SOCIETAUX EN FAVEUR DU DEVELOPPEMENT DURABLE</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Impact territorial, économique et social de l’activité de la société :</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">      En matière d’emploi et de développement régional ;</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">      Sur les populations riveraines ou locales</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Relations entretenues avec les personnes ou les organisations intéressées par l’activité de la société (associations d’insertion, établissements d’enseignement…)</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">      Les conditions de dialogue avec ces personnes ou organisations ;</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">      Les actions de partenariat ou de mécénat</td>
+            </tr>
+            <tr>
+              <td class="tg-vox4" colspan="6">Sous-traitance et fournisseurs</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1" colspan="6">      La prise en compte dans la politique d’achat des enjeux sociaux et environnementaux</td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+{% endblock %}

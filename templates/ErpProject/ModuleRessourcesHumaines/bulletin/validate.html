@@ -1,0 +1,226 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+	<div class="row">
+		<ul class="breadcrumb">
+			<li><a><span class="mif-home"></span></a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_home' %}">Module Ressources humaines</a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_list_bulletin' %}">Liste des Bulletins</a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_add_bulletin' %}">Nouveau bulletin</a></li>
+			<li>{{ title }}</li>
+		</ul>
+	</div>
+    <div class="row">
+        <!--button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_element' %}')" class="theme-btn theme-btn-sm rounded primary chargement-au-click">Modifier</button-->
+        <button class="theme-btn theme-btn-sm rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_bareme' %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;margin-left: 5px">Imprimer</button>
+		<center><h4 style="color:red; font-weight: bold;">BULLETIN DE PAIE</h4></center>
+	</div>
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+		{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+	<br>
+	
+    <div class="row item-content" style="margin-top: 10px">
+        <!--p class="header">{{ model.designation }}</p-->
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Désignation :<br>
+                    <span id="designation_bulletin" class="sub-alt-header fg-dark"></span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Référence :<br>
+                    <span id="reference_bulletin" class="sub-alt-header fg-dark"></span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Employé :<br>
+                    <span class="sub-alt-header fg-dark">{{ employe.nom_complet }}</span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Lot de paie :<br>
+					<span class="sub-alt-header fg-dark">{{ lot_bulletin.designation }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Type :<br>
+                    <span id="type_bulletin" class="sub-alt-header fg-dark"></span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Periode :<br>
+                    <span id="periode_bulletin" class="sub-alt-header fg-dark"></span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Devise :<br>
+					<span class="sub-alt-header fg-dark">{{ devise.designation }}</span>
+                </p>
+            </div>
+        </div>
+
+		<div class="row">			
+			<table class="table striped border bordered no-margin" style="width: 100%">
+				<thead style="border-bottom: none">
+					<tr>
+						<th>A PAYER</th>
+					</tr>
+				</thead>
+			</table>
+			<table class="table striped border bordered no-margin" style="width: 100%;">
+				<thead style="border-bottom: none">
+					<tr>
+						<td width="10%">Code</td>
+						<td width="15%">Temps</td>
+						<td width="25%">Taux</td>
+						<td width="25%">Montant</td>
+						<td width="25%">Libellé</td>
+					</tr>
+				</thead>
+				<tbody id="items_apayer">
+					<tr>
+						<td width="10%">1</td>
+						<td width="15%">22</td>
+						<td width="25%">86000</td>
+						<td width="25%">180 000</td>
+						<td width="25%">Salaire de base</td>
+					</tr>
+				</tbody>
+				<tfoot>
+					<tr>
+						<th width="50%"></th>						
+						<th width="25%" style="text-align: right" id="brut_total"></th>
+						<th width="25%">BRUT TOTAL</th>
+					</tr>
+					<tr>
+						<th width="50%"></th>						
+						<th width="25%" style="text-align: right" id="brut_imposable"></th>
+						<th width="25%">Brut Imposable</th>
+					</tr>
+				</tfoot>
+			</table>
+			<table class="table striped border bordered no-margin" style="width: 100%">
+				<thead style="border-bottom: none">
+					<tr>
+						<th>A RETENIR</th>
+					</tr>
+				</thead>
+			</table>
+			<table class="table striped border bordered no-margin" style="width: 100%;">
+				<thead style="border-bottom: none">
+					<tr>
+						<td width="10%">Code</td>
+						<td width="15%">Temps</td>
+						<td width="25%">Taux</td>
+						<td width="25%">Montant</td>
+						<td width="25%">Libellé</td>
+					</tr>
+				</thead>
+				<tbody id="items_aretenir">
+					<tr>
+						<td width="10%">1</td>
+						<td width="15%">22</td>
+						<td width="25%">86000</td>
+						<td width="25%">180 000</td>
+						<td width="25%">Salaire de base</td>
+					</tr>
+				</tbody>
+				<tfoot>
+					<tr>
+						<th width="50%"></th>						
+						<th width="25%" style="text-align: right" id="total_retenues">450000</th>
+						<th width="25%">TOTAL RETENUES</th>
+					</tr>
+				</tfoot>
+			</table>
+			
+			<table class="table striped border bordered no-margin" style="width: 100%">
+				<thead style="border-bottom: none">
+					<tr>
+						<th width="25%">Net Imposable</th>
+						<th width="25%" style="text-align: right" id="net_imposable">45000</th>
+						<th width="50%"></th>
+					</tr>
+				</thead>
+			</table>
+			<table class="table striped border bordered no-margin" style="width: 100%">
+				<thead style="border-bottom: none">
+					<tr>
+						<th width="50%"></th>
+						<th width="25%">NET A PAYER</th>
+						<th width="25%" style="text-align: right" id="net_a_payer">500000</th>
+					</tr>
+				</thead>
+			</table>			
+		</div>
+		<form id="form" method="POST" action="{% url 'module_ressources_humaines_post_valider_bulletin' %}">
+			{% csrf_token %}
+			<input id="submit" type="submit" style="display: none">
+			<input type="hidden" name="designation" id="input_designation">
+			<input type="hidden" name="employe_id" value="{{ employe.id }}">
+			<input type="hidden" name="devise_id" value="{{ devise.id }}">
+			<input type="hidden" name="lot_id" value="{{ lot_bulletin.id }}">
+			<input type="hidden" name="reference" id="input_reference">
+			<input type="hidden" name="periode" id="input_periode">
+			<input type="hidden" name="type" id="input_type">
+		</form>
+    </div>
+	<script src="/static/ErpProject/js/bulletin-local.js"></script>
+	<script>
+        $(document).ready(function(){
+            var totalApayer = 0;
+			var netImposable = 0;
+			var brutTotal = 0;
+			var brutImposable = 0;
+			var totalRetenues = 0;
+			
+            var bulletin  = bulletinLocal.avoirBulletin();
+
+            $("#designation_bulletin").text(bulletin.designation);
+            $("#input_designation").val(bulletin.designation);
+			
+            $("#reference_bulletin").text(bulletin.reference);
+            $("#input_reference").val(bulletin.reference);
+			
+            $("#periode_bulletin").text(bulletin.periode);
+            $("#input_periode").val(bulletin.periode);
+			
+            $("#type_bulletin").text(bulletin.type);
+            $("#input_type").val(bulletin.type);
+
+            elements = bulletinLocal.avoirTousElementsApayer();
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+                var total = parseFloat(ligne.prix_unitaire) * parseFloat(ligne.quantite_demandee);
+                totalBon += total;
+                var nouvelleLigne = '<tr class="table bordered border"><td>' + ligne.nom_article + '</td>';
+                nouvelleLigne += '<td>' + ligne.quantite_demandee + ' ' + ligne.symbole_unite + '</td>';
+                nouvelleLigne += '<td>' + parseFloat(ligne.prix_unitaire).toFixed(2) + ' {{ devise.symbole_devise }}</td>';
+                nouvelleLigne += '<td>' + total.toFixed(2) + ' {{ devise.symbole_devise }}</td></tr>';
+
+                $("#items").append(nouvelleLigne);
+
+                var input_article_id = '<input type="hidden" name="article_id" value="' + ligne.article_id + '" >';
+                $("#form").append(input_article_id);
+                var input_quantite_demandee = '<input type="hidden" name="quantite_demandee" value="' + ligne.quantite_demandee + '" >';
+                $("#form").append(input_quantite_demandee);
+                var input_prix_unitaire = '<input type="hidden" name="prix_unitaire" value="' + ligne.prix_unitaire + '" >';
+                $("#form").append(input_prix_unitaire);
+            }
+            $("#total").text(totalBon.toFixed(2) + " {{ devise.symbole_devise }}");            
+        });	
+	</script>
+{% endblock %}

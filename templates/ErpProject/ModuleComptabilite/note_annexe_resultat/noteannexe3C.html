@@ -1,0 +1,176 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <link href="{% static 'ErpProject/css/printnote3C.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_3C' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 29%">
+          <col style="width: 17%">
+          <col style="width: 17%">
+          <col style="width: 19%">
+          <col style="width: 18%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td class="tg-3jt2" colspan="5">NOTE 3C : IMMOBILISATIONS  (AMORTISSEMENTS)</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Exercice clos&nbsp;&nbsp;le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">SIGLE :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Durée (en mois) :</td>
+              <td class="tg-cr4b">0</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-w3qt">SITUATIONS  ET MOUVEMENTS</td>
+              <td class="tg-jbor">A</td>
+              <td class="tg-jbor">B</td>
+              <td class="tg-jbor">C</td>
+              <td class="tg-jbor">D</td>
+            </tr>
+            <tr>
+              <td class="tg-2y4s">RUBRIQUES</td>
+              <td class="tg-jbor">AMORTISSEMENTS  CUMULES A L'OUVERTURE DE L'EXERCICE</td>
+              <td class="tg-jbor">AUGMENTATIONS : DOTATIONS DE L'EXERCICE</td>
+              <td class="tg-jbor">DIMINUTIONS : Amortissements relatifs aux éléments sortis de l'actif</td>
+              <td class="tg-jbor">CUMUL DES AMORTISSEMENTS A LA CLOTURE DE L'EXERCICE</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Frais de développement et de prospection</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Brevets, licences, logiciels et droits similaires</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">500 000,0</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">500 000,0</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Fonds commercial et droit au bail</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Autres immobilisations incorporelles</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+            </tr>
+            <tr>
+              <td class="tg-vtwr">SOUS-TOTAL IMMOBILISATION INCORPORELLES</td>
+              <td class="tg-eqfb">-</td>
+              <td class="tg-eqfb">500 000,0</td>
+              <td class="tg-eqfb">-</td>
+              <td class="tg-eqfb">500 000,0</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Terrains hors immeuble de placement</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Terrains&nbsp;&nbsp;immeuble de placement</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Bâtiments hors immeuble de placement</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">2 500 000</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">2 500 000</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Bâtiments - immeuble de placement</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Aménagements, agencements et installations</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Matériel,  mobilier et actifs biologiques</td>
+              <td class="tg-gmla">34 050 000</td>
+              <td class="tg-gmla">6 070 000</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">40 120 000</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Matériel de transport</td>
+              <td class="tg-gmla">18 816 000</td>
+              <td class="tg-gmla">5 360 000</td>
+              <td class="tg-gmla">1 500 000</td>
+              <td class="tg-gmla">22 676 000</td>
+            </tr>
+            <tr>
+              <td class="tg-vtwr">SOUS - TOTAL : IMMOBILISATIONS CORPORELLES</td>
+              <td class="tg-eqfb">52 866 000</td>
+              <td class="tg-eqfb">13 930 000</td>
+              <td class="tg-eqfb">1 500 000</td>
+              <td class="tg-eqfb">65 296 000</td>
+            </tr>
+            <tr>
+              <td class="tg-nybd">TOTAL GENERAL</td>
+              <td class="tg-jbor">52 866 000</td>
+              <td class="tg-jbor">14 430 000</td>
+              <td class="tg-jbor">1 500 000</td>
+              <td class="tg-jbor">65 796 000</td>
+            </tr>
+            <tr>
+              <td class="tg-z0zb" colspan="5">Commentaires</td>
+            </tr>
+            <tr>
+              <td class="tg-zv4m" colspan="5">Indiquer les modes d'amortissement utilisés, la durée de vie ou le taux d'amortissements utilisés.</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+{% endblock %}

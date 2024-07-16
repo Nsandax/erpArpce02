@@ -1,0 +1,73 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="facture" style="font-size: 12pt!important;">
+            <div id="lettre">
+                <div class="title_lettre">
+                    <h4>MODELE AVIS D’APPEL D’OFFRE</h4>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <p>Objet:<b>AVIS PUBLIC D'APPEL D'OFFRES</b></p>
+                        <p>Réf: [Nom du projet]</p>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+
+                <div class="lettre_body">
+                    <p style="font-size:13px;">
+                        1.	<b>L’Agence de Régulation des Postes et des communications Electroniques </b>sollicite des
+                        offres sous pli fermé de la part de candidats répondant aux qualifications requises pour
+                        fournir [insérer une brève description des Fournitures et/ou Services].  Ces [Fournitures et/ou Services]
+                        sont à livrer à [indiquer l’adresse physique du lieu de livraison] dans un délai de [Indiquer un délai
+                        raisonnable en jours, semaines ou mois selon la nature des fournitures à acquérir].
+                    </p>
+
+                    <p style="font-size:13px;">
+                        2.	Les candidats intéressés peuvent consulter le dossier d’appel d’offres à l’adresse
+                        mentionnée ci-après [spécifier l’adresse] de [insérer les heures d’ouverture et de
+                        fermeture des bureaux]. Ils peuvent également l’obtenir à l’adresse mentionnée ci avant.
+                    </p>
+                    <p style="font-size:13px;">
+                        3.	Les offres devront être déposées à l’adresse ci-après [spécifier l’adresse physique]
+                        au plus tard le [insérer la date et l’heure]. Les offres remises en retard ne seront pas acceptées.
+                        Les offres seront ouvertes en présence des représentants des candidats présents à l’adresse ci-après
+                        [spécifier l’adresse] à [insérer la date et l’heure].
+                    </p>
+                    <p style="font-size:13px;">
+                        3.	Les offres devront être déposées à l’adresse ci-après [spécifier l’adresse physique]
+                        au plus tard le [insérer la date et l’heure]. Les offres remises en retard ne seront pas acceptées.
+                        Les offres seront ouvertes en présence des représentants des candidats présents à l’adresse ci-après
+                        [spécifier l’adresse] à [insérer la date et l’heure].
+                    </p>
+                </div>
+
+                <br><br><br>
+                <div class="row" style="">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5" style="text-align:center;">
+                        <p class="invoice-text" style="font-size:13px;font-weight:bold;">Le Directeur Général</p>
+                        <p class="invoice-text" style="font-weight:bold;font-size:13px;">Personne responsable des marchés</p>
+                    </div>
+                </div>
+                <br><br><br>
+                <div class="row" style="">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5" style="text-align:center;">
+                        <p class="invoice-text" style="font-size:13px;font-weight:bold;">Louis Marc SAKALA</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </body>
+</html>

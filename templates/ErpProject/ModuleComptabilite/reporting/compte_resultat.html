@@ -1,0 +1,53 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Compte de Résultat</title>
+        <meta name="description" content="Rapport Compte de Résultat">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <span>Période :</span> <br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                </div>
+                <div class="col-md-6">
+                    <span>Devise :</span> <br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </div>
+            </div>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#91a7c3;color:#fff;font-weight:500">
+                    <td width="5%"  rowspan="2" align="center">REF</td>
+                    <td width="34%" rowspan="2" align="center" colspan="3">LIBELLES</td>
+                    <td width="5%" rowspan="2" align="center">NOTE</td>
+                    <td width="25%" align="center">Exercice au 31/12/N</td>
+                    <td width="25%" align="center">Exercice au 31/12/N-1</td>
+                </tr>
+                <tr style="background-color:#91a7c3;color:#fff;font-weight:500">
+                    <td width="25%" align="center">NET</td>
+                    <td width="25%" align="center">NET</td>
+                </tr>
+                {% for item in model %}
+                    <tr  {% if item.est_total %} {% if item.reference == "XI" %}style="background-color:#7c984a;color:#fff;font-weight:300" {% elif item.reference == "XG" or item.reference == "XH"%} style="background-color:#f2eee8;color:#000;font-weight:300"{% else %}style="background-color:#002060;color:#fff;font-weight:300"{% endif %}{% else %} data-toggle="modal" data-target="#modal{{ item.reference }}" {% endif %}>
+                        <td width="5%" > {{ item.reference }} </td>
+                        <td width="34%"> {{ item.libelle }} </td>
+                        <td width="3%"> {{ item.lettre }} </td>
+                        <td width="3%">  {{ item.signe }}  </td>
+                        <td width="5%"> {{ item.note }} </td>
+                        <td width="25%" align="right"> {% if item.balance_n == "0.00" %}  - {% else %}  {{ item.balance_n|monetary }} {% endif %}</td>
+                        <td width="25%" align="right"> {% if item.balance_n1 == "0.00" %}  - {% else %}  {{ item.balance_n1|monetary }}  {% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            
+        </div>
+    </body>
+</html>

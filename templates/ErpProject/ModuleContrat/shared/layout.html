@@ -1,0 +1,100 @@
+{% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+{% if not isPopup %}
+<!-- Suite Menu Nav -->
+<!-- Menu lateral -->
+<div class="sidebar" role="navigation">
+    <div class="contenair-profil only-on-large-screen" style="background-color: transparent;">
+        <!-- <img src="/static/ErpProject/image/icone_profile.png" class="profil"> -->
+        {% if utilisateur.image != None and utilisateur.image != '' %}
+        <img src="{% static utilisateur.image %}"  class="profil">
+        {% else %}
+            <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+        {% endif %}
+        <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+        <p class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</p>
+        <div class="divider" style="background-color: transparent;"></div>
+    </div>
+    <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+        <ul class=" nav" id="side-menu" style="background-color: transparent;">
+            {% include 'ErpProject/ErpBackOffice/widget/menu.html' %}
+        </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+<!-- /.Menu lateral -->
+</nav>
+<!-- /.Menu Navbar -->
+
+<!-- Corps de la page (A définir dans chaque fonction du module) -->
+<div id="page-wrapper" style="background-color:#f9f9f9;">
+    {% else %}
+<div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+    {% endif %}
+    {% block page %}{% endblock %}
+</div>
+
+<!-- SCRIPT DE TRAITEMENT DES DROITS VISUELS -->
+<script>
+    var lesactions = new Array();
+    var menu1 = 0;
+    var menu2 = 0;
+    var menu3 = 0;
+    var menu4 = 0;
+    var menu5 = 0;
+
+
+
+    {% for action in actions %}
+    lesactions.push({droit:"{{ action.droit }}"});
+    {% endfor %}
+
+    console.log("Lolo")
+
+
+
+    //Initialisation des sous-menus
+    $("#recette").hide();
+    $("#depense").hide();
+    //$("#projet").hide();
+    $("#combinaison").hide();
+    $("#transaction_budgetaire").hide();
+    $("#exercice_budgetaire").hide();
+    $("#categorie").hide();
+    $("#centre_cout").hide();
+    $("#groupement_centre_cout").hide();
+    $("#parametre").hide();
+    $("#menuBI").hide();
+    $("#activite").hide();
+    $("#poste_budgetaire").hide();
+
+    for(var i = 1; i < lesactions.length; i++)
+
+    {
+        action = lesactions[i];
+        if(action.droit==="LISTER_BUDGET"){$("#recette").show(); menu1++;}
+        if(action.droit==="LISTER_BUDGET"){$("#depense").show();menu1++;}
+        //if(action.droit==="LISTER_BUDGET"){$("#projet").show();menu1++;}
+        if(action.droit==="LISTER_COMBINAISON"){$("#combinaison").show();menu2++;}
+        if(action.droit==="LISTER_TRANSACTION_BGT"){$("#transaction_budgetaire").show();menu3++;}
+        if(action.droit==="LISTER_EXERCICE_BUDGETAIRE"){$("#exercice_budgetaire").show();menu4++;}
+        if(action.droit==="CREER_RAPPORT"){$("#menuBI").show();}
+        if(action.droit==="LISTER_CATEGORIE_BUDGET"){$("#categorie").show();menu4++;}
+        if(action.droit==="LISTER_POSTE_BUDGETAIRE"){$("#poste_budgetaire").show();menu4++;}
+        if(action.droit==="LISTER_CENTRE_COUT"){$("#centre_cout").show();menu5++;}
+        if(action.droit==="LISTER_GROUPE_ANALYTIQUE"){$("#groupement_centre_cout").show();menu5++;}
+        if(action.droit==="LISTER_BUDGET"){$("#parametre").show();menu4++;}
+        if(action.droit==="LISTER_ACTIVITE"){$("#activite").show();menu4++;}
+
+
+    }
+    //Traitement des menus
+
+    if (menu1 == 0){ $("#menu1").hide();}
+    if (menu2 == 0){ $("#menu2").hide();}
+    if (menu3 == 0){$("#menu3").hide();}
+    if (menu4 == 0){$("#menu4").hide();}
+    if (menu5 == 0){$("#menu5").hide();}
+
+    </script>
+    <!-- FIN SCRIPT -->
+{% endblock %}

@@ -1,0 +1,45 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Balance générale</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="invoice">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <p>
+                    Période :<br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                    <br>
+                    <br>
+                </p>
+            </div>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#f1f1f1">
+                    <th>Code</th>
+                    <th>Désignation</th>
+                    <th>Budget</th>
+                    <th>montant</th>
+                    <th>Date création</th>
+                </tr>
+                {% for item in model %}
+                <tr>
+                    <td>{{item.code}}</td>
+                    <td>{{item.designation}}</td>
+                    <td> {{item.budget.designation}}</td>
+                    <td> {{ item.separateur_montant_alloue }} {{item.budget.devise.symbole_devise}}</td>
+                    <td>{{item.creation_date}}</td>
+                </tr>
+                {% endfor %}
+            </table>            
+        </div>
+    </body>
+</html>

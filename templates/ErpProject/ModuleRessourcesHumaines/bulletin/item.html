@@ -1,0 +1,174 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_list_lotbulletin' %}">Lots de bulletins de paie</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <!--button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_element' %}')" class="button  rounded primary chargement-au-click">Modifier</button-->
+        <button class="button primary_color_{{module.name|lower}} rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_bareme' %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;margin-left: 5px">Imprimer</button>
+		<center><h4 style="color:red; font-weight: bold;">BULLETIN DE PAIE</h4></center>
+	</div>
+	
+	<hr />
+	
+    <div class="row item-content" style="margin-top: 10px">
+        <!--p class="header">{{ model.designation }}</p-->
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Désignation :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Référence :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.reference }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Type :<br>
+                    <span class="sub-alt-header fg-dark"></span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Devise :<br>
+					<span class="sub-alt-header fg-dark">{{ model.devise.code_iso }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Date de création :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.creation_date|date:"d/m/Y" }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Auteur :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.auteur.nom_complet }} </span>
+                </p>
+            </div>
+        </div>
+
+		<div class="row">			
+			<table class="table striped border bordered no-margin" style="width: 100%">
+				<thead style="border-bottom: none">
+					<tr>
+						<th>A PAYER</th>
+					</tr>
+				</thead>
+			</table>
+			<table class="table striped border bordered no-margin" style="width: 100%;">
+				<thead class="primary_color_{{module.name|lower}}" style="border-bottom: none">
+					<tr>
+						<td width="10%">Code</td>
+						<td width="15%">Temps</td>
+						<td width="25%">Taux</td>
+						<td width="25%">Montant</td>
+						<td width="25%">Libellé</td>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in item_bulletins %}
+						{% if item.element.type_element == 1 %}
+							<tr>
+								<td width="10%">{{ item.sequence }}</td>
+								<td width="15%">{{ item.temps }}</td>
+								<td width="25%">{{ item.taux }}</td>
+								<td width="25%">{{ item.montant }}</td>
+								<td width="25%">{{ item.designation }}</td>
+							</tr>
+						{% endif %}
+					{% endfor %}
+				</tbody>
+				<tfoot>
+					<tr>
+						<th></th>
+						<th></th>
+						<th></th>						
+						<th style="text-align: right">{{ model.brut_total }}</th>
+						<th>BRUT TOTAL</th>
+					</tr>
+					<tr>
+						<th></th>
+						<th></th>
+						<th></th>
+						
+						<th style="text-align: right">{{ model.brut_imposable }}</th>
+						<th>Brut Imposable</th>
+					</tr>
+				</tfoot>
+			</table>
+			<table class="table striped border bordered no-margin" style="width: 100%">
+				<thead style="border-bottom: none">
+					<tr>
+						<th>A RETENIR</th>
+					</tr>
+				</thead>
+			</table>
+			<table class="table striped border bordered no-margin" style="width: 100%;">
+				<thead style="border-bottom: none">
+					<tr>
+						<td width="10%">Code</td>
+						<td width="15%">Temps</td>
+						<td width="25%">Taux</td>
+						<td width="25%">Montant</td>
+						<td width="25%">Libellé</td>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in item_bulletins %}
+						{% if item.element.type_element == 2 %}
+							<tr>
+								<td width="10%">{{ item.sequence }}</td>
+								<td width="15%"></td>
+								<td width="25%"></td>
+								<td width="25%">{{ item.montant }}</td>
+								<td width="25%">{{ item.designation }}</td>
+							</tr>
+						{% endif %}
+					{% endfor %}
+				</tbody>
+				<tfoot>
+					<tr>
+						<th></th>
+						<th></th>
+						<th></th>						
+						<th style="text-align: right">{{ model.total_a_retenir }}</th>
+						<th>TOTAL RETENU</th>
+					</tr>
+				</tfoot>
+			</table>
+			
+			<table class="table striped border bordered no-margin" style="width: 100%">
+				<thead style="border-bottom: none">
+					<tr>
+						<th width="20%">Net Imposable</th>
+						<th width="30%" style="text-align: right">{{ model.net_imposable }}</th>
+						<th width="50%"></th>
+					</tr>
+				</thead>
+			</table>
+			<table class="table striped border bordered no-margin" style="width: 100%">
+				<thead style="border-bottom: none">
+					<tr>
+						<th width="50%"></th>
+						<th width="20%">NET A PAYER</th>
+						<th width="30%" style="text-align: right">{{ model.net_a_payer }}</th>
+					</tr>
+				</thead>
+			</table>			
+		</div>		
+    </div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+
+{%load static %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_ressources_humaines_list_employes' %}">Module Ressources humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row cells2">
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary">Valider</button>
+        <button class="button small-button rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_list_postes' %}')" style="margin-left: 5px">Annuler</button>
+    </div>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+
+                <td class="no-padding-top no-padding-left no-padding-bottom" width="35%">
+                    <label>Mon CV</label>
+                    <div class="input-control text full-size">
+                        <input id="document_upload" name="document_upload" type="file" >
+                    </div>
+                </td>
+
+
+
+{% endblock %}

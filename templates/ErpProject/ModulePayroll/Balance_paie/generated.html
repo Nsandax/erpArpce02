@@ -1,0 +1,193 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+    {% block page %}
+        {%load static %}
+        {% load account_filters %}
+        <style>
+
+        </style>
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="row">
+            <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+            <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+            <button onclick="javascript:window.location.assign('{% url 'module_payroll_generate_Balance_paie' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Retour</button>
+        </div>
+        <form id="form" method="POST" action="{% url 'module_payroll_to_print_balance_paie' %}">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input type="text" name="date_debut" value="{{ date_debut }}" style="display: none">
+            <input type="text" name="date_fin" value="{{ date_fin }}" style="display: none">
+            <input type="number" name="devise_id" value="{{ devise.id }}" style="display: none">
+            <input type="number" name="groupe" value="{{ groupe }}" style="display: none">
+            <input type="number" name="title" value="{{ title }}" style="display: none">
+        </form>
+        <hr class="hr-ligne">
+        <div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <p class="align-center header">{{title}}</p>
+            <br>
+            <div class="row">
+                <div class="col-md-6">
+                    Paie : <strong class="">ARPCE BG</strong>
+                    <br>
+                    Matricule :<strong class="">MK0214235</strong>
+                </div>
+                <div class="col-md-6" style="text-align:end;">
+                    Date édition :<strong class="">26/04/2021</strong>
+                    <br>
+                    Heure d'édition :<strong class="">11:04:38</strong>
+                </div>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr>
+                    <th width="5%">Code rubrique</th>
+                    <th width="30%">Libéllé</th>
+                    <th width="10%">Effectif mois précédant</th>
+                    <th width="10%">Effectif de ce mois</th>
+                    <th width="15%">Montant mois précédant</th>
+                    <th width="15%">Montant de ce mois</th>
+                    <th width="15%">Total Annuel</th>
+                </tr>
+            </table>
+            <br>
+            <br>
+
+
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr style="color:rgb(236, 119, 119)">
+                    <td colspan="7">Gains</td>
+                </tr>
+                <tr>
+                    <td width="5%">020</td>
+                    <td width="30%">SALAIRE DE BASE</td>
+                    <td width="10%">0</td>
+                    <td width="10%">265</td>
+                    <td width="15%">0</td>
+                    <td width="15%">214532</td>
+                    <td width="15%">25354125475</td>
+                </tr>
+                <tr>
+                    <td width="5%">020</td>
+                    <td width="30%">PRIME ANCIENNETE</td>
+                    <td width="10%">0</td>
+                    <td width="10%">233</td>
+                    <td width="15%">0</td>
+                    <td width="15%">702215</td>
+                    <td width="15%">82233641221</td>
+                </tr>
+                <tr>
+                    <td width="5%">020</td>
+                    <td width="30%">PRIME SITE RISQUE</td>
+                    <td width="10%">0</td>
+                    <td width="10%">285</td>
+                    <td width="15%">0</td>
+                    <td width="15%">214532</td>
+                    <td width="15%">65423642125</td>
+                </tr>
+                <tr>
+                    <th width="5%"></th>
+                    <th width="30%">Total Gains</th>
+                    <th width="10%">0</th>
+                    <th width="10%">1643</th>
+                    <th width="15%">0</th>
+                    <th width="15%">10254254753</th>
+                    <th width="15%">270550004055221</th>
+                </tr>
+
+            </table>
+            <br>
+            <br>
+
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr style="color:rgb(236, 119, 119)">
+                    <td colspan="7">Avanes</td>
+                </tr>
+                <tr>
+                    <th width="5%"></th>
+                    <th width="30%">Total Avances</th>
+                    <th width="10%">0</th>
+                    <th width="10%">1643</th>
+                    <th width="15%">0</th>
+                    <th width="15%">10254254753</th>
+                    <th width="15%">270550004055221</th>
+                </tr>
+                <tr style="color:rgb(236, 119, 119)">
+                    <td colspan="7">Retenues</td>
+                </tr>
+                <tr>
+                    <td width="5%">020</td>
+                    <td width="30%">RETENUE EMP CNSS</td>
+                    <td width="10%">0</td>
+                    <td width="10%">233</td>
+                    <td width="15%">0</td>
+                    <td width="15%">702215</td>
+                    <td width="15%">82233641221</td>
+
+                </tr>
+                <tr>
+                    <td width="5%">020</td>
+                    <td width="30%">IRPP</td>
+                    <td width="10%">0</td>
+                    <td width="10%">285</td>
+                    <td width="15%">0</td>
+                    <td width="15%">214532</td>
+                    <td width="15%">65423642125</td>
+                </tr>
+                <tr>
+                    <td width="5%">020</td>
+                    <td width="30%">PRET</td>
+                    <td width="10%">0</td>
+                    <td width="10%">285</td>
+                    <td width="15%">0</td>
+                    <td width="15%">214532</td>
+                    <td width="15%">65423642125</td>
+                </tr>
+                <tr>
+                    <th width="5%"></th>
+                    <th width="30%">Total Retenues</th>
+                    <th width="10%">0</th>
+                    <th width="10%">1643</th>
+                    <th width="15%">0</th>
+                    <th width="15%">10254254753</th>
+                    <th width="15%">270550004055221</th>
+                </tr>
+                <tr style="color:rgb(236, 119, 119)">
+                    <td colspan="7">Charges Patronales</td>
+                </tr>
+                <tr>
+                    <td width="5%">020</td>
+                    <td width="30%">CNSS EMPLOYEUR</td>
+                    <td width="10%">0</td>
+                    <td width="10%">285</td>
+                    <td width="15%">0</td>
+                    <td width="15%">214532</td>
+                    <td width="15%">65423642125</td>
+                </tr>
+                <tr>
+                    <td width="5%">020</td>
+                    <td width="30%">CNSS ALLOC FAM</td>
+                    <td width="10%">0</td>
+                    <td width="10%">285</td>
+                    <td width="15%">0</td>
+                    <td width="15%">214532</td>
+                    <td width="15%">65423642125</td>
+                </tr>
+                <tr>
+                    <th width="5%"></th>
+                    <th width="30%">Total Charges patronales</th>
+                    <th width="10%">0</th>
+                    <th width="10%">1643</th>
+                    <th width="15%">0</th>
+                    <th width="15%">10254254753</th>
+                    <th width="15%">270550004055221</th>
+                </tr>
+            </table>
+        </div>
+        {% include 'ErpProject/ErpBackOffice/widget/export_excel.html' with btn_id="btn_export" table_id="rapport" filename="journal" only %}
+{% endblock %}

@@ -1,0 +1,370 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %} {%load static %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_tableau_de_bord' %}">Module Vente</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_articles' %}">Liste des articles achetables</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_details_article' model.id %}">{{ model.designation }}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <button onclick="javascript:document.getElementById('submit').click()" class="button rounded primary_color_{{module.name|lower}} chargement-au-click">
+                                    Valider
+                                </button>
+                <button onclick="javascript:window.location.assign('{% url 'module_vente_details_article' model.id %}')" class="button rounded  chargement-au-click" style="margin-left: 5px">Annuler</button>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+
+                <br>
+
+
+                <form id="form" method="POST" action="{% url 'module_vente_post_update_article' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    <input name="ref" type="hidden" value="{{ model.id }}">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input id="image_upload" name="image_upload" type="file" accept="image/*" style="display:none;">
+                            <div class="tile-container">
+                                <a onclick="$('input[id=image_upload]').click();" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+                                    <div class="tile-content slide-up">
+                                        <div class="slide">
+                                            {% if model.image != None and model.image != "" %}
+                                            <img id="image_preview" src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/"> {% else %}
+                                            <img id="image_preview" src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/"> {% endif %}
+                                        </div>
+                                        <div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+                                            <span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br/>
+                    <br/>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Code de l'article</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="code_article" id="code_article" value="{{ model.code_article }}" data-validate-func="required" data-validate-hint="Entrez le code de l'article svp." />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Désignation</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="designation" id="designation" value="{{ model.designation }}" data-validate-func="required" data-validate-hint="Entrez la désignation de l'article svp." />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Type d'article</label>
+                            <div class="input-control text full-size">
+                                <select name="type_article" id="type_article" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez le type d'article svp.">
+                                    <option value="{{ types_article.id }}">{{types_article.designation}}</option>
+                                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Categorie</label>
+                            <div class="input-control text full-size">
+                                <select name="categorie_id" id="categorie_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez la catégorie svp.">
+                                                        <option value="0">Sélectionnez une catégorie d'article</option>
+                                                        {% for item in categories %}
+                                                            <option {% if model.categorie_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                            </div>
+                        </div>
+
+                    <div class="col-md-6">
+                            <label>Unité</label>
+                            <div class="input-control text full-size">
+                                <select onchange="choix_unite()" name="unite_id" id="unite_id" >
+                                                    <option value="">Sélectionnez une unité</option>
+                                                    {% for item in unites %}
+                                                        <option {% if model.unite_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                                    {% endfor %}
+                                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Prix unitaire</label>
+                            <div class="input-control text full-size">
+                                <input name="prix_unitaire_article" id="prix_unitaire_article" value="{{ model.prix_unitaire }}" type="text" placeholder="Ex: 100" data-validate-func="number" data-validate-hint="Précisez le prix unitaire svp">
+                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole_devise }}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                                    <input value="1" name="est_achetable" id="est_achetable"
+                                                        {% if model.est_achetable == True %}{{ "checked" }}{% endif %}
+                                                        type="checkbox">
+                                                    <span class="check"></span>
+                                                    <span class="caption">Peut être acheté</span>
+                                                </label>
+                            <label class="input-control checkbox small-check full-size">
+                                                    <input value="1" name="est_manufacturable" id="est_manufacturable"
+                                                        {% if model.est_manufacturable == True %}{{ "checked" }}{% endif %}
+                                                        type="checkbox">
+                                                    <span class="check"></span>
+                                                    <span class="caption">Est manufacturable</span>
+                                                </label>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                                        <input value="1" name="est_commercialisable" id="est_commercialisable"
+                                                            {% if model.est_vendable == True %}{{ "checked" }}{% endif %}
+                                                            type="checkbox">
+                                                        <span class="check"></span>
+                                                        <span class="caption">Peut être vendu</span>
+                                                    </label>
+                            <label class="input-control checkbox small-check full-size">
+                                                        <input value="1" name="est_fabriquable" id="est_fabriquable"
+                                                            {% if model.est_fabriquable == True %}{{ "checked" }}{% endif %}
+                                                            type="checkbox">
+                                                        <span class="check"></span>
+                                                        <span class="caption">Peut être fabriqué</span>
+                                                    </label>
+                        </div>
+                    </div>
+
+                    <!--fin modification-->
+
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+
+
+
+
+<script>
+     function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#image_preview').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#image_upload").change(function() {
+        readURL(this);
+    });
+
+    var lesFournisseurs = new Array();
+    var lesUnites = new Array();
+    var lesFournisseursArticles = new Array();
+
+    {% for item in fournisseurs %}
+        lesFournisseurs.push({ id: "{{ item.id }}", nom_complet: "{{ item.nom_complet }}"});
+    {% endfor %}
+
+    {% for item in unites %}
+        lesUnites.push({ id: "{{ item.id }}", symbole_unite: "{{ item.symbole_unite }}" });
+    {% endfor %}
+
+    {% for item in fournisseur_article %}
+        lesFournisseursArticles.push({ id: "{{ item.id }}", fournisseur: "{{ item.fournisseur }}", quantite_minimale : "{{ item.quantite_minimale}}", prix_unitaire : "{{ item.prix_unitaire }}"});
+    {% endfor %}
+
+</script>
+<script>
+    var deviseRef = "{{ devise_ref.symbole_devise }}";
+    var uniteRef = "";
+    var nombreLigne = lesFournisseursArticles.length;
+    var nombreItems = 0;
+    var ligneActuelle = 0;
+    var compteur = lesFournisseursArticles.length;
+
+    function remplirTable(){
+        var j = 0;
+        if (lesFournisseursArticles.length==0)
+        {
+            var newLigne = '<tr id="ligne' + 1 + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            newLigne += '<input id="id' + 1 + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            newLigne += '<select onchange="selectChange(event)" id="item' + 1 + '" name="fournisseur_id" >';
+            newLigne += '<option value="0">Sélectionnez un fournisseur</option>';
+            newLigne +=  '{% for item in fournisseurs %} <option value="{{ item.id }}">{{item.nom_complet}}</option> {% endfor %}'
+            newLigne += '</select></div></td>';
+            newLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            newLigne += '<input id="quantite' + 1 + '" name="quantite_minimale" type="text" placeholder="Ex: 10">';
+            newLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            newLigne += '<span style="margin-top: 1px;" class="sub-header place-right unite"></span></span>';
+            newLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            newLigne += '<div class="input-control text full-size">';
+            newLigne += '<input id="prix' + 1 + '" name="prix_unitaire_fournisseur" type="text" placeholder="Ex: 100">';
+            newLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            newLigne += '<span style="margin-top: 1px;" class="sub-header place-right">' + deviseRef + '</span>';
+            newLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            newLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + 1 + ')"><span class="mif-cross fg-red"></span></span>';
+            newLigne += '</div></td></tr>';
+
+            $("#items").append(newLigne);
+        }
+
+        else {
+                for (var i = 0; i < lesFournisseursArticles.length; i++){
+                j++;
+                var newLigne = '<tr id="ligne' + j + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+                newLigne += '<input id="id' + j + '" type="hidden" value="0" /><div class="input-control select full-size">';
+                newLigne += '<select onchange="selectChange(event)" id="item' + j + '" name="fournisseur_id" >';
+                newLigne += '<option value="0">Sélectionnez un fournisseur</option>';
+                newLigne +=  renvoyerOptionsFournisseursArticles();
+                newLigne += '</select></div></td>';
+                newLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+                newLigne += '<input id="quantite' + j + '" name="quantite_minimale" type="text" placeholder="Ex: 10">';
+                newLigne += '<span class="prepend-icon" style="margin-left:75%">';
+                newLigne += '<span style="margin-top: 1px;" class="sub-header place-right unite"></span></span>';
+                newLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+                newLigne += '<div class="input-control text full-size">';
+                newLigne += '<input id="prix' + j + '" name="prix_unitaire_fournisseur" type="text" placeholder="Ex: 100">';
+                newLigne += '<span class="prepend-icon" style="margin-left:75%">';
+                newLigne += '<span style="margin-top: 1px;" class="sub-header place-right">' + deviseRef + '</span>';
+                newLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+                newLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + j + ')"><span class="mif-cross fg-red"></span></span>';
+                newLigne += '</div></td></tr>';
+
+                $("#items").append(newLigne);
+            }
+        }
+
+    }
+    remplirTable();
+
+    $("#btnAjouterLigne").on("click", function() {
+        nombreLigne++;
+        compteur++;
+        var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+        nouvelleLigne += '<input id="id' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+        nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" name="fournisseur_id" >';
+        nouvelleLigne += '<option value="0">Sélectionnez un fournisseur</option>';
+        nouvelleLigne += renvoyerOptionsFournisseurs();
+        nouvelleLigne += '</select></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_minimale" type="text" placeholder="Ex: 10">';
+        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+        nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right unite"></span></span>';
+        nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+        nouvelleLigne += '<div class="input-control text full-size">';
+        nouvelleLigne += '<input id="prix' + compteur + '" name="prix_unitaire_fournisseur" type="text" placeholder="Ex: 100">';
+        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+        nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right">' + deviseRef + '</span>';
+        nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+        nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+        nouvelleLigne += '</div></td></tr>';
+
+        $("#items").append(nouvelleLigne);
+    });
+
+    function choix_unite() {
+        var unite_id = $("#unite_id").val();
+        if (unite_id != "0") {
+            for (var i = 0; i < lesUnites.length; i++) {
+                var unite = lesUnites[i];
+                if (unite.id == unite_id) {
+                    uniteRef = unite.symbole_unite;
+                    break;
+                }
+            }
+        } else uniteRef = "";
+
+        $(".unite").text(uniteRef);
+    }
+
+    function selectChange(event) {
+        $select = $(event.target);
+        var id_element = $select[0].id;
+        console.log("ID ELEMENT : " + id_element);
+        if (id_element.substring(0, 4) == "item") {
+            ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+            if ($("#" + id_element).val() != "0") nombreItems += 1;
+            else nombreItems -= 1;
+        }
+    }
+
+    function supprimerLigne(indice) {
+        nombreLigne--;
+        $("#ligne" + indice).remove();
+    }
+
+    function renvoyerOptionsFournisseurs()
+    {
+        var ligne = "";
+        for (var i = 0; i < lesFournisseurs.length; i++) {
+            var fournisseur = lesFournisseurs[i];
+            ligne += '<option value="' + fournisseur.id + '">' + fournisseur.nom_complet + '</option>';
+        }
+        return ligne;
+    }
+
+    function renvoyerOptionsFournisseursArticles()
+    {
+        var ligne = "";
+
+        for (var j = 0; j < lesFournisseursArticles.length; j++) {
+            for (var i = 0; i < lesFournisseurs.length; i++) {
+                var fournisseur = lesFournisseurs[i];
+                var fournisseurArticle = lesFournisseursArticles[j];
+
+                if (fournisseurArticle.id == fournisseur.id) {
+                    ligne += '{% for item1 in fournisseur_article %} {% for item2 in fournisseurs %} <option {% if item1.id == item2.id %}{{ "selected" }}{% endif %} value="' + fournisseur.id + '">' + fournisseur.nom_complet + '</option> {% endfor %} {% endfor %}';
+                }
+            }
+        }
+        return ligne;
+    }
+
+    /*
+     function renvoyerOptionsResponsables()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesResponsable.length; i++)
+            {
+                var responsable = lesResponsable[i];
+                ligne += '<option value="' + responsable.id + '">' + responsable.nom_complet + '</option>';
+            }
+            return ligne;
+        }
+    */
+
+</script>
+{% endblock %}

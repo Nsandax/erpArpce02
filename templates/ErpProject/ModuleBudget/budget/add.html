@@ -1,0 +1,162 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %} {% block page %} {%load static %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_tableau_de_bord' %}">Module Budget</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>{{ title}}</h3>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+                <!-- <div class="row only-on-large-screen">
+                    {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button small-button rounded primary_color_{{module.name|lower}}" val="Valider"%}
+
+                    <button onclick="javascript:window.location.assign('{% url 'module_budget_list_budget' %}?list=1')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div> -->
+                <div class="row">
+                    <div class="col-md-2">
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider"%}
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_budget_list_budget' %}?list=1')" class="theme-btn theme-btn-sm rounded">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+                <br>
+                <form id="form" method="POST" action="{% url 'module_budget_post_add_budget' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                    <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                    <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+                    <!-- <input type="hidden"  name="type_budget" value ="{{type_budget}}" > -->
+                    <br/>
+                    <div class="row">
+                        <!--div class="col-md-6">
+                            <label>Exercice Budgétaire</label>
+                            <div class="input-control text full-size">
+                                <select name="exercice_bugetaire_fk" id="exercice_bugetaire_fk" onchange="">
+                                    <option value="0">Sélectionnez l'exercice budgétaire</option>
+                                    {% for item in model %}
+                                        <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div-->
+
+                        <div class="col-md-6">
+                            <label>Désignation du Budget</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="designation_budget"  id="designation"
+                                    data-validate-func="required"
+                                    data-validate-hint="Entrez la désignation du Budget svp." />
+                            </div>
+                        </div>
+                    <!--div class="col-md-6">
+                            <label>Type de budget</label>
+                            <div class="input-control text full-size">
+                                <select name="typebudget" id="typebudget"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le type de budget svp."
+                                    onchange="choix_type()">
+                                    <option value="0">Sélectionnez le type de budget</option>
+                                    <option value="1"> Recette </option>
+                                    <option value="2"> Dépense </option>
+                                </select>
+                            </div>
+                        </div-->
+                        <div class="col-md-6">
+                            <label>Categorie budget</label>
+                            <div class="input-control text full-size">
+                                <select name="categoriebudget_id" id="categoriebudget_id"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez la catégorie du budget svp.">
+                                    <option value="0">Sélectionnez la catégorie du budget</option>
+                                    {% for categorie in categorie_budget %}
+                                        <option value="{{categorie.id}}">{{categorie.designation}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- <div class="col-md-6">
+                            <label>Montant du Budget</label>
+                            <div class="input-control text full-size">
+                                <input  class="monetary" type="text" name="montant_budget" id="designation"
+                                    data-validate-func="required"
+                                    data-validate-hint="Entrez le montant du Budget svp." />
+                            </div>
+                        </div> -->
+
+
+                        <div class="col-md-6">
+                            <label>Devise</label>
+                            <div class="input-control text full-size">
+                                {% include 'ErpProject/ErpBackOffice/widget/select.html' with url="/devise/transactionbudgetaire/add?isPopup=1" model="Model_Devise" name="devise_id" id="devise_id" hint="Sélectionnez la devise" only %}
+                            </div>
+                        </div>
+
+                    </div>
+                    <br><br>
+                </form>
+            </div>
+    <script>
+
+        function choix_type() {
+            var typebudget = $("#typebudget").val();
+            if (typebudget != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_budget_list_categorie_budget' %}", {
+                        ref: typebudget
+                    },
+                    function(response) {
+                        $("#categoriebudget_id").children().remove();
+                        $("#categoriebudget_id").append("<option value='0'>Sélectionnez la catégorie du budget</option>");
+                        console.log(response);
+                        for (var i = 0; i < response.length; i++) {
+                            var laCategorie = response[i];
+
+                            var option = "<option value='" + laCategorie.id + "'>" + laCategorie.designation + "</option>";
+                            $("#categoriebudget_id").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            } else supprimer_categories();
+        }
+        function supprimer_categories() {
+            $("#categoriebudget_id").children().remove();
+            $("#categoriebudget_id").append("<option value='0'>Sélectionnez la catégorie du budget</option>");
+        }
+    </script>
+
+<script>
+
+
+
+</script>
+{% endblock %}

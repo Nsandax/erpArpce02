@@ -1,0 +1,104 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}{% block page %}
+   <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_categorie_regle' %}">Liste des catégories de règle salariale</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:window.location.assign('{% url 'module_payroll_update_categorie_regle' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button> 
+        <button onclick="javascript:window.location.assign('{% url 'module_payroll_list_categorie_regle' %})" class="theme-btn theme-btn-sm rounded chargement-au-click"style="width:20%">Annuler</button>
+        <button id="supprimer" class="button theme-btn-sm rounded danger chargement-au-click" style="width:20%;margin-left: 5px">Supprimer</button>
+    </div>
+      {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_payroll_add_categorie_regle" url_detail="module_payroll_details_categorie_regle" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Désignation  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Code  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.code }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Description :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.description }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <script>
+        function supprimer() {
+            var id = '{{model.id}}'
+            //-------deux variables pour la suppression---------------------------------
+            var modele = "Model_CategorieRegle"
+            var the_url = "module_payroll_list_categorie_regle"
+            //------- url de suppression ------------------------------------------------
+            url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+            url = url.replace('100', id);
+            url = url.replace('nom_modele', modele);
+            url = url.replace('url_retour', the_url);
+            document.location.href = url;
+        }
+        $('#supprimer').on('click', function () {
+            Swal.fire({
+                title: 'Etes vous sure?',
+                text: "De vouloir supprimer cette item!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, Supprime le!'
+            }).then((result) => {
+                if (result.value) {
+                    supprimer();
+                    Swal.fire(
+                        'Supprimé!',
+
+                        'Votre Item est supprimé',
+                        'Avec Succes',
+                    )
+                }
+            })
+        })
+    </script>
+    <script>
+        //Script du droit supprimer
+        var lesactions = new Array();
+        var booleen = false;
+        {% for action in actions %}
+        lesactions.push({ droit: "{{ action.droit }}" });
+        {% endfor %}
+
+        $(document).ready(function () {
+            // Initialisation des sous-menus
+            $("#supprimer").hide();
+
+            for (var i = 1; i < lesactions.length; i++) {
+                act = lesactions[i];
+                if (act.droit === "CREER_RAPPORT") {
+                    booleen = true;
+                }
+            }
+
+            if (booleen) {
+                $("#supprimer").show();
+            }
+        });
+    </script>
+{% endblock %}

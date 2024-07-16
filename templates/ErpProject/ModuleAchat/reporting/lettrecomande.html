@@ -1,0 +1,108 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="facture" style="font-size: 12pt!important;">
+            <div id="courrier">
+                <div class="row" style="height:5cm">
+                    <div class="col-md-7">
+                        <p class="invoice-text" style="font-weight:bold;line-height: 200%;margin-bottom: .0001pt;text-align: justify;margin-top:1pt">
+                            LC-N°1351/ARPCE-DG/DAFC/CGMP/21
+                        </p>
+                    </div>
+                    <div class="col-md-5" style="text-align:center">
+                        <br><span class="invoice-text" style="margin-top:10pt">Brazzaville, le 15 septembre 2021</span><br><br>
+                        <span class="invoice-text" style="font-weight:bold;">A</span><br>
+                        <span class="invoice-text" style="font-weight:bold;">Monsieur le Directeur Général de la société </span><br>
+                        <span class="invoice-text" style="font-weight:bold;text-decoration:underline;text-transform: uppercase;">BRAZZAVILLE</span>
+                    </div>
+                </div>
+                <div class="row" style="text-align: justify;font-size:14px;">
+                    <p class="invoice-text" ><span style="font-weight:bold;text-decoration:underline;">Objet</span> : <b>lettre de commande</b></p><br>
+                    <p class="invoice-text" >Madame, Monsieur,</p><br>
+                    <p style='line-height: 150%;font-family: "Century Gothic",sans-serif!important;'>
+                        Conformément aux dispositions de l’article 18 nouveau du décret n° 2011– 843 du 31 décembre 2011 modifiant
+                         et complétant certaines dispositions du décret n° 2009 – 162 du 20 mai 2009 fixant les seuils de passation,
+                         de contrôle et d’approbation des marchés publics, j’ai l’honneur de vous passer commande pour les travaux
+                         référencés dans le tableau ci-dessous :
+                    </p>
+                    <div style="display: flex; justify-content:center;">
+                        <table align="center" class="display table nowrap border bordered" cellspacing="0" style="width:80%;">
+                            <tr style="font-weight:900">
+                                <td width="10%"></td>
+                                <td width="90%">Travaux</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Travaux de réparation, entretien split system</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Travaux réfection peinture sur l’ensemble </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Travaux Portes et menuiserie Alu</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Travaux Electricité / Eclairages</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Travaux d’étanchéité de la toiture</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br>
+                    <p class="invoice-text" style="font-size:14px;">
+                        Pour un montant global Hors Taxes de <b>sept millions deux cent dix-huit mille trois cent
+                        (7 218 300) francs CFA</b>, payable comme suit :
+                    </p>
+                    <p class="invoice-text" style="font-size:14px;">
+                        <ul style="font-weight: bold;">
+                            <li>Cinquante pour cent (50) % après la signature de la présente lettre de commande ; et </li>
+                            <li>Cinquante pour cent (50) % à la fin des travaux.</li>
+                        </ul>
+                    </p>
+
+                    <p class="invoice-text" style="font-size:14px;">
+                        La durée de votre prestation est de <b>quarante-cinq (45) jours</b> à compter de la date de signature de la présente lettre de commande.
+                    </p>
+
+                    <p class="invoice-text" style="font-size: 14px;">
+                        Les paiements se feront dans les 30 jours suivant le dépôt de la facture timbrée, par virement bancaire.
+                        Les frais bancaires seront à la charge de l’Agence de Régulation des Postes et des Communications Electroniques (ARPCE).
+                    </p>
+                    <p class="invoice-text" style="font-size: 14px;">
+                        Au regard de ce qui précède, et si vous en convenez, je vous prie de bien vouloir nous retourner
+                        l’accusé réception de la présente lettre de commande suivie de la mention « Bon pour accord ».
+                    </p>
+                    <p class="invoice-text" style="font-size: 14px;">
+                        Je vous prie d’agréer, Monsieur le Directeur Général, mes salutations distinguées.
+                    </p>
+                </div>
+                <div class="row" style="font-size: 13px;">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5" style="text-align:center">
+                        <p class="invoice-text" style="font-weight:bold;">Le Directeur Général,</p>
+                        <p class="invoice-text" style="font-weight:bold;">Personne responsable des Marchés Publics,</p>
+                        <br><br><br>
+                        <p class="invoice-text" style="font-weight:bold;">Louis Marc SAKALA.</p>
+                    </div>
+                </div>
+            </div>
+            <div id="detail">
+
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,600 @@
+{% extends "ErpProject/ModuleCalendrier/shared/layout.html" %} {% block page %} {%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_calendrier_list_evenement' %}">Module Calendrier</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_calendrier_list_evenement' %}">Liste des évènements</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_calendrier_list_evenement' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_calendrier_post_add_evenement' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Titre de l'évènement</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Type d'évènement</label>
+                                <div class="input-control text full-size">
+                                    <select name="type_evenement_id" id="type_evenement_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez le type svp.">
+                                        <option value="0">Sélectionnez le type</option>
+                                        {% for item in type_evenements %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Lieu</label>
+                                <div class="input-control text full-size">
+                                    <select name="local_id" id="local_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez le local< svp.">
+                                        <option value="0">Sélectionnez le local</option>
+                                        {% for item in locales %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Rappels</label>
+                                <div class="input-control text full-size">
+                                    <select class="ui search dropdown" multiple="" name="rappel_id" id="rappel_id"
+                                        >
+                                        <option value="">Sélectionnez au moins une alarme</option>
+                                        {% for item in rappels %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Description</label>
+                                <div class="input-control text full-size" style="min-height: 6.25rem !important;">
+                                    <textarea name="description" id="description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="tabcontrol2" data-role="tabcontrol">
+                                <ul class="tabs">
+                                    <li class="active"><a href="#frame_option">Options</a></li>
+                                    <li class=""><a href="#frame_invitations">Invitations</a></li>
+                                    <li class=""><a href="#frame_autres">Autres informations</a></li>
+                                </ul>
+                                <div class="frames">
+                                    <div class="frame" id="frame_option" style="display: block;">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div id="div_date_heure_debut" class="col-md-12">
+                                                        <label>Date de début</label>
+                                                        <div class="row">
+                                                            <div id="div_date_debut" class="col-md-6">
+                                                                <div id="input-date-debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                                    <input type="text" name="date_debut" value="{% now "d/m/Y" %}">
+                                                                    <div class="button"><span class="mif-calendar"></span></div>
+                                                                </div>
+                                                            </div>
+                                                            <div id="div_heure_debut" class="col-md-6">
+                                                                <div id="input-date-debut-heure" class="input-control text full-size"  data-format="HH:MM" data-role="timepicker" data-locale="fr">
+                                                                    <input readonly type="text" id="heure_debut" name="date_debut_heure" value="{% now "H:i" %}">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="div_date_fin" class="col-md-12">
+                                                        <label>Date fin</label>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div id="input-date-debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                                    <input type="text" name="date_fin" id="date_fin" value="{% now "d/m/Y" %}">
+                                                                    <div class="button"><span class="mif-calendar"></span></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="div_duree" class="col-md-12">
+                                                        <label>Durée (en heure)</label>
+                                                        <div id="input-duree" class="input-control text full-size"  data-format="HH:MM" data-role="timepicker" data-locale="fr">
+                                                            <input readonly type="text" id="duree" name="duree" value="01:00">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label class="input-control checkbox small-check ">
+                                                            <input name="journee" id="journee" type="checkbox">
+                                                            <span class="check"></span>
+                                                            <span class="caption">Toute la journée</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <label class="input-control checkbox small-check ">
+                                                            <input name="est_recurrent" id="est_recurrent"  type="checkbox">
+                                                            <span class="check"></span>
+                                                            <span class="caption">Est récurrent</span>
+                                                        </label>
+                                                    </div>
+                                                    <div id="div_est_recurrent">
+                                                        <div class="col-md-12">
+                                                            <label>Répéter tous les</label>
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="input-control text full-size">
+                                                                        <input type="number" name="interval_recurrent" id="interval_recurrent"  value=1/>
+                                                                    </div>
+                                                                </div>
+                                                                <div  class="col-md-6">
+                                                                    <div class="input-control text full-size">
+                                                                        <select name="type_recurrent" id="type_recurrent" >
+                                                                            {% for item in type_recurrents %}
+                                                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <label>Jusqu'à</label>
+                                                            <div class="row">
+                                                                <div  class="col-md-6">
+                                                                    <div class="input-control text full-size">
+                                                                        <select name="type_fin_recurrent" id="type_fin_recurrent" >
+                                                                            {% for item in type_fin_recurrents %}
+                                                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div id="div_compte_recurrent" class="input-control text full-size">
+                                                                        <input type="number" name="compte_recurrent" id="compte_recurrent"  value=1/>
+                                                                    </div>
+                                                                    <div id="div_date_fin_recurrent" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                                        <input type="text" name="date_fin_recurrent" value="{% now "d/m/Y" %}">
+                                                                        <div class="button"><span class="mif-calendar"></span></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12" id="div_jour_du_mois">
+                                                            <label>Jour du mois</label>
+                                                            <div class="row">
+                                                                <div  id="div_par_mois" class="col-md-6">
+                                                                    <div class="input-control text full-size">
+                                                                        <select name="par_mois" id="par_mois" >
+                                                                            {% for item in par_mois %}
+                                                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div  class="col-md-3" id="div_par_jour">
+                                                                    <div class="input-control text full-size">
+                                                                        <select name="par_jour" id="par_jour" >
+                                                                            {% for item in par_jours %}
+                                                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div  class="col-md-3" id="div_jour_de_semaine">
+                                                                    <div class="input-control text full-size">
+                                                                        <select name="jour_de_semaine" id="jour_de_semaine" >
+                                                                            {% for item in jour_de_semaines %}
+                                                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="div_date_mois" class="col-md-6">
+                                                                    <div id="input-compte-recurrent" class="input-control text full-size">
+                                                                        <input type="number" name="date_du_mois" id="date_du_mois"  value="1"/>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div id="div_les_jours" class="col-md-12">
+                                                            <label class="input-control checkbox small-check ">
+                                                                <input name="lundi" id="lundi" type="checkbox">
+                                                                <span class="check"></span>
+                                                                <span class="caption">Lundi</span>
+                                                            </label><br>
+                                                            <label class="input-control checkbox small-check ">
+                                                                <input name="mardi" id="mardi"  type="checkbox">
+                                                                <span class="check"></span>
+                                                                <span class="caption">Mardi</span>
+                                                            </label><br>
+                                                            <label class="input-control checkbox small-check ">
+                                                                <input name="mercredi" id="mercredi"  type="checkbox">
+                                                                <span class="check"></span>
+                                                                <span class="caption">Mercredi</span>
+                                                            </label><br>
+                                                            <label class="input-control checkbox small-check ">
+                                                                <input name="jeudi" id="jeudi"  type="checkbox">
+                                                                <span class="check"></span>
+                                                                <span class="caption">Jeudi</span>
+                                                            </label><br>
+                                                            <label class="input-control checkbox small-check ">
+                                                                <input name="vendredi" id="vendredi"  type="checkbox">
+                                                                <span class="check"></span>
+                                                                <span class="caption">Vendredi</span>
+                                                            </label><br>
+                                                            <label class="input-control checkbox small-check ">
+                                                                <input name="samedi" id="samedi"  type="checkbox">
+                                                                <span class="check"></span>
+                                                                <span class="caption">Samedi</span>
+                                                            </label><br>
+                                                            <label class="input-control checkbox small-check ">
+                                                                <input name="dimanche" id="dimanche"  type="checkbox">
+                                                                <span class="check"></span>
+                                                                <span class="caption">Dimanche</span>
+                                                            </label><br>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="frame" id="frame_invitations" style="display: none;">
+                                        <div class="row">
+                                            <div class="row margin20 no-margin-left no-margin-right">
+                                                <div class="col-md-6">
+                                                    <label>Confidentialité</label>
+                                                    <div class="input-control text full-size">
+                                                        <select name="confidentialite" id="confidentialite" >
+                                                            {% for item in confidentialites %}
+                                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div id="div_participant" class="col-md-12">
+                                                    <p class="sub-header">Participants: </p>
+                                                    <table class="table no-margin">
+                                                        <thead class="no-border">
+                                                            <tr>
+                                                                <th class="no-padding-top no-padding-left no-padding-bottom" width="35%">Employé</th>
+                                                                <th width="30%">Nom</th>
+                                                                <th width="30%">Courriel</th>
+                                                                <th width="5%"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="items">
+                                                            <tr id="ligne1">
+                                                                <td>
+                                                                    <div class="input-control select full-size">
+                                                                        <select onchange="choixEmploye(1)" id="employe_id1" name="participant_employe_id">
+                                                                            <option value="0">Sélectionnez un employé</option>
+                                                                            {% for item in employes %}
+                                                                                <option value="{{ item.id }}">{{ item.nom_complet }}</option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="input-control text full-size">
+                                                                        <input id="nom1" name="participant_nom" type="text">
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="input-control text full-size">
+                                                                        <input id="email1" name="participant_email" type="text">
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="pagination no-border">
+                                                                        <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="row margin10 no-margin-left no-margin-right">
+                                                <button type="button" class="theme-btn theme-btn-sm rounded" id="btnAjouterLigne">Ajouter un participant</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="frame" id="frame_autres" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label>Responsable</label>
+                                                <div class="input-control text full-size">
+                                                    <select class="ui search dropdown" multiple="" name="proprietaire_id" id="proprietaire_id" >
+                                                        <option value="">Sélectionnez le responsable</option>
+                                                        {% for item in employes %}
+                                                            <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+		function initTouteLaJournee()
+        {
+			$("#heure_debut").val("00:00");
+			$("#duree").val("00:00");
+
+			$("#div_date_debut").show();
+            $("#div_heure_debut").show();
+            $("#div_duree").show();
+            $("#div_date_fin").hide();
+
+		}
+		function initLesJours()
+        {
+            $("#lundi").prop("checked", false);
+            $("#mardi").prop("checked", false);
+            $("#mercredi").prop("checked", false);
+            $("#jeudi").prop("checked", false);
+            $("#vendredi").prop("checked", false);
+            $("#samedi").prop("checked", false);
+            $("#dimanche").prop("checked", false);
+            $("#div_les_jours").hide();
+		}
+		function initJourSemaine()
+        {
+
+            $("#par_mois").val("1");
+            $("#par_jour").val("1");
+            $("#jour_de_semaine").val("1");
+            $("#date_du_mois").val("1");
+
+            $("#div_par_jour").hide();
+            $("#div_jour_de_semaine").hide();
+            $("#div_date_mois").show();
+
+            $("#div_jour_du_mois").hide();
+		}
+		function initRecurrent()
+        {
+            $("#interval_recurrent").val("1");
+			$("#type_recurrent").val("1");
+			$("#type_fin_recurrent").val("1");
+			$("#compte_recurrent").val("1");
+
+			$("#div_date_fin_recurrent").hide();
+            $("#div_compte_recurrent").show();
+
+            initJourSemaine();
+
+            initLesJours();
+		}
+        $('#heure_debut').timepicki({
+		show_meridian:false,
+		min_hour_value:0,
+		max_hour_value:23,
+		step_size_minutes:15,
+		overflow_minutes:true,
+		increase_direction:'up',
+        disable_keyboard_mobile: true});
+
+        $('#duree').timepicki({
+        show_meridian:false,
+        min_hour_value:0,
+        max_hour_value:23,
+        step_size_minutes:15,
+        overflow_minutes:true,
+        increase_direction:'up',
+        disable_keyboard_mobile: true});
+
+        $(document).ready(function(){
+            initRecurrent();
+            $("#est_recurrent").prop("checked", false);
+
+            initTouteLaJournee();
+            $("#journee").prop("checked", false);
+
+            $("#div_est_recurrent").hide();
+
+            $("#est_recurrent").change(function() {
+                if ($("#est_recurrent").is(":checked")) {
+                    // est_recurrent checkbox is checked
+                    initRecurrent();
+                    $("#div_est_recurrent").show();
+
+                } else {
+                    // est_recurrent checkbox is not checked
+                    initRecurrent();
+                    $("#div_est_recurrent").hide();
+                }
+            });
+			$("#type_recurrent").change(function() {
+				var type_recurrent = $("#type_recurrent").val();
+				if(type_recurrent == "1"){
+                    initLesJours();
+                    initJourSemaine();
+				}else if (type_recurrent == "2"){
+                    initJourSemaine();
+                    $("#div_les_jours").show();
+				}else if (type_recurrent == "3"){
+                    initLesJours();
+                    $("#div_jour_du_mois").show();
+				}else if (type_recurrent == "4"){
+                    initLesJours();
+                    initJourSemaine();
+				}
+
+			});
+			$("#type_fin_recurrent").change(function() {
+				var type_fin_recurrent = $("#type_fin_recurrent").val();
+				if(type_fin_recurrent == "1"){
+                    $("#compte_recurrent").val(1);
+                    $("#div_date_fin_recurrent").hide();
+                    $("#div_compte_recurrent").show();
+				}else if (type_fin_recurrent == "2"){
+                    $("#compte_recurrent").val(1);
+                    $("#div_date_fin_recurrent").show();
+                    $("#div_compte_recurrent").hide();
+				}
+			});
+            $("#par_mois").change(function() {
+				var par_mois = $("#par_mois").val();
+				if(par_mois == "1"){
+                    $("#par_jour").val("1");
+                    $("#jour_de_semaine").val("1");
+                    $("#date_du_mois").val("1");
+
+                    $("#div_par_jour").hide();
+                    $("#div_jour_de_semaine").hide();
+                    $("#div_date_mois").show();
+				}else if (par_mois == "2"){
+                    $("#par_jour").val("1");
+                    $("#jour_de_semaine").val("1");
+                    $("#date_du_mois").val("1");
+
+                    $("#div_par_jour").show();
+                    $("#div_jour_de_semaine").show();
+                    $("#div_date_mois").hide();
+				}
+			});
+
+            $("#journee").change(function() {
+                if ($("#journee").is(":checked")) {
+                    // journee checkbox is checked
+                    $("#heure_debut").val("01:00");
+                    $("#duree").val("00:00");
+
+                    $("#div_date_debut").show();
+                    $("#div_heure_debut").hide();
+                    $("#div_duree").hide();
+                    $("#div_date_fin").show();
+
+                } else {
+                    // journee checkbox is not checked
+                    initTouteLaJournee();
+                }
+            });
+
+			$("#confidentialite").change(function() {
+				var confidentialite = $("#confidentialite").val();
+				if(confidentialite == "1"){
+                    $('input[name="participant_email"]').prop("disabled", false);
+                    $('input[name="participant_nom"]').prop("disabled", false);
+                    $("#div_participant").show();
+				}else if (confidentialite == "2"){
+                    $('input[name="participant_email"]').prop("disabled", true);
+                    $('input[name="participant_nom"]').prop("disabled", true);
+                    $("#div_participant").show();
+				}else if (confidentialite == "3"){
+                   $("#div_participant").hide();
+				}
+			});
+		});
+
+        // Gestion participation
+        var lesEmployes = new Array();
+
+        {% for item in employes %}
+            lesEmployes.push({id:"{{ item.id }}", nom_complet:"{{ item.nom_complet }}", email:"{{ item.email }}"});
+        {% endfor %}
+
+        var nombreLignes = 1;
+        var compteur = 1;
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '">';
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="choixEmploye(' + compteur + ')" name="participant_employe_id" id="employe_id' + compteur + '"  ><option value="0">Sélectionnez un employé</option>';
+            nouvelleLigne += renvoyerOptionsEmployes();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="nom' + compteur +'" name="participant_nom" type="text" ></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="participant_email" id="email' + compteur + '" type="text"></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+            var confidentialite = $("#confidentialite").val();
+            if(confidentialite == "1"){
+                $('input[name="participant_email"]').prop("disabled", false);
+                $('input[name="participant_nom"]').prop("disabled", false);
+            }else if (confidentialite == "2"){
+                $('input[name="participant_email"]').prop("disabled", true);
+                $('input[name="participant_nom"]').prop("disabled", true);
+            }
+        });
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+
+        function renvoyerOptionsEmployes(){
+            var ligne = "";
+            for(var i = 0; i < lesEmployes.length; i++){
+                var employe = lesEmployes[i];
+                ligne += '<option value="' + employe.id + '">' + employe.nom_complet + '</option>';
+            }
+            return ligne;
+        }
+        function choixEmploye(indice){
+            var employe_id = $("#employe_id"+ indice).val();
+            for(var i = 0; i < lesEmployes.length; i++) {
+                var employe = lesEmployes[i];
+                if(employe.id == employe_id) {
+                    nom = employe.nom_complet;
+                    email = employe.email;
+                    $("#nom"+ indice).val(nom);
+                    $("#email"+ indice).val(email);
+                    break;
+                }
+            }
+        }
+    </script>
+{% endblock %}

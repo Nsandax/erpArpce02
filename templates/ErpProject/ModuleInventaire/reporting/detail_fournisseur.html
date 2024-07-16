@@ -1,0 +1,134 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="report">
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <h1 class="align-center">{{title}} </h1>
+            <br>
+            <br>
+
+            <div class="row item-content" style="margin-top: 20px" id="content_bon">
+                <div class="cell padding30 shadow">
+                        <center><h4>Fourniture liée au bon d'achat N°{{ model.numero }}</h4> </center>
+                    {% if model.est_realisee %}
+                        <div class="row">
+                            <p class="minor-header fg-gray">
+                                Achat réalisé à la date du :<br>
+                                <span class="sub-alt-header fg-dark"> {{ model.date_realisation|date:"d/m/Y" }} </span>
+                            </p>
+                        </div>
+                    {% endif %}
+                    <div class="row cells2">
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Numéro du bon d'achat :<br>
+                                {% if model.numero != None and model.numero != "" %}
+                                    <span class="sub-alt-header fg-dark">{{ model.numero }}</span>
+                                {% else %}
+                                    <span class="sub-alt-header fg-dark">-</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Date prévue :<br>
+                                {% if model.date_prevue != None and model.date_prevue != "" %}
+                                    <span class="sub-alt-header fg-dark">{{ model.date_prevue|date:"d/m/Y" }}</span>
+                                {% else %}
+                                    <span class="sub-alt-header fg-dark">-</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row cells2">
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Fournisseur :<br>
+                                <a class="sub-alt-header lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' model.fournisseur.id %}"> {{ model.fournisseur.nom_complet }} </a>
+                            </p>
+                        </div>
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Modalité de réglèment :<br>
+                                <span class="sub-alt-header fg-dark"> {{ model.condition_reglement.designation }} </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row cells2">
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Dévise :<br>
+                                <span class="sub-alt-header fg-dark"> {{ model.devise.designation }} </span>
+                            </p>
+                        </div>
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Référence du document :<br>
+                                {% if model.reference_document != None and model.reference_document != "" %}
+                                    <span class="sub-alt-header fg-dark">{{ model.reference_document }}</span>
+                                {% else %}
+                                    <span class="sub-alt-header fg-dark">-</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row cells2">
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Agent receveur :<br>
+                                <span class="sub-alt-header fg-dark"> {{ model.receveur.nom_complet }} </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                            <thead>
+                                <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                                    <th width="25%">Article</th>
+                                    <th width="18%">Quantité demandée</th>
+                                    <th width="18%">Quantité fournie</th>
+                                    <th width="19%">Prix unitaire</th>
+                                    <th width="20%">Prix total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ligne in lignes %}
+                                    <tr class="table bordered border">
+                                        <td>{{ ligne.nom_article}}</td>
+                                        <td>{{ ligne.quantite_demandee }} {{ ligne.unite.symbole_unite }}</td>
+                                        <td>{{ ligne.quantite_fournie }} {{ ligne.unite.symbole_unite }}</td>
+                                        <td>{{ ligne.prix_unitaire }} {{ model.devise.symbole_devise }}</td>
+                                        <td>{{ ligne.total }} {{ model.devise.symbole_devise }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td style="border:1px #999999 solid">TOTAL</td>
+                                    <td style="border:1px #999999 solid">{{ model.prix_total }} {{ model.devise.symbole_devise }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <br>
+
+
+        </div>
+    </body>
+</html>

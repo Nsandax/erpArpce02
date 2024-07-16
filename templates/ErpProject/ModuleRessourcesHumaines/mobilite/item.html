@@ -1,0 +1,103 @@
+{% extends "ErpProject/ModuleRessourceshumaines/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_mobilite' %}">Liste des Mobilités internes</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_ressourceshumaines_add_mobilite" url_detail="module_ressourceshumaines_detail_mobilite" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+            <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_mobilite' mobilite.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+                        Modifier
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_mobilite' %}')"  class="theme-btn theme-btn-sm rounded " style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_mobilite' mobilite.id %}')" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_mobilite' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+               
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row padding20 no-padding-top no-padding-bottom" style="border-right: 1px solid #f7f5f5;">
+                                    <p>  
+                    
+            <!-- Direction :
+                    <br>
+                    <span class="sub-alt-header">{{ mobilite.direction }}</span>
+                    <br>
+                    <br> -->
+            
+            Service :
+                    <br>
+                    <span class="sub-alt-header">{{ mobilite.service }}</span>
+                    <br>
+                    <br>
+            
+            Fonctions occupées :
+                    <br>
+                    <span class="sub-alt-header">{{ mobilite.fonctions_occupees }}</span>
+                    <br>
+                    <br>
+            
+            Categorie socio-professionnelle :
+                    <br>
+                    <span class="sub-alt-header">{{ mobilite.employe__categorie_employe }}</span>
+                    <br>
+                    <br>
+            
+            Modalités :
+                    <br>
+                    <span class="sub-alt-header">{{ mobilite.modalites }}</span>
+                    <br>
+                    <br>
+            
+            Date d'entrée :
+                    <br>
+                    <span class="sub-alt-header">{{ mobilite.date_entree }}</span>
+                    <br>
+                    <br>
+            
+            Date de sortie :
+                    <br>
+                    <span class="sub-alt-header">{{ mobilite.date_sortie }}</span>
+                    <br>
+                    <br>
+            
+            Employe :
+                    <br>
+                    <span class="sub-alt-header">{{ mobilite.employe.nom_complet }}</span>
+                    <br>
+                    <br>
+            
+        </p>
+                                </div>
+                            </div>              
+                        </div>
+            
+           {% endblock %}}

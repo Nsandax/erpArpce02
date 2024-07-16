@@ -1,0 +1,234 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %} {%load static %}
+{% load humanize %}
+{%load static %}
+{% load account_filters %}
+<style type="text/css">
+    .head {
+        background-color: #904aac;
+        padding: 10px;
+        color: white;
+    }
+</style>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <!-- GESTION DU WORKFLOW -->
+
+        {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_comptabilite_add_ordre_paiement" url_detail="module_comptabilite_detail_ordre_paiement" csrf_token=csrf_token module=module type_doc="Ordre de paiement" only %}
+        <!--FIN GESTION DU WORKFLOW-->
+        <br>
+
+        <br>
+        <div id="ordrePaiementPrint" class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style="background-color:white;">
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                        {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                    </div>
+                    <div class="col-md-6" style="text-align: right;">
+                        <h3>Ordre de paiement</h3>
+
+                        <!-- Impression -->
+                        <form method="POST" action="{% url 'module_comptabilite_post_imprimer_ordre_paiement' model.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value={{model.id}}>
+                            <input type="hidden" name="dao" value="print_ordre_paiement(id)">
+                            <input type="hidden" name="previous" value="{{ request.path }}">
+                            <button type="submit" class="btn btn-default" id="submitOne" style="background-color: #41435d;border:none;color: white;">Imprimer</button>
+                        </form>
+                <!-- Fin impression -->
+
+                        <h3 style="color: red; font-weight: bold">N° {{model.reference}}</h3>
+
+                    </div>
+                    <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                    <div class="col-md-6">
+                        <p>
+                            <strong> Initié par:</strong> {{model.auteur.nom_complet}}
+                            <br>
+
+                            <strong>Type de paiement :</strong> {{model.value_type_paiement}}
+                            <br>
+
+                            <strong>Devise :</strong>
+                            {% if model.compte_banque %}
+                            {{model.compte_banque.journal.devise}}
+                            {% elif model.caisse %}
+                            {{model.caisse.journal.devise}}
+                            {% endif %}
+
+
+                        </p>
+                    </div>
+
+
+
+                    <div class="col-md-6" style="margin-bottom: 40px">
+                        <p style="float: right;">
+                            <strong>Date échéance: {{model.date_echeance | date:"d/m/Y" }}</strong>
+                            <br>
+                            {% if model.compte_banque %}
+                            <strong>Compte bancaire :{{ model.compte_banque.numero_compte }} de
+                                {{ model.compte_banque.banque }}</strong>
+                            {% elif model.caisse %}
+                            <strong>Caisse :{{ model.caisse }}</strong>
+                            {% endif %}
+                            <br>
+
+                            <strong>
+                        </p>
+                    </div>
+
+
+
+                    <div class="col-md-12">
+                        <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%">
+                            <tr>
+                                <td class="head">#</td>
+                                <td class="head">PARTENAIRE</td>
+                                <td class="head">LIBELLE</td>
+                                <td class="head">FACTURE</td>
+                                <td class="head">MONTANT</td>
+                                <td class="head">OBSERVATION</td>
+                            </tr>
+
+                            {% for item in lignes %}
+                            <tr>
+                                <td class="td"></td>
+                                <td class="td">{{ item.partenaire }}</td>
+                                <td class="td"> {{item.libelle}} </td>
+                                <td class="td">{{ item.facture.numero_facture }} </td>
+                                <td class="td">{{ item.montant |monetary}} </td>
+                                <td class="td">{{ item.observation }} </td>
+                            </tr>
+                            {% endfor %}
+
+                        </table>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Print Info -->
+<button type="button" id="lancermodal" data-toggle="modal" data-target="#monmodal" style="display: none;">executer</button>
+<div id="monmodal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <center>
+                    <iframe id="iframemodal" frameborder="0" style="width: 100%;" height="600px"></iframe>
+                </center>
+                <hr>
+                <center>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">FERMER</button>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/print.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.debug.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/cell.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.plugin.autotable.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/from_html.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/html2canvas.min.js' %}"></script>
+<!-- Print Document Function -->
+<script>
+function printScreen() {
+    const filename = 'Traitement immobilisation.pdf';
+    var pdf = new jsPDF('l', 'pt', 'ledger');
+
+    pdf.html($('#ordrePaiementPrint')[0], {
+        callback: function (pdf) {
+            var string = pdf.output('datauristring');
+            $('#iframemodal').attr('src', string);
+            $('#lancermodal').click();
+        }
+    });
+
+    margins = {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        width: 0
+    };
+}
+</script>
+
+
+<script>
+   function supprimer() {
+        var id = '{{model.id}}'
+        //-------deux variables pour la suppression---------------------------------
+        var modele = "Model_Expression"
+        var the_url = "module_achat_list_expression"
+        //------- url de suppression ------------------------------------------------
+        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+        url = url.replace('100', id);
+        url = url.replace('nom_modele', modele);
+        url = url.replace('url_retour', the_url);
+        document.location.href = url;
+
+
+    }
+    $('#supprimer').on('click', function () {
+
+
+        Swal.fire({
+            title: 'Etes vous sure?',
+            text: "De vouloir supprimer cette item!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer();
+                Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+
+</script>
+
+<script>
+       //Script du droit supprimer
+		var lesactions = new Array();
+        var booleen = false;
+        {% for action in actions %}
+        lesactions.push({ droit: "{{ action.droit }}" });
+        {% endfor %}
+
+        $(document).ready(function () {
+
+            // Initialisation des sous-menus
+            $("#supprimer").hide();
+
+            for (var i = 1; i < lesactions.length; i++) {
+                act = lesactions[i];
+                if (act.droit === "CREER_RAPPORT") {
+                    booleen = true;
+                }
+            }
+
+            if (booleen) {
+                $("#supprimer").show();
+            }
+        });
+</script>
+
+{% endblock %}

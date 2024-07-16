@@ -1,0 +1,131 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote9.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_9' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+        <col style="width: 33%">
+        <col style="width: 21%">
+        <col style="width: 27%">
+        <col style="width: 18%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="tg-cnka" colspan="4">NOTE 9 : TITRES DE PLACEMENT<br></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tg-z0zb">Désignation de l'entreprise :</td>
+            <td class="tg-z0zb">0</td>
+            <td class="tg-z0zb">Exercice clos le</td>
+            <td class="tg-z0zb">00/01/1900</td>
+          </tr>
+          <tr>
+            <td class="tg-z0zb">SIGLE</td>
+            <td class="tg-z0zb">0</td>
+            <td class="tg-z0zb">Durée (en mois)</td>
+            <td class="tg-z0zb">0</td>
+          </tr>
+          <tr>
+            <td class="tg-z0zb">Numéro d'Identification FISCAL :</td>
+            <td class="tg-z0zb">0</td>
+            <td class="tg-z0zb"></td>
+            <td class="tg-z0zb"></td>
+          </tr>
+          <tr>
+            <td class="tg-0di8">Libellés</td>
+            <td class="tg-0di8">Année <br>N</td>
+            <td class="tg-0di8">Année <br>N-1</td>
+            <td class="tg-0di8">Variation <br>en %</td>
+          </tr>
+          <tr>
+            <td class="tg-cey4">Titres de trésor et bons de caisse à court terme</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla"></td>
+          </tr>
+          <tr>
+            <td class="tg-cey4">Actions</td>
+            <td class="tg-l93j">17 345 000</td>
+            <td class="tg-l93j">17 345 000</td>
+            <td class="tg-gmla">0,00%</td>
+          </tr>
+          <tr>
+            <td class="tg-cey4">Obligations</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-cey4">Bons de souscription</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla"></td>
+          </tr>
+          <tr>
+            <td class="tg-cey4">Titres négociables hors régions</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla"></td>
+          </tr>
+          <tr>
+            <td class="tg-cey4">Intérêts courus</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-cey4">Autres valeurs assimilés</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-nybd">TOTAL BRUT TITRES</td>
+            <td class="tg-jbor">17 345 000</td>
+            <td class="tg-jbor">17 345 000</td>
+            <td class="tg-jbor">0,00%</td>
+          </tr>
+          <tr>
+            <td class="tg-cey4">Dépréciations des titres</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla">-</td>
+            <td class="tg-gmla"></td>
+          </tr>
+          <tr>
+            <td class="tg-vhgz">TOTAL NET DE DEPRECIATIONS</td>
+            <td class="tg-6d6n">-</td>
+            <td class="tg-6d6n">-</td>
+            <td class="tg-6d6n"></td>
+          </tr>
+          <tr>
+            <td class="tg-z0zb" colspan="4">Le commentaire porte essentiellement sur :<br></td>
+          </tr>
+          <tr>
+            <td class="tg-fa7u" colspan="4">La justification de toute variation significative ; l’indication pour les  titres coté à une bourse valeur, le nombre, le prix unitaire d’acquisition et le cours de la bourse au 31 décembre ; l’indication des actions ou parts propres, la date d’acquisition et le nombre de titres détenus ; l’indication des évènements et circonstance qui ont conduit à la dépréciation et à la reprise.<br></td>
+          </tr>
+        </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+{% endblock %}

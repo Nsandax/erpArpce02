@@ -1,0 +1,148 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_bons_achat' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_bons_achat' %}">Liste des bons d'achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_add_bon_achat' %}">Nouveau bon d'achat</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary chargement-au-click">Confirmer</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_achat_add_bon_achat' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Modifier</button>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+
+    <div class="row" style="margin-top: 10px">
+        <div class="cell padding30 shadow">
+                <center><h4>BON D'ACHAT</h4> </center>  
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Numéro du bon d'achat :<br>
+                        <!--span id="numero" class="sub-alt-header fg-dark"></span-->
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Date d'enregistrement :<br>
+                        <span id="date_prevue" class="sub-alt-header fg-dark"></span>
+                    </p>
+                </div>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray" style="width: 180px">
+                        Fournisseur :<br>
+                        <a class="sub-alt-header lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' fournisseur.id %}"> {{ fournisseur.nom_complet }} </a>
+                        <br> <strong> Numéro Fournisseur: {{ fournisseur.id }} </strong>
+                        <br><br> {{ fournisseur.adresse_complete }}
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray" style="width: 180px">
+                        Demandeur :<br>
+                        <a  class="sub-alt-header lien chargement-au-click" href="#"> {{ demandeur.nom_complet }} </a> <br>
+                    </p>
+                    <p class="minor-header fg-gray">
+                        Modalité de réglèment :<br>
+                        <span class="sub-alt-header fg-dark"> {{ condition_reglement.designation }} </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Dévise :<br>
+                        <span class="sub-alt-header fg-dark"> {{ devise.designation }} </span>
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Document externe :<br>
+                        <span id="reference_document" class="sub-alt-header fg-dark"></span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th width="35%">Article</th>
+                            <th width="20%">Quantité demandée</th>
+                            <th width="20%">Prix unitaire</th>
+                            <th width="25%">Prix total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="items">
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td style="border:1px #999999 solid">TOTAL</td>
+                            <td style="border:1px #999999 solid" id="total"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <form id="form" method="POST" action="{% url 'module_achat_post_valider_bon_achat' %}">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+                <input type="hidden" name="numero" id="input_numero">
+                <input type="hidden" name="fournisseur_id" value="{{ fournisseur.id }}">
+                <input type="hidden" name="demandeur_id" value="{{ demandeur.id }}">
+                <input type="hidden" name="devise_id" value="{{ devise.id }}">
+                <input type="hidden" name="condition_reglement_id" value="{{ condition_reglement.id }}">
+                <input type="hidden" name="date_prevue" id="input_date_prevue">
+                <input type="hidden" name="reference_document" id="input_reference_document">
+            </form>
+        </div>
+    </div>
+    <script src="/static/ErpProject/js/fourniture-local.js"></script>
+    <script>
+        $(document).ready(function(){
+            var totalBon = 0;
+            var bon  = fournitureLocal.avoirFourniture();
+
+            $("#date_prevue").text(bon.date_prevue);
+            $("#input_date_prevue").val(bon.date_prevue);
+
+            $("#numero").text(bon.numero);
+            $("#input_numero").val(bon.numero);
+
+
+            if(bon.reference_document.length == 0) $("#reference_document").text("-");
+            else
+            { 
+                $("#reference_document").text(bon.reference_document);
+                $("#input_reference_document").val(bon.reference_document);
+            }
+
+            lignes = fournitureLocal.avoirToutesLignes();
+            for (var i = 0; i < lignes.length; i++) {
+                var ligne = lignes[i];
+                var total = parseFloat(ligne.prix_unitaire) * parseFloat(ligne.quantite_demandee);
+                totalBon += total;
+                var nouvelleLigne = '<tr class="table bordered border"><td>' + ligne.nom_article + '</td>';
+                nouvelleLigne += '<td>' + ligne.quantite_demandee + ' ' + ligne.symbole_unite + '</td>';
+                nouvelleLigne += '<td>' + parseFloat(ligne.prix_unitaire).toFixed(2) + ' {{ devise.symbole_devise }}</td>';
+                nouvelleLigne += '<td>' + total.toFixed(2) + ' {{ devise.symbole_devise }}</td></tr>';
+
+                $("#items").append(nouvelleLigne);
+
+                var input_article_id = '<input type="hidden" name="article_id" value="' + ligne.article_id + '" >';
+                $("#form").append(input_article_id);
+                var input_quantite_demandee = '<input type="hidden" name="quantite_demandee" value="' + ligne.quantite_demandee + '" >';
+                $("#form").append(input_quantite_demandee);
+                var input_prix_unitaire = '<input type="hidden" name="prix_unitaire" value="' + {{ ligne.prix_unitaire|intcomma }} + '" >';
+                $("#form").append(input_prix_unitaire);
+            }
+            $("#total").text(totalBon.toFixed(2) + " {{ devise.symbole_devise }}");            
+        });
+    </script>
+{% endblock %}

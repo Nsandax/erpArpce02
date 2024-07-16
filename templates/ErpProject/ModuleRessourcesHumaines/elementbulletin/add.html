@@ -1,0 +1,267 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_list_lotbulletin' %}">Lots de bulletins de paie</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row only-on-large-screen">
+                        <button onclick="javascript:document.getElementById('submit').click()"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+                            Valider
+                        </button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_list_lotbulletin' %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;margin-left: 5px">Annuler</button>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br><br>   	
+					<div class="row item-content" style="margin-top: 10px">
+						<div class="cell">
+							<form id="form" method="POST" action="{% url 'module_ressources_humaines_post_add_element' %}"
+								data-role="validator" 
+								data-show-required-state="false"
+								data-hint-mode="line"
+								data-hint-background="bg-red"
+								data-hint-color="fg-white"
+								data-hide-error="5000"
+								novalidate="novalidate"
+								data-on-error-input="notifyOnErrorInput"
+								data-show-error-hint="false">
+								{% csrf_token %}
+								<input id="submit" type="submit" style="display: none">
+
+								<div class="row">
+									<div class="col-md-6">
+										<label>Désignation</label>
+										<div class="input-control text full-size" data-role="input">
+											<input name="designation" type="text" autocomplete="off"
+												data-validate-func="required" 
+												data-validate-hint="Entrez la désignation du poste!">
+											<span class="input-state-error mif-warning"></span>
+											<span class="input-state-success mif-checkmark"></span>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<label>Référence</label>
+										<div class="input-control text full-size">
+											<input type="text" name="reference" id="reference" autocomplete="off" />
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-6">
+										<label>Type d'élément</label>
+										<div class="input-control text full-size">
+											<select name="type_element" id="type_element"
+												data-validate-func="min" 
+												data-validate-arg="1"
+												data-validate-hint="Sélectionnez le type d'élément svp.">
+												<option value="0">Sélectionnez un type</option>
+												{% for item in types_element %}
+													<option value="{{ item.id }}"> {{ item.designation }} </option>
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+
+									<div class="col-md-6">
+										<label>Categorie</label>
+										<div class="input-control text full-size">
+											<select name="categorie_element" id="categorie_element" 
+												data-validate-func="min" 
+												data-validate-arg="1"
+												data-validate-hint="Sélectionnez la catégorie svp.">
+												<option value="0">Sélectionnez une catégorie</option>
+												{% for item in categories_element %}
+													<option value="{{ item.id }}"> {{ item.designation }} </option>
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-6">
+										<label>Devise</label>
+										<div class="input-control text full-size">
+											<select name="devise_id" id="devise_id" onchange="choix_devise()"
+												data-validate-func="min" 
+												data-validate-arg="1"
+												data-validate-hint="Sélectionnez la devise svp.">
+												<option value="0">Sélectionnez une devise</option>
+													{% for item in devises %}
+														<option value="{{ item.id }}"> {{ item.designation }} </option>
+													{% endfor %}
+											</select>
+										</div>
+									</div>
+
+									<div class="col-md-6">
+										<label>Sequence</label>
+										<div class="input-control text full-size">
+											<input type="text" name="sequence" id="sequence" autocomplete="off" />
+										</div>
+									</div>
+								</div>
+
+								<div class="row" style="margin-top: 10px">
+									<div class="tabcontrol2" data-role="tabcontrol">
+										<ul class="tabs">
+											<li class="active"><a href="#frame_regle_salariale">Règle salariale</a></li>
+											<li class=""><a href="#frame_comptabilite">Comptabilité</a></li>
+										</ul>
+										<div class="frames">
+											<div class="frame" id="frame_regle_salariale" style="display: block;">                            
+												<div class="row cells3">
+													<div class="cell">
+														<div class="row">
+															<label>Type de calcul</label>
+															<div class="input-control text full-size">
+																<select name="type_calcul" id="type_calcul">
+																	<option value="0">Sélectionnez un type</option>
+																	{% for item in types_calcul %}
+																		<option value="{{ item.id }}"> {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+															</div>
+														</div>
+														<div class="row pourcentage" >
+															<label>Pourcentage basé sur</label>
+															<div class="input-control text full-size">
+																<select name="type_resultat" id="type_resultat">
+																	<option value="0">Sélectionnez un type</option>
+																	{% for item in types_resultat %}
+																		<option value="{{ item.id }}"> {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+															</div>
+														</div>
+														<div class="row pourcentage">
+															<label>Pourcentage (%)</label>
+															<div class="input-control text full-size" data-role="input">
+																<input name="pourcentage" id="pourcentage" type="text">
+															</div>
+														</div>
+														<div class="row" id="montant_fixe">
+															<label>Montant fixe</label>
+															<div class="input-control text full-size" data-role="input">
+																<input name="montant" id="montant" type="text">
+															</div>
+														</div>
+														<div class="row" id="bareme">
+															<label>Barême</label>
+															<div class="input-control text full-size">
+																<select name="bareme_id" id="bareme_id">
+																	<option value="0">Sélectionnez un barême</option>
+																	{% for item in baremes %}
+																		<option value="{{ item.id }}"> {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+															</div>
+														</div>
+														<div class="row" id="code_calcul">
+															<label>Code calcul</label>
+															<div class="input-control text full-size" data-role="input">
+																<input name="calcul" id="calcul" type="text">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="frame" id="frame_comptabilite" style="display: none;">
+												<div class="row cells3">
+													<div class="cell">
+														<div class="row">
+															<label>Compte</label>
+															<div class="input-control text full-size">
+																<select name="compte_id" id="compte_id">
+																	<option value="0">Sélectionnez une compte</option>
+																	{% for item in comptes %}
+																		<option value="{{ item.id }}">{{ item.numero }} {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+							</form>
+						</div>        
+					</div>
+                </div>        
+            </div>
+        </div>        
+    </div>
+	<script>
+		function initRegleSalariale()
+        {
+			$("#pourcentage").val("0");
+			$("#type_resultat").val('0');
+			$("#montant").val("0");
+			$("#bareme_id").val('0');
+			$("#calcul").val("");
+		}
+        $(document).ready(function(){
+			$(".pourcentage").hide();
+			$("#montant_fixe").hide();
+			$("#code_calcul").hide();
+			$("#bareme").hide();
+			$("#type_calcul").change(function() {			  
+				var type_calcul = $("#type_calcul").val();
+				if(type_calcul == "0"){
+					$(".pourcentage").hide();
+					$("#montant_fixe").hide();
+					$("#code_calcul").hide();
+					$("#bareme").hide();
+					
+					initRegleSalariale();
+				}else if (type_calcul == "1"){
+					$(".pourcentage").show();
+					$("#montant_fixe").hide();
+					$("#code_calcul").hide();
+					$("#bareme").hide();
+					
+					initRegleSalariale();
+				}else if (type_calcul == "2"){
+					$(".pourcentage").hide();
+					$("#montant_fixe").show();
+					$("#code_calcul").hide();
+					$("#bareme").hide();
+					
+					initRegleSalariale();
+				}else if (type_calcul == "3"){
+					$(".pourcentage").hide();
+					$("#montant_fixe").hide();
+					$("#code_calcul").show();
+					$("#bareme").hide();
+					
+					initRegleSalariale();
+				}else if (type_calcul == "4"){
+					$(".pourcentage").hide();
+					$("#montant_fixe").hide();
+					$("#code_calcul").hide();
+					$("#bareme").show();
+					
+					initRegleSalariale();
+				}				  
+			});							
+		});
+		
+	</script>
+{% endblock %}

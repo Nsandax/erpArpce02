@@ -1,0 +1,230 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_constante' %}">Liste des constantes</a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_payroll_details_constante' model.id %}">{{ model.designation }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_details_constante' model.id %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_payroll_post_update_constante' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+						<input type="text"  id="ref" name="ref" value ="{{ model.id }}" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+						<input type="text"  id="type_constante" name = "type_constante" value = "{{ type_constante }}" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation</label>
+                                <div class="input-control text full-size">
+                                    <input value="{{ model.designation }}" type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Code</label>
+                                <div class="input-control text full-size">
+                                    <input value="{{ model.code }}" type="text" name="code"  id="code"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez le code svp."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+							<div class="col-md-6">
+								<label>Référence</label>
+								<div class="input-control text full-size">
+									<input value="{{ model.reference }}" type="text" name="reference" id="reference" autocomplete="off" />
+								</div>
+							</div>
+                        </div>
+						<br><br>
+						<div class="row" style="margin-top: 10px">
+							<div class="tabcontrol2" data-role="tabcontrol">
+								<ul class="tabs">
+									<li class="active"><a href="#frame_constante">Paramètres</a></li>
+									<li class=""><a href="#frame_autres">Autres informations</a></li>
+								</ul>
+								<div class="frames">
+									<div class="frame" id="frame_constante" style="display: block;">
+										<br><br>
+										{% if type_constante == "4" %}
+										<div class="row">
+											<div class="col-md-6">
+												<label>Valeur</label>
+												<div class="input-control text full-size constante_select">
+													<input type="text" class="input_is_const" name="valeur_input_is_const" id="valeur_input_is_const" value="0" style="display: none">
+													<input type="text" id="valeur_input" name="valeur_input" value="0.0" class="input_text">
+													<select name="valeur_select" id="valeur_select" class="input_select">
+														<option value="0">Sélectionnez la constante</option>
+														{% for item in constantes %}
+															<option value="{{ item.id }}"> {{ item.code }} </option>
+														{% endfor %}
+													</select>
+													<div class="button valeur_button" id="valeur_button" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+												</div>
+											</div>
+										</div>
+										{% elif type_constante == "5" %}
+										<div class="row">
+											<div class="col-md-6">
+												<label>Rubrique</label>
+												<div class="input-control text full-size ">
+													<select name="rubrique_id" id="rubrique_id">
+														<option value="0">Sélectionnez une rubrique</option>
+														{% for item in rubriques %}
+															<option {% if model.rubrique_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.code }} </option>
+														{% endfor %}
+													</select>
+												</div>
+											</div>
+											<br><br><br>
+										</div>
+										{% elif type_constante == "6" %}
+										<div class="row">
+											<div class="col-md-6">
+												<label>Fonction python prédefinie</label>
+												<div class="input-control text full-size">
+													<input type="text" value="{{ model.fonction }}" name="fonction"  id="fonction"/>
+												</div>
+											</div>
+										</div>
+										{% elif type_constante == "7" %}
+										<div class="row">
+											<div class="col-md-6">
+												<label>Fonction python Individuelle</label>
+												<div class="input-control text full-size">
+													<input type="text" value="{{ model.fonction }}" name="fonction"  id="fonction"/>
+												</div>
+											</div>
+										</div>
+										{% elif type_constante == "9" %}
+										<div class="row">
+											<div class="col-md-4">
+												<label>Date constante</label>
+												<div id="input-date-debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+													<input type="text"  id="date_constante" name="date_constante" value="{{ model.value_date_constante|date:"d/m/Y" }}" data-validate-func="required" data-validate-hint="Entrez la date de la constante svp.">
+													<div class="button"><span class="mif-calendar"></span></div>
+												</div>
+											</div>
+											<br><br><br>
+										</div>
+										{% endif %}
+									</div>
+									<div class="frame" id="frame_autres" style="display: none;">
+										<div class="row">
+											<div class="col-md-6">
+												<label>Description</label>
+												<div class="input-control text full-size" style="min-height: 6.25rem !important;">
+													<textarea name="description" id="description">{{ model.description }}</textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script>
+		function initConstanteSelect(){
+			$(".constante_select .input_is_const").val('0');
+			$(".constante_select .input_text").val('0.00');
+			$(".constante_select .input_select").val('0');
+
+			$(".constante_select .input_text").show();
+			$(".constante_select .input_select").hide();
+
+			//Bouton actif non cliqué
+			$(".constante_select .button").css({"background-color": "#c4d8ea", "color": "#000"});
+			$(".constante_select .button").data("clicked", false);
+			$(".constante_select .button").data("disabled", false);
+		}
+
+		$(document).ready(function(){
+			initConstanteSelect();
+
+			//Restriction sur la saisie seulement des chiffres sur input
+			$(document).delegate('.constante_select .input_text', 'change', function(e) {
+                if (isNaN($(this).val())) {
+                    // if value is Not a Number
+                    $(this).val('0.00');
+                }
+            });
+
+			//Quand on clique sur le bouton d'activation des constantes
+			$(document).delegate('.constante_select .button', 'click', function(e) {
+				e.preventDefault();
+                e.stopPropagation();
+
+				if($(this).data("disabled") == false){
+					$(this).parent().find(".input_text").val('0.00');
+					$(this).parent().find(".input_select").val('0');
+
+					if($(this).data("clicked")){
+						$(this).css({"background-color": "#c4d8ea", "color": "#000"});
+						$(this).data("clicked", false);
+
+						$(this).parent().find(".input_is_const").val('0');
+
+						$(this).parent().find(".input_text").show();
+						$(this).parent().find(".input_select").hide();
+					}else{
+						$(this).css({"background-color": "#4fc2f8", "color": "#fff"});
+						$(this).data("clicked", true);
+
+						$(this).parent().find(".input_is_const").val('1');
+
+						$(this).parent().find(".input_text").hide();
+						$(this).parent().find(".input_select").show();
+					}
+				}
+			});
+
+			//Initialisation valeur
+			{% if model.valeur_is_const is True %}
+				$("#valeur_select").show();
+				$("#valeur_input").hide();
+				$("#valeur_button").css({"background-color": "#4fc2f8", "color": "#fff"});
+				$("#valeur_button").data("clicked", true);
+
+				$("#valeur_input_is_const").val("1");
+				$("#valeur_select").val("{{ model.valeur_const_id }}");
+			{% else %}
+				$("#valeur_select").hide();
+				$("#valeur_input").show();
+				$("#valeur_button").css({"background-color": "#c4d8ea", "color": "#000"});
+				$("#valeur_button").data("clicked", false);
+
+				$("#valeur_input").val("{{ model.valeur }}");
+			{% endif %}
+
+		});
+	</script>
+{% endblock %}

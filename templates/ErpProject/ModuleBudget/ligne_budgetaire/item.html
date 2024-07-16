@@ -1,0 +1,596 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %}{% block page %}
+{% load account_filters %}
+<style>
+    #overlay{
+        position: fixed;
+        top: 0;
+        z-index: 100;
+        width: 135%;
+        margin-left: -30%;
+        height:100%;
+        display: none;
+        background: rgba(0,0,0,0.6);
+    }
+    .cv-spinner {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px #ddd solid;
+        border-top: 4px #2e93e6 solid;
+        border-radius: 50%;
+        animation: sp-anime 0.8s infinite linear;
+    }
+    @keyframes sp-anime {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    .is-hide{
+        display:none;
+    }
+    .mt-3{
+        margin-top:2rem;
+    }
+</style>
+   <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_budget_tableau_de_bord' %}">Module Budget</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_budget_list_ligne_budgetaire' %}">Liste des Lignes Budgetaires</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+
+   <div class="row">
+       <!--button onclick="javascript:window.location.assign('{% url 'module_budget_update_ligne_budgetaire' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button>
+       <button onclick="javascript:window.location.assign('{% url 'module_budget_list_ligne_budgetaire' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Annuler</button-->
+       <button class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_budget_add_rallonge' model.id %}')" style="margin-left: 5px">Ajouter une rallonge budgétaire</button>
+       <button class="theme-btn theme-btn-sm rounded danger chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_budget_add_diminution' model.id %}')" style="margin-left: 5px">Diminuer le budget</button>
+       <button class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_budget_detail_ecriture_analytique_ligne_budgetaire' model.id %}')" style="margin-left: 5px">Ecritures analytiques</button>
+       <button class="theme-btn theme-btn-sm rounded danger chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_budget_detail_ecriture_comptable_ligne_budgetaire' model.id %}')" style="margin-left: 5px">Ecritures comptables</button>
+   </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    <div >
+        <div class="col-md-6">
+            <p class="fg-gray">
+                {% if not model.is_waiting_confirmation %}
+                <button id="check" onclick="" class="theme-btn theme-btn-sm rounded danger chargement-au-click" style="margin-left: 5px">
+                {% if model.is_bloqued  %} Débloquer
+                {% elif not model.is_bloqued %} Bloquer
+                {% endif %}
+                </button>
+                {% endif %}
+
+                {% if model.is_waiting_confirmation %}
+
+                {% if utilisateur.id == model.user_confirmation.id %}
+                <button id="confirm" class="theme-btn theme-btn-sm rounded bg-green chargement-au-click" style="margin-left: 5px">
+                Traiter le changement de nature
+                </button>
+
+                {% else %}
+
+                <button onclick="" class="theme-btn theme-btn-sm primary_color_{{module.name|lower}} danger chargement-au-click" style="margin-left: 5px">
+                    {% if model.is_bloqued %} En attente de confirmation de deblocage
+                    {% elif not model.is_bloqued %} En attente de confirmation de blocage
+                    {% endif %}
+                </button>
+                {% endif %}
+                {% endif %}
+            <span class="sub-alt-header fg-dark"> {% if model.is_bloqued %}  Combinaison bloquante {% else %} Combinaison Non bloquant {% endif %}</span>
+               <br>
+            </p>
+        </div>
+
+    </div>
+    <div style="float: right;"><h3>
+        {% if exercice_budgetaire %}
+        Exercice budgétaire: {{ exercice_budgetaire.designation }} {#{exercice_budgetaire.annee}#}
+        {% else %}
+        Aucun exercice en cours
+        {% endif %}
+
+    </h3></div>
+
+
+    <br><br>
+    <div class="panel panel-default" style="border: none;">
+
+        <div class="panel" style="background-color:#f5f5f5;border: none;">
+
+            <div class="col-md-4" style="">
+                <div class="mb-3 mt-3">
+                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                        <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                            <div style="padding: 10px;">
+                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Budget Initial </strong>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        </div>
+                        <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                            <h4 style="overflow: hidden;padding: 5px;min-width: 0;text-overflow: ellipsis;white-space: nowrap;">
+                                <span class="monetary">{{ model.montant_dotation }}</span> {{model.budget.devise}}
+                            </h4>
+                        </div>
+                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" style="">
+                <div class="mb-3 mt-3">
+                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                        <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                            <div style="padding: 10px;">
+                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Réajustement Budgetaire +</strong>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        </div>
+                        <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                            <h4 style="overflow: hidden;padding: 5px;min-width: 0;text-overflow: ellipsis;white-space: nowrap;">
+                                <span class="monetary">{{ model.separateur_valeur_rallonge }} </span> {{model.budget.devise}}
+                            </h4>
+                        </div>
+                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" style="">
+                <div class="mb-3 mt-3">
+                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                        <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                            <div style="padding: 10px;">
+                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Réajustement Budgetaire -</strong>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        </div>
+                        <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                            <h4 style="overflow: hidden;padding: 5px;min-width: 0;text-overflow: ellipsis;white-space: nowrap;">
+                                <span class="monetary">{{ model.separateur_valeur_diminution }} </span> {{model.budget.devise}}
+                            </h4>
+                        </div>
+                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="panel panel-default" style="border: none;b">
+        <div class="panel" style="background-color:#f5f5f5;border: none;">
+            <div class="col-md-4" style="">
+                <div class="mb-3">
+                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                        <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                            <div style="padding: 10px;">
+                                <!-- Dotation -->
+                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Budget Réajusté</strong>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        </div>
+                        <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                            <h4 style="overflow: hidden;padding: 5px;min-width: 0;text-overflow: ellipsis;white-space: nowrap;">
+                                <span class="monetary">{{ model.montant_alloue }}</span> {{model.budget.devise}}
+                            </h4>
+                        </div>
+                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" style="padding: 10px;">
+                <div class="mb-3">
+                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                        <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                            <div style="padding: 10px;">
+                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Engagement</strong>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        </div>
+                        <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                            <h4 style="overflow: hidden;padding: 5px;min-width: 0;text-overflow: ellipsis;white-space: nowrap;">
+                                <span class="monetary"> {{ model.separateur_valeur_engagement }}</span> {{model.budget.devise}}
+                            </h4>
+                        </div>
+                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" style="padding: 10px;">
+                <div class="mb-3 ">
+                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                        <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                            <div style="padding: 10px;">
+                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Réel</strong>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        </div>
+                        <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                            <h4 style="overflow: hidden;padding: 5px;min-width: 0;text-overflow: ellipsis;white-space: nowrap;">
+                                <span class="monetary">{{ model.valeur_reel }}</span> {{model.budget.devise}}
+                            </h4>
+                        </div>
+                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" style="padding: 10px;">
+                <div class="mb-3 ">
+                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                        <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                            <div style="padding: 10px;">
+                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Montant disponible</strong>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        </div>
+                        <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                            <h4 style="overflow: hidden;padding: 5px;min-width: 0;text-overflow: ellipsis;white-space: nowrap;">
+                                <span class="monetary">{{ model.separateur_valeur_solde }}</span> {{model.budget.devise}}
+                            </h4>
+                        </div>
+                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" style="padding: 10px;">
+                <div class="mb-3 ">
+                    <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                        <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                            <div style="padding: 10px;">
+                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">% en consommation</strong>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        </div>
+                        <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                            <h4 style="overflow: hidden;padding: 5px;min-width: 0;text-overflow: ellipsis;white-space: nowrap;">
+                                {{ model.valeur_pourcentage }} %
+                            </h4>
+                        </div>
+                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row item-content" style="margin-top: 30px">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Combinaison</strong> :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.code }} </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Désignation :</strong><br>
+                        <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Centre de coût :</strong><br>
+                        <span class="sub-alt-header fg-dark"> {{ model.centre_cout.designation }} </span><br>
+                        <span class="sub-alt-header fg-dark"> {{ model.centre_cout.get_label }} </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Compte comptable :<br></strong>
+                        <span class="sub-alt-header fg-dark"> {{ model.compte.numero }} </span><br>
+                        <span class="sub-alt-header fg-dark"> {{ model.compte.designation }} </span>
+                    </p>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Secteur :</strong><br>
+                        <span class="sub-alt-header fg-dark"> {{ model.value_nature_activite }} </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Centre de coûts :</strong><br>
+                        <span class="sub-alt-header fg-dark"> {{ model.centre_cout.designation }} </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Activité :</strong><br>
+                        <span class="sub-alt-header fg-dark"> {{ model.activite.code }} {{ model.activite.designation }} </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Nature :</strong><br>
+                        <span class="sub-alt-header fg-dark"> {{ model.value_nature_charge }} </span>
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Site :</strong><br>
+                        <span class="sub-alt-header fg-dark"> {{ model.value_localite }} </span>
+                    </p>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <strong>Budget :</strong><br>
+                        {% if model.budget == None %}
+                            {{ "-" }}
+                        {% else %}
+                            <span class="sub-alt-header fg-dark"> <a href="{% url 'module_budget_detail_budget' model.budget.id %}">{{ model.budget }}</a></span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                       <span class="sub-alt-header fg-dark"><strong>Statut: </strong><br>
+                        {% if model.is_bloqued %} 
+                            Bloquant 
+                        {% else %} 
+                            Non bloquant 
+                        {% endif %}</span>
+
+                    </p>
+                </div>
+
+
+            </div>
+            <div class="row">
+
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="tabcontrol2" data-role="tabcontrol">
+                <ul class="tabs">
+                    <li class="active"><a href="#frame_transactions">Imputations budgétaires</a></li>
+                    <li class=""><a href="#frame_alert">Paramètres d'alerte</a></li>
+                </ul>
+                <div class="frames">
+                    <div class="frame" id="frame_transactions" style="display: block;">
+                        <div class="row"  style="margin-top: 40px">
+                            <div class="col-md-12">
+                                <br><br>
+                                     <p class="header">Imputation Budgétaire</p>
+                                     <table class="table dataTable striped border bordered" data-role="datatable" data-searching="true" style="width: 100%">
+                                         <thead>
+                                        <tr>
+                                            <th>Référence</th>
+                                            <th>Auteur</th>
+                                            <th>Type de transaction</th>
+                                            <th>Date de la transaction</th>
+                                            <th>Montant</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if transactions %}
+                                            {% for item in transactions %}
+                                                <tr>
+                                                    <td> {{ item.designation }} </td>
+                                                    <td> {{ item.auteur }} </td>
+                                                    <td>
+                                                        {{ item.value_type_transaction_budgetaire }}
+                                                    </td>
+                                                    <td> {{ item.created_at|date:"d/m/Y" }} à {{ item.created_at|date:"h:m:s" }} </td>
+                                                    {% if item.value_type_transaction_budgetaire == 'Rallonge' %}
+                                                        <td align="right"> + {{ item.separateur_montant |monetary}} </td>
+                                                    {% elif item.value_type_transaction_budgetaire == 'Diminution'  %}
+                                                        <td align="right"> - {{ item.separateur_montant |monetary}} </td>
+                                                    {% else%}
+                                                        <td align="right"> {{ item.separateur_montant |monetary}} </td>
+                                                    {% endif %}
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="5" align="center">
+                                                Pas de données disponibles
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="frames">
+                    <div class="frame" id="frame_alert" style="display: block;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Niveau d'alerte en %:<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.pourcentage_alert }} </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Message alerte :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.message_alert }} </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="overlay">
+        <div class="cv-spinner">
+          <span class="spinner"></span>
+        </div>
+    </div>
+
+            <!-- Dialogue Déléguer-->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogBlocusConfig">
+				<div class="row cells3 padding20" style="margin-top: 10px">
+					<h3>Envoyer pour validation à : </h3>
+					<div class="cells2">
+						<form action="{% url 'module_budget_post_initiate_blocus_status_change' %}" method="POST">
+							{% csrf_token %}
+                            <input type="hidden" name="combinaison_id" value="{{ model.id }}"/>
+                            <div class="row">
+								<label>Employé:</label>
+								<div class="input-control text full-size">
+									<select name="employe_id" id="employe_id" class="chosen-select"
+                                    data-validate-func="min" data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez un employé">
+										<option value="0">Sélectionnez un employé</option>
+                                        {% for item in employes %}
+                                        <option value="{{ item.id }}">{{ item.nom_complet }} </option>
+                                        {% endfor %}
+									</select>
+								</div><br>
+							</div>
+							<hr style="background-color: #f7f5f5;">
+							<div class="row">
+								<button type="submit" class="button rounded primary_color_{{ module.name|lower }}">Appliquer</button>
+								<!-- <button class="button rounded" onclick="closeDialog('#dialogDeleguerWKF')" style="margin-left: 5px">Retour</button> -->
+							</div>
+						</form>
+
+					</div>
+				</div>
+			</div>
+		<!-- Fin Dialogue Déléguer -->
+
+
+    <script>
+        $(document).ready(function () {
+            ref = {{model.id}};
+            $('#check').change(function(){
+                if( $('#check').is(':checked')){
+                    statut = "True";
+                    selectChange(ref, statut);
+                }
+                else{
+                    statut = "False";
+                    selectChange(ref, statut);
+                }
+            });
+            function selectChange(ref,statut){
+                $("#overlay").fadeIn(300);
+                $.get(
+                "{% url  'module_budget_post_bloque_combinaison_b' %}",
+                {ref : ref, statut:statut},
+                function(data)
+                {
+                    console.log("JSON STATUS" + JSON.stringify(data))
+                    window.location.href = '{% url 'module_budget_detail_ligne_budgetaire' model.id %}';
+                },
+                "json"
+            );
+            }
+        });
+    </script>
+     <script>
+        $(function() {
+        $('.chosen-select').chosen();
+        $('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+    });
+</script>
+
+    <script>
+        $('#check').on('click', function () {
+
+        Swal.fire({
+            title: 'Etes vous sûr?',
+            text: "De vouloir initier cette opération!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, je confirme!'
+        }).then((result) => {
+            if (result.value) {
+                var dialog = $("#dialogBlocusConfig").data('dialog');
+		        dialog.open();
+                /*Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )*/
+            }
+        })
+    })
+
+
+    $('#confirm').on('click', function () {
+
+        Swal.fire({
+            title: 'Nature de la combinaison?',
+            text: "Validez-vous le changement de la nature de cette combinaison ?!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, je confirme!'
+        }).then((result) => {
+            if (result.value) {
+                console.log("OOOOK")
+                $.get(
+                "{% url  'module_budget_post_bloque_combinaison_b' %}",
+                {ref : ref, statut:1},
+                function(data)
+                {
+                    console.log("JSON STATUS" + JSON.stringify(data))
+                    window.location.href = '{% url 'module_budget_detail_ligne_budgetaire' model.id %}';
+                },
+                "json"
+            );
+            }else{
+                console.log("NOOOOO")
+                $.get(
+                "{% url  'module_budget_post_bloque_combinaison_b' %}",
+                {ref : ref, statut:0},
+                function(data)
+                {
+                    console.log("JSON STATUS" + JSON.stringify(data))
+                    window.location.href = '{% url 'module_budget_detail_ligne_budgetaire' model.id %}';
+                },
+                "json"
+            );
+
+            }
+
+        })
+        })
+    </script>
+{% endblock %}

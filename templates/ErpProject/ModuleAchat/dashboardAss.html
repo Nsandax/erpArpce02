@@ -1,0 +1,626 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %} {%load static %} {% load i18n %}
+<style type="text/css">
+    body {
+        background-color: grey !important;
+    }
+
+    .titleP {
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .ajuste {
+        width: 50%;
+        height: auto;
+        margin-top: 4%;
+        padding: 3%;
+        border-radius: 0px;
+        border: 0px #DCDCDC;
+        margin-bottom: -2%;
+        box-shadow: 0 0 0px;
+    }
+
+    .ajuste p {
+        font-size: 15px;
+        text-align: center;
+        font-weight: 500;
+        color: #d5d5d5;
+    }
+
+    .number {
+        font-size: 26px !important;
+        font-weight: bold !important;
+        color: #4D4D4D !important;
+    }
+
+    .devise {
+        font-size: 9px !important;
+        font-weight: bold !important;
+        color: #4D4D4D !important;
+        margin-bottom: 3px !important;
+    }
+
+    .chart-legend {
+        display: none !important;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12 row" style="width:100%;height:auto;">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "d/m/Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+
+            <!-- Appel de la fonction message -->
+            {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+            <!--Notification-->
+            <div class="panel" style="background-color:#f5f5f5;border: none;"></div>
+            {% if temp_notif_count > 0 %}
+            <div class="col-md-12" style="padding: 10px;">
+                {% for item in temp_notif_list %}
+                <div class="col-md-4" style="padding: 10px;">
+                    <div style="">
+                        <div class="mb-4 ">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                <div style="width: 100%;background-color: white;/*padding: 10px;">
+                                    <div style="padding: 10px;">
+                                        <strong class="sub-header"
+                                            style="margin: 10px;font-weight: 900;">Notification</strong>
+                                        <small style="margin-right:50">{{item.notification.created_at}}</small>
+                                        <button
+                                            onclick="javascript:window.location.assign('{% url 'module_achat_notification' item.id %}')"
+                                            type="button" class="ml-2 mb-1 close" data-dismiss="toast"
+                                            aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="separ"
+                                        style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;">
+                                    </div>
+
+                                </div>
+                                <div class="pt-4"
+                                    style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                    <p>
+                                        {{item.notification.text}}<br> {% if item.notification.expression != None %}
+                                        Etat: {{item.notification.expression.etat}}<br> {% endif %}
+                                        {% if item.notification.demande != None %} Etat:
+                                        {{item.notification.demande.etat}}<br> {% endif %}
+                                        {% if item.notification.bon_reception != None %} Etat:
+                                        {{item.notification.bon_reception.etat}}<br> {% endif %}
+                                    </p>
+
+                                </div>
+                                <div class="separ"
+                                    style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                <div style="padding: 15px;padding-top: 0px;">
+                                    {% if item.type_action == "Link" %}
+                                    <button class="btn rounded primary_color_{{module.name|lower}}"
+                                        onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button>
+                                    {% endif %}
+                                </div>
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% endif %}
+        </div>
+        <div class="" style="background-color:#F9F9F9;border: none; margin-top:2%;">
+            <div class="row">
+                <div class="col-md-12" style="">
+                    <div>
+                        <h4>GESTION DES ACHATS</h4>
+                    </div>
+                </div>
+                <hr>
+                <div class="col-md-6">
+                    <div class="card-item" style="border-top:2px solid #D64F0D;">
+                        <div class="col-md-6 sous_espace" style="margin-top:2%;">
+                            <p style="font-size: 18px;">Total Bon de commande: <strong
+                                    style="font-size:20px;font-weight:bold;color:#000;">{{CountBC}}</strong></strong>
+                            </p>
+                            <p style="font-size: 18px;">BC Validé : <strong>{{bcvalide}}</strong></p>
+                            <p style="font-size: 18px;">BC en cours de traitement : <strong>{{bcwork}}</strong></p>
+
+                        </div>
+                        <div class="col-md-6 sous_espace" style="margin-top:2%;">
+                            <p style="font-size: 18px;">BC Rapproché Totalement : <strong>{{bcR.nbrrapproche}}</strong>
+                            </p>
+                            <p style="font-size: 18px;">BC Rapproché Partiellement :
+                                <strong>{{bcR.nbr_non_rapproche}}</strong></p>
+                            <p style="font-size: 18px;">BC Non Rapproché : <strong>{{bcR.nbrrapproche_part}}</strong>
+                            </p>
+                        </div>
+                        <div class="col-md-12">
+                            <div id="chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card-item" style="border-top:2px solid #D64F0D;">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div id="chart4"></div>
+                            </div>
+                            <div class="col-md-5">
+                                <br><br><br>
+                                <div class="sous_espace">
+                                    <p><span style="color:#7cd6fd;font-size: 18px;">•</span> Montant Bon Rapproché :
+                                        <br><strong
+                                            style="font-size:20px;font-weight:bold;color:#000;">{{bcR.montantBCR}}
+                                            FCFA</strong>
+                                    </p>
+                                </div>
+                                <br>
+                                <div class="sous_espace">
+                                    <p><span style="color:#743ee2;font-size: 18px;">•</span> Montant Bon Non Rapproché :
+                                        <br><strong
+                                            style="font-size:20px;font-weight:bold;color:#000;">{{bcR.montantBCNR}}
+                                            FCFA</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
+                <!-- Header Bar pour le filtre-->
+                <div class="col-md-12">
+                    <div class="col-md-9">
+                        <div id="vue_G_chart_perfom" class="iconChart" style=" display: inline;margin-left:1%;">
+                            <i class="fa fa-sliders-h" style="font-weight:900;font-size:17px"></i>
+                            <span class="" style="font-weight:900;font-size:17px">ANNEE</span>
+                        </div>
+                        <div class="" style="display: inline; margin-left:1%;">
+                            <strong class="dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                <select onchange="choix_year_()" class="champ" name="year" id="year"
+                                    data-validate-func="min" data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le responsable direct svp.">
+                                    <option value="0">Sélectionnez une année</option>
+                                    {% for item in year %}
+                                    <option value="{{item}}">{{item}}</option>
+                                    {% endfor %}
+                                </select>
+
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+                <!-- Header Bar pour le filtre-->
+
+                <!--Graphic -->
+                <div class="col-md-12">
+                    <div class="panel" style="background-color:#f5f5f5;border: none;">
+                        <div class="col-md-12" style="padding: 10px;">
+                            <div class="mb-4">
+                                <div class="card-body">
+                                    <div class="chart-area item-dash"
+                                        style="padding: 15px;background-color: white;">
+                                        <canvas id="myChart" width="400" height="100"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--End Graphic -->
+
+                <div class="col-lg-12">
+                    <div class="tm-box-icon style-02 card-item" style="padding:2%;">
+                        BON DE COMMANDE MOIS (en cours)
+                        <table id="data_table" class="table nowrap border bordered striped" cellspacing="0"
+                            style="width:100%">
+                            <thead>
+                                <tr class="table-light">
+                                    <th>N°</th>
+                                    <th>Periode</th>
+                                    <th>Bénéficiaire</th>
+                                    <th>Combinaison B</th>
+                                    <th>Montant BC</th>
+                                    <th>Montant Rapproché</th>
+                                    <th>Montant NON Rapproché</th>
+                                    <th>Créer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if ListBCencours %}
+                                {% for item in ListBCencours %}
+                                <tr>
+                                    <td><a class="lien chargement-au-click"
+                                            href="{% url 'module_achat_detail_bon_reception' item.id %}">{{item.numero_reception}}</a>
+                                    </td>
+                                    <td>{{item.date_prevue|date:'d-m-y'}}</td>
+                                    <td>
+                                        {% if item.receveur %}
+                                        {{item.receveur}}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{item.ligne_budgetaire.code}}</td>
+                                    <td>{{item.prix_total}} {{item.devise.symbole_devise}}</td>
+                                    <td>{{item.montant_rapproche}} {{item.devise.symbole_devise}}</td>
+                                    <td>{{item.montant_non_rapproche}} {{item.devise.symbole_devise}}</td>
+                                    <td>{{item.auteur}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="8" align="center">
+                                        Pas de données disponibles
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        <div style="margin-top:2px;display:flex;justify-content:right;">
+                            <a class="lien chargement-au-click" href="{% url 'module_achat_list_bon_reception' %}"
+                                style="font-size:12px;text-decoration:none;padding:3px;background:#5F7FB5;color:#fff;border-radius:3px">
+                                Voir plus
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
+                <div class="col-lg-12">
+                    <div class="tm-box-icon style-02 card-item" style="padding:2%;">
+                        BON DE COMMANDE (Cloturé)
+                        <table id="data_table" class="table nowrap border bordered striped" cellspacing="0"
+                            style="width:100%">
+                            <thead>
+                                <tr class="table-light">
+                                    <th>N°</th>
+                                    <th>Periode</th>
+                                    <th>Bénéficiaire</th>
+                                    <th>Combinaison B</th>
+                                    <th>Montant BC</th>
+                                    <th>Montant Rapproché</th>
+                                    <th>Montant NON Rapproché</th>
+                                    <th>Créer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if bccommandes %}
+                                {% for item in bccommandes %}
+                                <tr>
+                                    <td><a class="lien chargement-au-click"
+                                            href="{% url 'module_achat_detail_bon_reception' item.id %}">{{item.numero_reception}}</a>
+                                    </td>
+                                    <td>{{item.date_prevue|date:'d-m-y'}}</td>
+                                    <td>{{item.receveur}}</td>
+                                    <td>{{item.ligne_budgetaire.code}}</td>
+                                    <td>{{item.separateur_prix_total}} {{item.devise.symbole_devise}}</td>
+                                    <td>{{item.separateur_prix_total}} {{item.devise.symbole_devise}}</td>
+                                    <td>0 {{item.devise.symbole_devise}}</td>
+                                    <td>Assistant Achat</td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="8" align="center">
+                                        Pas de données disponibles
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="{% static 'ErpProject/js/frappe-charts.min.iife.js' %}"></script>
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+<script>
+    var listNBV = {{ bnv }}
+    const data = {
+        labels: {{ periode| safe}},
+    datasets: [
+        {
+            name: "BC Validé",
+            values: {{ bcvalidecount }},
+        chartType: 'bar'
+            },
+        {
+            name: "BC Non validé",
+            values: listNBV,
+            chartType: 'bar'
+        }
+    ]
+    }
+
+    const chart1 = new frappe.Chart("#chart", {
+        title: "",
+        data: data,
+        type: 'bar',
+        height: 200,
+        colors: ['#7BD5FC', '#538EA8'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+
+<script>
+    listframe = [];
+    dataframe = [{{ bcR.montantBCR }}, {{ bcR.montantBCNR }}]
+    for (const element of dataframe) {
+        if (element > 0) {
+            listframe.push(element);
+        }
+    }
+    const formage3 = {
+        labels: ["BC Rapproche", "BC non Rapproche"],
+        datasets: [
+            {
+                name: "", type: "pie",
+                values: listframe
+            },
+        ]
+    }
+
+    const chart4 = new frappe.Chart("#chart4", {
+        title: "",
+        data: formage3,
+        type: 'pie',
+        height: 350,
+        colors: ['#7cd6fd', '#743ee2'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+
+<script>
+    var ctx;
+    var myChart;
+</script>
+
+<script>
+    ctx = document.getElementById('myChart').getContext('2d');
+    myChart1 = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            datasets: [{
+                    label: 'Quantite Expression de besoin',
+                    data: {{ExpressionByMonth}},
+                    // this dataset is drawn below
+                    order: 1,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                },
+
+                {
+                    label: 'Quantite Expression de besoin',
+                    data: {{ExpressionByMonth}},
+
+                    type: 'line',
+                    // this dataset is drawn on top
+                    order: 2,
+                    backgroundColor: [
+                        'rgba(255, 255, 255, 0.1)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }
+            ],
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {beginAtZero: true}
+                }]
+            }
+        }
+    });
+</script>
+
+<script>
+    function choix_year_() {
+        var year = $("#year").val();
+        if (year != 0) {
+            $.get(
+                "{% url 'module_achat_tableau_de_bord_expression_ajax' %}", {
+                    year: year
+                },
+                function(response) {
+                    console.log(response);
+
+                    var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            datasets: [{
+                                    label: 'Quantite Expression de besoin',
+                                    data: response[0],
+
+                                    // this dataset is drawn below
+                                    order: 1,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                },
+
+                                {
+                                    label: 'Quantite Expression de besoin',
+                                    data: response[0],
+
+                                    type: 'line',
+                                    // this dataset is drawn on top
+                                    order: 2,
+                                    backgroundColor: [
+                                        'rgba(255, 255, 255, 0.1)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }
+                            ],
+                            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+
+                    myChart1.destroy();
+                },
+                "json"
+            );
+        }
+        else {
+            myChart1 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    datasets: [{
+                            label: '',
+                            data: {{ExpressionByMonth}},
+                            // this dataset is drawn below
+                            order: 1,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        },
+
+                        {
+                            label: '',
+                            data: {{ExpressionByMonth}},
+                            type: 'line',
+                            // this dataset is drawn on top
+                            order: 2,
+                            backgroundColor: [
+                                'rgba(255, 255, 255, 0.1)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }
+                    ],
+                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+
+
+        }
+
+    }
+</script>
+
+{% endblock %}

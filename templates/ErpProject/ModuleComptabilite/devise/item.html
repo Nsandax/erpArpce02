@@ -1,0 +1,155 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{% load account_filters %} 
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_lister_devises' %}">Liste des devises</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_comptabilite_creer_devise" url_detail="module_comptabilite_details_devise" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_modifier_devise' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">Modifier</button>
+                        </div>
+                        {% if model.est_active and model.est_reference == False %}
+                        <div class="col-md-2"> 
+                        <button class="button rounded chargement-au-click" style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_desactiver_devise' model.id %}')" style="margin-left: 5px">Desactiver</button>
+                        </div>   
+                    {% elif model.est_active == False %}
+                        <div class="col-md-2">   
+                        <button class="button rounded chargement-au-click" style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_activer_devise' model.id %}')" style="margin-left: 5px">Activer</button>
+                             </div>
+                         {% endif %}
+                        {% if model.est_reference == False %}
+                        <div class="col-md-2">    
+                        <button class="button rounded chargement-au-click" style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_referencer_devise' model.id %}')" style="margin-left: 5px">Attribuer comme devise de référence</button>
+                        </div>
+                    {% endif %}
+                        <div class="col-md-2">
+                        <button class="theme-btn theme-btn-sm rounded" style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_creer_devise' %}')" style="margin-left: 5px">Créer</button>
+                        </div>
+                        <div class="col-md-2">
+                        <button id="supprimer" style="width: 100%;" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">Supprimer  </button>
+                    </div>
+                    </div>
+                    <hr class="hr-ligne"><br>
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p>
+                                <span class="header">{{ model.designation }}</span>
+                                {% if model.est_reference %}
+                                <br><small style="padding: 1px 7px; border-radius: 5px" class=" fg-white bg-green">Votre devise de référence</small>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="fg-gray">
+                                Code iso :<br>
+                                <span class="text-bold fg-dark"> {{ model.code_iso }} </span>
+                                <br>
+                                <br>
+                                Symbole :<br>
+                                <span class="text-bold fg-dark">{{ model.symbole_devise }}</span>
+                            </p>
+                        </div>
+                        {% if model.est_reference == False %}
+                            <div class="row">
+                                <p class="fg-gray">
+                                    Taux de change :<br>
+                                    {% if taux_change != None %}
+                                        <span class="text-bold fg-dark"> 1 {{ devise_ref.symbole_devise }} vaut {{ taux_change.montant |monetary }} {{ model.symbole_devise }} </span>
+                                        <br><br>
+                                        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_creer_taux_change' model.id %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier le taux de change</button>
+                                    {% else %}
+                                        <span class="fg-dark">Aucun taux de change n'a été défini</span>
+                                        <br><br>
+                                        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_creer_taux_change' model.id %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Ajouter le taux de change</button>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        {% endif %}                             
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <script>
+        function supprimer() {
+            var id = '{{model.id}}'
+            //-------deux variables pour la suppression---------------------------------
+            var modele = "Model_Devise"
+            var the_url = "module_comptabilite_lister_devises"
+            //------- url de suppression ------------------------------------------------
+            url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+            url = url.replace('100', id);
+            url = url.replace('nom_modele', modele);
+            url = url.replace('url_retour', the_url);
+            document.location.href = url;
+
+
+        }
+        $('#supprimer').on('click', function () {
+
+
+            Swal.fire({
+                title: 'Etes vous sure?',
+                text: "De vouloir supprimer cette item!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, Supprime le!'
+            }).then((result) => {
+                if (result.value) {
+                    supprimer();
+                    Swal.fire(
+                        'Supprimé!',
+
+                        'Votre Item est supprimé',
+                        'Avec Succes',
+                    )
+                }
+            })
+        })
+
+    </script>
+<script>
+        //Script du droit supprimer
+        var lesactions = new Array();
+        var booleen = false;
+        {% for action in actions %}
+        lesactions.push({ droit: "{{ action.droit }}" });
+        {% endfor %}
+
+        $(document).ready(function () {
+
+            // Initialisation des sous-menus
+            $("#supprimer").hide();
+
+            for (var i = 1; i < lesactions.length; i++) {
+                act = lesactions[i];
+                if (act.droit === "CREER_RAPPORT") {
+                    booleen = true;
+                }
+            }
+
+            if (booleen) {
+                $("#supprimer").show();
+            }
+        });
+</script>
+
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{% load account_filters %} 
+  <div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_ecriture_comptable' %}">Liste des écritures</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <button onclick="javascript:window.location.assign('#')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier </button> 
+    <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_ecriture_comptable' %}')" class="button small-button rounded chargement-au-click">Annuler</button>
+</div>
+    
+    <hr class="hr-ligne">
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="cell padding30 shadow">
+            <div class="row">
+                <p class="minor-header fg-gray">
+                    Pièce comptable du :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.date_piece|date:"d/m/Y" }} </span>
+                </p>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Désignation :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Référence :<br>
+                        <span class="sub-alt-header fg-dark">{{ model.reference }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Partenaire :<br>
+                        {% if item.partenaire == None %}
+                            {{ "-" }}
+                        {% else %}
+                            <a class="lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' item.partenaire_id %}">{{ item.partenaire.nom_complet }}</a> 
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Journal :<br>
+                        {% if item.journal_comptable == None %}
+                            {{ "-" }}
+                        {% else %}
+                            <a class="lien chargement-au-click" href="{% url 'module_comptabilite_details_journal' item.journal_comptable_id %}">{{ item.journal_comptable.designation }}</a> 
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Dévise :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.devise.designation }} </span>
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Taux de change appliqué :<br>
+                        {% if model.taux != None %}
+                            <span class="sub-alt-header fg-dark">{{ model.taux.montant |monetary}}</span>
+                        {% else %}
+                            <span class="sub-alt-header fg-dark">1</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Montant :<br>
+                        <span class="sub-alt-header fg-dark">{{ model.separateur_montant |monetary}}  {{ model.devise.symbole_devise }} </span>
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Date d'enregistrement :<br>
+                        <span class="sub-alt-header fg-dark">{{ model.date_creation|date:"d/m/Y" }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <p class="sub-header">Ecritures comptables...</p>
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th class="no-padding-top no-padding-left no-padding-bottom" width="30%">Compte</th>
+                            <th width="30%">Libellé </th>
+                            <th width="20%">Débit</th>
+                            <th width="20%">Crédit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ecriture in ecritures_comptables %}
+                            <tr class="table bordered border">
+                                <td> {{ ecriture.compte.designation}}</td>
+                                <td> {{ ecriture.designation }} </td>
+                                <td>  {{ecriture.separateur_montant_debit |monetary}}  {{ model.devise.symbole_devise }} </td>
+                                <td> {{ ecriture.separateur_montant_credit |monetary}}  {{ model.devise.symbole_devise }} </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

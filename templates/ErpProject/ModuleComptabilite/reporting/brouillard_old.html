@@ -1,0 +1,60 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="report">
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <h2>{{title}}</h2>
+            <div class="separ" style="background-color:floralwhite;opacity: 0.2"></div>
+            <div id="export" class="panel panel-body">
+                <img src="{% static 'ErpProject\image\header_rapport_o.png'%}" alt=""
+                    style="width: 400px;height: 150px;">
+                <br>
+                <center>
+                    <h1>{{designation}}</h1>
+                </center>
+                <center>
+                    <h3>Etabli à la date du {{ model.date_operation|date:'d/m/Y' }}</h3>
+                </center>
+                <br>
+                <br>
+                <div class="row">
+                    <table class="display table nowrap border bordered" cellspacing="0" style="width:100%">
+                        <tbody>
+                            <tr>
+                                <th>Date<br><br> </th>
+                                <th>N° PC<br><br></th>
+                                <th>Libéllé<br><br> </th>
+                                <th>Facture <br><br></th>
+                                <th>Type opération<br><br></th>
+                                <th>Montant<br><br></th>
+                            </tr>
+                            {% for ligne in ligne_operation %}
+                                <tr>
+                                    <td>{{ligne.date_ligne_operation|date:'d/m/Y'}}</td>
+                                    <td>{{ligne.reference}}</td>
+                                    <td>{{ligne.libelle}}</td>
+                                    <td >{% if ligne.facture %} {{ligne.facture.numero_facture}} {% else %} - {% endif %}</td>
+                                    <td>{{ligne.value_type_operation}}</td>
+                                    <td class="monetary">{{ligne.montant}}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan="5">TOTAL DE LA PAGE :  </td>
+                                <td class="monetary">{{model.solde}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

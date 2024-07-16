@@ -1,0 +1,177 @@
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %} {% block page %} {%load static %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_index' %}">Module Document</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_list_document' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Nouveau document</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_list_document' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_list_document' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+            <form id="form" method="POST" action="{% url 'module_archivage_post_add_document' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <div class="row">
+                                <div class="col-md-6">
+                                <!--<input name="file_upload" id="file_upload" type="file">-->
+                                <!--<div id="dropContainer" style="border:1px solid black;height:100px;">
+                                        Drop Here
+                                </div>-->
+                                 <input id="file_upload" name="file_upload" type="file" accept="application/msword, application/pdf, image/*" style="display:none;">
+                                         <div class="tile-container">
+                                             <a onclick="$('input[id=file_upload]').click();" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+                                                 <div class="tile-content slide-up" >
+                                                     <div class="slide" >
+                                                         <img id="file_preview" src="{% static 'ErpProject/image/upload/personnes/upload.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                                     </div>
+                                                     <div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+                                                         <span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+                                                     </div>
+                                                 </div>
+                                             </a>
+                                         </div>
+                                    </div>
+                                </div>
+                                <br><br>
+                            <div class="row">
+
+                <div class="col-md-6">
+                            <label>Type document</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="type_document" id="type_document" type="text" data-validate-func="required" data-validate-hint="Entrez type_document !">
+                            </div>
+                </div>
+                <!--
+                <div class="col-md-6">
+                            <label>Url document</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="url_document" id="url_document" type="text" data-validate-func="required" data-validate-hint="Entrez url_document !">
+                            </div>
+                </div>
+                -->
+                <div class="col-md-6">
+                            <label>Numero document</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="numero_document" id="numero_document" type="text" data-validate-func="required" data-validate-hint="Entrez numero_document !">
+                            </div>
+                </div>
+
+                <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="description" id="description" type="text" data-validate-func="required" data-validate-hint="Entrez description !">
+                            </div>
+                </div>
+            <!--
+                <div class="col-md-6">
+                            <label>Est vérifié</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="est_verifie" id="est_verifie" type="text" data-validate-func="required" data-validate-hint="Entrez est_verifie !">
+                            </div>
+                </div>-->
+                <!--
+                <div class="col-md-6">
+                            <label>Status</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="status" id="status" type="text" data-validate-func="required" data-validate-hint="Entrez status !">
+                            </div>
+                </div>
+
+                <div class="col-md-6">
+                            <label>Metadonnées</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="metadonnees" id="metadonnees" type="text" data-validate-func="required" data-validate-hint="Entrez metadonnees !">
+                            </div>
+                </div>
+                -->
+
+                <div class="col-md-6">
+                        <label>Dossier:</label>
+                        <div class="input-control text full-size">
+                            <select name="dossier_id" id="dossier_id" onchange=""
+                                data-validate-func="min"
+                                data-validate-arg="1"
+                                data-validate-hint="Selectionnez Dossier_id svp.">
+                                <option value="0">Selectionnez Dossier_id</option>
+                                {% for item in model %}
+                                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<script>
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+              document.getElementById('file_preview').src = "{% static 'ErpProject/image/upload/personnes/good.png' %}";
+
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#file_upload").change(function() {
+        readURL(this);
+    });
+</script>
+
+<script>
+
+dropContainer.ondragover = dropContainer.ondragenter = function(evt) {
+  evt.preventDefault();
+};
+
+dropContainer.ondrop = function(evt) {
+  // pretty simple -- but not for IE :(
+  //fileInput.files = evt.dataTransfer.files;
+  evt.preventDefault();
+};
+
+
+</script>
+
+{% endblock %}

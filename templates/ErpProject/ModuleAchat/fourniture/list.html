@@ -1,0 +1,88 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_home' %}">Module Achat</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+<div class="row">
+    <button onclick="javascript:window.location.assign('{% url 'module_achat_add_fourniture' %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Créer</button>
+</div>
+
+<hr class="hr-ligne" />
+<br>
+<!-- Appel de la fonction message -->
+{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+<div class="row" style="margin-top: 10px">
+    <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+        <thead>
+            <tr>
+                <th style="width: 20px; background-color:#2e416a; white"></th>
+                <th>Référence</th>
+                <th>Date de la fourniture</th>
+                <th>Fournisseur</th>
+                <th>Date prévue</th>
+                <th>Date réalisation</th>
+                <th>Total</th>
+                <th>Etat de facturation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in model %}
+            <tr>
+                <td>
+                    <label class="small-check">
+                                <input type="checkbox">
+                                <span class="check"></span>
+                            </label>
+                </td>
+                <td>
+                    <a class="lien chargement-au-click" href="{% url 'module_achat_details_fourniture' item.id %}">{% if item.numero != None and item.numero != "" %}{{ item.numero }}{% else %}{{ "Aucune" }}{% endif %}</a>
+                </td>
+                <td> {{ item.creation_date|date:"d/m/Y" }} </td>
+                <td>
+                    <a class="lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' item.fournisseur_id %}">{{ item.fournisseur.nom_complet }}</a>
+                </td>
+                <td> {{ item.date_prevue|date:"d/m/Y" }} </td>
+                <td> {{ item.date_realisation|date:"d/m/Y" }} </td>
+                <td> {{ item.prix_total }} {{ item.devise.symbole_devise }}</td>
+                <td> {{ item.etat_facturation }} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [{
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                }, {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                }, {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                }, {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        });
+    });
+</script>
+
+{% endblock %}

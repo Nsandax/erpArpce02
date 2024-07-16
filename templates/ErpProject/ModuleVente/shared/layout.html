@@ -1,0 +1,89 @@
+{% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+
+{% if not isPopup %}
+<!-- Suite Menu Nav -->
+<!-- Menu lateral -->
+<div class="sidebar" role="navigation" >
+    <div class="contenair-profil" style="background-color: transparent;"  >
+        <!-- <img src="/static/ErpProject/image/icone_profile.png" class="profil"> -->
+        {% if utilisateur.image != None and utilisateur.image != '' %}
+        <img src="{% static utilisateur.image %}"  class="profil">
+        {% else %}
+            <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+        {% endif %}
+        <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+        <P class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</P>
+        <div class="divider" style="background-color: transparent;"></div>
+    </div>
+    <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+        <ul class=" nav" id="side-menu" style="background-color: transparent;">
+            {% include 'ErpProject/ErpBackOffice/widget/menu.html' %}
+        </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+<!-- /.Menu lateral -->
+</nav>
+<!-- /.Menu Navbar -->
+
+<!-- Corps de la page (A définir dans chaque fonction du module) -->
+<div id="page-wrapper"  style="background-color:#f9f9f9;">
+{% else %}
+<div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+    {% endif %}
+    {% block page %}{% endblock %}
+</div>
+<!-- Fin Corps de la page -->
+{% endblock %}
+
+
+
+<!-- SCRIPT DE TRAITEMENT DES DROITS VISUELS -->
+<script>
+    var lesactions = new Array();
+    var menu1 = 0;
+    var menu2 = 0;
+
+
+    {% for action in actions %}
+    lesactions.push({droit:"{{ action.droit }}"});
+    {% endfor %}
+
+
+
+    //Initialisation des sous-menus
+    $("#client").hide();
+    $("#etat_facturation").hide();
+
+    $("#categorie_article").hide();
+    $("#civilite").hide();
+    $("#condition_reglement").hide();
+    $("#unite_mesure").hide();
+    $("#categorie_unite_mesure").hide();
+
+    for(var i = 1; i < lesactions.length; i++)
+
+    {
+        action = lesactions[i];
+        if(action.droit==="LISTER_CLIENT"){$("#client").show(); menu1++;}
+
+        if(action.droit==="LISTER_ETAT_FACTURATION"){$("#etat_facturation").show();menu2++;}
+        if(action.droit==="LISTER_CATEGORIE_ARTICLES_VENTE"){$("#categorie_article").show();menu4++;}
+        if(action.droit==="LISTER_CIVILITE"){$("#civilite").show();menu4++;}
+
+        if(action.droit==="LISTER_CONDITION_REGLEMENT"){$("#condition_reglement").show();menu4++;}
+        if(action.droit==="LISTER_UNITE_MESURE_VENTE"){$("#unite_mesure").show();menu4++;}
+        if(action.droit==="CREER_RAPPORT"){$("#menuBI").show();}
+        if(action.droit==="LISTER_CATEGORIE_UNITE_MESURE_VENTE"){$("#categorie_unite_mesure").show();menu4++;}
+
+
+    }
+    //Traitement des menus
+
+    if (menu1 == 0){ $("#menu1").hide();}
+    if (menu2 == 0){$("#menu2").hide();}
+    if (menu4 == 0){$("#menu4").hide();}
+
+
+    </script>
+    <!-- FIN SCRIPT -->

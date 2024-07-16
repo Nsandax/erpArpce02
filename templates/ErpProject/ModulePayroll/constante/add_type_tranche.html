@@ -1,0 +1,575 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+	<div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_constante' %}">Liste des constantes</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_list_constante' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_payroll_post_add_constante' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+						<input type="text"  id="type_constante" name = "type_constante" value = "{{ type_constante }}" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Code</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="code"  id="code"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez le code svp."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+							<div class="col-md-6">
+                                <label>Référence</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="reference"  id="reference"/>
+                                </div>
+							</div>
+                        </div>
+						<br><br>
+						<div class="row" style="margin-top: 10px">
+							<div class="tabcontrol2" data-role="tabcontrol">
+								<ul class="tabs">
+									<li class="active"><a href="#frame_constante">Paramètres</a></li>
+									<li class=""><a href="#frame_autres">Autres informations</a></li>
+								</ul>
+								<div class="frames">
+									<div class="frame" id="frame_constante" style="display: block;">
+										<div class="row">
+											<div class="col-md-6">
+												<label>Base de test</label>
+												<div class="input-control text full-size constante_select">
+													<input type="text" class="input_is_const" name="base_test_input_is_const" id="base_test_input_is_const" value="0" style="display: none">
+													<input type="text" id="base_test_input" name="base_test_input" value="0.0" class="input_text">
+													<select name="base_test_select" id="base_test_select" class="input_select">
+														<option value="0">Sélectionnez la constante</option>
+														{% for item in constantes %}
+															<option value="{{ item.id }}"> {{ item.code }} </option>
+														{% endfor %}
+													</select>
+													<div class="button base_test_button" id="base_test_button" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+												</div>
+											</div>
+											<div class="col-md-6">
+												<label>Sens</label>
+												<div class="input-control text full-size ">
+													<select name="sens_select" id="sens_select">
+														<option value="1"> < inférieure </option>
+														<option value="2"> <= inférieure ou égal </option>
+														<option value="3"> > supérieure </option>
+														<option value="4"> >= supérieure ou égal </option>
+													</select>
+												</div>
+											</div>
+										</div>
+										<br>
+										<div class="row">
+											<div class="col-md-12">
+												<table class="table bordered no-margin" style="width:100%;">
+													<thead>
+														<tr>
+															<th width="5%">N°</th>
+															<th width="40%" colspan="4">Base</th>
+															<th width="55%" colspan="4">Valeur</th>
+														</tr>
+													</thead>
+
+													<tbody id="tbl_posts_body">
+														<tr id="rec-1">
+															<td width="5%">
+																<p class="numero_ordre" style="font-size: 22px; text-align: center; margin-top: 10px;">1</p>
+																<input type="text" value="1" id="sequence-1" class="sequence" name="sequence" style="display: none">
+															</td>
+															<td width="5%"><p style="font-size: 22px; text-align: center; margin-top: 10px;">Si</p></td>
+															<td width="15%">
+																<div class="input-control text full-size" style="display: none">
+																	<input type="text" id="left_input_is_const-1" class="left_input_is_const" name="left_input_is_const" value="1" style="display: none">
+																	<select id="left_select-1" class="left_select" name="left_select" >
+																		<option value="0"></option>
+																		{% for item in constantes %}
+																			<option value="{{ item.id }}"> {{ item.code }} </option>
+																		{% endfor %}
+																	</select>
+																	<input type="text" value="0.0" id="left_input-1" class="left_input" name="left_input" style="display: none">
+																</div>
+															</td>
+															<td width="5%">
+																<p class="left_operation" id="left_operation-1" style="font-size: 24px; text-align: center; margin-top: 10px;"></p>
+																<input type="text" value="0" id="operation_debut-1" class="operation_debut" name="operation_debut" style="display: none">
+															</td>
+															<td width="15%">
+																<div class="input-control text full-size">
+																	<input type="text" value="0.0" id="base_input-1" class="base_input" name="base_input" readonly>
+																</div>
+															</td>
+															<td width="5%">
+																<p class="right_operation" id="right_operation-1" style="font-size: 24px; text-align: center; margin-top: 10px;"> < </p>
+																<input type="text" value="1" id="operation_fin-1" class="operation_fin" name="operation_fin" style="display: none">
+															</td>
+															<td  width="20%">
+																<div class="input-control text full-size constante_select code" id="code-1">
+																	<input type="text" class="input_is_const" name="code_input_is_const" value="0" style="display: none">
+																	<input type="text" id="code_input-1" data-id="1" name="code_input" value="0.0" class="input_text code_input">
+																	<select name="code_select" id="code_select-1" data-id="1" class="input_select code_select">
+																		<option value="0">Sélectionnez la constante</option>
+																		{% for item in constantes %}
+																			<option value="{{ item.id }}"> {{ item.code }} </option>
+																		{% endfor %}
+																	</select>
+																	<div class="code_button button" id="code_button-1" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+																</div>
+															</td>
+															<td width="10%"><p style="font-size: 16px; text-align: center; margin-top: 10px;">Alors =</p></td>
+															<td width="20%">
+																<div class="input-control text full-size constante_select">
+																	<input type="text" class="input_is_const" name="valeur_input_is_const" value="0" style="display: none">
+																	<input type="text" id="valeur_input-1" name="valeur_input" value="0.0" class="input_text">
+																	<select name="valeur_select" id="valeur_select-1" class="input_select">
+																		<option value="0">Sélectionnez la constante</option>
+																		{% for item in constantes %}
+																			<option value="{{ item.id }}"> {{ item.code }} </option>
+																		{% endfor %}
+																	</select>
+																	<div class="valeur_button button" id="valeur_button-1" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+																</div>
+															</td>
+														</tr>
+														<tr id="rec-2">
+															<td width="5%">
+																<p class="numero_ordre" style="font-size: 22px; text-align: center; margin-top: 10px;">2</p>
+																<input type="text" value="2" id="sequence-2" class="sequence" name="sequence" style="display: none">
+															</td>
+															<td width="5%"><p style="font-size: 22px; text-align: center; margin-top: 10px;">Si</p></td>
+															<td width="15%">
+																<div class="input-control text full-size">
+																	<input type="text" id="left_input_is_const-2" class="left_input_is_const" name="left_input_is_const" value="0" style="display: none">
+																	<select id="left_select-2" class="left_select" name="left_select" readonly style="display: none">
+																		<option value="0">0.0</option>
+																		{% for item in constantes %}
+																			<option value="{{ item.id }}"> {{ item.code }} </option>
+																		{% endfor %}
+																	</select>
+																	<input value="0.0" type="text" id="left_input-2" class="left_input" name="left_input" readonly>
+																</div>
+															</td>
+															<td width="5%">
+																<p class="left_operation" id="left_operation-2" style="font-size: 24px; text-align: center; margin-top: 10px;"> <= </p>
+																<input type="text" value="2" id="operation_debut-2" class="operation_debut" name="operation_debut" style="display: none">
+															</td>
+															<td width="15%">
+																<div class="input-control text full-size">
+																	<input type="text" value="0.0" id="base_input-2" class="base_input" name="base_input" readonly>
+																</div>
+															</td>
+															<td width="5%">
+																<p class="right_operation" id="right_operation-2" style="font-size: 24px; text-align: center; margin-top: 10px;"></p>
+																<input type="text" value="0" id="operation_fin-2" class="operation_fin" name="operation_fin" style="display: none">
+															</td>
+															<td  width="20%">
+																<div class="input-control text full-size constante_select code" id="code-2" style="display: none">
+																	<input type="text" class="input_is_const code_input_is_const" name="code_input_is_const" value="1" style="display: none">
+																	<input type="text" id="code_input-2" data-id="2" name="code_input" value="0.0" class="input_text code_input">
+																	<select name="code_select" id="code_select-2" data-id="2" class="input_select code_select">
+																		<option value="0">Sélectionnez la constante</option>
+																		{% for item in constantes %}
+																			<option value="{{ item.id }}"> {{ item.code }} </option>
+																		{% endfor %}
+																	</select>
+																	<div class="code_button button" id="code_button-2" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+																</div>
+															</td>
+															<td width="10%"><p style="font-size: 16px; text-align: center; margin-top: 10px;">Alors =</p></td>
+															<td width="20%">
+																<div class="input-control text full-size constante_select">
+																	<input type="text" class="input_is_const" name="valeur_input_is_const" value="0" style="display: none">
+																	<input type="text" id="valeur_input-2" name="valeur_input" value="0.0" class="input_text">
+																	<select name="valeur_select" id="valeur_select-2" class="input_select">
+																		<option value="0">Sélectionnez la constante</option>
+																		{% for item in constantes %}
+																			<option value="{{ item.id }}"> {{ item.code }} </option>
+																		{% endfor %}
+																	</select>
+																	<div class="valeur_button button" id="valeur_button-2" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+																</div>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+										<br>
+										<div class="row">
+											<div class="col-md-6">
+												<button type="button" class="theme-btn theme-btn-sm rounded" id="add-record">Ajouter</button>
+												<button type="button" class="theme-btn theme-btn-sm rounded danger" id="delete-record" style="margin-left: 10px;">Supprimer</button>
+											</div>
+										</div>
+									</div>
+									<div class="frame" id="frame_autres" style="display: none;">
+										<div class="row">
+											<div class="col-md-6">
+												<label>Description</label>
+												<div class="input-control text full-size" style="min-height: 6.25rem !important;">
+													<textarea name="description" id="description"></textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+                </div>
+            </div>
+        </div>
+
+		<div style="display:none;">
+			<table id="sample_table">
+				<tr id="">
+					<td width="5%">
+						<p class="numero_ordre" style="font-size: 22px; text-align: center; margin-top: 10px;">0</p>
+						<input type="text" value="" id="" class="sequence" name="sequence" style="display: none">
+					</td>
+					<td width="5%"><p style="font-size: 22px; text-align: center; margin-top: 10px;">Si</p></td>
+					<td width="15%">
+						<div class="input-control text full-size">
+							<input type="text" id="" class="left_input_is_const" name="left_input_is_const" value="0" style="display: none">
+							<select id="" class="left_select" name="left_select" readonly style="display: none">
+								<option value="0">0.0</option>
+								{% for item in constantes %}
+									<option value="{{ item.id }}"> {{ item.code }} </option>
+								{% endfor %}
+							</select>
+							<input value="0.0" type="text" id="" class="left_input" name="left_input" readonly>
+						</div>
+					</td>
+					<td width="5%">
+						<p class="left_operation" id="" style="font-size: 24px; text-align: center; margin-top: 10px;">  </p>
+						<input type="text" value="0" id="" class="operation_debut" name="operation_debut" style="display: none">
+					</td>
+					<td width="15%">
+						<div class="input-control text full-size">
+							<input type="text" value="0.0" id="" class="base_input" name="base_input" readonly>
+						</div>
+					</td>
+					<td width="5%">
+						<p class="right_operation" id="" style="font-size: 24px; text-align: center; margin-top: 10px;"></p>
+						<input type="text" value="0" id="" class="operation_fin" name="operation_fin" style="display: none">
+					</td>
+					<td  width="20%">
+						<div class="input-control text full-size constante_select code" id="" style="display: none">
+							<input type="text" class="input_is_const code_input_is_const" name="code_input_is_const" value="1" style="display: none">
+							<input type="text" id="" data-id="0" name="code_input" value="0.0" class="input_text code_input">
+							<select name="code_select" id="" data-id="0" class="input_select code_select">
+								<option value="0">Sélectionnez la constante</option>
+								{% for item in constantes %}
+									<option value="{{ item.id }}"> {{ item.code }} </option>
+								{% endfor %}
+							</select>
+							<div class="code_button button" id="" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+						</div>
+					</td>
+					<td width="10%"><p style="font-size: 16px; text-align: center; margin-top: 10px;">Alors =</p></td>
+					<td width="20%">
+						<div class="input-control text full-size constante_select">
+							<input type="text" class="input_is_const" name="valeur_input_is_const" value="0" style="display: none">
+							<input type="text" id="" name="valeur_input" value="0.0" class="input_text valeur_input">
+							<select name="valeur_select" id="" class="input_select valeur_select">
+								<option value="0">Sélectionnez la constante</option>
+								{% for item in constantes %}
+									<option value="{{ item.id }}"> {{ item.code }} </option>
+								{% endfor %}
+							</select>
+							<div class="valeur_button button" id="" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+    </div>
+	<script>
+		var compteur = 1;
+		var nombre_ligne = 1;
+		function initConstanteSelect(){
+			$(".constante_select .input_is_const").val('0');
+			$(".constante_select .input_text").val('0.00');
+			$(".constante_select .input_select").val('0');
+
+			$(".constante_select .input_text").show();
+			$(".constante_select .input_select").hide();
+
+			//Bouton actif non cliqué
+			$(".constante_select .button").css({"background-color": "#c4d8ea", "color": "#000"});
+			$(".constante_select .button").data("clicked", false);
+			$(".constante_select .button").data("disabled", false);
+
+			//Init des derniers input_is_const
+			$("#sample_table .code_input_is_const").val('1');
+			$('#tbl_posts_body').children().last().find(".code_input_is_const").val("1");
+		}
+
+		$(document).ready(function(){
+			initConstanteSelect();
+
+
+			//Restriction sur la saisie seulement des chiffres sur input
+			$(document).delegate('.constante_select .input_text', 'change', function(e) {
+                if (isNaN($(this).val())) {
+                    // if value is Not a Number
+                    $(this).val('0.00');
+                }
+            });
+
+			//Quand on clique sur le bouton d'activation des constantes
+			$(document).delegate('.constante_select .button', 'click', function(e) {
+				e.preventDefault();
+                e.stopPropagation();
+
+				if($(this).data("disabled") == false){
+					$(this).parent().find(".input_text").val('0.00');
+					$(this).parent().find(".input_select").val('0');
+
+					if($(this).data("clicked")){
+						$(this).css({"background-color": "#c4d8ea", "color": "#000"});
+						$(this).data("clicked", false);
+
+						$(this).parent().find(".input_is_const").val('0');
+
+						$(this).parent().find(".input_text").show();
+						$(this).parent().find(".input_select").hide();
+					}else{
+						$(this).css({"background-color": "#4fc2f8", "color": "#fff"});
+						$(this).data("clicked", true);
+
+						$(this).parent().find(".input_is_const").val('1');
+
+						$(this).parent().find(".input_text").hide();
+						$(this).parent().find(".input_select").show();
+					}
+				}
+			});
+
+			//Quand la base test est modifiée
+			$("#base_test_select").change(function() {
+				var base_test_value = $("#base_test_select").val();
+				var base_test_text = $('#base_test_select option:selected').text();
+				if (base_test_value == 0){
+					$(".base_input").val("0.0");
+				}else{
+					$(".base_input").val(base_test_text);
+				}
+			});
+			$("#base_test_input").change(function() {
+				if (isNaN($(this).val())) {
+                    // if value is Not a Number
+                    $(".base_input").val("0.0");
+				}else{
+					$(".base_input").val($(this).val());
+				}
+			});
+
+			//Quand le sens est modifié
+			$("#sens_select").change(function() {
+				var sens_select = $("#sens_select").val();
+				if(sens_select == "1"){
+                    $("form .left_operation").text("<=");
+					$("form .right_operation").text("<");
+
+                    $("form .operation_debut").val("2");
+					$("form .operation_fin").val("1");
+				}else if(sens_select == "2"){
+                    $("form .left_operation").text("<");
+					$("form .right_operation").text("<=");
+
+                    $("form .operation_debut").val("1");
+					$("form .operation_fin").val("2");
+				}else if(sens_select == "3"){
+                    $("form .left_operation").text(">=");
+					$("form .right_operation").text(">");
+
+                    $("form .operation_debut").val("4");
+					$("form .operation_fin").val("3");
+				}else if(sens_select == "4"){
+                    $("form .left_operation").text(">");
+					$("form .right_operation").text(">=");
+
+                    $("form .operation_debut").val("3");
+					$("form .operation_fin").val("4");
+				}
+
+				var nbre_ligne = $("#tbl_posts_body").children().length;
+				$('#tbl_posts_body').children().first().find(".left_operation").text("");
+				$('#tbl_posts_body').children().first().find(".operation_debut").val("0");
+
+				$('#tbl_posts_body').children().last().find(".right_operation").text("");
+				$('#tbl_posts_body').children().last().find(".operation_fin").val("0");
+
+			});
+
+			//Quand la valeur de droit est modifiée
+			$(document).delegate('.code_select' , 'change', function(e) {
+				var code_value = $(this).val();
+				var code_text =  $(this).find('option:selected').text();
+				sequence = parseInt($(this).attr('data-id'));
+				next_sequence = sequence + 1;
+				if (code_value == 0){
+					$("#left_select-"+next_sequence).val("0");
+				}else{
+					$("#left_select-"+next_sequence).val(code_value);
+				}
+				$("#left_input_is_const-"+next_sequence).val("1");
+				$("#left_select-"+next_sequence).show();
+				$("#left_input-"+next_sequence).hide();
+			});
+			$(document).delegate('.code_input', 'change', function(e) {
+				sequence = parseInt($(this).attr('data-id'));
+				console.log("sequence");
+				console.log(sequence);
+				next_sequence = sequence + 1;
+				if (isNaN($(this).val())) {
+                    // if value is Not a Number
+                    $("#left_input-"+next_sequence).val("0.0");
+				}else{
+					$("#left_input-"+next_sequence).val($(this).val());
+				}
+				$("#left_input_is_const-"+next_sequence).val("0");
+				$("#left_select-"+next_sequence).hide();
+				$("#left_input-"+next_sequence).show();
+			});
+
+			$(document).delegate('#add-record', 'click', function(e) {
+				e.preventDefault();
+				var nombre_ligne = parseInt($("#tbl_posts_body").children().length);
+				//Ajouter nouvelle ligne
+				var content = $('#sample_table tr');
+				compteur = nombre_ligne + 1;
+				element = null;
+				element = content.clone();
+				element.attr('id', 'rec-'+compteur);
+				element.appendTo('#tbl_posts_body');
+
+				//Numero d'ordre
+				element.find('.numero_ordre').text(compteur);
+				element.find('.sequence').val(compteur);
+
+				//Initialiser les IDs
+				element.find('.sequence').attr('id', 'sequence-'+compteur);
+				element.find('.left_input').attr('id', 'left_input-'+compteur);
+				element.find('.left_select').attr('id', 'left_select-'+compteur);
+				element.find('.left_input_is_const').attr('id', 'left_input_is_const-'+compteur);
+				element.find('.base_input').attr('id', 'base_input-'+compteur);
+				element.find('.left_operation').attr('id', 'left_operation-'+compteur);
+				element.find('.operation_debut').attr('id', 'operation_debut-'+compteur);
+				element.find('.right_operation').attr('id', 'right_operation-'+compteur);
+				element.find('.operation_fin').attr('id', 'operation_fin-'+compteur);
+
+				element.find('.code').attr('id', 'code-'+compteur);
+				element.find('.code_input').attr('id', 'code_input-'+compteur);
+				element.find('.code_input').attr('data-id', compteur);
+				element.find('.code_select').attr('id', 'code_select-'+compteur);
+				element.find('.code_select').attr('data-id', compteur);
+				element.find('.code_button').attr('id', 'code_button-'+compteur);
+
+				element.find('.valeur_input').attr('id', 'valeur_input-'+compteur);
+				element.find('.valeur_select').attr('id', 'valeur_select-'+compteur);
+				element.find('.valeur_button').attr('id', 'valeur_button-'+compteur);
+
+				//Ramener la base à la nouvelle ligne
+				base_test_input_is_const = parseInt($('#base_test_input_is_const').val());
+				if(base_test_input_is_const == 1){
+					base_text = $('#base_test_select option:selected').text();
+				}else{
+					base_text = $('#base_test_input').val();
+				}
+				element.find('.base_input').val(base_text);
+
+				//Ramener l'opération de gauche à la nouvelle ligne
+				last_left_operation = $('#left_operation-'+nombre_ligne).text();
+				element.find('.left_operation').text(last_left_operation);
+				last_left_operation = $('#operation_debut-'+nombre_ligne).val();
+				element.find('.operation_debut').val(last_left_operation);
+
+
+				//Ramener l'opération de droite et initialiser la valeur de droite à l'avant dernière ligne
+				before_last_ligne = nombre_ligne - 1;
+				before_last_left_operation = $('#right_operation-'+before_last_ligne).text();
+				$('#right_operation-'+nombre_ligne).text(before_last_left_operation);
+				before_last_left_operation = $('#operation_fin-'+before_last_ligne).val();
+				$('#operation_fin-'+nombre_ligne).val(before_last_left_operation);
+
+				$('#code-'+nombre_ligne).show();
+				$("#code-"+nombre_ligne+" .input_is_const").val('0');
+				$("#code-"+nombre_ligne+" .input_text").val('0.00');
+				$("#code-"+nombre_ligne+" .input_select").val('0');
+				$("#code-"+nombre_ligne+" .input_text").show();
+				$("#code-"+nombre_ligne+" .input_select").hide();
+				//Bouton actif non cliqué
+				$("#code-"+nombre_ligne+" .button").css({"background-color": "#c4d8ea", "color": "#000"});
+				$("#code-"+nombre_ligne+" .button").data("clicked", false);
+				$("#code-"+nombre_ligne+" .button").data("disabled", false);
+
+				$('#tbl_posts_body').children().last().find(".right_operation").text("");
+			});
+
+
+			$(document).delegate('#delete-record', 'click', function(e) {
+				e.preventDefault();
+				var nombre_ligne = parseInt($("#tbl_posts_body").children().length);
+				if(nombre_ligne > 2){
+					//On supprime la dernière ligne s'il ya plus de 2
+					$('#tbl_posts_body').children().last().remove();
+
+					//On supprime l'opération de droite et la valeur de droite de l'avant dernière ligne avant la suppression
+					before_last_ligne = nombre_ligne - 1;
+					$('#right_operation-'+before_last_ligne).text("");
+					$('#operation_fin-'+before_last_ligne).val("0");
+
+					$("#code-"+before_last_ligne+" .input_is_const").val('1');
+					$("#code-"+before_last_ligne+" .input_text").val('0.00');
+					$("#code-"+before_last_ligne+" .input_select").val('0');
+					$("#code-"+before_last_ligne+" .input_text").show();
+					$("#code-"+before_last_ligne+" .input_select").hide();
+					//Bouton actif non cliqué
+					$("#code-"+before_last_ligne+" .button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#code-"+before_last_ligne+" .button").data("clicked", false);
+					$("#code-"+before_last_ligne+" .button").data("disabled", false);
+
+					$('#code-'+before_last_ligne).hide();
+				}
+			});
+		});
+	</script>
+{% endblock %}

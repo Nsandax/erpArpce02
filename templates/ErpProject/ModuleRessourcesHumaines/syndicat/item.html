@@ -1,0 +1,95 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_syndicat' %}">Liste des syndicats</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_ressourceshumaines_add_syndicat" url_detail="module_ressourceshumaines_detail_syndicat" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row only-on-large-screen">
+    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_syndicat' syndicat.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+        Modifier
+    </button>
+    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_syndicat' %}')" class="theme-btn theme-btn-sm rounded " style="width: 20%;margin-left: 5px">Annuler</button>
+    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_add_ligne_syndicat' syndicat.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+           Affilier des employés
+        </button>
+</div>
+<div class="row only-on-small-screen">
+    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_syndicat' syndicat.id %}')" class="button large-button rounded primary">Modifier</button>
+    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_syndicat' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+</div>
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Désignation :<br>
+                    <span class="sub-alt-header fg-dark"> {{ syndicat.designation }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Rôle :<br>
+                    <span class="sub-alt-header fg-dark"> {{ syndicat.role }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Objectifs :<br>
+                    <span class="sub-alt-header fg-dark"> {{ syndicat.objectifs }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Délégué principal:<br>
+                    <span class="sub-alt-header fg-dark">{{ syndicat.delegue_principal.nom_complet}}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Délégué secondaire:<br>
+                    <span class="sub-alt-header fg-dark">{{ syndicat.delegue_secondaire.nom_complet}}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Description :<br>
+                    <span class="sub-alt-header fg-dark">{{ syndicat.description }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p class="sub-header">Employés affiliés au syndicat</p>
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th width="15%">Nom & Postnom</th>
+                            <th width="16%">Fonction</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in ligne_syndicat %}
+                            <tr class="table bordered border">
+                                <td> {{ ligne.employe.nom_complet }}</td>
+                                <td> {{ ligne.description }} </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

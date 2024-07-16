@@ -1,0 +1,171 @@
+{% extends "ErpProject/ModuleContrat/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_contrat_index' %}">Module Contrat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_contrat_list_contrat' %}">Liste des contrats</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button rounded primary_color_{{module.name|lower}}">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_contrat_list_contrat' %}')" class="button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_contrat_list_contrat' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+            <form id="form" method="POST" action="{% url 'module_contrat_post_add_contrat' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <div class="row">
+                <div class="col-md-6">
+                    <label>N°</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="numero_reference" id="numero_reference" readonly class="bg-grayLighter" type="text" value="{{ Nreference }}">
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Objet</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="objet" id="objet" type="text" data-validate-func="required" data-validate-hint="Entrez objet !">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                    <label>Fournisseur</label>
+                    <div class="input-control text full-size">
+                            {% include 'ErpProject/ErpBackOffice/widget/select.html' with url="/fournisseur/demande_cotation/add?isPopup=1" model="Model_Fournisseur" name="fournisseur_id" id="fournisseur_id" hint="Selectionnez le fournisseur" only %}
+                        </div>
+                </div>
+
+
+                <div class="col-md-6">
+                            <label>Montant</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="montant" id="montant" class="monetary" type="text" data-validate-func="required" data-validate-hint="Entrez montant !"
+                                 {% if etat %} value="{{ etat.montant }}" {% endif %}>
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                    <label>Devise</label>
+                    <div class="input-control text full-size">
+                        <select name="devise_id" id="devise_id">
+                            <option value="{{ devise.id }}">{{ devise.symbole_devise }}</option>
+                        </select>
+
+                    </div>
+                 </div>
+                 <div class="col-md-6">
+                    <label>Type de marché</label>
+                    <div class="input-control text full-size">
+                        {% if type_marche %}
+                        <select name="type_marche_id" id="type_marche_id">
+                            <option value="{{ type_marche.id }}">{{ type_marche.designation }}</option>
+                        </select>
+                        {% else %}
+                            {% include 'ErpProject/ErpBackOffice/widget/select.html' with url="/type/lettre_commande/add?isPopup=1" model="Model_TypeMarche" name="type_marche_id" id="type_marche_id" hint="Selectionnez le type de marché" only %}
+                        {% endif %}
+                        </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Date début</label>
+                    <div id="date_debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_debut" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez date_debut svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+                <div class="col-md-6">
+                    <label>Date fin</label>
+                    <div id="date_fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_fin" readonly>
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                </div>
+
+                {% if source == "demande_cotation" %}
+                <div class="col-md-6">
+                    <label>Demande de Cotation</label>
+                    <div class="input-control text full-size">
+                        {% if etat %}
+                        <select name="demande_cotation_id" id="demande_cotation_id">
+                            <option value="{{ etat.id }}">{{ etat.numero_reference }}</option>
+                        </select>
+                        {% else %}
+                            {% include 'ErpProject/ErpBackOffice/widget/select.html' with url="/type/lettre_commande/add?isPopup=1" model="Model_Demande_cotation" name="demande_cotation_id" id="demande_cotation_id" hint="Selectionnez une demande de cotation" only %}
+                        {% endif %}
+                        </div>
+                </div>
+                {% elif source == "appel_offre" %}
+                <div class="col-md-6">
+                    <label>Appel d'offre</label>
+                    <div class="input-control text full-size">
+                        {% if etat %}
+                        <select name="appel_offre_id" id="appel_offre_id">
+                            <option value="{{ etat.id }}">{{ etat.numero_reference }}</option>
+                        </select>
+                        {% else %}
+                            {% include 'ErpProject/ErpBackOffice/widget/select.html' with url="/type/lettre_commande/add?isPopup=1" model="Model_Demande_cotation" name="appel_offre_id" id="appel_offre_id" hint="Selectionnez un appel d'offre" only %}
+                        {% endif %}
+                        </div>
+                </div>
+
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                       <label>Modalités</label>
+                       <div class="input-control text full-size">
+                           <textarea name="modalite" id="modalite" data-validate-func="required" data-validate-hint="Entrez la justification !"></textarea>
+                       </div>
+                   </div>
+               </div>
+
+               <br> <br> <br> <br> <br>
+
+
+
+
+
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+{% endblock %}

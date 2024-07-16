@@ -1,0 +1,140 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_list_retour_internal' %}">Liste des bons de retour materiel</a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_details_retour_internal' model.id %}">{{ title }}</a></li>
+            <li>Réaliser le retour de matériel</li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>Réaliser le retour de matériel</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" >
+
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} leaf">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_inventaire_add_bon_transfert' %}')" class="theme-btn theme-btn-sm rounded leaf" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+                    <div class="row item-content" style="margin-top: 10px">
+                        <form action="{% url 'module_inventaire_post_completer_retour_internal' %}"
+                            method="POST"
+                            data-role="validator"
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input type="hidden" name="ordre_id" value="{{ model.id }}">
+
+                            <div class="row" style="margin-top: 20px">
+                                <div class="col-md-12">
+                                        <center><h4>BON DE RETOUR MATERIEL</h4> </center>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="fg-gray">
+                                                Numéro du Bon :<br>
+                                                <span class="fg-dark"> {{ model.numero_bon_retour }} </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="fg-gray">
+                                                Opération :<br>
+                                                <span class="fg-dark"> {{ model.operation_stock.designation }} </span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="fg-gray">
+                                                Date prévue :<br>
+                                                <span class="fg-dark">{{ model.date_retour|date:"d/m/Y" }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="fg-gray">
+                                                Emplacement d'origine :<br>
+                                                <span class="fg-dark"> {{ emplacement_origine.designation }} </span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="fg-gray">
+                                                Emplacement de destination :<br>
+                                                <span class="fg-dark"> {{ model.emplacement_destination.designation }} </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="row col-md-6s3">
+                                        <div class="col-md-6">
+                                            <label>Responsable du transfert :</label>
+                                            <div class="input-control text full-size">
+                                                <select type="text" name="responsable_id"
+                                                    id="responsable_id"
+                                                    data-validate-func="min"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez le responsable svp.">
+                                                        <option value="{{  utilisateur.id }}"> {{  utilisateur.nom_complet }} </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <table class="table border bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th width="25%">Article</th>
+                                                    <th width="18%">Quantité demandée</th>
+                                                    <th width="18%">Quantité déjà fournie</th>
+                                                    <th width="19%">Quantité à compléter</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for ligne in lignes %}
+                                                    <input type="hidden" name="ligne_id" value="{{ ligne.id }}">
+                                                    <tr class="table bordered border">
+                                                        <td>{{ ligne.nom_article}}</td>
+                                                        <td>{{ ligne.quantite_demandee }} {{ ligne.unite.symbole_unite }}</td>
+                                                        <td>{{ ligne.quantite_fournie }} {{ ligne.unite.symbole_unite }}</td>
+                                                        <td class="no-padding-top no-padding-bottom">
+                                                            <div class="input-control text full-size">
+                                                                <input name="quantite_fournie" type="text" placeholder="Ex: 10"
+                                                                    data-validate-func="number"
+                                                                    data-validate-arg="1"
+                                                                    data-validate-hint="Précisez la quantité utilisée svp">
+                                                                <span class="prepend-icon" style="margin-left:75%">
+                                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">{{ ligne.unite.symbole_unite }}</span>
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

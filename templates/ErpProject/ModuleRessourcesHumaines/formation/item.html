@@ -1,0 +1,184 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_formation' %}">Liste des formations</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_ressourceshumaines_add_formation" url_detail="module_ressourceshumaines_detail_formation" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row only-on-large-screen">
+        {% if formation.etat == "created" %}
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_formation' formation.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+            Modifier
+        </button>
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_formation' %}')"  class="theme-btn theme-btn-sm rounded " style="width: 20%;margin-left: 5px">Annuler</button>
+
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_add_ligne_formation' formation.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">Réaliser la formation</button>
+
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_cancel_formation' formation.id %}')"  class="theme-btn theme-btn-sm rounded " style="width: 20%;margin-left: 5px">Annuler la formation</button>
+        {% endif %}
+</div>
+    <div class="row only-on-small-screen">
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_formation' formation.id %}')" class="button large-button rounded primary">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_formation' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+    </div>
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Département :<br>
+                    <span class="sub-alt-header fg-dark"> {{ formation.departement }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Thème :<br>
+                    <span class="sub-alt-header fg-dark"> {{ formation.theme }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Public cible:<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.public_cible}}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Année:<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.annee}}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Nombre des jours de formation :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.nombre_jour_formation }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Type :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.type }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Organisme organisant la formation :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.organime_formation }} ({{formation.localite_organisme}})</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Nombre d'heure par jour :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.nombre_heure_par_jour }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Coût de la formation :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.separateur_cout_formation }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Nombre de participant par jour :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.nombre_participant_par_jour }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Frais de mission et Hebergement :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.separateur_frais_mission_hebergement }} CFA</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Frais de déplacement HT :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.separateur_frais_deplacement_ht }} CFA</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Priorité :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.priorite }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Objectif :<br>
+                    <span class="sub-alt-header fg-dark"> {{ formation.objectif }} </span>
+                </p>
+            </div>
+            <br>
+
+            {% if formation.etat == "success" %}
+            <p class="sub-header">Résultat réalisé lors de la formation</p>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Coût de la formation Effective :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.separateur_cout_formation_effective }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Nombre effectif de participant par jour :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.nombre_participant_par_jour_effective }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Frais de mission et Hebergement effectif :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.separateur_frais_mission_hebergement_effective }} CFA</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Frais de déplacement HT effectif :<br>
+                    <span class="sub-alt-header fg-dark">{{ formation.separateur_frais_deplacement_ht_effective }} CFA</span>
+                </p>
+            </div>
+            {% endif %}
+
+            {% if formation.etat == "cancel" %}
+            <p class="sub-header">Formation annulée</p>
+
+            {% endif %}
+
+        </div>
+        {% if formation.etat == "success" %}
+        <div class="row">
+            <div class="col-md-12">
+                    <p class="sub-header">Employé ayant participé à la formation </p>
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th width="15%">Nom & Postnom</th>
+                            <th width="16%">Compétence acquise</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in ligne_formation %}
+                            <tr class="table bordered border">
+                                <td> {{ ligne.employe.nom_complet }}</td>
+                                <td> {{ ligne.competence }} </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

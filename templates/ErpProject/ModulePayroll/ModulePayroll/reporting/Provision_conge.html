@@ -1,0 +1,151 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="invoice">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+
+            <div class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                <div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <th width="30%">
+                                    <div>
+                                        <p><strong style="font-size:17px;">ARPCE</strong></p>
+                                        <p style="font-size:15px;">Boite Postal: BP 2490</p>
+                                        <p style="font-size:15px;">Ville: Brazzaville</p>
+                                    </div>
+                                </div>
+                            </th>
+                            <th width="40%">
+                                <div style="margin-bottom:4%;text-align: center;">
+                                    <img src="image" style="height:100%;width:100%;">
+                                </div>
+                            </th>
+                            <th width="30%" style="vertical-align: middle;">
+                                <strong style="font-size:15px;">Page</strong><br>
+                            </th>
+                        </tr>
+                    </table>
+                    <br>
+                    <br>
+                    <p class="align-center title">{{title}}</p>
+                    <br>
+                    <br>
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <th width="5%">Numéro</th>
+                            <th width="5%">Matricule</th>
+                            <th width="20%">Nom et Prénoms</th>
+                            <th width="5%">Date d'embauche</th>
+                            <th width="5%">Fonction</th>
+                            <th width="5%">Date dernier départ congé</th>
+                            <th width="5%">Date dernier retour congé</th>
+                            <th width="8%">Jours travaillés après retour congé</th>
+                            <th width="8%">Congé acquis non payés</th>
+                            <th width="8%">Salaire brût annuel</th>
+                            <th width="8%">Salaire brût journlier</th>
+                            <th width="18%">Provsion CAP 2019</th>
+                        </tr>
+                        <tr>
+                            <td width="5%">250</td>
+                            <td width="5%">100274</td>
+                            <td width="20%">DUCK JEAN JACQUES</td>
+                            <td width="5%">01-07-2013</td>
+                            <td width="5%">Employé admin</td>
+                            <td width="5%">01-10-2019</td>
+                            <td width="5%">30-10-2019</td>
+                            <td width="8%">29</td>
+                            <td width="8%">2</td>
+                            <td width="8%">11102254223</td>
+                            <td width="8%">11425235</td>
+                            <td width="18%">125253655</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">271</td>
+                            <td width="5%">310274</td>
+                            <td width="20%">PRISCILLE KAYOMBO</td>
+                            <td width="5%">01-07-2013</td>
+                            <td width="5%">Employé admin</td>
+                            <td width="5%">01-10-2019</td>
+                            <td width="5%">30-10-2019</td>
+                            <td width="8%">29</td>
+                            <td width="8%">2</td>
+                            <td width="8%">11102254223</td>
+                            <td width="8%">11425235</td>
+                            <td width="18%">125253655</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">276</td>
+                            <td width="5%">500274</td>
+                            <td width="20%">KAZADI KADIMA LOR</td>
+                            <td width="5%">01-07-2013</td>
+                            <td width="5%">Employé admin</td>
+                            <td width="5%">01-10-2019</td>
+                            <td width="5%">30-10-2019</td>
+                            <td width="8%">29</td>
+                            <td width="8%">2</td>
+                            <td width="8%">11102254223</td>
+                            <td width="8%">11425235</td>
+                            <td width="18%">125253655</td>
+                        </tr><tr>
+                            <td width="5%">278</td>
+                            <td width="5%">956274</td>
+                            <td width="20%">HENRY MAGI PAUL</td>
+                            <td width="5%">01-07-2013</td>
+                            <td width="5%">Employé admin</td>
+                            <td width="5%">01-10-2019</td>
+                            <td width="5%">30-10-2019</td>
+                            <td width="8%">29</td>
+                            <td width="8%">2</td>
+                            <td width="8%">11102254223</td>
+                            <td width="8%">11425235</td>
+                            <td width="18%">125253655</td>
+                        </tr>
+                        <tr>
+                            <td width="5%">272</td>
+                            <td width="5%">100274</td>
+                            <td width="20%">RENE PATRICK</td>
+                            <td width="5%">01-07-2013</td>
+                            <td width="5%">Employé admin</td>
+                            <td width="5%">01-10-2019</td>
+                            <td width="5%">30-10-2019</td>
+                            <td width="8%">29</td>
+                            <td width="8%">2</td>
+                            <td width="8%">11102254223</td>
+                            <td width="8%">11425235</td>
+                            <td width="18%">125253655</td>
+                        </tr>
+
+                        <tr>
+                            <th width="5%">TOTAUX</th>
+                            <th width="5%"></th>
+                            <th width="20%"></th>
+                            <th width="5%"></th>
+                            <th width="5%"></th>
+                            <th width="5%"></th>
+                            <th width="5%"></th>
+                            <th width="8%"></th>
+                            <th width="8%"></th>
+                            <th width="8%">10.125423554</th>
+                            <th width="8%">21.0545569</th>
+                            <th width="18%">50.214524</th>
+                        </tr>
+                    </table>
+                    <br>
+                    <br>
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

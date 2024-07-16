@@ -1,0 +1,628 @@
+{%load static %}
+
+<style>
+.stepwizard-step p {
+    margin-top: 0px;
+    color:#666;
+}
+.stepwizard-row {
+    display: table-row;
+}
+.stepwizard {
+    display: table;
+    width: 100%;
+    position: relative;
+}
+.stepwizard-step button[disabled] {
+    /*opacity: 1 !important;
+    filter: alpha(opacity=100) !important;*/
+}
+.stepwizard .btn.disabled, .stepwizard .btn[disabled], .stepwizard fieldset[disabled] .btn {
+    opacity:1 !important;
+    color:#bbb;
+}
+.stepwizard-row:before {
+    top: 14px;
+    bottom: 0;
+    position: absolute;
+    content:" ";
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+    z-index: 0;
+}
+.stepwizard-step {
+    display: table-cell;
+    text-align: center;
+    position: relative;
+}
+SECTION {
+    padding: 8px;
+    background-color: #f0f0f0;
+    overflow: auto;
+}
+SECTION > DIV {
+    float: left;
+    padding: 40px;
+}
+SECTION > DIV + DIV {
+    width: 400px;
+    text-align: center;
+}
+
+
+</style>
+
+<link href="{% static 'ErpProject/wizard/style.min.css' %}" rel="stylesheet">
+<link href="{% static 'ErpProject/wizard/listboxmultiselect/css/multi-select.css' %}" rel="stylesheet">
+<script src="{% static 'ErpProject/wizard/listboxmultiselect/js/jquery.multi-select.js' %}"></script>
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_dashboard' %}">Accueil</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_Configuration_list_sousmodule' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+   <!-- Debut Wizzard -->
+<div class="container">
+    <div class="stepwizard">
+        <div class="stepwizard-row setup-panel">
+            <div class="stepwizard-step col-xs-3">
+                <a href="#step-1" type="button" class="btn btn-success btn-circle">1</a>
+                <p><small>Modèle</small></p>
+            </div>
+            <div class="stepwizard-step col-xs-3">
+                <a href="#step-2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                <p><small>Champs</small></p>
+            </div>
+            <div class="stepwizard-step col-xs-3">
+                <a href="#step-3" type="button" class="btn btn-default btn-circle" disabled="disabled">3</a>
+                <p><small>Filtrage</small></p>
+            </div>
+            <div class="stepwizard-step col-xs-3">
+                <a href="#step-4" type="button" class="btn btn-default btn-circle" disabled="disabled">4</a>
+                <p><small>Option de configuration </small></p>
+            </div>
+        </div>
+    </div>
+
+    <form role="form" method="POST" action="{% url post_url %}">
+        {% csrf_token %}
+        <div class="panel panel-primary setup-content" id="step-1">
+            <div class="panel-heading">
+                 <h3 class="panel-title">Modèle</h3>
+            </div>
+
+
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="control-label">Modèle</label>
+                    <select name="modele_id" id="modele_id" class="form-control" required onchange="load_sous_module()">
+                            <option value="">Selectionnez un modèle</option>
+                            {% for item in models %}
+                                <option value="{{ item.id }}"> {{ item.model }} </option>
+                            {% endfor %}
+                        </select>
+                </div>
+
+                <br><br>
+
+                <div id="related_model_view">
+
+                  </div>
+
+                <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+            </div>
+        </div>
+
+        <div class="panel panel-primary setup-content" id="step-2">
+            <div class="panel-heading">
+                 <h3 class="panel-title">Champs</h3>
+            </div>
+
+            <div class="panel-body">
+                <div id="list_box_view">
+                    <select multiple="multiple" id="my-select" name="my-select">
+                    </select>
+                </div>
+
+                <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+            </div>
+        </div>
+
+        <div class="panel panel-primary setup-content" id="step-3">
+            <div class="panel-heading">
+                 <h3 class="panel-title">Filtrage</h3>
+            </div>
+            <div class="panel-body">
+                    <div class="row margin20 no-margin-left no-margin-right">
+                        <table class="table no-margin">
+                            <thead class="no-border">
+                                <tr>
+                                    <th class="no-padding-top no-padding-left no-padding-bottom" width="8%">&</th>
+                                    <th width="32%">Champ</th>
+                                    <th width="25%">Opérateur</th>
+                                    <th width="30%">Valeur</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="items">
+                                <tr id="ligne1">
+                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                        <div class="input-control">
+                                            <select id="logical1" name="logical" disabled>
+                                                <option value="----">----</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <select name="item" id="champ_filtrage1">
+                                                <option value="">Sélectionnez un champ</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <select id="operateur1" name="operateur">
+                                                <option value="=">Egal</option>
+                                                <option value=">">Supérieur</option>
+                                                <option value="<">Inférieur</option>
+                                                <option value=">=">Supérieur ou Egal</option>
+                                                <option value="<=">Inferieur ou Egal</option>
+                                                <option value="=!">Différent</option>
+
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                        <input maxlength="200" type="text" required="required" name="valeur" id="valeur1" class="form-control" placeholder="Saisissez une valeur de comparaison" />
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="pagination no-border">
+                                            <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row margin10 no-margin-left no-margin-right">
+                        <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                    </div>
+
+                <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+            </div>
+        </div>
+
+
+        <div class="panel panel-primary setup-content" id="step-4">
+            <div class="panel-heading">
+                 <h3 class="panel-title">Option de configuration</h3>
+            </div>
+            <div class="panel-body">
+
+                <!-- <div class="form-group">
+                    <label class="control-label">Model Principal</label>
+                    <select name="model_principal_id" id="model_principal_id" class="form-control">
+                        <option value="">Selectionnez un model </option>
+                        {% for item in contents %}
+                            <option value="{{ item.id }}"> {{ item }} </option>
+                        {% endfor %}
+                        </select>
+                </div> -->
+                <div class="form-group">
+                    <label class="control-label">Titre</label>
+                    <input class="form-control" type="text" name="titre">
+                </div>
+
+                <div class="form-group">
+                    <label class="input-control checkbox small-check full-size">
+                        <input value="1" name="est_table" id="est_table" checked type="checkbox" onclick="return false;">
+                        <span class="check"></span>
+                        <span class="caption">Tableau</span>
+                    </label>
+                    <label class="input-control checkbox small-check full-size">
+                            <input value="1" name="est_graphique" id="est_graphique" type="checkbox">
+                            <span class="check"></span>
+                            <span class="caption">Graphique</span>
+                    </label>
+                    <label class="input-control checkbox small-check full-size">
+                        <input value="1" name="est_card" id="est_card" type="checkbox">
+                        <span class="check"></span>
+                        <span class="caption">Card</span>
+                </label>
+
+                </div>
+
+                <div id="graphiqueConfiguration">
+
+                        <div class="form-group">
+                            <label class="control-label">Fonction de mesure</label>
+                            <select name="fonction" id="fonction" class="form-control">
+                                    <option value="COUNT">Nombre/Comptage</option>
+                                    <option value="AGGR">Aggregation</option>
+                                    <option value="AVG">Moyenne</option>
+                                    <option value="SUM">Somme</option>
+
+                                </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Mesure</label>
+                            <select class="form-control" id="measure" name="measure">
+                            </select>
+
+
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Dimension</label>
+                            <select name="dimension" id="dimension" class="form-control">
+                                    <option value="">Sélectionnez un attribut</option>
+                                </select>
+                        </div>
+
+
+
+                        <div class="form-group">
+                            <br><label>Choisissez le modèle de graphique</label>
+                            <div class="row">
+                                <label class="input-control radio small-check">
+                                    <input value="1" name="model_graphique" checked type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">BarChart</span>
+                                </label><br>
+                                <label class="input-control radio small-check" style="/*margin-left: 15px*/">
+                                    <input value="2" name="model_graphique" type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">Doughnut Chart</span>
+                                </label><br>
+                                <label class="input-control radio small-check" style="/*margin-left: 15px*/">
+                                    <input value="3" name="model_graphique" type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">Horizontal Chart</span>
+                                </label><br>
+                                <label class="input-control radio small-check" style="/*margin-left: 15px*/">
+                                    <input value="0" name="model_graphique" type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">Graphiques recommandés ?</span>
+                                </label><br>
+
+                            </div>
+                            <div class="row">
+                                <img id="img_temp1" src="{% static 'ErpProject/image/chart/barchart.png' %}" style="height: 150px; width: 150px;">
+                                <img id="img_temp2" src="{% static 'ErpProject/image/chart/doughnutchart.png' %}" style="height: 150px; width: 150px;">
+                                <img id="img_temp3" src="{% static 'ErpProject/image/chart/horizontalstackedbarchart.png' %}" style="height: 150px; width: 150px;">
+                                <img id="img_temp4" src="{% static 'ErpProject/image/chart/stackedbar.png' %}" style="height: 150px; width: 150px;">
+                            </div>
+                        </div>
+                </div>
+                <div id="cardConfiguration">
+
+                    <div class="form-group">
+                        <label class="control-label">Fonction de traitement</label>
+                        <select name="card_function" id="card_function" class="form-control">
+                                <option value="COUNT">Comptage</option>
+                                <option value="SUM">Somme</option>
+                            </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Champ</label>
+                        <select class="form-control" id="card_attribute" name="card_attribute">
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <button class="btn btn-success pull-right" type="submit">Traiter</button>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- Fin wizzard -->
+
+
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+
+        var navListItems = $('div.setup-panel div a'),
+        allWells = $('.setup-content'),
+        allNextBtn = $('.nextBtn');
+
+        allWells.hide();
+
+        navListItems.click(function (e) {
+        e.preventDefault();
+        var $target = $($(this).attr('href')),
+            $item = $(this);
+
+        if (!$item.hasClass('disabled')) {
+            navListItems.removeClass('btn-success').addClass('btn-default');
+            $item.addClass('btn-success');
+            allWells.hide();
+            $target.show();
+            $target.find('input:eq(0)').focus();
+        }
+        });
+
+        allNextBtn.click(function () {
+        var curStep = $(this).closest(".setup-content"),
+            curStepBtn = curStep.attr("id"),
+            nextStepWizard = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
+            curInputs = curStep.find("input[type='text'],input[type='url'],select"),
+            isValid = true;
+
+        $(".form-group").removeClass("has-error");
+        for (var i = 0; i < curInputs.length; i++) {
+            if (!curInputs[i].validity.valid) {
+                isValid = false;
+                $(curInputs[i]).closest(".form-group").addClass("has-error");
+            }
+        }
+
+        if (isValid) nextStepWizard.removeAttr('disabled').trigger('click');
+        });
+
+        $('div.setup-panel div a.btn-success').trigger('click');
+
+        });
+
+        //Gestion du coche de la partie Configuration
+
+        $("#graphiqueConfiguration").hide();
+        $("#cardConfiguration").hide();
+
+
+
+
+
+        $("input[name='est_graphique']").change(function(){
+            if($(this).prop('checked')) {
+                $("#graphiqueConfiguration").show();
+            }else {
+                $("#graphiqueConfiguration").hide();
+            }
+
+        });
+        $("input[name='est_card']").change(function(){
+            if($(this).prop('checked')) {
+                $("#cardConfiguration").show();
+            }else {
+                $("#cardConfiguration").hide();
+            }
+
+        });
+
+
+
+        $("#img_temp1").show();
+        $("#img_temp2").hide();
+        $("#img_temp3").hide();
+        $("#img_temp4").hide();
+
+
+        $("input[name='model_graphique']").change(function(){
+        if($(this).val() == '1') {
+            $("#img_temp1").show();
+            $("#img_temp2").hide();$("#img_temp3").hide();$("#img_temp4").hide();
+        } else if ($(this).val() == '2') {
+            $("#img_temp2").show();
+            $("#img_temp1").hide();$("#img_temp3").hide();$("#img_temp4").hide();
+            console.log('click 2');
+        } else if ($(this).val() == '3') {
+            $("#img_temp3").show();
+            $("#img_temp1").hide();$("#img_temp2").hide();$("#img_temp4").hide();
+        } else if ($(this).val() == '0') {
+            $("#img_temp4").show();
+            $("#img_temp1").hide();$("#img_temp2").hide();$("#img_temp3").hide();
+        }
+    });
+
+    if(document.getElementById('est_graphique').checked) {
+            $("#graphiqueConfiguration").show();
+            console.log("Cheeeecked")
+        } else {
+            $("#graphiqueConfiguration").hide();
+            console.log("Not checked")
+        }
+</script>
+
+
+
+<script>
+    var fields = []
+    function load_sous_module() {
+        var choixModule = $("#modele_id").val();
+        //var textChoixService = $( "#modele_id option:selected" ).text();
+        console.log(choixModule)
+        if(choixModule !== ""){
+            showDialog("chargement");
+            console.log(choixModule);
+            $.get(
+                "{% url 'backoffice_get_json_fields_models' %}",
+                {ref:choixModule}
+                ,
+                function (response) {
+                    console.log(response);
+                    fields = response;
+                    $("#list_box_view").children().remove();
+                    $("#champ_filtrage1").children().remove(); //Pour l'onglet Filtrage
+                    $("#champ_filtrage1").append('<option value="">Sélectionnez un champ</option>')
+                    var newdiv = document.createElement('div');
+                    var contenu = '<select multiple="multiple" id="my-select" name="my-select">';
+
+                    for(var i = 0; i < response.length; i++){
+                    contenu += `<option value="${response[i][0]}" >${response[i][1]}</option>`;
+                    $("#champ_filtrage1").append(`<option value="${response[i][0]}" >${response[i][1]}</option>`);
+                    $("#measure").append(`<option value="${response[i][0]}" >${response[i][1]}</option>`);
+
+                    $("#dimension").append(`<option value="${response[i][0]}" >${response[i][1]}</option>`);
+                    $("#card_attribute").append(`<option value="${response[i][0]}" >${response[i][1]}</option>`);
+                        // //Dimension, uniquement valeur de temps
+                        // if ((response[i].includes("date")) || (response[i].includes("creat")) || (response[i].includes("updat"))){
+
+                        // }
+                    }
+
+                    contenu += '</select>';
+                    //$("#champ_filtrage1").append('</select>');
+
+
+                    //Très important de réecrire la fonction là because of reload
+
+                   newdiv.innerHTML = contenu;
+                    var script = document.createElement('script');
+                    script.innerHTML = `$('#my-select').multiSelect()`;
+
+                    newdiv.appendChild(script);
+                    document.getElementById('list_box_view').appendChild(newdiv);
+
+
+
+
+
+                    // CODE FOR RELATED MODELS
+                    /*$("#related_model_view").children().remove();
+                    $("#related_model_view").append('<div class="col-md-12"><label class="control-label">Si rapport croisé, veuillez selectionnez d\'autres modèles</label></div>');
+                    for(var i = 0; i < response.length; i++){
+                        newLine = `<div class="col-md-6"><div class="row"><label class="input-control checkbox small-check full-size">
+                                            <input value="0" name="est_groupe" id="est_groupe" type="checkbox" onclick="estgroupe()">
+                                            <span class="check"></span>
+                                            <span class="caption"  style="color: red;">${response[i].name}</span>
+                                        </label>
+                                        </div>
+                                    </div>
+                                    `
+                        $("#related_model_view").append(newLine);
+                    }*/
+                    showDialog("chargement");
+                },
+                "json"
+            );
+
+        }
+
+
+
+        }
+    </script>
+
+
+<script>
+    $(function () {
+      // 6 create an instance when the DOM is ready
+      $('#jstree').jstree();
+      // 7 bind to events triggered on the tree
+      $('#jstree').on("changed.jstree", function (e, data) {
+        console.log(data.selected);
+      });
+      // 8 interact with the tree - either way is OK
+      $('button').on('click', function () {
+        $('#jstree').jstree(true).select_node('child_node_1');
+        $('#jstree').jstree('select_node', 'child_node_1');
+        $.jstree.reference('#jstree').select_node('child_node_1');
+      });
+    });
+    </script>
+
+
+<script>
+     var nombreLignes = 1;
+     var compteur = 1;
+
+    $("#btnAjouterLigne").on("click", function () {
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne =`
+            <tr id="ligne${compteur}">
+                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                            <div class="input-control">
+                                <select id="logical${compteur}" name="logical">
+                                    <option value="AND">AND</option>
+                                    <option value="OR">OR</option>
+                                </select>
+                            </div>
+                        </td>
+
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="input-control text full-size">
+                                    <select name="item" id="champ_filtrage${compteur}">
+                                        <option value="">Sélectionnez un champ</option>
+                                        ${renvoyerOptionsChamps()}
+                                    </select>
+                                </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="input-control text full-size">
+                                <select id="operateur${compteur}" name="operateur">
+                                    <option value="=">Egal</option>
+                                    <option value=">">Supérieur</option>
+                                    <option value="<">Inférieur</option>
+                                    <option value=">=">Supérieur ou Egal</option>
+                                    <option value="<=">Inferieur ou Egal</option>
+                                    <option value="=!">Différent</option>
+
+                                </select>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="input-control text full-size">
+                            <input maxlength="200" type="text" required="required" name="valeur" id="valeur${compteur}" class="form-control" placeholder="Saisissez une valeur de comparaison" />
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="pagination no-border">
+                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(${compteur})"><span class="mif-cross fg-red"></span></span>
+                            </div>
+                        </td>
+                    </tr>
+        `;
+
+
+        $("#items").append(nouvelleLigne);
+    });
+
+
+function supprimerLigne(indice) {
+    nombreLignes--;
+    $("#ligne" + indice).remove();
+}
+
+function renvoyerOptionsChamps()
+{
+    var ligne = "";
+    for(var i = 0; i < fields.length; i++)
+    {
+        var field = fields[i];
+
+        ligne += '<option value="' + field[0] + '">' + field[1] + '</option>';
+
+    }
+    return ligne;
+}
+
+
+
+</script>
+
+

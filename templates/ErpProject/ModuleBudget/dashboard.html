@@ -1,0 +1,618 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %} {% block page %} {%load static %}
+{% load account_filters %}
+{% load humanize %}
+<!-- <link rel="stylesheet" href="/static/ErpProject/css/css_circle/progress-circle.css"> -->
+<style>
+    .container {
+    padding-right: 0px !important;
+    padding-left: 0px !important;
+    margin-right: 0px !important;
+    margin-left: 0px !important;
+    }
+  .titleP{
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .ajuste{
+    width: 50%;
+    height: auto;
+    margin-top: 4%;
+    padding: 3%;
+    border-radius: 0px;
+    border: 0px #DCDCDC;
+    margin-bottom: -2%;
+    box-shadow: 0 0 0px;
+  }
+  .ajuste p{
+      font-size: 15px;
+      text-align: center;
+      font-weight: 500;
+      color:#d5d5d5;
+  }
+  .number {
+    font-size: 26px!important;
+    font-weight: bold!important;
+    color: #4D4D4D !important;
+  }
+  .devise {
+    font-size: 9px!important;
+    font-weight: bold!important;
+    color: #4D4D4D !important;
+    margin-bottom: 3px!important;
+  }
+ .chart-legend {
+    display: none!important;
+  }
+</style>
+<div class="row">
+    <div class="col-lg-12" style="width:100%;">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: rgb(54, 50, 50);opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <!-- Appel de la fonction message -->
+            {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+            <!--Notification-->
+            <div class="panel" style="background-color:#f5f5f5;border: none;"></div>
+            {% if temp_notif_count > 0 %}
+            <div class="col-md-12" style="padding: 10px;">
+                {% for item in temp_notif_list %}
+                <div class="col-md-4" style="padding: 10px;">
+                    <div style="">
+                        <div class="mb-4 ">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                <div style="width: 100%;background-color: white;/*padding: 10px;">
+                                    <div style="padding: 10px;">
+                                        <strong class="sub-header" style="margin: 10px;font-weight: 900;">Notification</strong>
+                                        <small style="margin-right:50">{{item.notification.created_at}}</small>
+                                        <button onclick="javascript:window.location.assign('{% url 'module_budget_notification' item.id %}')" type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+																			<span aria-hidden="true">&times;</span>
+																			</button>
+                                    </div>
+                                    <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                </div>
+                                <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                    <p>
+                                        {{item.notification.text}}<br> {% if item.notification.expression != None %} Etat: {{item.notification.expression.etat}}<br> {% endif %} {% if item.notification.demande != None %} Etat: {{item.notification.demande.etat}}<br>                                        {% endif %} {% if item.notification.bon_reception != None %} Etat: {{item.notification.bon_reception.etat}}<br> {% endif %}
+                                    </p>
+
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                <div style="padding: 15px;padding-top: 0px;">
+                                    {% if item.type_action == "Link" %}
+                                    <button class="btn rounded primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button> {% endif %}
+                                </div>
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% endif %}
+
+            <div class="" style="background-color:#F9F9F9;border: none; margin-top:2%;">
+                <div class="col-md-12" style="">
+                    <div class="row" style="">
+                        <div class="col-md-6">
+                            <h4>GESTION BUDGETAIRE</h4>
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="tm-box-icon style-02 card-item" style="background-color:#F9F9F9;border-top:2px solid #158FD5;padding:2%;">
+                            <div style="background-color:#158FD5;margin: -2%;padding: 1%;color:#fff;">
+                                Budget Recette
+                            </div>
+                            <div class="row" style="margin-top:4%;margin-bottom:4%">
+                                <div class="col-md-6 card-item ajuste">
+                                <p>Prévision</p>
+                                <p class="number">{{ budget_recette.prevision|intcomma }} <span class="devise">{{ budget_recette.devise }}</span></p>
+                                </div>
+                                <div class="col-md-6 card-item ajuste">
+                                <p> Réalisé</p>
+                                <p class="number">{{ budget_recette.consommation|intcomma }}<span class="devise">{{ budget_recette.devise }}</span></p>
+                                </div>
+                                <div class="col-md-6 card-item ajuste">
+                                <p>Ecart</p>
+                                <p class="number">{{ budget_recette.ecart|intcomma }}<span class="devise">{{ budget_recette.devise }}</span></p>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-12"  style="margin-top:5%;margin-bottom:4%">
+                                <table class="table striped" style="border:none;width:100%;">
+                                    {% for item in budget_recette.categories %}
+                                    <tr>
+                                        <td>{{ item.designation }}</td>
+                                        <td><span style="color:#000;font-weight:bold"> {{item.montant_alloue|intcomma }} {{item.devise_montant}} </span></td>
+                                    </tr>
+
+                                    {% endfor %}
+                                </table>
+                                <!-- <p class="titleP">Budget Global : {{sommeGl}} <span class="devise">{{ladevise}}</span></p>
+                                <p class="titleP">Budget Exp : {{sommeExp}} <span class="devise">{{ladevise}}</span></p>
+                                <p class="titleP">Budget Investissement: {{sommeIn}} <span class="devise">{{ladevise}}</span></p>
+                                <p class="titleP">Budget Finance: {{sommeRec}} <span class="devise">{{ladevise}}</span></p>
+                                <p class="titleP">Budget Formation: {{sommeRec}} <span class="devise">{{ladevise}}</span></p>
+                                <p class="titleP">Budget RH: {{sommeRec}} <span class="devise">{{ladevise}}</span></p>
+                                <p class="titleP">Budget PROJET: {{sommeRec}} <span class="devise">{{ladevise}}</span></p> -->
+                            </div>
+                            <hr>
+                            <div class="col-xl-12 card-item"  style="margin-top:10px;">
+                                <div style="text-align: center;font-weight:bold;">
+                                    <br>
+                                    <p>Recette réalisée</p>
+                                </div>
+                                <div>
+                                    <div id="fromage"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="tm-box-icon style-02 card-item" style="background-color:#F9F9F9;border-top:2px solid #158FD5;padding:2%;">
+                            <div style="background-color:#158FD5;margin: -2%;padding: 1%;color:#fff;">
+                                Budget Dépense
+                            </div>
+                            <div class="row" style="margin-top:4%;">
+                                <div class="col-md-6 card-item ajuste">
+                                <p>Budget Reajusté</p>
+                                <p class="number">{{ budget_depense.initial|intcomma }} <span class="devise">{{ budget_depense.devise }}</span></p>
+                                </div>
+                                <div class="col-md-6 card-item ajuste">
+                                <p>Budget engagé</p>
+                                <p class="number"> {{ budget_depense.consommation|intcomma }} <span class="devise">{{ budget_depense.devise }}</span></p>
+                                </div>
+                                <div class="col-md-6 card-item ajuste">
+                                <p>Budget Disponible</p>
+                                <p class="number">{{ budget_depense.disponible|intcomma }}<span class="devise">{{ budget_depense.devise }}</span></p>
+                                </div>
+                            </div>
+                            <div class="col-xl-12" style="margin-top:5%;margin-bottom:4%">
+                                <table class="table striped" style="border:none;width:100%;">
+                                    {% for item in budget_depense.categories %}
+                                    <tr>
+                                        <td>{{ item.designation }}</td>
+                                        <td><span style="color:#000;font-weight:bold"> {{item.montant_alloue|intcomma }} {{item.devise_montant}} </span></td>
+                                    </tr>
+
+                                    {% endfor %}
+                                </table>
+                            </div>
+                            <hr>
+                            <div class="col-xl-12 card-item"  style="margin-top:10px;">
+                                <div style="text-align: center;font-weight:bold;">
+                                    <br>
+                                    <p>Consommation Budgétaire</p>
+                                </div>
+                                <div>
+                                    <div id="fromage_sec"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="tm-box-icon style-02 card-item"  style="padding:3%;">
+                            LIGNES BUDGETAIRE LES PLUS CONSOMMES
+                            <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                                <thead>
+                                    <tr class="table-light">
+                                        <th>Combinaison budgétaire</th>
+                                        <th>Description</th>
+                                        <th>Dotation</th>
+                                        <th>Engagement</th>
+                                        <th>Réel</th>
+                                        <th>Ecart</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if testMostLB %}
+                                        {% for item in testMostLB %}
+                                        <tr>
+                                            <td>{{item.code}}</td>
+                                            <td>{{item.designation}}</td>
+                                            <td>{{item.montant_dotation}} {{item.budget.devise.symbole_devise}}</td>
+                                            <td>{{item.separateur_valeur_engagement}} {{item.budget.devise.symbole_devise}}</td>
+                                            <td>{{item.valeur_reel}} {{item.budget.devise.symbole_devise}}</td>
+                                            <td>{{item.valeur_solde}} {{item.budget.devise.symbole_devise}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" align="center">
+                                                Pas de données disponibles
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            <br>
+                            <br>
+                            LIGNES BUDGETAIRE LES PLUS UTILISEES
+                            <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                                <thead>
+                                    <tr class="table-light">
+                                        <th>Combinaison budgétaire</th>
+                                        <th>Bon Commandes</th>
+                                        <th>Description</th>
+                                        <th>Dotation</th>
+                                        <th>Engagement</th>
+                                        <th>Réel</th>
+                                        <th>Disponible</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if mostLingeused %}
+                                        {% for item in mostLingeused %}
+                                            {% for el in item %}
+                                                <tr>
+                                                    <td><a class="lien chargement-au-click"
+                                                        href="{% url 'module_budget_detail_ligne_budgetaire' el.id %}">{{el.code}}</a>
+                                                    </td>
+                                                    <td>
+                                                        {% if el.bon_reception %}
+                                                            {{el.bon_reception}}
+                                                        {% else %}
+                                                            -
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{el.designation}}</td>
+                                                    <td>{{el.montant_dotation}} {{el.budget.devise.symbole_devise}}</td>
+                                                    <td>{{el.separateur_valeur_engagement}} {{el.budget.devise.symbole_devise}}</td>
+                                                    <td>{{el.valeur_reel}} {{el.budget.devise.symbole_devise}}</td>
+                                                    <td>
+                                                    {{el.valeur_solde}} {{el.budget.devise.symbole_devise}}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="7" align="center">
+                                                Pas de données disponibles
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            <br>
+                            <br>
+                            DERNIERES LIGNES BUDGETAIRE CONSOMMEE
+                            <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                                <thead>
+                                    <tr class="table-light">
+                                        <th>Combinaison budgétaire</th>
+                                        <th>Description</th>
+                                        <th>Dotation</th>
+                                        <th>Engagement</th>
+                                        <th>Réel</th>
+                                        <th>Disponible</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if ligneused %}
+                                        {% for item in ligneused %}
+                                            {% if item.ligne_budgetaire.code %}
+                                                <tr>
+                                                    <td><a class="lien chargement-au-click" style=""
+                                                        href="{% url 'module_budget_detail_ligne_budgetaire' item.ligne_budgetaire.id %}">{{item.ligne_budgetaire.code}}</a>
+                                                    </td>
+                                                    <td>{{item.designation}}</td>
+                                                    <td>{{item.ligne_budgetaire.montant_dotation}} {{item.devise.symbole_devise}}</td>
+                                                    <td>{{item.ligne_budgetaire.valeur_engagement}} {{item.devise.symbole_devise}}</td>
+                                                    <td>{{item.ligne_budgetaire.valeur_reel}} {{item.devise.symbole_devise}}</td>
+                                                    <td>
+                                                        {{item.ligne_budgetaire.valeur_solde}} {{item.devise.symbole_devise}}
+                                                    </td>
+                                                </tr>
+                                            {% else %}
+                                                <tr  style="background-color:#C7463D;color:#fff;">
+                                                    <td><a class="lien chargement-au-click" style="color:#fff !important;"
+                                                        href="{% url 'module_budget_get_detail_ligne_budgetaire_without_bc'%}">0.0.0.0.0.0.0.0.0</a>
+                                                    </td>
+                                                    <td>{{item.designation}}</td>
+                                                    <td>{{item.ligne_budgetaire.montant_dotation}} {{item.devise.symbole_devise}}</td>
+                                                    <td>{{item.ligne_budgetaire.valeur_engagement}} {{item.devise.symbole_devise}}</td>
+                                                    <td>{{item.ligne_budgetaire.valeur_reel}} {{item.devise.symbole_devise}}</td>
+                                                    <td>
+                                                        {{item.ligne_budgetaire.valeur_solde}} {{item.devise.symbole_devise}}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" align="center">
+                                                Pas de données disponibles
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
+                <div class="row">
+                    <div class="col-md-12" style="">
+                        <div>
+                            <h4>GESTION DES PROJETS</h4>
+                        </div>
+                    </div>
+                    <hr><br>
+                    <div class="col-md-12">
+                        <p style="font-size: 18px;">Montant total des projets : <strong>{{projets.sommeprojets|intcomma}}</strong></p>
+                        <p style="font-size: 18px;">Total Engagé: <strong>{{projets.engage|intcomma}}</strong></p>
+                        <p style="font-size: 18px;">Total Réalisé: <strong>{{projets.realise|intcomma}}</strong></p>
+                        <p style="font-size: 18px;">Total Disponible: <strong>{{projets.dispo|intcomma}}</strong></p>
+                        <br>
+                    </div>
+                    <div class="col-md-12">
+                        <p><strong>Liste des projets</strong></p>
+                        <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                            <thead>
+                                <tr class="table-light">
+                                    <th>Direction (Centre Cout)</th>
+                                    <th>Désignation</th>
+                                    <th>Code Projet</th>
+                                    <th>Montant Total Projet</th>
+                                    <th>Montant Engagé</th>
+                                    <th>Réel</th>
+                                    <th>Disponible</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if projets.projet %}
+                                    {% for item in projets.projet %}
+                                        <tr>
+                                            <th>{{item.unite_fonctionnelle}}</th>
+                                            <th>{{item.entite}}</th>
+                                            <th>{{item.code}}</th>
+                                            <th>{{item.montant_alloue}} {{item.devise.symbole_devise}}</th>
+                                            <th>{{item.valeur_engagement}} {{item.devise.symbole_devise}}</th>
+                                            <th>{{item.valeur_reel}} {{item.devise.symbole_devise}}</th>
+                                            <th>{{item.valeur_solde}} {{item.devise.symbole_devise}}</th>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" align="center">
+                                            Pas de données disponible
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+
+
+<script src="{% static 'ErpProject/js/frappe-charts.min.iife.js' %}"></script>
+<script>
+    const data = {
+        labels: ['Jan', 'Feb', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Dec'],
+        datasets: [
+            {
+                name: "BC Validé",
+                values: [2, 4, 2, 5, 0, 0, 5, 3, 2, 3, 0,0],
+                chartType: 'bar'
+            },
+            {
+                name: "BC Non validé",
+                values: [0, 0, 0, 1, 1, 0, 1, 0, 1, 5, 0,0],
+                chartType: 'bar'
+            }
+            ]
+    }
+
+    const chart1 = new frappe.Chart("#chart", {
+        title: "",
+        data: data,
+        type: 'bar',
+        height: 200,
+        colors: ['#7BD5FC', '#538EA8'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    const datachart2 = {
+        labels:{{lesjours|safe}},
+        datasets: [
+            {
+                name: "", type: "line",
+                values: {{lesvaleurs}}
+            },
+        ]
+    }
+
+    const chart2 = new frappe.Chart("#chart2", {
+        title: "",
+        data: datachart2,
+        type: 'line',
+        height: 150,
+        colors: ['#7cd6fd', '#743ee2'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    const datachart3 = {
+        labels: ["12am-3am", "3am-6pm", "6am-9am", "9am-12am",
+            "12pm-3pm", "3pm-6pm", "6pm-9pm", "9am-12am"
+        ],
+        datasets: [
+            {
+                name: "", type: "line",
+                values: [35, 8, 52, 25, 40, 30, -4]
+            },
+        ]
+    }
+
+    const chart3 = new frappe.Chart("#chart3", {
+        title: "",
+        data: datachart3,
+        type: 'line',
+        height: 150,
+        colors: ['#7cd6fd', '#743ee2'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    const formage3 = {
+        labels: ["BC Rapproche", "BC non Rapproche"],
+        datasets: [
+            {
+                name: "", type: "pie",
+                values: [250.0000, 5.000]
+            },
+        ]
+    }
+
+    const chart4 = new frappe.Chart("#chart4", {
+        title: "",
+        data: formage3,
+        type: 'pie',
+        height: 350,
+        colors: ['#7cd6fd', '#743ee2'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    listThemeD = [];
+    listMontantD = [];
+    {% for item in budget_recette.categories %}
+        listThemeD.push("{{item.designation}}");
+        listMontantD.push("{{item.montant_alloue}}");
+    {% endfor %}
+
+    for (el in listMontantD){
+        if (!isNaN(el)){
+            listMontantD.push(parseInt(el))
+        }
+    }
+    var resultD = listMontantD.map(function (x) {
+        return parseInt(x, 10);
+    });
+    listMontantD = resultD;
+    // listMontantD[1] = 50;
+    listThemeD.push('new')
+    console.log(listMontantD)
+    console.log(listThemeD)
+    const fromage4 = {
+        labels:listThemeD,
+
+        datasets: [
+            {
+                name: "", type: "pie",
+                values: listMontantD
+            },
+        ]
+    }
+
+    const chartfromage = new frappe.Chart("#fromage", {
+        title: "",
+        data: fromage4,
+        type: 'pie',
+        colors: ['#7cd6fd', '#743ee2', '#FFCD42', '#DD5145'],
+        height: 300,
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    listTheme = [];
+    listMontant = [];
+    {% for item in budget_depense.categories %}
+        listTheme.push("{{item.designation}}");
+        listMontant.push("{{item.montant_alloue}}");
+    {% endfor %}
+
+    for (el in listMontant){
+        if (!isNaN(el)){
+            listMontant.push(parseInt(el))
+        }
+    }
+    var result = listMontant.map(function (x) {
+        return parseInt(x, 10);
+    });
+    listMontant = result;
+    const fromage5 = {
+        labels:  listTheme,
+        datasets: [
+            {
+                name: "", type: "pie",
+                values: listMontant
+            },
+        ]
+    }
+
+    const chartf = new frappe.Chart("#fromage_sec", {
+        title: "",
+        data: fromage5,
+        type: 'pie',
+        colors: ['#DD5145','#7cd6fd', '#743ee2', '#FFCD42','#7cd6fd'],
+        height: 300,
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+
+{% endblock %}

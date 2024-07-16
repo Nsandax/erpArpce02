@@ -1,0 +1,136 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="demande_achat">
+        <meta name="author" content="MKman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="invoice">
+            <div class="separ col-md-12" style="background-color:#000;opacity: 0.1;margin-bottom: 14px;"></div>
+            <!-- <h2 class="align-center header">{{ title }}</h2> -->
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-12" style="text-align: center;">
+                    <h3>RAPPROCHEMENT BANCAIRE</h3>
+                </div>
+                <div class="col-md-6">
+                    <p style="font-size:10px;">
+                        <strong>BANQUE: {{ compte_banque.banque.designation }}</strong> <br>
+                        <strong>N° DE COMPTE: {{ compte_banque.numero_compte }}</strong> <br>
+                        <strong>PERIODE: </strong> <br/>
+                    </p>
+                </div>
+                <div  class="col-md-6" style="margin-bottom: 40px">
+                <p style="float: right;font-size:10px;">
+                        <strong>Rapprochement établi par: {{ utilisateur }} </strong> <br>
+                        <strong>Signature:</strong> <br>
+                </p>
+                </div>
+                <div class="col-md-12">
+                    <h4 class="align-center">{{ date_debut }} AU {{date_fin}}</h4>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-6">
+                    <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                        <tr style="background-color:#BFBFBF;color:#000;font-weight:900">
+                            <th width="10%" class="head">Date</th>
+                            <th width="40%" class="head">Libellé de l'Opération</th>
+                            <th width="25%" class="head">Débit</th>
+                            <th width="25%" class="head">Crédit</th>
+                        </tr>
+                        {% for item in tableauLettres %}
+                                <tr class="item-line">
+                                    <td class="item-image center-justify">
+                                        {{ item.date|date:'d/m/Y' }}
+                                    </td>
+                                    <td class="item-image center-justify">
+                                        {{ item.libelle }}
+                                    </td>
+                                    <td class="item-image center-justify">
+                                        {{ item.debit |monetary}}
+                                    </td>
+                                    <td class="item-image center-justify" >
+                                        {{ item.credit |monetary}}
+                                    </td>
+                                </tr>
+                        {% endfor %}
+                        <tr>
+                            <td></td>
+                            <td style="font-weight:900">Totaux</td>
+                            <td>{{sommedebitLigne|monetary}}</td>
+                            <td>{{sommeCreditLigne|monetary}}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td style="font-weight:900">Solde après rapprochement</td>
+                            <td>{{soldeLigne|monetary}}</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                        <tr style="background-color:#BFBFBF;color:#000;font-weight:900">
+                            <th width="10%" class="head">Date</th>
+                            <th width="40%" class="head">Libellé de l'Opération</th>
+                            <th width="25%" class="head">Débit</th>
+                            <th width="25%" class="head">Crédit</th>
+                        </tr>
+                        {% for item in tableauLignes %}
+                                <tr>
+                                    <td>
+                                        {{ item.date|date:'d/m/Y' }}
+                                    </td>
+                                    <td>
+                                        {{ item.libelle }}
+                                    </td>
+                                    <td>
+                                        {{ item.debit |monetary}}
+                                    </td>
+                                    <td>
+                                        {{ item.credit |monetary}}
+                                    </td>
+
+                                </tr>
+                         {% endfor %}
+                         <tr>
+                            <td></td>
+                            <td style="font-weight:900">Totaux</td>
+                            <td>{{sommeDeditEcriture|monetary}}</td>
+                            <td>{{sommeCreditEcriture|monetary}}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td style="font-weight:900">Solde après rapprochement</td>
+                            <td></td>
+                            <td>{{soldeEcriture|monetary}}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="col-md-9" style="border:1px #BFBFBF solid;height:80px; margin-top:10px;">
+                    <p>
+                        commentaire:
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12" style="color:red;margin-top:1rem;">
+            <div class="col-md-6">
+                <h5>REVU PAR</h5>
+            </div>
+            <div class="col-md-6">
+                <h5 style="float: right;">VALIDE PAR</h5>
+            </div>
+        </div>
+      </div>
+    </body>
+</html>

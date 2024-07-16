@@ -1,0 +1,700 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_factures_client' %}">Liste des factures clients</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row only-on-small-screen">
+                        <h2 class="text-light no-margin-left">{{ title }}</h2>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2">
+                            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+                        </div>
+                        <div class="col-md-2">
+                            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_factures_client' %}')" class="theme-btn theme-btn-sm rounded">
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+
+                    <form id="form" method="POST" action="{% url 'module_comptabilite_validate_facture_client' %}"
+                        enctype="multipart/form-data"
+                        data-role="validator"
+                        data-show-required-state="false"
+                        data-hint-mode="line"
+                        data-hint-background="bg-red"
+                        data-hint-color="fg-white"
+                        data-hide-error="5000"
+                        novalidate="novalidate"
+                        data-on-error-input="notifyOnErrorInput"
+                        data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none"><br/>
+                        <input id="order_id" name="order_id" type="hidden" value="0"><br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Numéro de la facture</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="numero_facture" disabled="true"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Date de facturation</label>
+                                <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                    <input readonly type="text" name="date_facturation" value="{% now 'd/m/Y' %}"
+                                        data-validate-func="required"
+                                        data-validate-hint="Précisez la date de facturation svp.">
+                                    <div class="button"><span class="mif-calendar"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Client</label>
+                                <div class="input-control text full-size">
+                                    <select onchange="choix_client()" id="client_id" name="client_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez le client svp.">
+                                        <option value="">Sélectionnez un client</option>
+                                        {% for item in clients %}
+                                            <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <!--div class="col-md-6">
+                                <label>Bon de commande</label>
+                                <div class="input-control text full-size">
+                                    <select name="order_id" id="order_id" onchange="choix_bon()">
+                                        <option value="0">Sélectionnez le bon de commande</option>
+                                        {% for item in fournitures %}
+                                            {% if item.numero_commande != None and item.numero_commande != "" %}
+                                                <option value="{{ item.id }}">{{ item.numero_commande }} : {{ item.prix_total }} {{ item.devise.symbole_devise }}</option>
+                                            {% else %}
+                                                <option value="{{ item.id }}">{{ item.prix_total }} {{ item.devise.symbole_devise }} du {{ item.date_commande|date:'d/m/Y' }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div-->
+                        <div class="col-md-6">
+                                <label>Document en attache</label>
+                                <div class="input-control text full-size">
+                                    <input id="document_upload" name="document_upload" type="file" multiple>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Devise</label>
+                                <div class="input-control text full-size">
+                                    <select name="devise_id" class="form-control" style="border: none;" id="devise_id" onchange="choix_devise() " data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez la devise svp. ">
+                                        {% for item in devises %}
+                                            <option value="{{ item.id }} "> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+
+                        <div class="col-md-6">
+                            <label>Etat de facturation</label>
+                            <div class="input-control text full-size">
+                                <select id="etat_facturation_id" name="etat_facturation_id" onchange="choix_etat_facturation()"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez un état de facturation svp.">
+                                    <option value="0">Sélectionnez un état de facturation</option>
+                                    {% for item in etat_facturations %}
+                                        <option value="{{ item.id }} "> {{ item.numero_etat_facturation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Type de facture</label>
+                            <div class="input-control text full-size">
+                                <!--select name="type_facture_client"
+                                    data-validate-func="minlength"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez un type de facture svp."-->
+                                <select name="type_facture_client">
+                                    <option value=''>Sélectionnez un type de facture</option>
+                                    {% for item in type_facture %}
+                                        <option value="{{ item.id }} "> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 ">
+                            <label>Modalité de réglèment</label>
+                            <div class="input-control text full-size ">
+                            <select type="text" name="condition_reglement_id " class="form-control " style="border: none;" id="condition_reglement_id">
+                                <option value="0">Sélectionnez la modalité de réglèment</option>
+                                {% for item in conditions_reglement %}
+                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Type de service</label>
+                            <div class="input-control text full-size">
+                                <select name="type_service">
+                                    <option value=''>Sélectionnez un type de service</option>
+                                    {% for item in type_services %}
+                                        <option value="{{ item.id }} "> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Autres informations</label>
+                            <div class="input-control select full-size" data-role="input">
+                                <textarea name="autres_infos" id="autres_infos" ></textarea>
+                            </div>
+                        </div>
+                        <br><br><br>
+                        </div>
+                        <br> <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+                        <div class="row margin20 no-margin-left no-margin-right">
+
+                            <table id="tableau" class="table no-margin">
+                                <thead class="no-border">
+                                    <tr>
+                                        <th width="15%">Article</th>
+                                        <th width="15%">Libelle</th>
+                                        <th width="12%">Compte comptable</th>
+                                        <th width="12%">Compte analytique</th>
+                                        <th width="8%">Quantité demandée</th>
+                                        <th width="10%">Prix unitaire</th>
+                                        <th width="13%">Remise (%)</th>
+                                        <th width="13%">Taxe</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items">
+                                    <tr id="ligne1">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <input id="id1" type="hidden" name="article_id" value="0" />
+                                            <input id="stock1" type="hidden" value="0" />
+                                            <div class="input-control select full-size">
+                                                <select   onchange="selectChange(event)" id="item1"
+                                                    data-validate-func="min"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez un article svp">
+                                                    <option value="">Sélectionnez un article</option>
+                                                    {% for item in categories %}
+                                                        <optgroup label="{{ item.designation }}">
+                                                            {% for article in articles %}
+                                                                {% if article.categorie_id == item.id %}
+                                                                    <option value="{{ article.id }}">[{{ article.code_article }}] {{ article.designation }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </optgroup>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class=" input-control text full-size">
+                                                <input name="libelle" id="libelle1" type="text" placeholder="Ex: Articles"
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Précisez le libelle svp">
+
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <div class="input-control select full-size">
+                                                        <select id="compte1" name="compte"
+                                                        data-validate-func="min"
+                                                        data-validate-arg="1"
+                                                        data-validate-hint="Sélectionnez un compte svp">
+                                                        <option value="">Sélectionnez un compte</option>
+                                                            {% for item in comptes %}
+                                                            <option {% if item.id == compte_default.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item.numero }} {{ item.designation }}</option>
+                                                            {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <div class="input-control select full-size">
+                                                        <select id="centre_cout1" name="centre_cout">
+                                                        <option value="">Sélectionnez un centre de coût</option>
+                                                        {% for item in centres %}
+                                                        <option value="{{ item.id }}">{{ item.code }} {{ item.designation }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </td>
+
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <input name="quantite_demandee" id="quantite1" type="text" placeholder="Ex: 10"
+                                                data-validate-func="number"
+                                                data-validate-arg="1"
+                                                data-validate-hint="Précisez la quantité svp">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                </span>
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <input class="monetary" name="prix_unitaire" id="prix1" type="text" autocomplete="off" placeholder="Ex: 100"
+                                                data-validate-func="required"
+                                                data-validate-hint="Précisez le prix unitaire svp">
+                                            <span class="prepend-icon" style="margin-left:75%">
+                                                <span style="margin-top: 1px;" class="sub-header place-right devise">CFA</span>
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <input name="remise" id="remise1" type="text" placeholder="Ex: 10">
+
+                                        </div>
+                                    </td>
+
+                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                <input type="hidden" id="count_select1" name="count_select">
+                                                <select data-role="select" multiple id="taxe1" name="taxe" onclick="taxeClicked(this)">
+                                                <!--select  class="ui search dropdown" multiple="" id="taxe1" name="taxe" onclick="taxeClicked(this)"-->
+                                                    <!--option value="">Sélectionnez une taxe</option-->
+                                                    {% for item in taxes %}
+                                                    <option {% if item.est_par_defaut %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item.designation }} ({{item.value_portee_taxe}})</option>
+                                                    {% endfor %}
+                                                </select>
+
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+
+                            <table id="tableau2" class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                                    <tr >
+                                        <td class="head" >#</td>
+                                        <td class="head">ARTICLE</td>
+                                        <td class="head">QUANTITE</td>
+                                        <td class="head">PRIX UNITAIRE</td>
+                                        <td class="head">TOTAL</td>
+                                    </tr>
+
+                                    {% for item in lignes_etat %}
+                                        <tr>
+                                            <input type="" name="article_id" value="{{item.article.id}}" />
+                                            <input name="quantite_demandee" type="hidden" value="{{item.quantite_demande}}">
+                                            <input type="hidden" name="prix_unitaire" value="{{ item.prix_unitaire }}">
+                                            <td class="td"></td>
+                                            <td class="td">{{ item.article.designation }}</td>
+                                            <td class="td"> {{item.quantite_demande}} </td>
+                                            <td class="td"><span class="monetary">{{ item.prix_unitaire }}</span></td>
+                                            <td class="td"><span class="monetary">{{ item.montant_total }}</span> </td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </table>
+                                <div id="btn_ligne" class="row margin10 no-margin-left no-margin-right">
+                                    <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                                </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var deviseRef = "CFA";
+
+        var lesFournitures = new Array();
+        var lesFournisseurs = new Array();
+        var lesCategories = new Array();
+        var lesArticles = new Array();
+        var lesDevises = new Array();
+
+        {% for item in categories %}
+            lesCategories.push({id:"{{ item.id }}", designation:"{{ item.designation }}"});
+        {% endfor %}
+
+        {% for item in articles %}
+            lesArticles.push({id:"{{ item.id }}", designation:"{{ item.designation }}", code_article:"{{ item.code_article }}", categorie_id:"{{ item.categorie_id }}"});
+        {% endfor %}
+
+        {% for item in devises %}
+            lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+        {% endfor %}
+
+        {% for item in fournitures %}
+            {% if item.numero_commande != None and item.numero_commande != "" %}
+                lesFournitures.push({id:"{{ item.id }}", client_id:"{{ item.client_id }}", designation:"{{ item.numero_commande }} : {{ item.prix_total }} {{ item.devise.symbole_devise }}"});
+            {% else %}
+                lesFournitures.push({id:"{{ item.id }}", client_id:"{{ item.client_id }}", designation:"{{ item.prix_total }} {{ item.devise.symbole_devise }} du {{ item.date_commande|date:'d/m/Y' }}"});
+            {% endif %}
+        {% endfor %}
+
+        {% for item in clients %}
+            lesFournisseurs.push({id:"{{ item.id }}", nom_complet:"{{ item.nom_complet }}"});
+        {% endfor %}
+    </script>
+
+    <script>
+
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+        var bon = {};
+        var money="monetary";
+
+        $(document).ready(function(){
+            /*var etat_actuel_id = $('#etat_actuel_id').val();
+            if (etat_actuel_id == 0){
+                $("#tableau2").hide();
+            }
+            else{
+                $("#items").empty();
+                $("#tableau").hide();
+                $("#btn_ligne").hide();
+            }*/
+
+            $("#tableau2").hide();
+        });
+//      ********************* ITEM FACTURE *****************************
+$("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="article_id" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article"><option value="0">Sélectionnez un article</option>';
+            nouvelleLigne += renvoyerOptionsArticles();
+            nouvelleLigne += '</select></div></td><td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="libelle" id="libelle'+compteur+'" type="text" placeholder="Ex: Articles" data-validate-func="required" data-validate-hint="Précisez le libelle svp">';
+            nouvelleLigne += '</div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+            nouvelleLigne += '<select id="compte'+compteur+'" name="compte" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un compte svp">';
+            nouvelleLigne += '<option value="">Sélectionnez un compte</option>{% for item in comptes %} <option {% if item.id == compte_default.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item.numero }} {{ item.designation }}</option>{% endfor %}</select></div></td>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+            nouvelleLigne += '<select id="centre_cout'+compteur+'" name="centre_cout">';
+            nouvelleLigne += '<option value="">Sélectionnez un centre de coût</option>{% for item in centres %} <option value="{{ item.id }}">{{ item.code }} {{ item.designation }}</option>{% endfor %}</select></div></td>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input  class="'+money+'"  id="prix' + compteur + '"  name="prix_unitaire" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text"  placeholder="Ex:100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span></div></td>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="remise" id="remise' + compteur + '" type="text" placeholder="Ex: 10" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez la remise svp"></div></td>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+            nouvelleLigne += '<input type="hidden" id="count_select'+compteur+'" name="count_select"> <select data-role="select" multiple  id="taxe'+compteur+'" name="taxe" onclick="taxeClicked(this)" data-validate-func="number" data-validate-arg="1"> {% for item in taxes %}<option value="{{ item.id }}">{{ item.designation }} ({{item.value_portee_taxe}})</option> {% endfor %}</select> </div></td>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function selectChange(event)
+        {
+            $select = $(event.target);
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+                if($("#" + id_element).val() != "0")
+                {
+                    nombreItems += 1;
+                    var idArticle = parseInt($("#" + id_element).val());
+                    console.log("ID ARTICLE : " + idArticle);
+                    $.get(
+                        "{% url  'module_achat_article_prix' %}",
+                        {ref : idArticle},
+                        function(data)
+                        {
+                            console.log("DATA " + data.id)
+                            if(data != null)
+                            {
+                                $("#id" + ligneActuelle).val(data.id);
+                                $("#quantite" + ligneActuelle).val(1);
+                                $("#prix" + ligneActuelle).val(data.prix_unitaire);
+                                $("#libelle" + ligneActuelle).val(data.designation);
+                                $("#unite" + ligneActuelle).text(data.symbole_unite);
+                                console.log("prix : " + data.prix_unitaire);
+                                console.log("compte :" +data.compte_id)
+                                if (data.compte_id != null){
+                                    $("#compte"+ligneActuelle).children().remove();
+                                    var option = "<option value='" + data.compte_id + "'>" + data.compte_designation + "</option>";
+                                    $("#compte"+ligneActuelle).append(option);
+
+                                }
+                            }
+                        },
+                        "json"
+                    );
+                }
+                else nombreItems -= 1;
+            }
+        }
+
+
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+
+        function choix_devise()
+        {
+            var id_devise = $("#devise_id").val();
+            if(id_devise == "0") deviseRef = "CFA";
+            else
+            {
+                for(var i = 0; i < lesDevises.length; i++)
+                {
+                    var devise = lesDevises[i];
+                    if(devise.id == id_devise)
+                    {
+                        deviseRef = devise.symbole_devise;
+                        $(".devise").text(deviseRef);
+                        break;
+                    }
+                }
+            }
+        }
+
+        function renvoyerOptionsArticles()
+        {
+            var ligne = "";
+            var hasArticle = "0";
+            for(var i = 0; i < lesCategories.length; i++)
+            {
+                var categorie = lesCategories[i];
+                for(var j = 0; j < lesArticles.length; j++)
+                {
+                    var article = lesArticles[j];
+                    if(article.categorie_id == categorie.id)
+                    {
+                        hasArticle = "1";
+                        break;
+                    }
+                }
+                if(hasArticle == "1")
+                {
+                    ligne += '<optgroup label="' + categorie.designation + '">';
+                    for(var j = 0; j < lesArticles.length; j++)
+                    {
+                        var article = lesArticles[j];
+                        if(article.categorie_id == categorie.id)
+                        {
+                            ligne += '<option value="' + article.id + '"> [' + article.code_article + '] ' + article.designation + '</option>';
+                        }
+                    }
+                    ligne += '</optgroup>';
+                }
+            }
+            return ligne;
+        }
+
+//      ********************** FIN ITEM FACTURE ***************************
+
+        function choix_client()
+        {
+            //$("#items").children().remove();
+            var client_id = $("#client_id").val();
+            if(client_id != "0")
+            {
+                $("#order_id").children().remove();
+                $("#order_id").append('<option value="0">Sélectionnez le bon de commande</option>');
+
+                for(var i = 0; i < lesFournitures.length; i++)
+                {
+                    var fourniture = lesFournitures[i];
+                    if(fourniture.client_id == client_id)
+                    {
+                        var ligne = '<option value="' + fourniture.id + '">' + fourniture.designation + '</option>';
+                        $("#order_id").append(ligne);
+                    }
+                }
+            }
+            else placerOptionsFournitures();
+        }
+
+        function choix_bon()
+        {
+            var order_id = $("#order_id").val();
+            if(order_id != "0")
+            {
+                $("#items").children().remove();
+                for(var i = 0; i < lesFournitures.length; i++)
+                {
+                    var fourniture = lesFournitures[i];
+                    if(fourniture.id == order_id)
+                    {
+                        $("#client_id").val(fourniture.client_id);
+                        break;
+                    }
+                }
+
+                $.get("{% url 'module_achat_list_ligne_commande' %}",
+                    {ref : order_id},
+                    function(data)
+                    {
+                        if(data != null)
+                        {
+                            console.log(data);
+                            var lignes = data.lignes;
+                            console.log(lignes);
+                            for(var i = 0; i < lignes.length; i++)
+                            {
+                                    indice = i + 1;
+                                    var ligne = lignes[i];
+                                    var total = parseFloat(ligne.prix_unitaire) * parseFloat(ligne.quantite_fournie);
+                                    if(ligne.prix_lot != 0) total = parseFloat(ligne.prix_lot);
+
+                                    var nouvelleLigne = '<tr class="table bordered border"><input type="hidden" name="article_id" value="'+ligne.article_id+'" /><td>' + ligne.nom_article + '</td>';
+                                    nouvelleLigne += '<td><div class="input-control text full-size"><input type="text" id="libelle'+indice+'" name="libelle" data-validate-func="required" data-validate-hint="Entrez le libelle" value="'+ligne.nom_article+'"/></div></td>'
+                                    if (ligne.compte_id != null){
+
+                                    nouvelleLigne += '<td><div class="input-control select full-size"> <select name="compte"><option value="'+ligne.compte_id+'">'+ ligne.compte_designation + '</option></select></td>';
+
+                                    }else{
+                                    nouvelleLigne += '<td><div class="input-control select full-size"><select name="compte" data-validate-func="min"  data-validate-arg="1"'
+                                    nouvelleLigne += 'data-validate-hint="Sélectionnez un compte svp"><option value="">Sélectionnez un compte</option>{% for item in comptes %}'
+                                    nouvelleLigne += ' <option {% if item.id == compte_default.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item.numero }} {{ item.designation }}</option>{% endfor %}</select></div></td>';
+                                    }
+                                    nouvelleLigne += '<td><div class="input-control select full-size"><select name="centre_cout">'
+                                    nouvelleLigne += '<option value="">Sélectionnez un centre de coût</option>{% for item in centres %}'
+                                    nouvelleLigne += ' <option value="{{ item.id }}">{{ item.code }} {{ item.designation }}</option>{% endfor %}</select></div></td>';
+
+                                    nouvelleLigne += '<td><input type="hidden" name="quantite_demandee" value="'+ligne.quantite_fournie+'" />' + ligne.quantite_fournie + ' ' + ligne.symbole_unite + '</td>';
+                                    if(parseFloat(ligne.prix_unitaire) != 0)
+                                    {
+                                        nouvelleLigne += '<td><input type="hidden" name="prix_unitaire" value="'+parseFloat(ligne.prix_unitaire)+'" />' + parseFloat(ligne.prix_unitaire).toFixed(2) + ' ' + data.symbole_devise + '</td>';
+                                    }
+                                    else nouvelleLigne += '<td> - </td>';
+                                    nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+                                    nouvelleLigne += '<input name="remise" type="text" placeholder="Ex: 10" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez la remise svp"></div></td>';
+
+
+                                    nouvelleLigne +='<td><div class="input-control select full-size"><input type="hidden" id="count_select'+indice+'" name="count_select"><select  data-role="select" multiple id="taxe'+indice+'" name="taxe" onclick="taxeClicked(this)" data-validate-func="number" data-validate-arg="1">'
+                                    nouvelleLigne += '{% for item in taxes %} <option value="{{ item.id }}">'
+                                    nouvelleLigne += '{{ item.designation }} ({{item.value_portee_taxe}})</option> {% endfor %}</select></div></td>';
+                                    nouvelleLigne += '<td>' + total.toFixed(2) + ' ' + data.symbole_devise + '</td></tr>';
+
+                                    $("#items").append(nouvelleLigne);
+                            }
+                        }
+                        $("#reference_document").val(data.reference_document);
+                    },
+                    "json"
+                );
+            }
+            else $("#items").children().remove();
+        }
+
+
+        function choix_etat_facturation() {
+            var idEtat = $("#etat_facturation_id").val();
+
+            if (idEtat != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_comptabilite_get_type_facture_client_not_billed' %}", {
+                        ref: idEtat
+                    },
+                    function(response) {
+                        $("#type_facture_client").children().remove();
+                        $("#type_facture_client").append("<option value=''>Sélectionnez un type de facture</option>");
+                        console.log(response);
+                        for (var i = 0; i < response.length; i++) {
+                            var Etat = response[i];
+
+                            var option = "<option value='" + Etat.designation + "'>" + Etat.designation + "</option>";
+                            $("#type_facture_client").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            } else {
+                $("#type_facture_client").children().remove();
+                $("#type_facture_client").append("<option value=''>Sélectionnez un type de facture</option>");
+            };
+        }
+
+
+
+
+
+        function placerOptionsFournitures()
+        {
+            $("#order_id").children().remove();
+            $("#order_id").append('<option value="0">Sélectionnez le bon de commande</option>');
+
+            for(var i = 0; i < lesFournitures.length; i++)
+            {
+                var fourniture = lesFournitures[i];
+                var ligne = '<option value="' + fourniture.id + '">' + fourniture.designation + '</option>';
+                $("#order_id").append(ligne);
+            }
+        }
+    </script>
+
+
+<script>
+
+    function taxeClicked(elt)
+    {
+        var id_element = elt.id;
+        console.log("id el", id_element);
+        id_element = "#" + id_element;
+        var number = id_element.substr(5);
+        var id_counter_select = "#count_select" + number;
+        var len = $(id_element + ' option:selected').length;
+        $(id_counter_select).val(len);
+        console.log("len :", len)
+    }
+    </script>
+
+{% endblock %}

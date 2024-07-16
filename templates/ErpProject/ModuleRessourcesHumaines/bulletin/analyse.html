@@ -1,0 +1,225 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}{%load static %}
+<style type="text/css">
+    .text-black{
+        color:#333333;
+    }
+    .btSh{
+        border-radius: 0px;
+        padding-right: 0px;
+        margin-right: 10px;
+        margin-bottom: 0px;
+        background-color: #fff;
+        margin-bottom: 3%;
+        display: flex;
+        justify-content: center;
+     }
+    .barr{
+        background-color: #991B58;
+        height: 120px;
+        width: 5px;
+        position: relative;
+        left: -10%;
+    }
+    .pl-2,
+    .px-2,
+    .template-demo .circle-progress-block {
+        padding-left: 0.5rem !important
+    }
+
+    .pr-2,
+    .px-2,
+    .template-demo .circle-progress-block {
+        padding-right: 0.5rem !important
+    }
+
+    .mb-3,
+    .template-demo .circle-progress-block,
+    .my-3 {
+        margin-bottom: 1rem !important
+    }
+</style>
+
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_lister_journaux' %}">Liste des journaux</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ"></div>
+            <div class="panel panel-default" style="border: none; margin-top:2%;background-color: rgb(249, 249, 249)!important;">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="bar-chart" width="800" height="350"></canvas>
+                    </div>
+                </div>
+                <br><br>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="row" style="padding-left:10%;">
+                            <div class="col-md-3  item-dash btSh">
+                                <div class="barr"></div>
+                                <div class="row item_header">
+                                    <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;">EMPLOYES</span>
+                                    <span class="col-lg-12" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                        8000
+                                    </span>
+                                    <span class="col-lg-12 montantP" style="color:red;margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        <i class="fa fa-arrow-down"></i> <i>1.85%</i> <br>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 item-dash btSh">
+                                <div class="barr"></div>
+                                <div class="row item_header">
+                                    <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;">SERVICES</span>
+                                    <span class="col-lg-12" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                        2800
+                                    </span>
+                                    <span class="col-lg-12 montantP" style="color:green;margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        <i class="fa fa-arrow-up"></i> <i>7.85%</i> <br>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3  item-dash btSh">
+                                <div class="barr"></div>
+                                <div class="row item_header">
+                                    <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;">CONGE</span>
+                                    <span class="col-lg-12" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                        500
+                                    </span>
+                                    <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        <i class="fa fa-arrow-up"></i> <i>7.85%</i> <br>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 item-dash btSh">
+                                <div class="barr"></div>
+                                <div class="row item_header">
+                                    <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;">FORMATION</span>
+                                    <span class="col-lg-12" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                        1000
+                                    </span>
+                                    <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        <i class="fa fa-arrow-up"></i> <i>7.85%</i> <br>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3  item-dash btSh">
+                                <div class="barr"></div>
+                                <div class="row item_header">
+                                    <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;">PAIEMENT</span>
+                                    <span class="col-lg-12" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                        3500
+                                    </span>
+                                    <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        <i class="fa fa-arrow-up"></i> <i>7.85%</i> <br>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3  item-dash btSh">
+                                <div class="barr"></div>
+                                <div class="row item_header">
+                                    <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;">Facture Réçue</span>
+                                    <span class="col-lg-12" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                        2500
+                                    </span>
+                                    <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        <i class="fa fa-arrow-up"></i> <i>7.85%</i> <br>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <canvas id="pie-chart-1" width="420" height="450"></canvas>
+                            </div>
+                            <div class="col-md-6">
+                                <canvas id="pie-chart-2" width="420" height="450"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+
+                    </div>
+                    <div class="col-md-6">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+    <script>
+        // Bar chart
+        new Chart(document.getElementById("bar-chart"), {
+            type: 'bar',
+            data: {
+            labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+            datasets: [
+                {
+                label: "Population (millions)",
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                data: [2478,5267,734,784,433]
+                }
+            ]
+            },
+            options: {
+            legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Predicted world population (millions) in 2050'
+                }
+            }
+        });
+
+        new Chart(document.getElementById("pie-chart-1"), {
+            type: 'pie',
+            data: {
+            labels: ["Facture", "Avoir"],
+            datasets: [{
+                label: "Nombre facture",
+                backgroundColor: ["#ff7f0e", "#1f77b4"],
+                data: [8,2]
+            }]
+            },
+            options: {
+            title: {
+                display: true,
+                text: 'Ratio Facture / Avoir'
+            }
+            }
+        });
+        new Chart(document.getElementById("pie-chart-2"), {
+            type: 'pie',
+            data: {
+            labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+            datasets: [{
+                label: "Comptage",
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                data: [2478,5267,734,784,433]
+            }]
+            },
+            options: {
+            title: {
+                display: true,
+                text: 'Moyen'
+            }
+            }
+        });
+
+    </script>
+{% endblock %}

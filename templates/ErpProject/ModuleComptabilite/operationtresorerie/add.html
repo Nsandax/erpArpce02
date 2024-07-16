@@ -1,0 +1,327 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_operationtresorerie' objet.id filter %}">{{objet}} : Liste des opérations</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_operationtresorerie' objet.id filter %}')" class="theme-btn theme-btn-sm rounded">
+                            Annuler 
+                        </button>
+                    </div>
+                </div> 
+
+
+                <hr class="hr-ligne">
+
+                 {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <!--  -->
+
+                <!--  -->
+
+            <form id="form" method="POST" action="{% url 'module_comptabilite_post_add_operationtresorerie' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input name="objet_id"  value="{{objet.id}}" type="hidden">
+                            <input name="journal_id"  value="{{objet.journal_id}}" type="hidden">
+                            <input name="type_operation"  value="{{filter}}" type="hidden">
+                            <div class="row">
+
+                <div class="col-md-6">
+                            <label>Référence</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="reference" id="reference" type="text" data-validate-func="required" data-validate-hint="Entrez reference !">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Balance initiale</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="balance_initiale" id="balance_initiale" type="text" {% if last_operation %} value="{{last_operation.solde}}" readonly {% else %} value="0" {% endif %}>
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Solde final</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="solde" id="solde" type="text" value="0">
+                            </div>
+
+                </div>
+                <div class="col-md-6">
+                    <label>Devise</label>
+                    <div class="input-control text full-size">
+                        <select name="devise_id" class="form-control" style="border: none;" id="devise_id" data-validate-func="required" data-validate-hint="Entrez une devise !" >
+                            <option value="{{devise.id}}">{{devise.symbole_devise}}</option>
+                             </select>
+                    </div>
+    </div>
+
+                <div class="col-md-6">
+                    <label>Date operation</label>
+                    <div id="date_operation" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_operation" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez date_operation svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+
+                <div class="col-md-6">
+                    <label>Date comptable</label>
+                    <div id="date_comptable" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_comptable" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez date_comptable svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+
+
+
+                <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="description" id="description" type="text">
+                            </div>
+                            <br> <br> <br>
+                </div>
+
+
+                <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+                        <div class="row margin20 no-margin-left no-margin-right">
+                            <table id="tableau" class="table no-margin">
+                                <thead class="no-border">
+                                    <tr>
+                                        <th width="10%">Date</th>
+                                        <th width="15%">Libelle</th>
+                                        <th width="15%">Facture</th>
+                                        <th width="15%">Partenaire</th>
+                                        <th width="10%">Type d'opération</th>
+                                        <th width="15%">Montant</th>
+                                        <th width="15%">Motif</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items">
+                                    <tr id="ligne1">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <input id="id1" type="hidden" name="article_id" value="0" />
+                                           <div id="date_ligne_operation1" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input readonly type="text" name="date_ligne_operation" readonly
+                                                data-validate-func="required"
+                                                data-validate-hint="Precisez date de l'opération svp.">
+                                            <div class="button"><span class="mif-calendar"></span></div>
+                                        </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class=" input-control text full-size">
+                                                <input name="libelle" id="libelle1" type="text" placeholder=""
+                                                data-validate-func="required"
+                                                    data-validate-hint="Précisez le libelle svp">
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                    <select onchange="selectChange(event)" id="facture1" name="facture">
+                                                    <option value="">Si le paiement est lié à une facture, selectionnez!</option>
+                                                    {% for item in factures %}
+                                                        <option value="{{ item.id }}">{{ item.numero_facture }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <div class="input-control select full-size">
+                                                        <select id="partenaire1" name="partenaire">
+                                                        <option value="">Sélectionnez un partenaire</option>
+                                                        {% for item in partenaires %}
+                                                            <option value="{{ item.id }}">{{ item.nom_complet }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </td>
+
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <select id="type_operation_ligne1" name="type_operation_ligne">
+                                                <option value="1">Dépôt</option>
+                                                <option value="2">Retrait</option>
+
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                        <div class=" input-control text full-size">
+                                            <input name="montant" id="montant1" type="text" autocomplete="off" placeholder="Ex: 100"
+                                                data-validate-func="number"
+                                                data-validate-arg="1"
+                                                data-validate-hint="Précisez le montant de l'opération svp">
+                                        </div>
+                                    </td>
+
+                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <div class="input-control select full-size">
+                                                <input name="motif" id="motif1" type="text" placeholder=""
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Précisez le motif svp">
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div id="btn_ligne" class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                            </div>
+                            </div>
+
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<script>
+
+    var nombreLignes = 1;
+    var nombreItems = 0;
+    var ligneActuelle = 0;
+    var compteur = 1;
+    var bon = {};
+
+
+$("#btnAjouterLigne").on("click", function () {
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+        nouvelleLigne += '<input name="article_id" id="id' + compteur + '" type="hidden" value="0" />';
+        nouvelleLigne += '<div id="date_ligne_operation'+compteur+'" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">';
+        nouvelleLigne += '<input readonly type="text" name="date_ligne_operation" readonly data-validate-func="required" data-validate-hint="Precisez date de l\'opération svp.">';
+        nouvelleLigne += '<div class="button"><span class="mif-calendar"></span></div></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        nouvelleLigne += '<input name="libelle" id="libelle'+compteur+'" type="text" placeholder="" data-validate-func="required" data-validate-hint="Précisez le libelle svp"></div></td>';
+
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne += '<select onchange="selectChange(event)" id="facture'+compteur+'" name="facture">';
+        nouvelleLigne += '<option value="">Si le paiement est lié à une facture, selectionnez!</option>{% for item in factures %}<option value="{{ item.id }}">{{ item.numero_facture }}</option>{% endfor %}</select></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne += '<select id="partenaire'+compteur+'" name="partenaire">';
+        nouvelleLigne += '<option value="">Sélectionnez un partenaire</option>{% for item in partenaires %}<option value="{{ item.id }}">{{ item.nom_complet }}</option>{% endfor %}</select></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        nouvelleLigne += '<select id="type_operation_ligne'+compteur+'" name="type_operation_ligne">';
+        nouvelleLigne += '<option value="1">Dépôt</option><option value="2">Retrait</option></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne+= '<input name="montant" id="montant'+compteur+'" type="text" placeholder="Ex: 100"  data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le montant svp"></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+        nouvelleLigne+= '<input name="motif" id="motif'+compteur+'" type="text" placeholder=""  data-validate-func="required" data-validate-hint="Précisez le motif svp"></div></td>';
+
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border"><span class="item" title="Supprimer la ligne" onclick="supprimerLigne('+compteur+')"><span class="mif-cross fg-red"></span></span></div></td></tr>';
+
+        $("#items").append(nouvelleLigne);
+    });
+
+
+
+    function supprimerLigne(indice) {
+        nombreLignes--;
+        $("#ligne" + indice).remove();
+    }
+
+
+
+
+    var nombreItems = 0
+    function selectChange(event)
+        {
+            $select = $(event.target);
+            console.log("jsuis la dam,n")
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 7) == "facture")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length, 1);
+                console.log("la ligne actuelle",ligneActuelle)
+                if ((ligneActuelle === "")||(ligneActuelle === null)){
+                   ligneActuelle = 1;
+                }
+
+                if($("#" + id_element).val() != "")
+                {
+                    nombreItems += 1;
+                    var idFacture = parseInt($("#" + id_element).val());
+                    console.log("ID ARTICLE : " + idFacture);
+                    $.get(
+                        "{% url  'module_comptabilite_get_select_facture' %}",
+                        {ref : idFacture},
+                        function(data)
+                        {
+                            console.log("DATA " + data.id)
+                            if(data != null)
+                            {
+
+                                console.log("dqssdsdsds : ");
+
+                                $("#partenaire" + ligneActuelle).children().remove();
+                                $("#partenaire" + ligneActuelle).append("<option value='"+data.partenaire_id+"'>"+data.partenaire_name+"</option>");
+                                $("#type_operation_ligne" + ligneActuelle).children().remove();
+                                $("#type_operation_ligne" + ligneActuelle).append("<option value='"+data.type_id+"'>"+data.type_name+"</option>");
+                                $("#montant" + ligneActuelle).val(data.montant_restant);
+
+                            }
+                        },
+                        "json"
+                    );
+                }
+                else {nombreItems -= 1;
+                    $("#partenaire" + ligneActuelle).children().remove();
+                    $("#partenaire" + ligneActuelle).append('<option value="">Sélectionnez un partenaire</option>{% for item in partenaires %}<option value="{{ item.id }}">{{ item.nom_complet }}</option>{% endfor %}');
+                    $("#type_operation_ligne" + ligneActuelle).children().remove();
+                    $("#type_operation_ligne" + ligneActuelle).append('<option value="1">Dépôt</option><option value="2">Retrait</option>');
+                    $("#montant" + ligneActuelle).val(0);
+                }
+            }
+        }
+
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{% load account_filters %} 
+   <div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_comptabilite_add_paiement_fournisseur" url_detail="module_comptabilite_details_paiement_fournisseur" csrf_token=csrf_token module=module type_doc="" only %}
+
+
+<!--div class="row">
+    <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_paiements_fournisseur' %}')" class="button small-button rounded chargement-au-click">Annuler</button>
+</!--div-->
+<hr class="hr-ligne">
+<!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<br>
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Référence :<br>
+                    <span class="fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Date du paiement :<br>
+                    <span class="fg-dark">{{ model.date_paiement|date:"d/m/Y H:i" }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Type :<br>
+                    {% for type in types_paiement %}
+                        {% if type.id == model.type_paiement %}
+                            <span class="fg-dark"> {{ type.designation }} </span>
+                        {% endif %}
+                    {% endfor %}                       
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Fournisseur :<br>
+                    {% if model.partenaire == None %}
+                        {{ "-" }}
+                    {% else %}
+                        <span class="fg-dark">{{ model.partenaire.nom_complet }}</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Journal :<br>
+                    {% if model.journal == None %}
+                        {{ "-" }}
+                    {% else %}
+                        <a class="lien chargement-au-click" href="{% url 'module_comptabilite_details_journal' model.journal_id %}">{{ model.journal.designation }}</a> 
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Memo :<br>
+                    <span class="fg-dark"> {{ model.description }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Montant :<br>
+                    <span class="fg-dark"> {{ model.montant |monetary}} {{ model.devise.symbole_devise }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="minor-header fg-gray">
+                    Enregistré par :<br>
+                    <span class="fg-dark"> {{ model.auteur.nom_complet }} </span>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

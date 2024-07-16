@@ -1,0 +1,66 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <p>
+                    Période :<br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                    <br>
+                    <br>
+                    Devise :<br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </p>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#f1f1f1">
+                    <th width="8%">No du Compte</th>
+                    <th width="20%">Intitulé du compte</th>
+                    <th width="18%">Cumul débit</th>
+                    <th width="18%">Cumul crédit</th>
+                    <th width="18%">Solde débit</th>
+                    <th width="18%">Solde crédit</th>
+                </tr>
+                {% for item in model %}  
+                    <tr>  
+                        <!-- <tr style="background-color: red;"> -->
+                        <td width="8%">{{ item.numero_compte }}</td>
+                        <td width="20%">{{ item.designation_compte }}</td>
+                        <td style="text-align: right" width="18%">{% if item.debit_mouvement == "0.00" %}  - {% else %}  {{ item.debit_mouvement|monetary }} {% endif %}</td>
+                        <td style="text-align: right" width="18%">{% if item.credit_mouvement == "0.00" %}  - {% else %}  {{ item.credit_mouvement|monetary }} {% endif %}</td>
+                        <td style="text-align: right" width="18%">{% if item.debit_solde == "0.00" %}  - {% else %}  {{ item.debit_solde|monetary }} {% endif %}</td>
+                        <td style="text-align: right" width="18%">{% if item.credit_solde == "0.00" %}  - {% else %}  {{ item.credit_solde|monetary }} {% endif %}</td>
+                    </tr>
+                {% endfor %}
+                <tr style="background-color:#ffb871;font-style: normal;font-weight: 700;">
+                    <th colspan="2">TOTAL CLASSE 4</th>
+                    <th style="text-align: right">{{ equilibre_debit_mouvement|monetary }}</th>
+                    <th style="text-align: right">{{ equilibre_credit_mouvement|monetary }}</th>
+                    <th style="text-align: right">{{ equilibre_debit_solde|monetary }}</th>
+                    <th style="text-align: right">{{ equilibre_credit_solde|monetary }}</th>
+                </tr>
+                <tr><td colspan="6" style="border-left: none!important; border-right: none!important;"></td></tr>
+                <tr style="background-color:#f1f1f1;font-style: normal;font-weight: 700;">
+                    <th colspan="2">TOTAL BALANCE</th>
+                    <th style="text-align: right">{{ equilibre_debit_mouvement|monetary }}</th>
+                    <th style="text-align: right">{{ equilibre_credit_mouvement|monetary }}</th>
+                    <th style="text-align: right">{{ equilibre_debit_solde|monetary }}</th>
+                    <th style="text-align: right">{{ equilibre_credit_solde|monetary }}</th>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

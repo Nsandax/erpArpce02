@@ -1,0 +1,926 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+{%load static %}
+{% load inventaire_filter %}
+<style type="text/css">
+    body {
+        background-color: grey!important;
+    }
+    .btSh{
+        border-radius: 0px;
+        /* padding-right: 209px; */
+        margin-right: 10px;
+        margin-bottom: 0px;
+        margin-bottom: 3%;
+        /* display: flex; */
+        /* justify-content: center;*/
+     }
+     .f{
+         margin:2%;
+     }
+     .block_f{
+        margin-left: 0%;
+     }
+     .fond{
+        background-color: rgba(240, 240, 240, 0.3);
+        border-radius: 50px;
+        height: 50px;
+        width: 50px;
+        opacity:3.5;
+        float: right;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+     }
+     .fondSMG{
+        background-color: rgba(240, 240, 240, 0.3);
+        border-radius: 50px;
+        height: 50px;
+        width: 50px;
+        opacity:3.5;
+        float: left;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+     }
+</style>
+
+    <!-- Design Admin -->
+    <div id="vue_Admin" class="row" style="padding-top:30px;">
+        <div class="col-lg-12">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <!--Notification-->
+            <div class="panel panel-default" style="border: none;">
+                        <div class="panel" style="background-color:#f5f5f5;border: none;"></div>
+                        {% if temp_notif_count > 0 %}
+                        <div class="col-md-12" style="padding: 10px;">
+                            {% for item in temp_notif_list %}
+                            <div class="col-md-4" style="padding: 10px;">
+                                <div style="">
+                                        <div class="mb-4 ">
+                                                <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                                    <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                                                <div style="padding: 10px;">
+                                                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Notification</strong>
+                                                                <small style="margin-right:50">{{item.notification.created_at}}</small>
+                                                                <button onclick="javascript:window.location.assign('{% url 'module_inventaire_notification' item.id %}')" type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" >
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                    <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                                    </div>
+                                                    <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                                                <p>
+                                                        {{item.notification.text}}<br>
+
+                                                        {% if item.notification.demande != None %}
+                                                        Etat: {{item.notification.demande.etat}}<br>
+                                                        {% endif %}
+
+                                                        {% if item.notification.bon_reception != None %}
+                                                        Etat: {{item.notification.bon_reception.etat}}<br>
+                                                        {% endif %}
+                                                                </p>
+
+                                                    </div>
+                                                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                                            <div style="padding: 15px;padding-top: 0px;">
+                                                                {% if item.type_action == "Link" %}
+                                                                    <button  class="btn rounded primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                                        </div>
+                                                </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+            </div>
+            <!--END Notification-->
+
+            <!-- Welcome -->
+            <div class="row cookie card-alert" style="display:none;">
+                <div class="col-md-12">
+                    <div class="item-dash col-md-12" style="background-color: white;height: 110px;padding-left:15px;padding-top: 5px;border-left:4px solid #5D977D;border-radius:3px">
+                        <div>
+                            <button onclick="dismissAlert()" type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" >
+                                <span aria-hidden="true" style="color:#E43D30;">&times;</span>
+                            </button>
+                            <h4 style="font-weight: 500;display: flex;justify-content: left;">
+                                Bienvenue, {{ utilisateur.nom_complet }} <span role="img" aria-label="Waving hand emoji">👋</span>
+                            </h4>
+
+                        </div>
+                        <p style="color:#C7C7C7;">
+                            le Module de gestion de Stock du Moyen généraux vous permet d'optimiser la gestion parfaite <br>
+                            de votre travail.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <!-- Menu SMG -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="item-dash" style="padding:5%;background:#fff;border-top:4px solid #5D977D;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="col-xs-3 fondSMG" style="text-align:left;">
+                                    <span class="mif-stack fg-green" style="float: left;font-size:25px"></span>
+                                </div>
+                           </div>
+
+
+
+
+                            <div class="col-md-6">
+                                <span style="font-size: 1rem!important;font-weight: 800;color: #6A7176;
+                                font-family: roboto!important;display: flex;justify-content: center;">
+                                    Approvisionnement
+                                </span>
+                                <span style="color:#000;font-size:20px;font-weight:500;display: flex;
+                                justify-content: center;">
+                                    150
+                                </span>
+                            </div>
+                        </div>
+                        <br>
+                        <div style="">
+                            <p style="color:#C7C7C7;font-size:11.5px;">
+                                Derniere opération 04/04/2022
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="item-dash" style="padding:5%;background:#fff;border-top:4px solid #5D977D;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="col-xs-3 fondSMG" style="text-align:left;">
+                                    <span class="mif-shrink2 fg-blue" style="float: left;font-size:25px"></span>
+                                </div>
+                           </div>
+                            <div class="col-md-6">
+                                <span style="font-size: 1rem!important;font-weight: 800;color: #6A7176;
+                                font-family: roboto!important;display: flex;justify-content: center;">
+                                    Transmission
+                                </span>
+                                <span style="color:#000;font-size:20px;font-weight:500;display: flex;
+                                justify-content: center;">
+                                    150
+                                </span>
+                            </div>
+                        </div>
+                        <br>
+                        <div style="">
+                            <p style="color:#C7C7C7;font-size:11.5px;">
+                                Derniere opération 10/04/2022
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="item-dash" style="padding:5%;background:#fff;border-top:4px solid #5D977D;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="col-xs-3 fondSMG" style="text-align:left;">
+                                    <span class="mif-cancel fg-red" style="float: left;font-size:25px"></span>
+                                </div>
+                           </div>
+                           <div class="col-md-6">
+                                <span style="font-size: 1rem!important;font-weight: 800;color: #6A7176;
+                                font-family: roboto!important;display: flex;justify-content: center;">
+                                    Stock obsolète
+                                </span>
+                                <span style="color:#000;font-size:20px;font-weight:500;display: flex;
+                                justify-content: center;">
+                                    150
+                                </span>
+                            </div>
+                        </div>
+                        <br>
+                        <div style="">
+                            <p style="color:#C7C7C7;font-size:11.5px;">
+                                Dérniere opération 11/04/2022
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br> <br>
+            <!-- Bock Graphique -->
+            <div class="main-dashboard__row main-dashboard__row--1">
+                <div class="main-dashboard__overall-creditusage main-dashboard__wrapper">
+                    <div class="overall-header">
+                        <div class="overall-header--item overall-header--reciever">
+                            <div class="overall-label">
+                                Quantité Totale en Stock
+                            </div>
+                            <div class="overall-number">350</div>
+                        </div>
+                        <div class="overall-header--item overall-header--creditburn">
+                            <div class="overall-label">Coût de Possession des Stocks</div>
+                            <div class="overall-number">1.050.650 CFA</div>
+                        </div>
+                    </div>
+                    <div class="overall-body">
+                        <div class="overall-body--container  overall-body--receiver">
+                            <div class="overall-body--item">
+                                <div class="overall-body--item--container textSumDash">
+                                    <div class="overall-body--text light-text">
+                                        Niveau de stock en entrepôt SMG
+                                    </div>
+                                    <div class="overall-body--text">80%</div>
+                                </div>
+                                <div>
+                                    <div style="height: inherit;">
+                                        <div style="position:relative;">
+                                            <div data-label="80%" data-toggle="tooltip" data-title="80%" class="radial-bar radial-bar-80"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overall-body--container  overall-body--creditburn">
+                            <div class="overall-body--item">
+                                <div class="overall-body--item--container textSumDash">
+                                    <div class="overall-body--text light-text">
+                                        Stock perdu ou devenu obsolète dans l’entrepôt
+                                    </div>
+                                    <div class="overall-body--text">50%</div>
+                                </div>
+                                <div>
+                                    <div style="height: inherit;">
+                                        <div style="position:relative;">
+                                            <div data-label="50%" data-toggle="tooltip" data-title="50%" class="radial-bar radial-bar-50"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 2%;"></div>
+                <div class="main-dashboard__overall-creditusage main-dashboard__wrapper">
+                    <div class="overall-header">
+                        <div class="overall-header--item overall-header--reciever">
+                            <div class="overall-label">
+                                Quantité de stocks Transmisse
+                            </div>
+                            <div class="overall-number">250</div>
+                        </div>
+                        <div class="overall-header--item overall-header--creditburn">
+                            <div class="overall-label">Coût de stocks Transmisse</div>
+                            <div class="overall-number">9.820, 00 CFA</div>
+                        </div>
+                    </div>
+                    <div class="overall-body">
+                        <div class="overall-body--container  overall-body--receiver">
+                            <div class="overall-body--item">
+                                <div class="overall-body--item--container textSumDash">
+                                    <div class="overall-body--text light-text">
+                                        Pourcentage des stocks Transmisse par rapport à la Quantité de stocks reçus
+                                    </div>
+                                    <div class="overall-body--text">80%</div>
+                                </div>
+                                <div>
+                                    <div style="height: inherit;">
+                                        <div style="position:relative;">
+                                            <div data-label="80%" data-toggle="tooltip" data-title="80%" class="radial-bar radial-bar-80"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overall-body--container  overall-body--creditburn">
+                            <div class="overall-body--item">
+                                <div class="overall-body--item--container textSumDash">
+                                    <div class="overall-body--text light-text">
+                                        Taux de rupture de stock en % du nombre total en Entrepôt SMG
+                                    </div>
+                                    <div class="overall-body--text">80%</div>
+                                </div>
+                                <div>
+                                    <div style="height: inherit;">
+                                        <div style="position:relative;">
+                                            <div data-label="80%" data-toggle="tooltip" data-title="80%" class="radial-bar radial-bar-80"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br> <br>
+            <!--Menu-->
+            <div class="Menu_Inventaire">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="panel panel-success" style="border-radius: 0px;border-bottom: none;background-color:#FF6A22;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div class="header_vente_stat" style="">{{NombreTranfert}}</div>
+                                    </div>
+                                    <div class="col-xs-3 text-right fond">
+                                        <span class="mif-stack" style="float: left;font-size:25px"></span>
+                                    </div>
+                                    <p style="font-weight: 400;font-size: 18px;font-family: gotham">Ratio stocks/Out</p>
+                                    <div>
+                                        <p style="float: left;font-size:80%;color:#B4B4B4;">Quantité de stock disponible par rapport à la quantité transmisse.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success p2" style="border-radius: 0px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div class="header_vente_stat" style="">{{NombreInventaire}}</div>
+                                    </div>
+                                    <div class="col-xs-3 text-right fond">
+                                        <span class="mif-exit"  style="float: left;font-size:25px"></span>
+                                    </div>
+                                    <p style="font-weight: 400;font-size: 18px;font-family: gotham">
+                                        Repture de Stock
+                                    </p>
+                                    <div>
+                                        <p style="float: left;font-size:80%;color:#E3E3E3;">Nombre d'inventaire d'articles effectués</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success p3" style="border-radius: 0px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div class="header_vente_stat" style="">{{sortiMat}}</div>
+                                    </div>
+                                    <div class="col-xs-3 text-right fond">
+                                        <span class="mif-calendar" style="float: left;font-size:25px"></span>
+                                    </div>
+                                    <p style="font-weight: 400;font-size: 18px;font-family: gotham">Réception Q.</p>
+                                    <div>
+                                        <p style="float: left;font-size:80%;color:#E3E3E3;">Nombre des bons de réceptions recus quotidiennement</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success p4" style="border-radius: 0px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div class="header_vente_stat" style="">{{NombreArticle}}</div>
+
+                                    </div>
+                                    <div class="col-xs-3 text-right fond">
+                                        <span class="mif-database" style="font-size:25px"></span>
+                                    </div>
+                                    <p style="font-weight: 400;font-size: 18px;font-family: gotham">Stock Maximum</p>
+                                    <div>
+                                        <p style="float: left;font-size:80%;color:#B4B4B4;">Le nombre des articles qui a le plus de stoks</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="panel panel-border panel-primary" style="border-color: #fff;">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Mouvement du Stocks par Mois</h3>
+                            </div>
+                            <div class="panel-body">
+                                <canvas id="lineChart" data-type="Line" width="520" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="panel panel-border panel-primary" style="border-color: #fff;">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Mouvement du stock par An</h3>
+                            </div>
+                            <div class="panel-body">
+                                <canvas id="mylineChart" data-type="Line" width="520" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12" >
+                        <div class="col-md-12 item-dash" style="padding-bottom:5%;">
+                            <div class="col-lg-12" style="display: flex; align-items:center;margin-left:0px;margin-right:0px;height:40px;background-color: #6ACC95;margin-bottom:1%;">
+                                <span style="color:#fff;font-size:17px;font-weight:600;">Vue d'ensemble de Stock</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                                        <thead>
+                                            <tr class="table-light">
+                                                <th>Articles</th>
+                                                <th>Quantité</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% if lettreCommande %}
+                                            {% for item in lettreCommande %}
+                                                <tr>
+                                                    <td>{{item.numero_reference}}</td>
+                                                    <td>{{item.fournisseur}}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="4" align="center">
+                                                    Pas de données disponibles
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                                        <thead>
+                                            <tr class="table-light">
+                                                <th>Articles en Reptures Stock</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% if lettreCommande %}
+                                            {% for item in lettreCommande %}
+                                                <tr>
+                                                    <td>{{item.numero_reference}}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="4" align="center">
+                                                    Pas de données disponibles
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- <div class="row">
+                                <div class="col-md-6">
+                                    <div class="item-dash col-md-12" style="background-color: white;height: 250px;padding:10px;padding-top: 0px;">
+                                        <label style="font-weight: 900;display: flex;justify-content: center;">Operation en Stocks</label>
+                                        <hr>
+                                        <ul style="width: 100%;padding: 10px;padding-top: 2px;">
+                                            {% for item in OperationStock %}
+                                                <li>
+                                                    <strong style="font-weight: 600;">
+                                                        <a class="lien chargement-au-click" href="{% url 'module_inventaire_item_stock_emplacement' item.id %}">
+                                                            {{item.designation}}
+                                                        </a>
+                                                    </strong>
+                                                    <p style="float: right;font-size: 12px;color: grey;margin-bottom: 0px;">
+                                                        {{item.type}}
+                                                    </p>
+                                                    <p style="font-size: 11px;color: grey;display: flex; justify-content:space-between;">
+                                                        <span>{{item.reference}} </span>
+                                                        <span>{{item.sequence}} </span>
+                                                    </p>
+                                                </li>
+                                                {% empty %}
+                                                <li>Aucune donnée actuelletment</li>
+                                                {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="item-dash col-md-12" style="background-color: white;height: 250px;padding: 10px;padding-top: 0px;">
+                                         <label style="font-weight: 900;display:flex;justify-content: center;">Positionnement Articles</label>
+                                        <hr>
+                                        <ul style="width: 100%;padding: 2px;">
+                                            {% for item in Article %}
+                                            <li>
+                                            <strong style="font-weight: 600;font-size: 13px;">
+                                                <a class="lien chargement-au-click" href="{% url 'module_inventaire_details_article' item.id %}">
+                                                    {{item.designation}}
+                                                </a>
+                                            </strong>
+                                            <p style="float: right;font-size: 11px;color: grey;">
+                                                {{item.couloir}} / {{item.rayon}}
+                                            </p>
+                                            <p style="font-size: 11px;color: grey;">
+                                                {{item.creation_date | date:"d M Y"}}
+                                            </p>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                     </div>
+                                </div>
+                             </div> -->
+
+                        </div>
+
+                    </div>
+                </div>
+            <!--Menu-->
+            </div>
+        </div>
+    </div>
+    <!-- End Design Admin -->
+
+<script src="{% static 'ErpProject/js/chart/Chart.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart/chartjs.init.js' %}"></script>
+
+<script>
+    function createCookie(name,value,days) {
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days*24*60*60*1000));
+            var expires = "; expires=" + date.toUTCString();
+        }
+        else var expires = "";
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+
+    function readCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+    function eraseCookie(name) {
+        createCookie(name,"",-1);
+    }
+
+   $(function(){
+
+      if(readCookie('CodefireOnce') == null)
+      {
+        $(".cookie").css("display","block");
+      }
+      $("body").on("click",".close",function(){
+        $(this).closest("div.cookie").remove();
+        createCookie('CodefireOnce','true',7);
+      });
+    });
+</script>
+
+<script>
+    var ctx  ;
+    var myChart ;
+</script>
+
+<!-- <script>
+        var lesactions = new Array();
+		var booleen = false;
+		{% for action in actions %}
+		lesactions.push({droit:"{{ action.droit }}"});
+		{% endfor %}
+        console.log("les actions",lesactions)
+
+		$(document).ready(function() {
+
+				// Initialisation des sous-menus
+				 $("#vue_Admin").hide();
+				 $("#vue_User").hide();
+                 console.log("une action", lesactions)
+                 console.log("length",lesactions.length)
+
+                 thesize = lesactions.length
+
+
+				 for(var i = 0; i < thesize; i++){
+                    console.log("toza awa")
+					 act = lesactions[i];
+					if(act.droit==="CREER_RAPPORT")
+					{
+						 booleen = true;
+					}
+					}
+
+					if(booleen){
+						$("#vue_Admin").show();
+					}
+					else{
+                        console.log("here we are")
+						$("#vue_User").show();
+					}
+		});
+</script> -->
+
+<script>
+    const ctx = document.getElementById('mybar').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+
+
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [{
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                }, {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                }, {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                }, {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        });
+    });
+</script>
+
+<script>
+    //console.log("******************************************", {{ fourni }})
+    var ctx = document.getElementById('mybar').getContext('2d');
+
+    var myChart1 = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            datasets: [{
+                label: 'Quantites demandés',
+                data:{{ listNumber}},
+
+                // this dataset is drawn below
+                order: 1,
+                backgroundColor: [
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)'
+                ],
+                borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+                ],
+
+                borderWidth: 1
+            },
+
+            {
+                label: 'Quantites Fournies',
+                 data: {{ fourni }},
+
+                type: 'line',
+                // this dataset is drawn on top
+                order: 2,
+                backgroundColor : [
+                'rgba(255, 255, 255, 0.1)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+            }],
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+</script>
+<script>
+    function choix_year() {
+
+
+        var year = $("#year").val();
+
+        if (year != 0) {
+
+            $.get(
+                "{% url 'module_inventaire_jso_demande_fournie_de_bord' %}",
+                { year: year },
+                function (response) {
+                    console.log(response);
+                     var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            datasets: [{
+                                label: 'Quantites demandés',
+                                data: response[0],
+
+                        // this dataset is drawn below
+                        order: 1,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    },
+
+                        {
+                            label: 'Quantites Fournies',
+                            data: response[1],
+
+                type: 'line',
+                // this dataset is drawn on top
+                order: 2, backgroundColor: [
+                'rgba(255, 255, 255, 0.1)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+                borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+                borderWidth: 1
+            }],
+                            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+    });
+
+                    myChart1.destroy();
+                },
+                "json"
+            );
+        }
+        else{
+         myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            datasets: [{
+                                label: 'Quantites demandés',
+                                data: {{ listNumber }},
+
+                        // this dataset is drawn below
+                        order: 1,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    },
+
+                        {
+                            label: 'Quantites Fournies',
+                            data: {{ fourni }},
+
+                type: 'line',
+                    // this dataset is drawn on top
+                    order: 2, backgroundColor: [
+                        'rgba(255, 255, 255, 0.1)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                            borderWidth: 1
+            }],
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+    });
+
+        }
+
+    }
+</script>
+{% endblock %}

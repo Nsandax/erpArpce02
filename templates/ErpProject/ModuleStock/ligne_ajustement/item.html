@@ -1,0 +1,123 @@
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_Stock_index' %}">Accueil</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_Stock_list_ligne_ajustement' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Apercu Stock</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_Stock_update_ligne_ajustement' ligne_ajustement.id %}')" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Modifier
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_Stock_list_ligne_ajustement' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_Stock_update_ligne_ajustement' ligne_ajustement.id %}')" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_Stock_list_ligne_ajustement' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                            <div class="row" style="margin:10px 0">
+                                <div class="row cells12 padding10 fg-white" style="background-color:#ff6a00;">
+                                    <div class="cell colspan3" style="width: 32px;">
+                                        <span class="mif-info mif-2x"></span>
+                                    </div>
+                                    <div class="cell colspan9" style="margin-left: 10px">
+                                        <span class="notify-title"><b>Information :</b></span><br>
+                                        <span class="notify-text">
+                                            {{ message }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                            <div class="row" style="margin:10px 0">
+                                <div class="row cells12 padding10 fg-white" style="background-color:#36D900;">
+                                    <div class="cell colspan3" style="width: 32px;">
+                                        <span class="mif-info mif-2x"></span>
+                                    </div>
+                                    <div class="cell colspan9" style="margin-left: 10px">
+                                        <span class="notify-title"><b>Information :</b></span><br>
+                                        <span class="notify-text">
+                                            {{ message }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row padding20 no-padding-top no-padding-bottom" style="border-right: 1px solid #f7f5f5;">
+                                    <p>
+                    
+            Ajustement_id :
+                    <br>
+                    <span class="sub-alt-header">{{ ligne_ajustement.ajustement_id }}</span>
+                    <br>
+                    <br>
+            
+            Article_id :
+                    <br>
+                    <span class="sub-alt-header">{{ ligne_ajustement.article_id }}</span>
+                    <br>
+                    <br>
+            
+            Series_id :
+                    <br>
+                    <span class="sub-alt-header">{{ ligne_ajustement.series_id }}</span>
+                    <br>
+                    <br>
+            
+            Quantite_theorique :
+                    <br>
+                    <span class="sub-alt-header">{{ ligne_ajustement.quantite_theorique }}</span>
+                    <br>
+                    <br>
+            
+            Quantite_reelle :
+                    <br>
+                    <span class="sub-alt-header">{{ ligne_ajustement.quantite_reelle }}</span>
+                    <br>
+                    <br>
+            
+            Unite_id :
+                    <br>
+                    <span class="sub-alt-header">{{ ligne_ajustement.unite_id }}</span>
+                    <br>
+                    <br>
+            
+            Fait :
+                    <br>
+                    <span class="sub-alt-header">{{ ligne_ajustement.fait }}</span>
+                    <br>
+                    <br>
+            
+        </p>
+                                </div>
+                            </div>
+                        </div>
+
+           {% endblock %}}

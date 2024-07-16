@@ -1,0 +1,95 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+{%load static %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+         <h2>{{title}}</h2>
+    <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+           <div class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+    <br>
+    <div class="row">
+        <div class="col-md-2">
+            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_rh_add_departement' 0 %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                Créer
+            </button>
+        </div>
+        <div class="col-md-3">
+            <div id="btn-view" data-role="group" data-group-type="one-state">
+                <button id="btn-tree" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_get_vue_exploratoire' %}')" class="button btn-typeview btn-secondary"><span class="mif-list"></span></button>
+                <button id="btn-kanban" class="button btn-typeview btn-secondary active"><span class="mif-apps"></span></button>
+            </div>
+        </div>
+    </div>
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <br>
+
+   <div id="kanban-view" class="row cells3" style="margin-top: 10px">
+        {% for item in model %}
+            <div class="col-md-6 padding10">
+                <div class="shadow padding20" >
+                    <p>
+                        <span class="sub-header"><a class="lien chargement-au-click" href="{% url 'module_ressourceshumaines_detail_type_unite_fonctionnelle' item.id %}">{{ item.designation }}</a></span>
+                        <br>
+                    </p>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_departement' item.id %}')" class="button rounded primary chargement-au-click"> Voir la liste </button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable( {
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'copyHtml5',
+                        text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                        titleAttr: "Copier"
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                        titleAttr: "Exporter en excel"
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                        titleAttr: "Exporter en csv"
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                        titleAttr: "Exporter en pdf"
+                    },
+                    //'copyHtml5',
+                    //'excelHtml5',
+                    //'csvHtml5',
+                    //'pdfHtml5'
+                ]
+            } );
+        } );
+    </script>
+{% endblock %}

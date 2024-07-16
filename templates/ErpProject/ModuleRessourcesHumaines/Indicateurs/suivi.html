@@ -1,0 +1,445 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %} {%load static %}
+{% load customfilter %}
+    <style>
+        /* LE CODE DES INDICATEURS PRINCIPAUX DE SUIVI */
+    .tg  {border-collapse:collapse;border-spacing:0;}
+    .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+    .tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+    .tg .tg-34fe{background-color:#AABBCB;border-color:inherit;text-align:center;vertical-align:top}
+    .tg .tg-o3ri{font-weight:bold;font-size:16px;background-color:#1b1c36;color:#ffffff;border-color:inherit;text-align:center;vertical-align:top}
+    .tg .tg-7od5{background-color:#9BADD2;border-color:inherit;text-align:left;vertical-align:top}
+    .tg .tg-llyw{background-color:#AABBCB;border-color:inherit;text-align:left;vertical-align:top}
+    .tg .tg-958c{background-color:#ffcc67;border-color:inherit;text-align:center;vertical-align:top}
+    .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+    /* LE CODE DES INDICATEURS PRINCIPAUX DE SUIVI */
+    </style>
+    <div id="vue_admin" class="container" style="width: 100%;">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+
+    <div class="col-lg-12 head_grid" style="background-color:#fff;margin-bottom:3%;padding:1%;">
+        <h2>Indicateurs Principaux de suivi</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <!-- Graphique -->
+        <div class="col-md-12" style="padding-top: 15px!important; margin-bottom:2%;">
+            <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                <div class="row item_header">
+                    <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                        Nombre d'agents par catégorie partis en formation
+                    </span>
+                </div>
+                <div class="row" style="height: 140px; padding-top: 20px;">
+                    <canvas id="chart_agent_formation"  style="height: 120px!important; width: 100%"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Graphique -->
+        <!-- Tableau des indicateurs principaux -->
+            <table class="tg">
+                <tr>
+                <th class="tg-o3ri" colspan="15">Indicateurs Principaux de Suivi</th>
+                </tr>
+                <tr>
+                    <td class="tg-958c" colspan="2"><span style="font-weight:bold">Libellé</span></td>
+                    {% for item in Keys_recru_year %}
+                    <td class="tg-0pky">{{item}}</td>
+                    {% endfor %}
+
+                </tr>
+                <tr>
+                    <td class="tg-7od5" rowspan="4">Indicateurs de mobilité</td>
+                    <td class="tg-llyw">Taux d'entrée</td>
+                    {% for item in taux_entre %}
+                    <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                    {% endfor %}
+
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Taux de sortie</td>
+                    {% for item in taux_sortie %}
+                    <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                    {% endfor %}
+
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Ratio de remplacement</td>
+                    {% for item in ratio %}
+                    <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Turn over</td>
+                    {% for item in turn_over %}
+                    <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Nombre d'entrée</td>
+                    <td class="tg-0pky"></td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.nombre_entree|floatformat:2}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Nombre de sortie</td>
+                    <td class="tg-0pky"></td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.nombre_sortie|floatformat:2}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Nombre d'agents</td>
+                    <td class="tg-0pky"></td>
+                    {% for item in Nbre_Agent %}
+                    <td class="tg-0pky">{{item}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5" rowspan="3">Indicateurs d'intégration</td>
+                    <td class="tg-llyw">Taux de départ</td>
+                    {% for item in Mouvement_Perso_info %}
+                    <td class="tg-0pky">{{item.Tx_depart|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Taux de départ volontaire</td>
+                    {% for item in Mouvement_Perso_info %}
+                    <td class="tg-0pky">{{item.Tx_depart_volontaire|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Taux de prorogation de stage</td>
+                    {% for item in Mouvement_Perso_info %}
+                    <td class="tg-0pky">{{item.Taux_prop_stage|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Indicateurs liés à l'emploie</td>
+                    <td class="tg-llyw">Taux d'ancienneté <br>dans l'organisation</td>
+                    {% for item in Taux_ancien %}
+                    <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td class="tg-7od5" rowspan="2">Indicateurs liés au risque maladie</td>
+                    <td class="tg-llyw">Taux d'Absentéisme maladie</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.txabsentiemal}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Taux d'Absentéisme maladie de courte durée</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.Taux_absenteisme_maladie_court|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5" rowspan="2">Indicateurs liées au risque professionnel</td>
+                    <td class="tg-llyw">Taux de fréquence des accidents du travail</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.Tx_frequence_Acc_travail|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Taux de gravité des accidents du travail</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.Taux_gravite_acc_travail|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5" rowspan="3">Indicateurs de la formation professionnelle</td>
+                    <td class="tg-llyw">Taux de partenariat par catégorie</td>
+                    {% for item in txPat %}
+                    <td class="tg-0pky">{{item|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Taux de participation la formation</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.Taux_participant_formation|floatformat:2}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Taux de formation par métier</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.txformationMetier}}%</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5" rowspan="2">Indicateurs démographiques</td>
+                    <td class="tg-llyw">âge moyen</td>
+                    {% for item in Age_Moyen %}
+                    <td class="tg-0pky">{{item|floatformat:2}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Ancienneté</td>
+                    {% for item in ancien %}
+                    <td class="tg-0pky">{{item}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5" rowspan="6">Indicateurs liés aux rémunérations</td>
+                    <td class="tg-llyw">Masse salariale (effectif)</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.massa_salariale_eff}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Masse salariale (budget de fonctionnement)</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.masse_salariale_bud}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">La disparité des salairesentre différentes catégories</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.salairesentre_diff_catehorie}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">La part des primes dans la rémunération</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.prime_remuneration}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">La part des heures supplémentaires dans la rémunération</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.heure_supplementaire}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-llyw">Salaire médian de la collectivité</td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.salaire_median_collectivite}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Nombre d'accidents de travail avec arrét</td>
+                    <td class="tg-0pky"></td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.accident_travail_arret}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Nombre d'heures travaillées</td>
+                    <td class="tg-0pky"></td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.nombre_heure_travail}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Nombre de jours d'arrêt de travail</td>
+                    <td class="tg-0pky"></td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.nombre_jour_arret}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Nombre de jours d'absence jours ouvrés</td>
+                    <td class="tg-0pky"></td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.nbre_jr_absence}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Nombre d'arrêts maladie de moins de 4 jours</td>
+                    <td class="tg-0pky"></td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.arret_maladie_moins_jour}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5">Nombre d'Arréts maladie</td>
+                    <td class="tg-0pky"></td>
+                    {% for item in indice_principal %}
+                    <td class="tg-0pky">{{item.arret_maladie}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-7od5" rowspan="6">Nombre d'Agents par catégorie partis en formationen cours d'Année</td>
+                    <td class="tg-34fe">An</td>
+                    {% for item in Agent_cat_A %}
+                    <td class="tg-0pky">{{item}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-34fe">Bn</td>
+                    {% for item in Agent_cat_B %}
+                    <td class="tg-0pky">{{item}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-34fe">Cn</td>
+                    {% for item in Agent_cat_C %}
+                    <td class="tg-0pky">{{item}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-34fe">Dn</td>
+                    {% for item in Agent_cat_D %}
+                    <td class="tg-0pky">{{item}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-34fe">En</td>
+                    {% for item in Agent_cat_E %}
+                    <td class="tg-0pky">{{item}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="tg-34fe">Fn</td>
+                    {% for item in Agent_cat_F %}
+                    <td class="tg-0pky">{{item}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-7od5" rowspan="6">Effectif de la catégorie hiérarchique</td>
+                <td class="tg-34fe">Ae</td>
+                {% for item in NumA %}
+                <td class="tg-0pky">{{item}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-34fe">Be</td>
+                {% for item in NumB %}
+                <td class="tg-0pky">{{item}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-34fe">Ce</td>
+                {% for item in NumC %}
+                <td class="tg-0pky">{{item}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-34fe">De</td>
+                {% for item in NumD %}
+                <td class="tg-0pky">{{item}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-34fe">Ee</td>
+                {% for item in NumE %}
+                <td class="tg-0pky">{{item}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-34fe">Fe</td>
+                {% for item in NumF %}
+                <td class="tg-0pky">{{item}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-7od5">Effectif total</td>
+                <td class="tg-0pky">{{item}}</td>
+                {% for item in TotalAg %}
+                <td class="tg-0pky">{{item}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-7od5">Montant des dépenses consacrées la formation</td>
+                <td class="tg-0pky"></td>
+                {% for item in indice_principal %}
+                <td class="tg-0pky">{{item.montant_formation}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-7od5">Masse salariale</td>
+                <td class="tg-0pky"></td>
+                {% for item in indice_principal %}
+                <td class="tg-0pky">{{item.masse_sal}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-7od5">Nombre de jours formation par Direction</td>
+                <td class="tg-0pky"></td>
+                {% for item in indice_principal %}
+                <td class="tg-0pky">{{item.nbr_jour_formation_D}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-7od5">Nombre d'Agents occupant la Direction</td>
+                <td class="tg-0pky"></td>
+                {% for item in indice_principal %}
+                <td class="tg-0pky">{{item.nbr_agent_occupe_D}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-7od5">Frais de personnel</td>
+                <td class="tg-0pky"></td>
+                {% for item in indice_principal %}
+                <td class="tg-0pky">{{item.frais_personnel}}</td>
+                {% endfor %}
+                </tr>
+                <tr>
+                <td class="tg-7od5">Budget de fonctionnement</td>
+                <td class="tg-0pky"></td>
+                {% for item in indice_principal %}
+                <td class="tg-0pky">{{item.Budget_fonct}}</td>
+                {% endfor %}
+                </tr>
+            </table>
+        <!-- Tableaau des indicateurs principaux  -->
+
+    </div>
+    </div>
+
+    <script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+    <script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+
+<!-- Indices princiaux de suivi -->
+<!-- chart_agent_formation -->
+<script>
+    var keys_Agent = [];
+    var val_Agent = [];
+
+        keys_Agent = {{keys_Agent | safe}}
+        val_Agent = {{val_Agent}}
+    new Chart(document.getElementById("chart_agent_formation"),
+    {
+            type: 'bar',
+            data: {
+                labels: keys_Agent,
+                datasets: [
+                    {
+                        label: 'Nombre de congé par mois',
+                        backgroundColor:[
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(44, 62, 85, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(67, 83, 97, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(35, 82, 124, 0.5)',
+                                'rgba(119, 109, 80, 0.5)',
+                                'rgba(22, 13, 58, 0.5)',
+                                'rgba(235, 93, 57, 0.5)',
+                                ],
+                        data: val_Agent
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: false,
+                    text: 'Part de recrutement via mobilité'
+                }
+            }
+        });
+</script>
+<!-- chart_agent_formation  -->
+<!-- Indices princiaux de suivi -->
+{% endblock %}

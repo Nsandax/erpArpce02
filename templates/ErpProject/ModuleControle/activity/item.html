@@ -1,0 +1,173 @@
+{% extends "ErpProject/ModuleControle/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+   <div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_controle_tableau' %}">Module Controle</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_controle_list_activity' %}">Liste des utilisateurs</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="" url_detail="module_controle_detail_activity" csrf_token=csrf_token module=module type_doc="" only %}
+
+<hr class="hr-ligne">
+<!-- Appel de la fonction message -->
+	{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<br>
+
+    <div class="row cells2 item-content" style="margin-top: 10px">
+
+	<div class="row cells2">
+		<div class="cell">
+		<p class="header shadow" style="height: 100px; width: 100px;">
+		{% if model.image != None and model.image != "" %}
+			<img src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+		{% else %}
+			<img src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+		{% endif %}
+		</p>
+		</div>
+
+	</div>
+		<br>
+		<p class="header">{{ model.nom_complet }}<br><br>
+			{% if model.is_connected %}
+			<button type="button" class="btn btn-success btn-circle"></button> &nbsp;<span style="font-size:18px">Connecté</span>
+			{% else %}
+			<button type="button" class="btn btn-danger btn-circle"></button> &nbsp;<span style="font-size:18px">Non connecté</span>
+			{% endif %}
+		</p>
+		<br>
+
+		<div  class="col-md-6">
+			<p class="minor-header fg-gray">
+				Adresse email :
+				<br>
+				{% if model.email != None and model.email != "" %}
+					<a href="mailto:{{ model.email }}" target="blank" class="sub-alt-header lien leaf">{{ model.email }}</a>
+				{% else %}
+					<span class="sub-alt-header lien leaf">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Dernière connexion :
+				<br>
+				<span class="sub-alt-header fg-dark">{{ model.user.last_login|date:"d M Y H:i:s" }}</span>
+				<br>
+				<br>
+
+
+
+
+			</p>
+		</div>
+		<div class="col-md-6">
+			<p class="minor-header fg-gray">
+                    Tél. professionnel :
+                    <br>
+                    <span class="sub-alt-header fg-dark">{{ model.profilrh.phone_professionnel }}</span>
+                    <br>
+                    <br>
+
+					Date de création :
+                    <br>
+                    <span class="sub-alt-header fg-dark">{{ model.user.date_joined|date:"d M Y H:i:s" }}</span>
+                    <br>
+                    <br>
+
+
+
+			</p>
+
+
+
+
+		</div>
+		<div  class="col-md-12"  style="margin-bottom: 15px">
+	  </div>
+
+
+	  <div class="row">
+			<div class="tabcontrol2" data-role="tabcontrol">
+				<ul class="tabs">
+					<li class="active"><a href="#frame_session">Sessions</a></li>
+					<li class=""><a href="#frame_operation">Opérations</a></li>
+				</ul>
+				<div class="frames">
+
+					<div class="frame" id="frame_session" style="display: none;">
+							<div class="row cells3">
+									<div class="cell">
+										<div class="row">
+											{% if sessions.count == 0 %}
+											<p><span class="sub-alt-header fg-dark">Aucune session à ce jour</span></p>
+											{% endif %}
+											<table class="table dataTable striped border bordered" data-role="datatable" data-searching="true" style="width: 100%">
+												<thead>
+													<tr>
+														<th width="50%">Clé</th>
+														<th width="25%">Login date</th>
+														<th width="25%">Logout date</th>
+													</tr>
+												</thead>
+												<tbody>
+													{% for item in sessions %}
+													<tr>
+														<td>
+															{{ item.session_key }}
+														</td>
+														<td>
+															{{ item.login_date|date:"d M y H:i:s" }}
+														</td>
+														<td>
+															{% if item.logout_date %}
+															{{ item.logout_date|date:"d M y H:i:s" }}
+															{% else %}
+															En cours
+															{% endif %}
+														</td>
+													</tr>
+													{% endfor %}
+												</tbody>
+											</table>
+								</div>
+								</div>
+							</div>
+					</div>
+					<div class="frame" id="frame_operation" style="display: none;">
+
+							<table class="table dataTable striped border bordered" data-role="datatable" data-searching="true" style="width: 100%">
+								<thead>
+									<tr>
+										<th width="50%">Actions</th>
+										<th width="25%">Objet</th>
+										<th width="25%">Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for item in dependants %}
+									<tr>
+										<td>
+											{{ item.nom_complet }}
+										</td>
+										<td>
+											{{ item.type_dependance }}
+										</td>
+										<td>
+											{{ item.description }}
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+
+						</div>
+				</div>
+			</div>
+		</div>
+
+
+	</div>
+
+{% endblock %}

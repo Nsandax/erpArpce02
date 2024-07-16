@@ -1,0 +1,75 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+        <style>
+            .align-center{
+                text-align: center;
+            }
+        </style>
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="facture">
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <h3>Brouillard Caisse</h3>
+            <h1 class="align-center">{{designation}}</h1>
+            <h3 class="align-center">Etabli à la date du {{ model.date_operation|date:'d/m/Y' }}</h3>
+            <br><br>
+            <div class="col-md-12" style="border:1px #BFBFBF solid;height:380px;">
+                <table class="table bordered no-margin" style="width: 100%;">
+                    <tr>
+                        <td colspan="4" width="90%">
+                           <img id="logo_header" src="/static/ErpProject/image/header.png" alt="">
+                        </td>
+                        <td colspan="2" width="10%" style="text-align: center;">
+                            <p><strong class="align-center" style="font-weight:900;">BRAZZAVILLE</strong></p>
+                            <span class="align-center">Journal de caisse</span><br>
+                            <span class="align-center">Recettes</span><br>
+                            <span class="align-center">{{ model.date_operation|date:'Y' }}</span>
+                        </td>
+                    </tr>
+                </table>
+                <table class="table bordered no-margin" style="width: 100%;">
+                        <tr>
+                            <th width="5%">Date</th>
+                            <th width="5%">N° PC</th>
+                            <th width="60%">Libéllé</th>
+                            <th width="10%">Type opération</th>
+                            <th width="20%">Montant</th>
+                        </tr>
+                        {% for ligne in ligne_operation %}
+                            <tr>
+                                <td width="5%" style="border-top:none;border-bottom:none;">{{ligne.date_ligne_operation|date:'d/m/Y'}}</td>
+                                <td style="border-top:none;border-bottom:none;">{{ligne.reference}}</td>
+                                <td width="60%" style="border-top:none;border-bottom:none;">{{ligne.libelle}}</td>
+                                <!-- <td >{% if ligne.facture %} {{ligne.facture.numero_facture}} {% else %} - {% endif %}</td> -->
+                                <td style="border-top:none;border-bottom:none;">{{ligne.value_type_operation}}</td>
+                                <td style="border-top:none;border-bottom:none;" class="monetary">{{ligne.montant}}</td>
+                            </tr>
+                        {% endfor %}
+                </table>
+            </div>
+            <table class="table bordered no-margin" style="width: 100%;">
+                <tr>
+                    <td rowspan=2  width="5%"></td>
+                    <td rowspan=2  width="5%"></td>
+                    <td width="70%">TOTAL DE LA PAGE :</td>
+                    <td width="10%"></td>
+                    <td width="10%"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td style="font-weight:900;">{{model.solde}}</td>
+                </tr>
+            </table>
+
+        </div>
+    </body>
+</html>

@@ -1,0 +1,223 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %} {%load static %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_vente_tableau_de_bord' %}">Module Vente</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>Nouveau Type d'Articles</h2>
+    <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <dir class="separ" style="background-color: grey;opacity: 0.2"></dir>
+            <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary primary_color_{{module.name|lower}}">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_vente_list_type_articles' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+
+
+    <div class="row item-content" style="margin-top: 10px">
+        <form id="form" method="POST" action="{% url 'module_vente_post_add_type_articles' %}"
+            enctype="multipart/form-data"
+            data-role="validator"
+            data-show-required-state="false"
+            data-hint-mode="line"
+            data-hint-background="bg-red"
+            data-hint-color="fg-white"
+            data-hide-error="5000"
+            novalidate="novalidate"
+            data-on-error-input="notifyOnErrorInput"
+            data-show-error-hint="false">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+
+            <div class="row item-content" style="margin-top: 10px">
+                <table class="table no-margin">
+                    <tr>
+                        <td class="no-padding-left no-padding-bottom" width="35%">
+                            <label>Nature</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="nature" type="text" data-validate-func="required" data-validate-hint="Entrez le nom du fournisseur !">
+                                <span class="input-state-error mif-warning"></span>
+                                <span class="input-state-success mif-checkmark"></span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="no-padding-top no-padding-left no-padding-bottom" width="35%">
+                            <div class="row">
+                                <label class="input-control checkbox small-check full-size">
+                                    <input value="1" name="est_amortissable" id="est_amortissable" checked type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Est Amortissable</span>
+                                </label>
+                                <label class="input-control checkbox small-check full-size" >
+                                    <input value="1" name="est_stockable" id="est_stockable" checked type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Est Stockable</span>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="no-padding-left no-padding-bottom" width="35%">
+                            <label>Durée d'Amortissement</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="duree_amortissement" value="0" type="text" data-validate-func="required" data-validate-hint="Entrez le nom du fournisseur !">
+                                <span class="input-state-error mif-warning"></span>
+                                <span class="input-state-success mif-checkmark"></span>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom" width="30%"></td>
+                    </tr>
+                </table>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function readURL(input) {
+			if (input.files && input.files[0]) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					$('#image_preview').attr('src', e.target.result);
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		}
+
+		$("#image_upload").change(function(){
+			readURL(this);
+		});
+        var lesFournisseurs = new Array();
+        var lesUnites = new Array();
+
+        {% for item in fournisseurs %}
+            lesFournisseurs.push({id:"{{ item.id }}", nom_complet:"{{ item.nom_complet }}"});
+        {% endfor %}
+
+        {% for item in unites %}
+            lesUnites.push({id:"{{ item.id }}", symbole_unite:"{{ item.symbole_unite }}"});
+        {% endfor %}
+    </script>
+    <script>
+        $(document).ready(function(){
+
+            if(document.getElementById('#est_amortissable').value ="")
+                {
+                    document.getElementById('#est_amortissable').value ="0";
+                }
+            if(document.getElementById("#est_stockable").value ="")
+                {
+                    document.getElementById("#est_stockable").value ="1";
+                }
+
+            if ($("input [type=checkbox][name = #est_amortissable] : checked").change(function(){}))
+            ($("input [type=checkbox][name = #est_stockable]").change(function(){
+                $("#est_amortissable").prop('checked', true);
+            }))
+            /*
+            $("input[type=radio]: checked").change(function(){
+                if ($(this).val()== "0")
+                {
+                    $("#duree_amortissement").attr('disabled', 'enabled');
+                }
+            });
+            */
+        });
+    </script>
+    <script>
+        var deviseRef = "{{ devise_ref.symbole_devise }}";
+        var uniteRef = "";
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input id="id' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" name="fournisseur_id" >';
+            nouvelleLigne += '<option value="0">Sélectionnez un fournisseur</option>';
+            nouvelleLigne += renvoyerOptionsFournisseurs();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_minimale" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right unite"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="prix' + compteur + '" name="prix_unitaire_fournisseur" type="text" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function choix_unite()
+        {
+            var unite_id = $("#unite_id").val();
+            if(unite_id != "0")
+            {
+                for(var i = 0; i < lesUnites.length; i++)
+                {
+                    var unite = lesUnites[i];
+                    if(unite.id == unite_id)
+                    {
+                        uniteRef = unite.symbole_unite;
+                        break;
+                    }
+                }
+            }
+            else uniteRef = "";
+
+            $(".unite").text(uniteRef);
+        }
+
+        function selectChange(event)
+        {
+            $select = $(event.target);
+            var id_element = $select[0].id;
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+                if($("#" + id_element).val() != "0") nombreItems += 1;
+                else nombreItems -= 1;
+            }
+        }
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+
+        function renvoyerOptionsFournisseurs()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesFournisseurs.length; i++)
+            {
+                var fournisseur = lesFournisseurs[i];
+                ligne += '<option value="' + fournisseur.id + '">' + fournisseur.nom_complet + '</option>';
+            }
+            return ligne;
+        }
+    </script>
+{% endblock %}

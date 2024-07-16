@@ -1,0 +1,151 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressource Humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{title}}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                {#{% if is_gestion == True %}#}
+                <div class="row">
+                    <div class="col-md-3">
+       <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_dossier_social' %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 100%;">Créer un dossier social</button>
+                    </div>
+                    <div class="col-md-3">
+                        <div id="btn-view" data-role="group" data-group-type="one-state">
+                            <button id="btn-tree" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_list_dossier_social' %}?view=list')" class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}"><span class="mif-list"></span></button>
+                            <button id="btn-kanban" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_list_dossier_social' %}?view=kanban')" class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}"><span class="mif-apps"></span></button>
+                        </div>
+                    </div>
+       </div>
+                  
+                  
+                {#{% endif %}#}
+               <br>
+                <br>
+{% if view == "list" %}
+    <div id="list-view" class="row" style="margin-top: 10px;">
+        <table id="data_table" class="display nowrap border bordered striped" cellspacing="0" style="overflow: auto; position: relative; display: inline-block">
+            <thead>
+                <tr>
+                    <th style="width: 20px" style="background-color:none!important;"></th>
+                    <th nowrap="">Numéro Ticket</th>
+					<th nowrap="">Date de création</th>
+					<th nowrap="">Nom(s) et Prénom(s)</th>
+					<th nowrap="">Catégorie</th>
+                    <th nowrap="">Direction, Service</th>
+                    <th nowrap="">Structure</th>
+					<th nowrap="">Lieu</th>
+					<th nowrap="">Type de suivi</th>  
+					<th nowrap="">Description des faits</th>
+                    <th nowrap="">Alerte</th>
+                    <!-- <th nowrap="">Mails envoyé</th> -->
+                    <th nowrap="">Assigné à</th>
+                    <th nowrap="">Date de fermeture</th>
+                    <th nowrap="">Statut</th>
+                    <th nowrap="">Observation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                    <tr>
+                        <td nowrap="">
+                            <label class="small-check">
+                                <input type="checkbox">
+                                <span class="check"></span>
+                            </label>
+                        </td>
+                        <td nowrap=""> 
+                            <!-- <a class="lien chargement-au-click" href="{% url 'module_ressources_humaines_details_dossier_social' item.id %}">{{ item.numero_dossier_social }}</a>  -->
+                            <a class="lien chargement-au-click" href="{% url 'module_ressources_humaines_details_dossier_social' item.id %}">{{ item.numero_dossier_social }}</a> 
+
+                        </td>
+                        <td nowrap="">
+							{{item.creation_date|date:"d/m/Y" }} à {{ item.date_fermeture|date:"H:i" }}
+						</td>
+                        <td nowrap="">
+                                <a class="lien chargement-au-click" href="#">{{ item.employe.nom_complet }}</a> 
+                            {#{% for type_element in types_element %}#}
+                            {#{% if type_element.id == item.type_element %}#}
+                            {#{{ type_element.designation }}#}
+                            {#{% endif %}#}
+                            {#{% endfor %}#}
+                        </td>						
+                        <td nowrap=""> 
+                            {{ item.employe.categorie }}
+                            {#{% for categorie_element in categories_element %}#}
+                                {#{% if categorie_element.id == item.categorie_element %}#}
+                                    {#{{ categorie_element.designation }}#}
+                                {#{% endif %}#}
+                            {#{% endfor %}#}
+                        </td>						
+                        <td nowrap="">
+							{{ item.employe.unite_fonctionnelle }}					
+                        </td>
+                        <td nowrap="">{{ item.structure }}</td>
+                        <td nowrap="">{{ item.lieu }}</td>
+                        <td nowrap="">{{ item.sujet_plainte }}</td>
+                        <td nowrap="">{{ item.description|truncatewords:5  }}</td>
+                        <td nowrap="">{{ item.alerte }}</td>
+                        <!-- <td nowrap="">{{ item.mail_envoye}}</td> -->
+                        <td nowrap=""><a class="lien chargement-au-click" href="{% url 'module_rh_detail_employe' item.id %}">{{ item.responsable.nom_complet }}</a></td>
+                        <td nowrap="">{{ item.date_fermeture|date:"d/m/Y" }} à {{ item.date_fermeture|date:"H:i" }}</td>
+                        {% if item.statute != "" %}
+                        <td nowrap="">{{ item.statute }}</td>
+                        {% else %}
+                        <td nowrap="">Aucun statut</td>
+                        {% endif %}
+                        {% if item.observation != "" %}
+                        <td nowrap="">{{ item.observation }}</td>
+                        {% else %}
+                        <td nowrap="">Aucune Observation</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif view == "kanban" %}
+                   <!-- Vue de type card -->
+                   <div id="kanban-view" class="row" style="margin-top: 10px">
+                       {% for item in model %}
+                       <div class="col-md-4">
+                           <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                               <div class="card-item-content">
+                                   <div class="thumb">
+                                   </div>
+                                   <div class="texts">
+                                       <a class="link chargement-au-click" href="{% url 'module_calendrier_details_evenement' item.id %}">{{ item.numero_dossier_social }}</a><br>
+                                       <div class="mt-2"></div>
+                                       <span class="inner-text">Date de création : {{item.creation_date|date:"d/m/Y" }} à {{ item.date_fermeture|date:"H:i" }}</span><br>
+                                       <span class="inner-text">Description : {{ item.description|truncatewords:5  }}</span><br>
+                                     
+                                     
+                                       <a href="{% url 'module_ressources_humaines_details_dossier_social' item.id %}" class="mt-3 btn btn-block btn-wide rounded chargement-au-click">voir detail</a>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                       {% endfor %}
+                   </div>
+    {% endif %}
+            
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+{% include 'ErpProject/ErpBackOffice/widget/datatable.html' with type_view=view %}
+{% endblock %}

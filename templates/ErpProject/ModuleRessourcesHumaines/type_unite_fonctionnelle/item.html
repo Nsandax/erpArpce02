@@ -1,0 +1,39 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}{% block page %}
+   <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_type_unite_fonctionnelle' %}">Liste des types d'organisation</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_type_unite_fonctionnelle' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button> 
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_type_unite_fonctionnelle' %})" class="theme-btn theme-btn-sm rounded chargement-au-click">Annuler</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_departement' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Organisations de {{title}}</button> 
+    </div>
+    {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_ressourceshumaines_add_type_unite_fonctionnelle" url_detail="module_ressourceshumaines_detail_type_unite_fonctionnelle" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Désignation  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Description :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.description }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

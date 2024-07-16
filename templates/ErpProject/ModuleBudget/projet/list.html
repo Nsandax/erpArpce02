@@ -1,0 +1,101 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %}
+{% block page %}
+{% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_budget_tableau_de_bord' %}">Module Modulebudget</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                
+                        <button onclick="javascript:window.location.assign('{% url 'module_budget_add_projet' %}')" class="button small-button rounded primary chargement-au-click">Creer</button>
+                        
+               <br>
+                <br>
+                <h3>Montant total :  {{somme_total |monetary}} {{ladevise}}</h3> 
+                <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+            <thead>
+                <tr>
+
+        
+                    <th style="width: 20px; background-color:#2e416a; white"></th><th>Id</th><th>codeprojet</th><th>designation</th><th>Montant alloué</th><th>Montant utilisé</th><th>Solde</th><th>date_debut</th><th>date_fin</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                    <tr>
+                        <td>
+                            <label class="small-check">
+                                <input type="checkbox">
+                                <span class="check"></span>
+                            </label>
+                        </td>
+                        <td> 
+                            <a class="lien chargement-au-click" href="{% url 'module_budget_detail_projet' item.id %}">{{ item.id }}</a> 
+                        </td>
+<td>{{item.codeprojet}}</td>
+<td>{{item.designation}}</td>
+<td> {{item.separateur_montant}}  {{item.devise.symbole_devise}}</td>
+<td> {{item.separateur_montant_utilise}} {{item.devise.symbole_devise}}</td>
+<td> {{item.separateur_montant_non_utilise}}  {{item.devise.symbole_devise}}</td>
+<td>{{item.date_debut}}</td>
+<td>{{item.date_fin}}</td>
+                </tr>
+                    {% endfor %}
+                
+            </tbody>
+        </table>
+    
+            
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        } );
+    } );
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+
+<style type="text/css">
+    .head{
+        background-color: #d64f0d;
+        padding: 10px;
+        color: white;
+    }
+    .td{
+        padding: 10px;
+        border-bottom: 1px solid #e2dee3;
+    }
+</style>
+
+{% if not isPopup %}
+<!-- Suite Menu Nav -->
+<!-- Menu lateral -->
+<div class="sidebar" role="navigation">
+    <div class="contenair-profil only-on-large-screen" style="background-color: transparent;"  >
+        <!-- <img src="/static/ErpProject/image/icone_profile.png" class="profil"> -->
+         {% if utilisateur.image != None and utilisateur.image != '' %}
+            <img src="{% static utilisateur.image %}"  class="profil">
+        {% else %}
+            <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+        {% endif %}
+        <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+        <p class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</p>
+        <div class="divider" style="background-color: transparent;"></div>
+    </div>
+    <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+
+        <ul class=" nav" id="side-menu" style="background-color: transparent;">
+            {% include 'ErpProject/ErpBackOffice/widget/menu.html' %}
+        </ul>
+
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+<!-- /.Menu lateral -->
+</nav>
+<!-- /.Menu Navbar -->
+
+<!-- Corps de la page (A définir dans chaque fonction du module) -->
+<div id="page-wrapper"  style="background-color:#f9f9f9;">
+{% else %}
+<div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+    {% endif %}
+    {% block page %}{% endblock %}
+</div>
+<!-- Fin Corps de la page -->
+
+<!-- SCRIPT DE TRAITEMENT DES DROITS VISUELS -->
+<script>
+var lesactions = new Array();
+var menu1 = 0;
+var menu2 = 0;
+
+
+{% for action in actions %}
+lesactions.push({droit:"{{ action.droit }}"});
+{% endfor %}
+
+
+
+//Initialisation des sous-menus
+$("#expression_besoin").hide();
+$("#demande_achat").hide();
+$("#bon_commande").hide();
+$("#avis_appel_offre").hide();
+$("#fournisseurs").hide();
+$("#articles").hide();
+$("#categorie_article").hide();
+$("#categorie_unite_mesure").hide();
+$("#unite_mesure").hide();
+$("#condition_reglement").hide();
+$("#menuBI").hide();
+
+for(var i = 1; i < lesactions.length; i++)
+
+{
+    action = lesactions[i];
+    if(action.droit==="LISTER_EXPRESSION_BESOIN"){$("#expression_besoin").show(); menu1++;}
+    if(action.droit==="LISTER_DEMANDE_ACHAT"){$("#demande_achat").show();menu1++;}
+    if(action.droit==="LISTER_BON_COMMANDE_ACHAT"){$("#bon_commande").show();menu1++;}
+    if(action.droit==="LISTER_AVIS_APPEL_OFFRE"){$("#avis_appel_offre").show();menu1++;}
+    if(action.droit==="LISTER_FOURNISSEUR"){$("#fournisseurs").show();menu1++;}
+    if(action.droit==="LISTER_ARTICLE"){$("#articles").show();menu1++;}
+    if(action.droit==="CREER_RAPPORT"){$("#menuBI").show();}
+    if(action.droit==="LISTER_CATEGORIE_ARTICLE"){$("#categorie_article").show();menu2++;}
+    if(action.droit==="LISTER_CATEGORIE_UNITE_DE_MESURE"){$("#categorie_unite_mesure").show();menu2++;}
+    if(action.droit==="LISTER_ARTICLE"){$("#unite_mesure").show();menu2++;}
+    if(action.droit==="LISTER_CONDITION_DE_REGLEMENT"){$("#condition_reglement").show();menu2++;}
+
+
+}
+//Traitement des menus
+
+if (menu1 == 0){ $("#menu1").hide();}
+if (menu2 == 0){$("#menu3").hide();}
+
+
+</script>
+<!-- FIN SCRIPT -->
+
+{% endblock %}
+

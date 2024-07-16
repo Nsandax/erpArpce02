@@ -1,0 +1,148 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="demande_achat">
+        <meta name="author" content="MKman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="invoice">
+            <div class="separ col-md-12" style="background-color:#000;opacity: 0.1;margin-bottom: 14px;"></div>
+            <!-- <h2 class="align-center header">{{ title }}</h2> -->
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-12" style="text-align: center;">
+                    <h3>BON DE COMMANDE</h3>
+                    <h4 style="color: red; font-weight: bold">N° BC: {{model.numero_reception}}</h4>
+                </div>
+                <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                <div class="col-md-6">
+                    <p style="font-size:10px;">
+                        <strong>Demandé: </strong> <br>
+                        <strong>N° Marché: </strong> <br>
+                        <strong>Nature achat: </strong> <br/>
+                        <strong>Nom du contact: </strong> <br>
+                        <strong>Article/Service: </strong> <br>
+                        <strong>Nom du fournisseur : </strong>{{model.fournisseur.nom_complet}}<br>
+                        <strong>B.P : </strong> <br>
+                        <strong>Réf. du fournisseur : </strong> <br/>
+                        <strong>Description des biens/services : </strong><br>
+                        {% if model.est_groupe %}
+                                {% for item in model.demandes_achat.all %}
+                                <strong>Demande d'achat :  {{item}} </strong><br>
+                                {% endfor %}
+
+                            {% else %}
+                            <strong>Demande achat : {{model.demande_achat}} </strong>
+                            {% endif %}
+                            <br>
+                    </p>
+                </div>
+              <div  class="col-md-6" style="margin-bottom: 40px">
+                <p style="float: right;font-size:10px;">
+                        <strong>Fonction: </strong> <br>
+                        <strong>Tél/Fax:</strong> <br>   <br>
+                        <strong>Email: </strong> {{model.fournisseur.email}} <br/>
+                        <strong>Pays: </strong> <br>
+                        <strong>Date du bon: </strong>{{model.date_prevue | date:"d/m/Y" }} <br>
+                        <strong>Statut du bon : </strong>{{model.etat}} <br>
+                        <strong>Modalité de réglement : </strong>{{model.condition_reglement.designation}}<br>
+                        <strong>Ligne(s) budgétaire(s) : </strong><br>
+                            {% for item in lignes %}
+                            <strong>{{item.ligne_budgetaire.code}}</strong> <br>
+                            {% endfor %}
+                </p>
+              </div>
+
+            </div>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#BFBFBF;color:#000;font-weight:900">
+                    <th width="45%" colspan="2" class="head">DESCRIPTION</th>
+                    <th width="5%" class="head">QUANTITE</th>
+                    <th width="25%" class="head">PRIX UNITAIRE</th>
+                    <th width="25%" class="head">MONTANT DEVISE</th>
+                </tr>
+                {% for item in lignes %}
+                    <tr>
+                        <td  width="40%" colspan="2" class="td">{{ item.article.designation }}</td>
+                        <td  width="10%" class="td" style="text-align: center;">{{item.quantite_demande}}</td>
+                        <td  width="25%" class="td" style="text-align: right;"> {{ item.prix_unitaire |monetary}} </td>
+                        <td  width="25%" class="td" style="text-align: right;"><span class="monetary">{{ item.montant_total|monetary }} {{model.devise}}</span></td>
+                        <!-- <td class="td"><span class="monetary">{{ item.montant_total }} </span></td> -->
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td style="font-weight:800;color:#000;">Total Quantité</td>
+                    <td style="text-align: center;">{{model.quantite_total}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr style="font-weight:800;">
+                    <td colspan="2"></td>
+                    <td></td>
+                    <td style="font-weight:800;color:#000;">
+                       <strong>Total :</strong><br>
+                       <strong>TVA 18%: </strong><br>
+                       <strong>CA 5% </strong><br>
+                       <strong>TOTAL TTC </strong><br>
+                    </td>
+                    <td style="font-weight:800;color:#000;text-align: right;">
+                        <strong>{{total|intcomma}} {{model.devise}}</strong><br>
+                        <strong>-</strong> <br>
+                        <strong>-</strong><br>
+                        <strong>{{total|intcomma}} {{model.devise}}</strong><br>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div  class="col-md-12" >
+            <!-- <h2 style="float: right; margin-top:35px; margin-bottom : 20px">TOTAL GENERAL : {{total|intcomma}} FCFA</h2> -->
+            <p style="color:#538CD5;font-size:13px;">Nos montants sont libellés en HT + CA (si application)</p>
+            <p style="color:#000;font-size:11px;">Termesdi paiement: <br>
+               Mode de paiement: <br>
+               Date/Délai de livraison: <br>
+               VISA <br>
+               Douanes: <br>
+               Incoten: <br>
+               Autres :
+            </p>
+        </div>
+
+        <div  class="col-md-12" >
+          <p style="color:#000;font-size:11px;">Le reglèment se fera uniquement sur présentation de factures. <br>
+            Veuillez rétourner un exemplaire de ce BC à la livraison des biensou à la réception des services <br>
+            veuillez mentionner le numéro de BC et du contrat sur votre facture
+            veuillez envoyer votre facture au Directeur Administratif Financier et Comptable
+        </p>
+        </div>
+        <div class="col-md-12">
+            <table class="display table nowrap border bordered" cellspacing="0" style="width:100%;height:30px;">
+                <thead>
+                    <tr>
+                        <th width="20%">CONFORME/ACHATS</th>
+                        <th width="20%">CONFORME/BUDGET</th>
+                        <th width="20%">RESPONSABLE SBA</th>
+                        <th width="20%">DAFC</th>
+                        <th width="20%">DIRECTEUR GENERAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="height:80px;">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+      </div>
+    </body>
+</html>

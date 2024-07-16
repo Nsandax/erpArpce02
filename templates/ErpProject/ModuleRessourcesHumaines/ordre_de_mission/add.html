@@ -1,0 +1,714 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_ordre_de_mission' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_ordre_de_mission' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_ordre_de_mission' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+            <form id="form" method="POST" action="{% url 'module_ressourceshumaines_post_add_ordre_de_mission' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <div class="row">
+
+
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Objet de la mission</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="objet_mission" id="objet_mission" type="text" data-validate-func="required">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Destination</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="destination" id="destination" type="text" data-validate-func="required">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Moyen de transport</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="moyen_transport" id="moyen_transport" type="text" data-validate-func="required">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Objectifs</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="objectif" id="objectif" type="text" data-validate-func="required">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Date de départ</label>
+                                        <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                            {% if not etat_actuel_id %}
+                                            <input readonly type="text" id="date_depart" name="date_depart" readonly
+                                                data-validate-func="required"
+                                                value="{% now "d/m/Y" %}"
+                                                data-validate-hint="Précisez la date d'enregistrement svp.">
+                                            <div class="button"><span class="mif-calendar"></span></div>
+                                            <!-- value=" {#{% now "
+                                                d/m/Y" %}#}" -->
+                                            {% else %}
+                                                <input readonly type="text" id="date_depart" name="date_depart" readonly
+                                                data-validate-func="required"
+                                                value="{{ etat.date_depart|date:"d/m/Y" }}"
+                                                data-validate-hint="Précisez la date d'enregistrement svp.">
+                                                <div class="button"><span class="mif-calendar"></span></div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Date de retour</label>
+                                        <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                            {% if not etat_actuel_id %}
+                                            <input readonly type="text" id="date_retour" name="date_retour" readonly
+                                                data-validate-func="required"
+                                                value="{% now "d/m/Y" %}"
+                                                data-validate-hint="Précisez la date d'enregistrement svp.">
+                                            <div class="button"><span class="mif-calendar"></span></div>
+                                            {% else %}
+                                                <input readonly type="text" id="date_retour" name="date_retour" readonly
+                                                data-validate-func="required"
+                                                value="{{ etat.date_retour|date:"d/m/Y" }}"
+                                                data-validate-hint="Précisez la date d'enregistrement svp.">
+                                                <div class="button"><span class="mif-calendar"></span></div>
+                                            {% endif %}
+                                            <!-- value=" {#{% now "d/m/Y" %}#}" -->
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Type d'ordre de Mission</label>
+                                        <div class="input-control text full-size">
+                                            <select type="text" name="type" id="type"
+                                                data-validate-hint="Sélectionnez le code budgetaire svp.">
+                                                <option value="">Sélectionnez un type de mission</option>
+                                                <option value="National"> National </option>
+                                                <option value="International"> International </option>
+                                        </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Requête de mission</label>
+                                        <div class="input-control text full-size">
+                                            <select type="text" name="requete_id" id="requete_id"
+                                                data-validate-hint="Sélectionnez une requête de mission svp.">
+                                                <option value="">Sélectionnez une requête de mission</option>
+                                                {% if etat_actuel_id %}
+                                                    <option {% if etat_actuel_id == etat.id %} {{ "selected" }} {% endif %} value="{{ etat.id }}"> {{ etat.numero_reference}} </option>
+                                                {% else %}
+                                                {% for item in requetes %}
+                                                    <option value="{{ item.id }}"> {{ item.numero_reference }} </option>
+                                                {% endfor %}
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Ligne budgétaire</label>
+                                    <div class="input-control text full-size">
+                                        <select type="text" name="ligne_budgetaire_id" id="ligne_budgetaire_id">
+                                            <option value="">Sélectionnez un code budgetaire</option>
+                                            {% for item in ligne_budgetaires %}
+                                                <option value="{{ item.id }}"> {{ item.code }} </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- <div class="col-md-6">
+                                    <label>Ligne budgétaire</label>
+                                    <div class="input-control text full-size">
+                                        <select type="text" name="ligne_budgetaire_id" id="ligne_budgetaire_id"
+                                            data-validate-hint="Sélectionnez le code budgetaire svp.">
+                                            <option value="">Sélectionnez un code budgetaire</option>
+                                            {% for item in ligne_budgetaires %}
+                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Service référent</label>
+                                    <div class="input-control text full-size">
+                                        <!-- <select onchange="fill_account()" type="text" id="service_ref_id" name="service_ref_id" -->
+                                        <!--    <select type="text" id="service_ref_id" name="service_ref_id"
+                                            data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un service référent">
+                                            <option value="">Sélectionnez un service référent</option>
+                                            {% for item in warehouses %}
+                                                <option value="{{ item.id }}"> {{ item.libelle }} </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div> -->
+
+                                <!-- <div class="col-md-6">
+                                    <label>Code Projet</label>
+                                    <div class="input-control text full-size">
+                                        <input type="text" id="codes_budgetaires"  name="codes_budgetaires" placeholder=""/>
+                                    </div>
+                                </div> -->
+
+                                <!-- <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Document externe (Ex: Facture proformat)</label>
+                                        <div class="input-control text full-size">
+                                            <input type="text" id="reference_document"  placeholder="" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label>Document en attache</label>
+                                        <div class="input-control text full-size">
+                                            <input id="document_upload" name="document_upload" type="file">
+                                        </div>
+                                    </div>
+                                </div> -->
+
+                                <div class="row">
+                                     <div class="col-md-6">
+                                        <label>Description</label>
+                                        <div class="input-control text full-size">
+                                            {% if not etat_actuel_id %}
+                                            <textarea name="description" id="description" data-validate-func="required" data-validate-hint="Entrez la justification !"></textarea>
+                                            {% else %}
+                                            <textarea name="description" id="description" data-validate-func="required" data-validate-hint="Entrez la justification !">{{ etat.description }}</textarea>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Demandeur</label>
+                                        <div class="input-control text full-size">
+                                            <select type="text" name="demandeur_id" id="demandeur_id"
+                                                data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un demandeur">
+                                                {% if not etat_actuel_id %}
+                                                <option value="">Sélectionnez un demandeur</option>
+                                                {% for item in demandeurs %}
+                                                    <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                                {% endfor %}
+                                                {% else %}
+                                                    <option {% if etat_actuel_id == etat.id %} {{ "selected" }} {% endif %} value="{{ etat.demandeur.id }}"> {{ etat.demandeur.nom_complet }} </option>
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="col-md-6">
+                                        <label>Centre de coût</label>
+                                        <div class="input-control text full-size">
+                                            <select type="text" id="centre_cout_id" name="centre_cout_id">
+                                                <option value="0">Sélectionnez un centre de coût</option>
+                                                {% for item in centre_cout %}
+                                                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div> -->
+                                </div>
+
+                                <br>
+
+                            <br>
+                            <br>
+                            <hr class="att-ligne" style="background-color: #6d4343; height:3px; margin-top:10px">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                                <table class="table no-margin">
+                                    <thead class="no-border">
+                                        <tr>
+                                            <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Employé</th>
+                                            <th width = "20%">Frais de Mission</th>
+                                            <th width = "20%">Frais d'hébergement</th>
+                                            <th width="5%"></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="items">
+                                        {% if not etat_actuel_id %}
+                                        <tr id="ligne1">
+
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <input id="id1" type="hidden" name="id1" />
+                                                <input id="stock1" type="hidden" value="0" />
+                                                <div class="input-control select full-size">
+                                                    <!-- <select  onchange="selectChange(event)" id="item1" name="item1" -->
+                                                    <select id="item1" name="ligne_requete"
+                                                        data-validate-func="min"
+                                                        data-validate-arg="1"
+                                                        data-validate-hint="Sélectionnez un employé svp">
+                                                        <option value="">Sélectionnez un employé</option>
+                                                        {% for item in demandeurs %}
+                                                            <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="frais_mission" id="frais_mission1" type="text" autocomplete="off"
+                                                    data-validate-func="min" data-validate-arg="1" data-validate-hint="Veuillez saisir une valeur">
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="frais_hebergement" id="frais_hebergement1" type="text" autocomplete="off"
+                                                    data-validate-func="min" data-validate-arg="1" data-validate-hint="Veuillez saisir une valeur">
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="pagination no-border">
+                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        {% for item in lignes_etat %}
+                                        <input name="all_ligne_id" id="all_ligne_id{{forloop.counter}}" value = "{{item.id}}" type="hidden" autocomplete="off" >
+                                        <tr id="ligne{{forloop.counter}}">
+
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <div class="input-control select full-size">
+                                                    <select  id="item{{forloop.counter}}" name="employe">
+                                                        <option value="{{item.employe.id}}">{{ item.employe.nom_complet }}</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="frais_mission" id="frais_mission{{forloop.counter}}" type="text" autocomplete="off" data-validate-func="min" data-validate-arg="1" data-validate-hint="Veuillez saisir une valeur">
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="frais_hebergement" id="frais_hebergement{{forloop.counter}}" type="text" autocomplete="off" data-validate-func="min" data-validate-arg="1" data-validate-hint="Veuillez saisir une valeur">
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="pagination no-border">
+                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne({{forloop.counter}})"><span class="mif-cross fg-red"></span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                            </div>
+
+
+
+
+
+
+
+
+                <!-- <div class="col-md-6">
+                            <label>Objet missinon</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="objet_missinon" id="objet_missinon" type="text" data-validate-func="required" data-validate-hint="Entrez objet_missinon !">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Destination</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="destination" id="destination" type="text" data-validate-func="required" data-validate-hint="Entrez destination !">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Moyen transport</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="moyen_transport" id="moyen_transport" type="text" data-validate-func="required" data-validate-hint="Entrez moyen_transport !">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                    <label>Date depart</label>
+                    <div id="date_depart" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_depart" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez date_depart svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+
+                <div class="col-md-6">
+                    <label>Date retour</label>
+                    <div id="date_retour" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_retour" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez date_retour svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+
+                <div class="col-md-6">
+                            <label>Frais mission</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="frais_mission" id="frais_mission" type="text" data-validate-func="required" data-validate-hint="Entrez frais_mission !">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="description" id="description" type="text" data-validate-func="required" data-validate-hint="Entrez description !">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Observation</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="observation" id="observation" type="text" data-validate-func="required" data-validate-hint="Entrez observation !">
+                            </div>
+
+                </div> -->
+
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<script src="/static/ErpProject/js/fourniture-local.js"></script>
+<script>
+    var deviseRef = "FCFA";
+
+    var lesCategories = new Array();
+    var lesArticles = new Array();
+    var lesDevises = new Array();
+    var lesEmployes = new Array();
+    var lataille = 0;
+
+    {% for item in categories %}
+        lesCategories.push({id:"{{ item.id }}", designation:"{{ item.designation }}"});
+    {% endfor %}
+
+
+
+    {% for item in demandeurs %}
+        lesEmployes.push({id:"{{ item.id}}", nom_complet:"{{ item.nom_complet}}"});
+    {% endfor %}
+
+    {% for item in articles %}
+        lesArticles.push({id:"{{ item.id }}", designation:"{{ item.designation }}", code_article:"{{ item.code_article }}", categorie_id:"{{ item.categorie_id }}"});
+    {% endfor %}
+
+    {% for item in devises %}
+        lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+    {% endfor %}
+</script>
+<script>
+//var lataille = 1;
+    {% for item in lignes_etat %}
+        lataille +=1
+    {% endfor %}
+    var nombreLignes = 1;
+    var nombreItems = 0;
+    var ligneActuelle = 0;
+    var compteur = lataille;
+    var bon = {};
+
+    $(document).ready(function(){
+        numero_bon = new Date().getTime() + "" + "{{ utilisateur.id }}";
+        bon = fournitureLocal.avoirFourniture();
+
+        if(bon != null)
+        {
+            //$("#numero").val(bon.numero);
+            $("#numero").val(numero_bon);
+            $("#justification").val(bon.justification)
+            $("#fournisseur_id").val(bon.fournisseur_id);
+            $("#demandeur_id").val(bon.demandeur_id);
+            $("#date_prevue").val(bon.date_prevue);
+            $("#condition_reglement_id").val(bon.condition_reglement_id);
+            $("#devise_id").val(bon.devise_id);
+            $("#reference_document").val(bon.reference_document);
+
+            var lignes = fournitureLocal.avoirToutesLignes();
+            if(lignes.length != 0)
+            {
+                for(var i = 0; i < lignes.length; i++)
+                {
+                    var item = lignes[i];
+                    var k = i + 1;
+                    if(k == 1)
+                    {
+                        $("#item1").val(item.article_id);
+                        $("#stock1").val(item.stock_article_id);
+                        $("#quantite1").val(item.quantite_demandee);
+                        $("#prix1").val(item.prix_unitaire);
+                        $("#id1").val(item.ligne_id);
+                        $("#unite1").text(item.symbole_unite);
+                        $("#description1").text(item.description)
+                    }
+                    else
+                    {
+                        nombreLignes++;
+                        compteur++;
+                        var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+        nouvelleLigne += '<select id="item' + compteur +  '" name="employe" data-validate-func="min"';
+        //<select id="item1" name="item1"
+        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un employé"><option value="0">Sélectionnez un employé</option>';
+        nouvelleLigne += renvoyerOptionsEmployes();
+        nouvelleLigne += '</select></div></td>';
+        //nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+        // nouvelleLigne += '<td class="no-padding-top no-padding-bottom">';
+        /*nouvelleLigne += '<div class="input-control text full-size" style="display:none;">';
+        nouvelleLigne += '<input id="description' + compteur + '" name="description" data-validate-func="number"';
+        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+        nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+        nouvelleLigne += '</span></div>'*/
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom">'
+        nouvelleLigne += '<div class="input-control text full-size">'
+        nouvelleLigne += '<input name="frais_mission" id="frais_mission'+ compteur+'" type="text" autocomplete="off" >'
+        nouvelleLigne += '</div></td>'
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom">'
+        nouvelleLigne += '<div class="input-control text full-size">'
+        nouvelleLigne += '<input name="frais_hebergement" id="frais_hebergement'+ compteur+'" type="text" autocomplete="off" >'
+        nouvelleLigne += '</div></td>'
+        nouvelleLigne += '<div class="pagination no-border">';
+        nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+        nouvelleLigne += '</div></td></tr>';
+
+                        $("#items").append(nouvelleLigne);
+                    }
+                }
+                for(var i = 1; i < lignes.length; i++)
+                {
+                    var item = lignes[i];
+                    var k = i + 1;
+                    $("#item" + k).val(item.article_id);
+                }
+            }
+        }
+    });
+
+    $("#btnAjouterLigne").on("click", function () {
+        console.log(lesarticlesfill)
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+        nouvelleLigne += '<div class="input-control select full-size">';
+        nouvelleLigne += '<select id="item' + compteur +  '" name="employe" data-validate-func="min"';
+        //<select id="item1" name="item1"
+        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un employé"><option value="0">Sélectionnez un employé</option>';
+        nouvelleLigne += renvoyerOptionsEmployes();
+        nouvelleLigne += '</select></div></td>';
+        // nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        // nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+        // nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+        // nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+        //nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom">';
+        /*nouvelleLigne += '<div class="input-control text full-size" style="display:none;">';
+        nouvelleLigne += '<input id="description' + compteur + '" name="description" data-validate-func="number"';
+        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+        nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+        nouvelleLigne += '</span></div>'*/
+        nouvelleLigne += '<div class="input-control text full-size">';
+        nouvelleLigne += '<input id="frais_mission' + compteur + '" name="frais_mission" type="text" data-validate-func="min" data-validate-arg="1" data-validate-hint="Veuillez saisir une valeur">';
+        nouvelleLigne += '</span></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom">';
+        nouvelleLigne += '<div class="input-control text full-size">';
+        nouvelleLigne += '<input id="description' + compteur + '" name="description" type="text" data-validate-func="min" data-validate-arg="1" data-validate-hint="Veuillez saisir une valeur">';
+        nouvelleLigne += '</span></div>';
+        nouvelleLigne += '</td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+        nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+        nouvelleLigne += '</div></td></tr>';
+
+        $("#items").append(nouvelleLigne);
+    });
+
+    function selectChange(event)
+    {
+        $select = $(event.target);
+        var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+        console.log("ID ELEMENT : " + id_element);
+        if(id_element.substring(0, 4) == "item")
+        {
+            ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+            if($("#" + id_element).val() != "0")
+            {
+                nombreItems += 1;
+                var idArticle = parseInt($("#" + id_element).val());
+                console.log("ID ARTICLE : " + idArticle);
+                $.get(
+                    "{% url  'module_achat_article_prix' %}",
+                    {ref : idArticle},
+                    function(data)
+                    {
+                        console.log("DATA " + data.id)
+                        if(data != null)
+                        {
+                            $("#id" + ligneActuelle).val(data.id);
+                            $("#quantite" + ligneActuelle).val(1);
+                            $("#prix" + ligneActuelle).val(data.prix_unitaire);
+                            $("#unite" + ligneActuelle).text(data.symbole_unite);
+                            console.log("prix : " + data.prix_unitaire);
+                        }
+                    },
+                    "json"
+                );
+            }
+            else nombreItems -= 1;
+        }
+    }
+
+    function supprimerLigne(indice) {
+        nombreLignes--;
+        if($("#id" + indice).val() != "0")
+        {
+            fournitureLocal.supprimerLigne($("#id" + indice).val());
+        }
+        $("#ligne" + indice).remove();
+    }
+
+    function choix_devise()
+    {
+        var id_devise = $("#devise_id").val();
+        if(id_devise == "0") deviseRef = "$";
+        else
+        {
+            for(var i = 0; i < lesDevises.length; i++)
+            {
+                var devise = lesDevises[i];
+                if(devise.id == id_devise)
+                {
+                    deviseRef = devise.symbole_devise;
+                    $(".devise").text(deviseRef);
+                    break;
+                }
+            }
+        }
+    }
+
+    function renvoyerOptionsEmployes()
+    {
+        var ligne = "";
+        for(var i = 0; i < lesEmployes.length; i++)
+        {
+            var employe = lesEmployes[i];
+
+            ligne += '<option value="' + employe.id + '">'+ employe.nom_complet + '</option>';
+
+        }
+        return ligne;
+    }
+</script>
+
+<script>
+var lesarticlesfill = new Array();
+function fill_account() {
+
+        var choixService = $("#service_ref_id").val();
+
+        var textChoixService = $( "#service_ref_id option:selected" ).text();
+
+        $("#service_ref_id").children().remove();
+        $("#service_ref_id").append("<option value='"+choixService+"'>"+textChoixService+"</option>");
+
+
+
+
+        console.log(choixService)
+
+        if (choixService !== 0){
+            showDialog("chargement");
+            console.log(choixService)
+
+            $.get(
+                "{% url 'module_achat_get_article_of_service_referent' %}",
+                {ref:choixService}
+                ,
+                function (response) {
+                    console.log(response)
+                    $("#item1").children().remove();
+                    $("#item1").append("<option value='0'>Sélectionnez un article</option>");
+                        lesarticlesfill = [];
+                        for (var i = 0; i < response.length; i++) {
+                        var unarticle = response[i];
+                        lesarticlesfill.push({id:unarticle.id, code_article:unarticle.code_article, designation: unarticle.designation});
+
+                        var option = "<option value='" + unarticle.id + "'>[" + unarticle.code_article + "]"+" "+unarticle.designation+"</option>";
+                        $("#item1").append(option);
+                    }
+                   showDialog("chargement");
+                },
+                "json"
+            );
+
+        }
+
+
+
+    }
+    // compteur = 1;
+    // function selectSelect(){
+    //     value = $("#item" + compteur).val();
+    //     // console.log(value);
+    //     $("#id" + compteur).val(value);
+    //     console.log($("#id" +compteur).val());
+    //     // console.log($("input[name = list_requete]"));
+    //     compteur++;
+
+    // }
+</script>
+
+{% endblock %}

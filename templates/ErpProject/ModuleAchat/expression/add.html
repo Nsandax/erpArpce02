@@ -1,0 +1,473 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+
+
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+                <div class="panel panel-default" style="border: none;">
+
+                    <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+
+                        <!-- {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button small-button rounded primary" val="Valider" %}
+                        <button class="button small-button rounded">Annuler </button> -->
+
+                        <div class="row">
+                            <div class="col-md-1">
+                                {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider"%}
+                            </div>
+                            <div class="col-md-1"></div>
+                            <div class="col-md-1">
+                                <button style="width: 170%;" onclick="javascript:window.location.assign('{% url 'module_achat_list_expression' %}')" class="theme-btn theme-btn-sm rounded">
+                                    Annuler
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="hr-ligne">
+                        <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                        <br>
+
+                        <form action="{% url 'module_achat_post_add_expression' %}" method="POST"
+                            enctype="multipart/form-data"
+                            data-role="validator"
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+
+                            <input id="submit" type="submit" style="display: none">
+                            <input id="nombreLigne" type="hidden" value="0" />
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                            <label>Numéro de l'expression</label>
+                                            <div class="input-control text full-size">
+                                                <input type="text" id="numero" disabled="true" autocomplete="off" />
+                                            </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                            <label>Date d'enregistrement</label>
+                                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input readonly type="text" id="date_prevue" name="date" readonly value="{% now 'd/m/Y' %}"
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Précisez la date d'enregistrement svp.">
+                                                <div class="button"><span class="mif-calendar"></span></div>
+                                            </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Demandeur</label>
+                                        <div class="input-control text full-size">
+                                            <select type="text" name="demandeur_id" id="demandeur_id"
+                                                data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un demandeur">
+                                                {% if utilisateur.nom_complet == "SYSTEM" %}
+                                                <option value="">Sélectionnez un demandeur</option>
+                                                {% for item in demandeurs %}
+                                                    <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                                {% endfor %}
+                                                {% else %}
+                                                <option value="{{ utilisateur.id }}">{{ utilisateur.nom_complet }}</option>
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label>Service référent</label>
+                                        <div class="input-control text full-size">
+                                            <select onchange="fill_account()" type="text" id="service_ref_id" name="service_ref_id"
+                                                data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un service référent">
+                                                <option value="">Sélectionnez un service référent</option>
+                                                {% for item in warehouses %}
+                                                    <option value="{{ item.id }}"> {{ item.libelle }} </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!--<div class="col-md-6">
+                                    <label>Ligne budgétaire</label>
+                                    <div class="input-control text full-size">
+                                        <select type="text" name="ligne_budgetaire_id" id="ligne_budgetaire_id"
+                                            data-validate-hint="Sélectionnez le code budgetaire svp.">
+                                            <option value="">Sélectionnez un code budgetaire</option>
+                                            {% for item in ligne_budgetaires %}
+                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>-->
+
+                                <div class="col-md-6">
+                                    <label>Code Projet</label>
+                                    <div class="input-control text full-size">
+                                        <input type="text" id="codes_budgetaires"  name="codes_budgetaires" placeholder=""/>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+
+
+                                    <div class="col-md-6">
+                                        <label>Document en attache</label>
+                                        <div class="input-control text full-size">
+                                            <input id="document_upload" name="document_upload" type="file" multiple>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                     <div class="col-md-6">
+                                        <label>Descriptif</label>
+                                        <div class="input-control text full-size">
+                                            <textarea name="justification" id="justification" data-validate-func="required" data-validate-hint="Entrez la justification !"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br>
+
+                            <br>
+                            <br>
+                            <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                                <table class="table no-margin">
+                                    <thead class="no-border">
+                                        <tr>
+                                            <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Article</th>
+                                            <th width="20%">Quantité demandée</th>
+                                            <th width="25%">Description</th>
+                                            <th width="5%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items">
+                                        <tr id="ligne1">
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <input id="id1" type="hidden" name="article_id" value="0" />
+                                                <input id="stock1" type="hidden" value="0" />
+                                                <div class="input-control select full-size">
+                                                    <select  onchange="selectChange(event)" id="item1" name="item1"
+                                                        data-validate-func="min"
+                                                        data-validate-arg="1"
+                                                        data-validate-hint="Sélectionnez un article svp">
+                                                        <option value="">Sélectionnez un article</option>
+
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="quantite_demandee" id="quantite1" type="text" placeholder="Ex: 10"
+                                                        data-validate-func="number"
+                                                        data-validate-arg="1"
+                                                        data-validate-hint="Précisez la quantité svp">
+                                                    <span class="prepend-icon" style="margin-left:75%">
+                                                        <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="description" id="description1" type="text" autocomplete="off" >
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="pagination no-border">
+                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+
+
+
+
+    <script src="/static/ErpProject/js/fourniture-local.js"></script>
+    <script>
+        var deviseRef = "FCFA";
+
+        var lesCategories = new Array();
+        var lesArticles = new Array();
+        var lesDevises = new Array();
+
+        {% for item in categories %}
+            lesCategories.push({id:"{{ item.id }}", designation:"{{ item.designation }}"});
+        {% endfor %}
+
+        {% for item in articles %}
+            lesArticles.push({id:"{{ item.id }}", designation:"{{ item.designation }}", code_article:"{{ item.code_article }}", categorie_id:"{{ item.categorie_id }}"});
+        {% endfor %}
+
+        {% for item in devises %}
+            lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+        {% endfor %}
+    </script>
+    <script>
+    var lataille = 1;
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+        var bon = {};
+
+        $(document).ready(function(){
+            numero_bon = new Date().getTime() + "" + "{{ utilisateur.id }}";
+            bon = fournitureLocal.avoirFourniture();
+
+            if(bon != null)
+            {
+                //$("#numero").val(bon.numero);
+                $("#numero").val(numero_bon);
+                $("#justification").val(bon.justification)
+                $("#fournisseur_id").val(bon.fournisseur_id);
+                $("#demandeur_id").val(bon.demandeur_id);
+                $("#date_prevue").val(bon.date_prevue);
+                $("#condition_reglement_id").val(bon.condition_reglement_id);
+                $("#devise_id").val(bon.devise_id);
+                $("#reference_document").val(bon.reference_document);
+
+                var lignes = fournitureLocal.avoirToutesLignes();
+                if(lignes.length != 0)
+                {
+                    for(var i = 0; i < lignes.length; i++)
+                    {
+                        var item = lignes[i];
+                        var k = i + 1;
+                        if(k == 1)
+                        {
+                            $("#item1").val(item.article_id);
+                            $("#stock1").val(item.stock_article_id);
+                            $("#quantite1").val(item.quantite_demandee);
+                            $("#prix1").val(item.prix_unitaire);
+                            $("#id1").val(item.ligne_id);
+                            $("#unite1").text(item.symbole_unite);
+                            $("#description1").text(item.description)
+                        }
+                        else
+                        {
+                            nombreLignes++;
+                            compteur++;
+                            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="article_id" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article"><option value="0">Sélectionnez un article</option>';
+            nouvelleLigne += renvoyerOptionsArticles();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            //nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            /*nouvelleLigne += '<div class="input-control text full-size" style="display:none;">';
+            nouvelleLigne += '<input id="description' + compteur + '" name="description" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div>'*/
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="description' + compteur + '" name="description" type="text">';
+            nouvelleLigne += '</span></div>';
+            nouvelleLigne += '</td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+                            $("#items").append(nouvelleLigne);
+                        }
+                    }
+                    for(var i = 1; i < lignes.length; i++)
+                    {
+                        var item = lignes[i];
+                        var k = i + 1;
+                        $("#item" + k).val(item.article_id);
+                    }
+                }
+            }
+        });
+
+        $("#btnAjouterLigne").on("click", function () {
+            console.log(lesarticlesfill)
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="article_id" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article"><option value="0">Sélectionnez un article</option>';
+            nouvelleLigne += renvoyerOptionsArticles();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            //nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            /*nouvelleLigne += '<div class="input-control text full-size" style="display:none;">';
+            nouvelleLigne += '<input id="description' + compteur + '" name="description" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div>'*/
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="description' + compteur + '" name="description" type="text">';
+            nouvelleLigne += '</span></div>';
+            nouvelleLigne += '</td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function selectChange(event)
+        {
+            $select = $(event.target);
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+                if($("#" + id_element).val() != "0")
+                {
+                    nombreItems += 1;
+                    var idArticle = parseInt($("#" + id_element).val());
+                    console.log("ID ARTICLE : " + idArticle);
+                    $.get(
+                        "{% url  'module_achat_article_prix' %}",
+                        {ref : idArticle},
+                        function(data)
+                        {
+                            console.log("DATA " + data.id)
+                            if(data != null)
+                            {
+                                $("#id" + ligneActuelle).val(data.id);
+                                $("#quantite" + ligneActuelle).val(1);
+                                $("#prix" + ligneActuelle).val(data.prix_unitaire);
+                                $("#unite" + ligneActuelle).text(data.symbole_unite);
+                                console.log("prix : " + data.prix_unitaire);
+                            }
+                        },
+                        "json"
+                    );
+                }
+                else nombreItems -= 1;
+            }
+        }
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            if($("#id" + indice).val() != "0")
+            {
+                fournitureLocal.supprimerLigne($("#id" + indice).val());
+            }
+            $("#ligne" + indice).remove();
+        }
+
+        function choix_devise()
+        {
+            var id_devise = $("#devise_id").val();
+            if(id_devise == "0") deviseRef = "$";
+            else
+            {
+                for(var i = 0; i < lesDevises.length; i++)
+                {
+                    var devise = lesDevises[i];
+                    if(devise.id == id_devise)
+                    {
+                        deviseRef = devise.symbole_devise;
+                        $(".devise").text(deviseRef);
+                        break;
+                    }
+                }
+            }
+        }
+
+        function renvoyerOptionsArticles()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesarticlesfill.length; i++)
+            {
+                var article = lesarticlesfill[i];
+
+                ligne += '<option value="' + article.id + '"> [' + article.code_article + '] ' + article.designation + '</option>';
+
+            }
+            return ligne;
+        }
+    </script>
+
+    <script>
+    var lesarticlesfill = new Array();
+    function fill_account() {
+
+            var choixService = $("#service_ref_id").val();
+
+            var textChoixService = $( "#service_ref_id option:selected" ).text();
+
+            $("#service_ref_id").children().remove();
+            $("#service_ref_id").append("<option value='"+choixService+"'>"+textChoixService+"</option>");
+
+
+
+
+            console.log(choixService)
+
+            if (choixService !== 0){
+                showDialog("chargement");
+                console.log(choixService)
+
+                $.get(
+                    "{% url 'module_achat_get_article_of_service_referent' %}",
+                    {ref:choixService}
+                    ,
+                    function (response) {
+                        console.log(response)
+                        $("#item1").children().remove();
+                        $("#item1").append("<option value='0'>Sélectionnez un article</option>");
+                            lesarticlesfill = [];
+                            for (var i = 0; i < response.length; i++) {
+                            var unarticle = response[i];
+                            lesarticlesfill.push({id:unarticle.id, code_article:unarticle.code_article, designation: unarticle.designation});
+
+                            var option = "<option value='" + unarticle.id + "'>[" + unarticle.code_article + "]"+" "+unarticle.designation+"</option>";
+                            $("#item1").append(option);
+                        }
+                       showDialog("chargement");
+                    },
+                    "json"
+                );
+
+            }
+
+        }
+    </script>
+
+
+{% endblock %}

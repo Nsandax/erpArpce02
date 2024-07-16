@@ -1,0 +1,236 @@
+{% extends "ErpProject/ModuleBudget/shared/layout.html" %}
+{% block page %}
+{% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <!-- <button onclick="javascript:window.location.assign('{% url 'module_budget_add_exercicebudgetaire' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Créer</button>     -->
+                <div class="row">
+                    <div class="col-md-2">
+                        {% if not dossier_paie_actif %}
+                        <button style="width: 100%;"
+                            onclick="launchDialogOuverture()"
+                            class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                            Ouverture
+                        </button>
+                        {% else %}
+                        <button style="width: 100%;"
+                            onclick="launchDialogFermeture()"
+                            class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                            Fermeture
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-3">
+                        <div id="btn-view" data-role="group" data-group-type="one-state">
+                            <button id="btn-tree"
+                                onclick="javascript:window.location.assign('{% url 'module_payroll_list_dossier_paie' %}?view=list')"
+                                class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}">
+                                <span class="mif-list"></span></button>
+                            <button id="btn-kanban"
+                                onclick="javascript:window.location.assign('{% url 'module_payroll_list_dossier_paie' %}?view=kanban')"
+                                class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}">
+                                <span class="mif-apps"></span></button>
+                        </div>
+                    </div>
+                </div>
+               <br><br>
+               {% if view == "list" %}
+                <div id="list-view" class="row" style="margin-top: 10px;">
+                    <table id="data_table" class="display nowrap border bordered striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="width: 20px; background-color:#2e416a; white"></th>
+                                <th>Période</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in model %}
+                            <tr>
+                                <td>
+                                    <label class="small-check">
+                                        <input type="checkbox">
+                                        <span class="check"></span>
+                                    </label>
+                                </td>
+                                <td><a href="{% url 'module_payroll_detail_dossier_paie' item.id %}" >{{ item }} </a></td>
+                                <td>{% if item.est_actif %} (En cours){% endif %}{% if item.est_cloture %} (Cloturé){% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% elif view == "kanban" %}
+                <!-- Vue de type card-->
+                <div id="kanban-view" class="row" style="margin-top:10px;">
+                    {% for item in model %}
+                    <div class="col-md-4">
+                        <div class="card-item" style="margin-top: 10px; margin-bottom: 15px;">
+                            <div class="card-item-content">
+                                <div class="thumb">
+                                </div>
+                                <div class="texts">
+                                    <a class="link chargement-au-click"
+                                        href="{% url 'module_payroll_detail_dossier_paie' item.id %}">
+                                        {{ item }} 
+                                    </a><br>
+                                    <div class="mt-2"></div>
+                                    <span class="inner-text">{% if item.est_actif %} (En cours){% endif %}{% if item.est_cloture %} (Cloturé){% endif %}</span><br>
+                                    <br>
+                                    <a href="{% url 'module_payroll_detail_dossier_paie' item.id %}"
+                                        class="mt-3 btn btn-block btn-wide rounded chargement-au-click">voir detail</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+
+    <!-- Billeterie -->
+    <div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogOuverture">
+
+        <div class="row cells3 padding20" style="margin-top: 10px">
+            <h3>Ouverture Période</h3>
+            <div class="cells2">
+                <div id="formBilleterie" >
+                   <form method="POST" action="{% url 'module_payroll_post_add_dossier_paie' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                    data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submitOuverture" type="submit" style="display: none">
+                    
+                    <div class="col-md-6" >
+                        <label>Mois</label>
+                            <div class="input-control select full-size" data-role="input">
+                                <select id="mois" name="mois">
+                                    <option value="0">Sélectionnez un mois</option>
+                                    {% now "n" as current_month %}
+                                    {% for item in mois %}
+                                        <option {% if item.id == current_month|add:0 %} selected {% endif %} value="{{ item.id }}">{{ item.designation }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                    </div>
+
+                    <div class="col-md-6" >
+                        <label>Année</label>
+                        <div class="input-control text full-size" data-role="input">
+                            <input name="annee" id="annee" type="text" value="{% now "Y" %}" readonly>
+                        </div>
+                    </div>
+                    <h3>Lot régulier</h3>
+                    <div class="col-md-6" >
+                        <label>Designation </label>
+                        <div class="input-control text full-size" data-role="input">
+                            <input name="designation" id="designation" type="text" data-validate-func="required" 
+                            data-validate-hint="Entrez la désignation du lot régulier!">
+                        </div>
+                    </div>
+                    <div class="col-md-6" >
+                        <label>Référence </label>
+                        <div class="input-control text full-size" data-role="input">
+                            <input name="reference" id="reference" type="text" data-validate-func="required" 
+                            data-validate-hint="Entrez la référence du lot régulier!" >
+                        </div>
+                    </div>
+                    
+                    <hr style="background-color: #f7f5f5;">
+                    <div class="row">
+                        <button id="appliquerBtn" onclick="javascript:document.getElementById('submitOuverture').click()" class="button small-button rounded primary chargement-au-click">Appliquer</button>
+                        <!--button class="button small-button rounded" onclick="closeDialog('#dialogBillet')" style="margin-left: 5px">Annuler</!--button-->
+                    </div>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+    <!-- Fin B -->
+
+<script>
+
+    function launchDialogOuverture(){
+        $("#dialogOuverture")
+        .dialog("open");
+	}
+   
+
+   function launchDialogFermeture(){
+    Swal.fire({
+        title: 'Etes vous sure?',
+        text: "De vouloir procéder à la clôture!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Oui, Clôturer!'
+    }).then((result) => {
+        if (result.value) {
+            cloturer();
+            Swal.fire(
+                'Cloturé!',
+                'Votre période a été clôturée',
+                'success',
+            )
+        }
+    })
+	}
+
+
+
+    
+</script>
+
+<script>
+    
+   async function cloturer() {
+        var id = '{{dossier_en_cours.id}}';
+        if (id == ""){
+            id = 0
+        }
+        
+		
+        showDialog("chargement");
+       await $.get(
+            "{% url 'module_payroll_process_cloture' %}",
+            {ref:id}
+            ,
+            function (response) {
+                console.log("response", response)
+                showDialog("chargement");
+            },
+            "json"
+        );
+        location.reload();
+        
+
+    }
+</script>
+
+<!-- Appel widget datatable -->
+{% include 'ErpProject/ErpBackOffice/widget/datatable.html' with type_view=view %}
+{% endblock %}

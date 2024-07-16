@@ -1,0 +1,1426 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %} {%load static %}
+
+<style type="text/css">
+    body {
+        background-color: grey!important;
+    }
+    .btSh{
+        border-radius: 4px;
+        margin-bottom: 2%;
+        border:1px solid #fff;
+        background-color: #612F67;
+		-ms-flex: 1 1 auto;
+		flex: 1 1 auto;
+		padding: 0.25rem;
+		height:140px!important;
+    }
+    .montantP{
+        color:green;
+    }
+    .montantP12{
+        color:red;
+    }
+    ul {
+        list-style-type : none;
+    }
+    .epsaceCompta{
+    padding:10%;
+    padding-top: 5%;
+    padding-bottom: 0%;
+    }
+    .epsaceCompta h3{
+        text-align:center;
+        font-weight: 900;
+        font-size: 25px;
+    }
+    .epsaceCompta p{
+        text-align:center;
+        color:#c9c9c9;
+    }
+
+</style>
+<div class="row" style="padding-top: 30px;">
+	<div class="col-lg-12">
+		<h2>Tableau de Bord</h2>
+		<strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+		<div class="separ"></div>
+		<div class="panel panel-default" style="border: none; margin-top:2%;background-color: rgb(249, 249, 249)!important;">
+			<!-- Tableau valeurs importante -->
+			<div class="row">
+				<div class="col-md-3 shadow btSh">
+					<div class="row">
+						<span class="col-lg-12" style="text-align:center;color:#BDBDCB;margin:2% 0 2% 0;">Délai Moyen des règlements</span>
+						<span class="col-lg-12" style="text-align:center;margin-bottom:5%;font-size:120%;color:#fff; font-weight: 900;">
+							2 Jours
+						</span>
+						<span class="col-lg-12" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+						{% if MontantFacNonsol >= 3 %}
+							<i class="fa fa-arrow-up montantP12"></i> <i class="montantP12">Taux de dettes</i>
+							{% else %}
+							<i class="fa fa-arrow-down montantP"></i> <i class="montantP">Taux de dettes</i>
+						{% endif %}
+						<br>
+						<span style="color:#7C7C7C;">Le délai moyen des reglements.</span>
+						</span>
+					</div>
+				</div>
+				<div class="col-md-3 shadow btSh">
+					<div class="row">
+						<span class="col-lg-12" style="text-align:center;color:#BDBDCB;margin:2% 0 2% 0;">Taux des Achats Réalisés</span>
+						<span class="col-lg-12" style="text-align:center;margin-bottom:5%;font-size:120%;color:#fff; font-weight: 900;">
+							20 %
+						</span>
+						<span class="col-lg-12 montantP12" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+							{%if MontantFaCNonsol >= 3 %}
+								<i class="fa fa-arrow-up montantP12"></i> <i class="montantP12">Taux de dettes</i>
+							{% else %}
+								<i class="fa fa-arrow-down montantP"></i> <i class="montantP">Taux de dettes</i>
+							{% endif %}
+
+							<br>
+							<span style="color:#7C7C7C;">
+								Réalisés sans Bon de Commande
+							</span>
+						</span>
+					</div>
+				</div>
+                <div class="col-md-3 shadow btSh">
+					<div class="row">
+						<span class="col-lg-12" style="text-align:center;color:#BDBDCB;margin:2% 0 2% 0;">Taux de dettes exigibles</span>
+						<span class="col-lg-12" style="text-align:center;margin-bottom:5%;font-size:120%;color:#fff; font-weight: 900;">
+							10 %
+						</span>
+						<span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+							{%if MontantFaCNonsol >= 3 %}
+								<i class="fa fa-arrow-up montantP12"></i> <i class="montantP12">Taux de dettes</i>
+							{% else %}
+								<i class="fa fa-arrow-down montantP"></i> <i class="montantP">Taux de dettes</i>
+							{% endif %}<br>
+							<span style="color:#7C7C7C;">les details de la courbe</span>
+						</span>
+					</div>
+				</div>
+				<div class="col-md-3 shadow btSh">
+					<div class="row">
+						<span class="col-lg-12" style="text-align:center;color:#BDBDCB;margin:2% 0 2% 0;">
+							Devise de Réference
+						</span>
+						<span class="col-lg-12" style="text-align:center;margin-bottom:5%;font-size:120%;color:#fff; font-weight: 900;">
+							{{ListeTauxRef}}
+						</span>
+						<span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+							<i class="fa fa-check"></i> <i>cfa</i> <br>
+							<span style="color:#7C7C7C;">La devise appliquée</span>
+						</span>
+					</div>
+				</div>
+
+			</div>
+			<!-- Fin Tableau de bord Valeurs importante -->
+            <!-- Integration Indication ARPCE -->
+            <div class="row">
+                <div class="col-md-4" style="">
+                    <div class="card-item">
+                        <div class="epsaceCompta">
+                            <h3>15</h3>
+                            <p>Nombre de Facture d'Acompte Rapproché</p>
+                        </div>
+                        <div>
+                            <div id="chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="">
+                    <div class="card-item">
+                        <div class="epsaceCompta">
+                            <h3>35</h3>
+                            <p>Nombre de Facture Payée</p>
+                        </div>
+                        <div>
+                            <div id="second_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="">
+                    <div class="card-item">
+                        <div class="epsaceCompta">
+                            <h3>08</h3>
+                            <p>Nombre de Facture Impayée</p>
+                        </div>
+                        <div>
+                            <div id="third_chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fin Integration Indication ARPCE -->
+
+            <!-- Eléments recents -->
+			<div class="row">
+				<div class="col-md-12 item-dash" style="padding:0px;padding-bottom:1%;">
+					<div class="col-lg-12" style="display: flex; align-items:center;margin-left:0px;margin-right:-19px;height:40px;background-color: #612F67;margin-bottom:1%;">
+						<span style="color:#fff">Récentes Informations</span>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+                            <label style="font-weight: 900;display: flex;justify-content: center;">Documents Récents Facture</label>
+							<hr>
+                            <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                                <thead>
+                                    <tr class="table-light">
+                                        <th>Réference</th>
+                                        <th>Fournisseur</th>
+                                        <th>Creation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if ListeFacure %}
+                                        {% for item in ListeFacure %}
+                                        <tr>
+                                            <td><a class="lien chargement-au-click" href="{% url 'module_comptabilite_details_bon_achat' item.id %}">{{ item.numero_reception }}</a></td>
+                                            <td>{{item.fournisseur.nom_complet}}</td>
+                                            <td>{{item.date_reception | date:"d-m-Y"}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" align="center">
+                                                Pas de données disponibles
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+						</div>
+						<div class="col-md-6">
+								<label style="font-weight: 900;display:flex;justify-content: center;">Récentes Pieces Comptable</label>
+								<hr>
+                                <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                                    <thead>
+                                        <tr class="table-light">
+                                            <th>Désignation</th>
+                                            <th>Réference</th>
+                                            <th>Creation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if ListePiece %}
+                                            {% for item in ListePiece %}
+                                            <tr>
+                                                <td>
+                                                    <a class="lien chargement-au-click" href="{% url 'module_comptabilite_details_piece' item.id %}">{{ item.designation }}</a>
+                                                </td>
+                                                <td>{{item.reference}}</td>
+                                                <td>{{item.date_piece|date:"d-M-Y"}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="6" align="center">
+                                                    Pas de données disponibles
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Fin Eléments récents -->
+
+            <!-- Eléments recents -->
+			<div class="row">
+				<div class="col-md-12 item-dash" style="padding:0px;padding-bottom:1%;">
+					<div class="col-lg-12" style="display: flex; align-items:center;margin-left:0px;margin-right:-19px;height:40px;background-color: #612F67;margin-bottom:1%;">
+						<span style="color:#fff">Récentes Informations (BC)</span>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+                            <label style="font-weight: 900;display: flex;justify-content: center;">Récents Bons de commandes</label>
+							<hr>
+                            <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                                <thead>
+                                    <tr class="table-light">
+                                        <th>Réference</th>
+                                        <th>Fournisseur</th>
+                                        <th>Creation</th>
+                                        <th>Etat</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if ListeFacure %}
+                                        {% for item in ListeFacure %}
+                                        <tr>
+                                            <td><a class="lien chargement-au-click" href="{% url 'module_comptabilite_details_bon_achat' item.id %}">BC-2022030021</a></td>
+                                            <td>CADC Sarl</td>
+                                            <td>01/03/2022</td>
+                                            <td>En attente de facture</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" align="center">
+                                                Pas de données disponibles
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+						</div>
+						<div class="col-md-6">
+								<label style="font-weight: 900;display:flex;justify-content: center;">Dernieres Combinaisons utilisées</label>
+								<hr>
+                                <table id="data_table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                                    <thead>
+                                        <tr class="table-light">
+                                            <th>Reference</th>
+                                            <th>Description</th>
+                                            <th>Dotation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if ListePiece %}
+                                            <tr>
+                                                <td>
+                                                    <a class="lien chargement-au-click">1.718300.0.002.AD.V.00</a>
+                                                </td>
+                                                <td>Versées par des tiers</td>
+                                                <td>17000,0 CFA</td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="6" align="center">
+                                                    Pas de données disponibles
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Fin Eléments récents -->
+
+			<!-- Tableau Journaux -->
+			<div class="row">
+				{% for journal in journaux %}
+					<div class="col-md-6" style="padding-top: 15px!important;">
+						<div class="card-body shadow" style="background-color: white;padding: 0!important">
+							<div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+							<div class="row item_header">
+								<div class="col-lg-12" style="color:#000;margin:2% 0 2% 0;">
+									<h3>{{ journal.designation }}</h3>
+									<span style="font-size:130%;color:#bdbdcb; font-weight: 900;">
+										{{ journal.value_type_journal }}
+									</span>
+								</div>
+							</div>
+
+							{% if journal.type_journal == 1 %}
+								<div class="row">
+									<div class="col-md-4">
+										<button onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_facture_client' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Nouvelle facture</button><br>
+									</div>
+									<div class="col-md-8">
+										<table class="no-border" style="width: 100%">
+											<tr>
+												<td>Factures à valider</td>
+												<td style="text-align: right">0 CFA</td>
+											</tr>
+											<tr>
+												<td>Factures Impayées</td>
+												<td style="text-align: right">0 CFA</td>
+											</tr>
+											<tr>
+												<td><a class="lien chargement-au-click" href="{% url 'module_comptabilite_analyse_factures' journal.id %}">Plus d'analyse</a></td>
+												<td style="text-align: right"></td>
+											</tr>
+										</table>
+									</div>
+								</div>
+								<div class="row" style="height: 140px; padding-top: 20px">
+
+									<canvas id="chart-{{ journal.value_type_journal }}-{{ journal.id }}"  style="height: 120px!important; width: 100%"></canvas>
+								</div>
+							{% elif journal.type_journal == 2 %}
+								<div class="row">
+									<div class="col-md-4">
+										<button onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_facture_fournisseur' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Nouvelle facture</button><br>
+									</div>
+									<div class="col-md-8">
+										<table class="no-border" style="width: 100%">
+											<tr>
+												<td>Factures à valider</td>
+												<td style="text-align: right">0 CFA</td>
+											</tr>
+											<tr>
+												<td>Factures à payer</td>
+												<td style="text-align: right">0 CFA</td>
+											</tr>
+											<tr>
+												<td><a class="lien chargement-au-click" href="{% url 'module_comptabilite_analyse_factures' journal.id %}">Plus d'analyse</a></td>
+												<td style="text-align: right"></td>
+											</tr>
+										</table>
+									</div>
+								</div>
+								<div class="row" style="height: 140px; padding-top: 20px">
+									<canvas id="chart-{{ journal.value_type_journal }}-{{ journal.id }}"  style="height: 120px!important; width: 100%"></canvas>
+								</div>
+							{% elif journal.type_journal == 3 %}
+								<div class="row">
+									<div class="col-md-4">
+										<button onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_facture_fournisseur' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Nouveau relevé</button><br>
+									</div>
+									<div class="col-md-8">
+										<table class="no-border" style="width: 100%">
+											<tr>
+												<td>Solde en GL</td>
+												<td style="text-align: right">0 CFA</td>
+											</tr>
+											<tr>
+												<td>Dernier relevé</td>
+												<td style="text-align: right">0 CFA</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+								<div class="row" style="height: 140px; padding-top: 20px">
+									<canvas id="chart-{{ journal.value_type_journal }}-{{ journal.id }}"  style="height: 120px!important; width: 100%"></canvas>
+								</div>
+							{% elif journal.type_journal == 4 %}
+								<div class="row">
+									<div class="col-md-4">
+										<button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_caisse' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Nouvelle transaction</button><br>
+									</div>
+									<div class="col-md-8">
+										<table class="no-border" style="width: 100%">
+											<tr>
+												<td>Solde en GL</td>
+												<td style="text-align: right">0 CFA</td>
+											</tr>
+											<tr>
+												<td>Dernier relevé</td>
+												<td style="text-align: right">0 CFA</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+								<div class="row" style="height: 140px; padding-top: 20px">
+									<canvas id="chart-{{ journal.value_type_journal }}-{{ journal.id }}"  style="height: 120px!important; width: 100%"></canvas>
+								</div>
+							{% else %}
+								<div class="row">
+									<div class="col-md-4">
+										<button onclick="javascript:window.location.assign('{% url 'module_comptabilite_creer_piece' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Nouvelle pièce</button><br>
+									</div>
+									<div class="col-md-8">
+										<table class="no-border" style="width: 100%">
+											<tr>
+												<td>Balance</td>
+												<td style="text-align: right">0 CFA</td>
+											</tr>
+											<tr>
+												<td>Date dernière pièce</td>
+												<td style="text-align: right">07/04/2020</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+			<br><br>
+			<!-- Fin Tableau de bord Journaux -->
+
+
+
+			<!-- Boites de dialogue-->
+			<!-- Dialogue Données de la société-->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogOrganisation">
+				<div class="row padding20" style="margin-top: 10px">
+					<h3>Entrer les informations de votre compagnie</h3>
+					<hr style="background-color: #f7f5f5;">
+					<div class="row" id="resultOrganisation">
+					</div>
+					<div class="col-md-12">
+						<form style="width:700px!important" enctype="multipart/form-data" id="formOrganisation" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+							data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+							{% csrf_token %}
+							<input id="organisation_id" name="organisation_id" type="hidden" value="">
+							<div class="row">
+								<div class="col-md-4">
+									<input id="image_upload" name="image_upload" type="file" accept="image/*" style="display:none;">
+									<div class="tile-container">
+										<a onclick="$('input[id=image_upload]').click();" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+											<div class="tile-content slide-up">
+												<div id="slide_image_preview" class="slide">
+													<img id="image_preview" src="{% static 'ErpProject/image/upload/articles/default.png' %}" style='height: 100px; width: 100px;'>
+												</div>
+												<div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+													<span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+												</div>
+											</div>
+										</a>
+									</div>
+								</div>
+								<div class="col-md-8" width="60%">
+									<label>Nom de l'entreprise</label>
+									<div class="input-control text full-size" data-role="input">
+										<input value="" name="nom" id="nom" type="text">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="tabcontrol2" data-role="tabcontrol">
+									<ul class="tabs">
+										<li class=""><a href="#frame_informations">Informations générales</a></li>
+									</ul>
+									<div class="frames">
+										<div class="frame" id="frame_informations" style="display: block;">
+											<div class="row">
+												<div class="col-md-6">
+													<div class="row">
+														<label>Adresse</label>
+														<div class="input-control select full-size" data-role="input">
+															<select onchange="choix_pays()" id="choixPays">
+																<option value="0">Sélectionnez un pays</option>
+																{% for item in pays %}
+																	<option value="{{ item.id }}">{{ item.designation }}</option>
+																{% endfor %}
+															</select>
+														</div>
+														<div class="input-control select full-size" data-role="input">
+															<select onchange="choix_province()" id="choixProvince">
+																<option value="0">Sélectionnez un état ou une province</option>
+															</select>
+														</div>
+														<div class="input-control select full-size" data-role="input">
+															<select onchange="choix_ville()" id="choixVille">
+																<option value="0">Sélectionnez une ville</option>
+															</select>
+														</div>
+														<div class="input-control select full-size" data-role="input">
+															<select name="commune_quartier_id" id="choixCommune">
+																<option value="0">Sélectionnez une commune</option>
+															</select>
+														</div>
+														<div class="input-control text full-size" data-role="input">
+															<input name="adresse" value="" type="text" placeholder="Rue...">
+														</div>
+													</div>
+													<div class="row">
+														<label>Téléphone</label>
+														<div class="input-control text full-size" data-role="input">
+															<input name="phone" value="" type="text">
+														</div>
+													</div>
+												</div>
+
+												<div class="col-md-6">
+													<div class="row">
+														<label>Numero fiscal</label>
+														<div class="input-control text full-size">
+															<input type="text" name="numero_fiscal" id="numero_fiscal" value="" />
+														</div>
+													</div>
+													<div class="row">
+														<label>Devise</label>
+														<div class="input-control text full-size">
+															<select name="devise_id" id="organisation_devise_id">
+																<option value="0">Sélectionnez une devise</option>
+																{% for item in devises %}
+																	<option value="{{ item.id }}"> {{ item.designation }} </option>
+																{% endfor %}
+															</select>
+														</div>
+													</div>
+													<div class="row">
+														<label>Courriel</label>
+														<div class="input-control text full-size" data-role="input">
+															<input name="email" value="" type="email" data-validate-func="email" data-validate-hint="Entrez une adresse email valide !">
+														</div>
+													</div>
+													<div class="row">
+														<label>Fax</label>
+														<div class="input-control text full-size">
+															<input type="text" name="fax" id="fax" value="" />
+														</div>
+													</div>
+													<div class="row">
+														<label>Site Web</label>
+														<div class="input-control text full-size">
+															<input type="text" name="site_web" id="site_web" value="" />
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<hr style="background-color: #f7f5f5;">
+							<div class="row">
+								<input type="submit" id="btnSubmitOrganisation" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click" ></button>
+								<button class="button small-button rounded" onclick="closeDialog('#dialogOrganisation')" style="margin-left: 5px">Annuler</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- Fin Dialogue Données de la société-->
+
+			<!-- Dialogue Ajouter banque-->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogBanqueOrCaisse">
+				<div class="row cells3 padding20" style="margin-top: 10px">
+					<h3>Ajouter un compte bancaire ou caisse</h3>
+					<div class="cells2">
+						<div class="row">
+							<div class="col-md-3">
+							</div>
+							<div class="col-md-6">
+								<p>Configurez au moins un compte bancaires ou caisse par défaut pour la trésorérie</p>
+							</div>
+							<div class="col-md-3">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-3">
+							</div>
+							<div class="col-md-6">
+								<button onclick="launchDialogBanque('#dialogBanque')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Ajouter un compte bancaire</button><br>
+								<button onclick="launchDialogCaisse('#dialogCaisse')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Ajouter une caisse</button>
+							</div>
+							<div class="col-md-3">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Fin Ajouter banque-->
+
+			<!-- Dialogue Ajouter banque -->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogBanque">
+				<div class="row cells3 padding20" style="margin-top: 10px">
+					<h3>Ajouter un compte bancaire</h3>
+					<div class="cells2">
+						<div id="formBanque">
+							{% csrf_token %}
+							<div class="row" id="resultBanque">
+							</div>
+							<div class="row">
+								<label>Nom du compte</label>
+								<div class="input-control text full-size">
+									<input type="text" name="nom_compte" id="nom_compte" value="" />
+								</div>
+							</div>
+							<div class="row">
+								<label>Numéro du compte</label>
+								<div class="input-control text full-size">
+									<input type="text" name="numero_compte" id="numero_compte" value="" />
+								</div>
+							</div>
+							<div class="row">
+								<label>Banque</label>
+								<div class="input-control text full-size">
+									<input type="text" name="banque" id="banque" value="" />
+								</div>
+							</div>
+							<div class="row">
+								<label>Code</label>
+								<div class="input-control text full-size">
+									<input type="text" name="code" id="banque_code" value="" />
+								</div>
+							</div>
+							<div class="row">
+								<label>Devise</label>
+								<div class="input-control text full-size">
+									<select name="devise_id" id="banque_devise_id"
+										data-validate-func="min"
+										data-validate-arg="1"
+										data-validate-hint="Sélectionnez la devise SVP.">
+										<option value="0">Sélectionnez une devise</option>
+										{% for item in devises %}
+											<option value="{{ item.id }}"> {{ item.designation }} </option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+							<hr style="background-color: #f7f5f5;">
+							<div class="row">
+								<button onclick="postBanqueData()"  class="button small-button rounded primary chargement-au-click">Appliquer</button>
+								<button class="button small-button rounded" onclick=" closeDialog('#dialogBanque')" style="margin-left: 5px">Annuler</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Fin Ajouter banque-->
+
+			<!-- Dialogue Ajouter Caisse -->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogCaisse">
+				<div class="row cells3 padding20" style="margin-top: 10px">
+					<h3>Ajouter un compte bancaire</h3>
+					<div class="cells2">
+						<div id="formCaisse" >
+							{% csrf_token %}
+							<div class="row" id="resultCaisse">
+							</div>
+							<div class="row">
+								<label>Nom de caisse</label>
+								<div class="input-control text full-size">
+									<input type="text" name="nom_caisse" id="nom_caisse" value="" />
+								</div>
+							</div>
+							<div class="row">
+								<label>Code</label>
+								<div class="input-control text full-size">
+									<input type="text" name="code" id="caisse_code" value="" />
+								</div>
+							</div>
+							<div class="row">
+								<label>Devise</label>
+								<div class="input-control text full-size">
+									<select name="devise_id" id="caisse_devise_id"
+										data-validate-func="min"
+										data-validate-arg="1"
+										data-validate-hint="Sélectionnez la devise SVP.">
+										<option value="0">Sélectionnez une devise</option>
+										{% for item in devises %}
+											<option value="{{ item.id }}"> {{ item.designation }} </option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+							<hr style="background-color: #f7f5f5;">
+							<div class="row">
+								<button onclick="postCaisseData()"  class="button small-button rounded primary chargement-au-click">Appliquer</button>
+								<button class="button small-button rounded" onclick="closeDialog('#dialogCaisse')" style="margin-left: 5px">Annuler</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Fin Ajouter caisse-->
+
+			<!-- Dialogue Périodes comptables-->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogAnneeFiscale">
+				<div class="row cells3 padding20" style="margin-top: 10px">
+					<h3>Année fiscale</h3>
+					<div class="cells2">
+						<div id="formAnneeFiscale" >
+							{% csrf_token %}
+							<div class="row" id="resultAnneeFiscale">
+							</div>
+							<div class="row">
+								<label>Date de l'ouverture </label>
+								<div id="input-date-debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+									<input id="date_debut" readonly type="text" name="date_debut" readonly
+										data-validate-func="required"
+										data-validate-hint="Précisez la date de l'ouverture svp.">
+									<div class="button"><span class="mif-calendar"></span></div>
+								</div>
+							</div>
+							<div class="row">
+								<label>Fin de l'année fiscale</label>
+								<div class="input-control text full-size">
+									<select name="date_fin_jour" id="date_fin_jour">
+										<option value="01"> 01 </option>
+										<option value="02"> 02 </option>
+										<option value="03"> 03 </option>
+										<option value="04"> 04 </option>
+										<option value="05"> 05 </option>
+										<option value="06"> 06 </option>
+										<option value="07"> 07 </option>
+										<option value="08"> 08 </option>
+										<option value="09"> 09 </option>
+										<option value="10"> 10 </option>
+										<option value="11"> 11 </option>
+										<option value="12"> 12 </option>
+										<option value="13"> 13 </option>
+										<option value="14"> 14 </option>
+										<option value="15"> 15 </option>
+										<option value="16"> 16 </option>
+										<option value="17"> 17 </option>
+										<option value="18"> 18 </option>
+										<option value="19"> 19 </option>
+										<option value="20"> 20 </option>
+										<option value="21"> 21 </option>
+										<option value="22"> 22 </option>
+										<option value="23"> 23 </option>
+										<option value="24"> 24 </option>
+										<option value="25"> 25 </option>
+										<option value="26"> 26 </option>
+										<option value="27"> 27 </option>
+										<option value="28"> 28 </option>
+										<option value="29"> 29 </option>
+										<option value="30"> 30 </option>
+										<option value="31"> 31 </option>
+									</select>
+								</div><br>
+							<div class="input-control text full-size">
+									<select name="date_fin_mois" id="date_fin_mois">
+										<option value="01"> Janvier </option>
+										<option value="02"> Février </option>
+										<option value="03"> Mars </option>
+										<option value="04"> Avril </option>
+										<option value="05"> Mai </option>
+										<option value="06"> Juin </option>
+										<option value="07"> Juillet </option>
+										<option value="08"> Août </option>
+										<option value="09"> Septembre </option>
+										<option value="10"> Octobre </option>
+										<option value="11"> Novembre </option>
+										<option value="12"> Décembre </option>
+									</select>
+								</div>
+							</div>
+							<div class="row">
+								<label>Observation</label>
+								<div class="input-control text full-size">
+									<input type="text" name="observation" id="observation" value="" />
+								</div>
+							</div><br>
+							<hr style="background-color: #f7f5f5;">
+							<div class="row">
+								<button onclick="postAnneeFiscaleData()"  class="button small-button rounded primary chargement-au-click" type="submit">Appliquer</button>
+								<button class="button small-button rounded" onclick=" closeDialog('#dialogAnneeFiscale')" style="margin-left: 5px">Annuler</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Fin Dialogue Périodes comptables -->
+
+		</div>
+	</div>
+</div>
+
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/frappe-charts.min.iife.js' %}"></script>
+<script>
+	// Dialogue Organisation
+	function readURL(input) {
+		if (input.files && input.files[0]) {
+			var reader = new FileReader();
+			reader.onload = function (e) {
+				$('#image_preview').attr('src', e.target.result);
+			}
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+
+	$("#image_upload").change(function(){
+		readURL(this);
+	});
+	function launchDialogOrganisation(id){
+		showDialog("chargement");
+		$("#resultOrganisation").children().remove();
+		$.get(
+			"{% url 'module_comptabilite_add_ouverture_organisation' %}",
+			{ },
+			function (response) {
+				if(response.success){
+					$("#nom").val(response.nom);
+					$("#organisation_id").val(response.organisation_id);
+					$("#email").val(response.email);
+					$("#phone").val(response.phone);
+					$("#fax").val(response.fax);
+					$("#numero_fiscal").val(response.numero_fiscal);
+					$("#site_web").val(response.site_web);
+					$("#adresse").val(response.adresse);
+					var image = response.image;
+					console.log(
+
+					);
+					if (image != null && image != ""){
+						console.log("image not null");
+						$("#slide_image_preview").children().remove();
+						$("#slide_image_preview").append("<img id='image_preview' src='/static"+ image +"' style='height: 100px; width: 100px;'>");
+					}
+					$("#organisation_devise_id").val(response.devise_id);
+					init_choix_devise(response.devise_id);
+					init_choix_pays(response.pays_id, response.province_id);
+					init_choix_province(response.province_id, response.ville_id);
+					init_choix_ville(response.ville_id, response.commune_quartier_id);
+				}
+				showDialog("chargement");
+				var dialog = $(id).data('dialog');
+				dialog.open();
+			},
+			"json"
+		);
+	}
+
+	$(document).ready(function () {
+		$("#btnSubmitOrganisation").click(function (event) {
+			//stop submit the form, we will post it manually.
+			event.preventDefault();
+
+			// Get form
+			var form = $('#formOrganisation')[0];
+
+			// Create an FormData object
+			var data = new FormData(form);
+
+			// If you want to add an extra field for the FormData
+			//data.append("CustomField", "This is some extra data, testing");
+
+			// disabled the submit button
+			$("#btnSubmitOrganisation").prop("disabled", true);
+			showDialog("chargement");
+			$("#resultOrganisation").children().remove();
+			$.ajax({
+				type: "POST",
+				enctype: 'multipart/form-data',
+				url: "{% url 'module_comptabilite_post_add_ouverture_organisation' %}",
+				data: data,
+				processData: false,
+				contentType: false,
+				cache: false,
+				timeout: 600000,
+				success: function (data) {
+					showDialog("chargement");
+					console.log("SUCCESS : ", data);
+					if (data.success){
+						$("#resultOrganisation").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-green">Success</h3><span class="fg-green">La mise à jour de vos informations sur la société ont été éffectuée</span></div><div class="col-md-3 xs-hidden"></div>');
+						$("#btnSubmitOrganisation").prop("disabled", false);
+						$("#btn-organisation").children().remove();
+						$("#btn-organisation").append('<span style="color: green;font-style:normal;font-size:85%;"><i class="fa fa-check"></i> les données de la société sont à jour </span>');
+						setTimeout(function(){
+							var dialog = $("#dialogOrganisation").data('dialog');
+							dialog.close();
+						}, 3000);
+					}else{
+						$("#resultOrganisation").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-red">Erreur</h3><span class="fg-red">'+data.message+'</span></div><div class="col-md-3 xs-hidden"></div>');
+					}
+
+				},
+				error: function (e) {
+					showDialog("chargement");
+					$("#resultOrganisation").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-red">Erreur</h3><span class="fg-red">'+e.responseText+'</span></div><div class="col-md-3 xs-hidden"></div>');
+					console.log("ERROR : ", e);
+					$("#btnSubmitOrganisation").prop("disabled", false);
+				}
+			});
+
+		});
+
+	});
+
+	function postCaisseData(){
+		var csrf = $("#formCaisse input[name='csrfmiddlewaretoken']").val();
+		console.log(csrf);
+		var data = 	{
+			designation: $("#nom_caisse").val(),
+			code_journal: $("#caisse_code").val(),
+			devise_id: $("#caisse_devise_id").val(),
+			csrfmiddlewaretoken: csrf
+		};
+
+		showDialog("chargement");
+		$("#resultCaisse").children().remove();
+		$.ajax({
+			method: "POST",
+			url: "{% url 'module_comptabilite_post_add_ouverture_caisse' %}",
+			data: data,
+			dataType: 'json',
+			timeout: 600000,
+			success: function (data) {
+				showDialog("chargement");
+				console.log("Data: " + data);
+				if (data.success){
+					$("#resultCaisse").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-green">Success</h3><span class="fg-green">'+data.message+'</span></div><div class="col-md-3 xs-hidden"></div>');
+					$("#btn-banque").children().remove();
+					$("#btn-banque").append('<span style="color: green;font-style:normal;font-size:85%;"><i class="fa fa-check"></i> Trésorerie configurée </span>');
+					setTimeout(function(){
+						var dialog = $("#dialogCaisse").data('dialog');
+						dialog.close();
+					}, 3000);
+				}else{
+					$("#resultCaisse").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-red">Erreur</h3><span class="fg-red">'+data.message+'</span></div><div class="col-md-3 xs-hidden"></div>');
+				}
+			},
+			error: function (e) {
+				showDialog("chargement");
+				$("#resultCaisse").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-red">Erreur</h3><span class="fg-red">Une Exception est survenue au moment du traitement</span></div><div class="col-md-3 xs-hidden"></div>');
+				console.log("ERROR : ", e.responseText);
+			}
+		});
+	}
+
+	function postBanqueData(){
+		var csrf = $("#formBanque input[name='csrfmiddlewaretoken']").val();
+		console.log(csrf);
+		var data = 	{
+			designation: $("#nom_compte").val(),
+			numero_compte: $("#numero_compte").val(),
+			banque: $("#banque").val(),
+			code_journal: $("#banque_code").val(),
+			devise_id: $("#banque_devise_id").val(),
+			csrfmiddlewaretoken: csrf
+		};
+
+		showDialog("chargement");
+		$("#resultBanque").children().remove();
+		$.ajax({
+			method: "POST",
+			url: "{% url 'module_comptabilite_post_add_ouverture_banque' %}",
+			data: data,
+			dataType: 'json',
+			timeout: 600000,
+			success: function (data) {
+				showDialog("chargement");
+				console.log("Data: " + data);
+				if (data.success){
+					$("#resultBanque").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-green">Success</h3><span class="fg-green">'+data.message+'</span></div><div class="col-md-3 xs-hidden"></div>');
+					$("#btn-banque").children().remove();
+					$("#btn-banque").append('<span style="color: green;font-style:normal;font-size:85%;"><i class="fa fa-check"></i> Trésorerie configurée </span>');
+					setTimeout(function(){
+						var dialog = $("#dialogBanque").data('dialog');
+						dialog.close();
+					}, 3000);
+				}else{
+					$("#resultBanque").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-red">Erreur</h3><span class="fg-red">'+data.message+'</span></div><div class="col-md-3 xs-hidden"></div>');
+				}
+			},
+			error: function (e) {
+				showDialog("chargement");
+				$("#resultBanque").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-red">Erreur</h3><span class="fg-red">Une Exception est survenue au moment du traitement</span></div><div class="col-md-3 xs-hidden"></div>');
+				console.log("ERROR : ", e.responseText);
+			}
+		});
+	}
+
+	function postAnneeFiscaleData(){
+		var csrf = $("#formAnneeFiscale input[name='csrfmiddlewaretoken']").val();
+		console.log(csrf);
+		var data = 	{
+			date_debut: $("#date_debut").val(),
+			date_fin_jour: $("#date_fin_jour").val(),
+			date_fin_mois: $("#date_fin_mois").val(),
+			observation: $("#observation").val(),
+			devise_id: $("#caisse_devise_id").val(),
+			csrfmiddlewaretoken: csrf
+		};
+
+		showDialog("chargement");
+		$("#resultAnneeFiscale").children().remove();
+		$.ajax({
+			method: "POST",
+			url: "{% url 'module_comptabilite_post_add_ouverture_annee_fiscale' %}",
+			data: data,
+			dataType: 'json',
+			timeout: 600000,
+			success: function (data) {
+				showDialog("chargement");
+				console.log("Data: " + data);
+				if (data.success){
+					$("#resultAnneeFiscale").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-green">Success</h3><span class="fg-green">'+data.message+'</span></div><div class="col-md-3 xs-hidden"></div>');
+					$("#btn-periode").children().remove();
+					$("#btn-periode").append('<span style="color: green;font-style:normal;font-size:85%;"><i class="fa fa-check"></i> Trésorerie configurée </span>');
+					setTimeout(function(){
+						var dialog = $("#dialogAnneeFiscale").data('dialog');
+						dialog.close();
+					}, 3000);
+				}else{
+					$("#resultAnneeFiscale").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-red">Erreur</h3><span class="fg-red">'+data.message+'</span></div><div class="col-md-3 xs-hidden"></div>');
+				}
+			},
+			error: function (e) {
+				showDialog("chargement");
+				$("#resultAnneeFiscale").append('<div class="col-md-2 xs-hidden"></div><div class="col-md-8 col-xs-12"><h3 class="fg-red">Erreur</h3><span class="fg-red">Une Exception est survenue au moment du traitement</span></div><div class="col-md-3 xs-hidden"></div>');
+				console.log("ERROR : ", e.responseText);
+			}
+		});
+	}
+
+    function init_choix_devise(devise_id) {
+        $("#organisation_devise_id").val(devise_id);
+
+        $.get(
+            "{% url 'module_comptabilite_list_devises_actives' %}",
+			{},
+            function(response) {
+                $("#organisation_devise_id").children().remove();
+                $("#organisation_devise_id").append("<option value='0'>Sélectionnez la devise</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laDevise = response[i];
+                    var option = "";
+                    if (laDevise.id == parseInt(devise_id)) {
+                        option = "<option selected value='" + laDevise.id + "'>" + laDevise.designation + "</option>";
+                    } else option = "<option value='" + laDevise.id + "'>" + laDevise.designation + "</option>";
+
+                    $("#organisation_devise_id").append(option);
+                }
+            },
+            "json"
+        );
+	}
+
+    function choix_pays() {
+        var idPays = $("#choixPays").val();
+
+        if (idPays != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}", {
+                    ref: idPays
+                },
+                function(response) {
+                    $("#choixProvince").children().remove();
+                    $("#choixProvince").append("<option value='0'>Sélectionnez la province</option>");
+                    console.log(response);
+                    for (var i = 0; i < response.length; i++) {
+                        var laProvince = response[i];
+
+                        var option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                        $("#choixProvince").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else supprimer_provinces();
+    }
+
+    function init_choix_pays(le_pays_id, la_province_id) {
+        $("#choixPays").val(le_pays_id);
+
+        $.get(
+            "{% url 'module_configuration_list_places_filles' %}", {
+                ref: le_pays_id
+            },
+            function(response) {
+                $("#choixProvince").children().remove();
+                $("#choixProvince").append("<option value='0'>Sélectionnez la province</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laProvince = response[i];
+                    var option = "";
+                    if (laProvince.id == parseInt(la_province_id)) {
+                        option = "<option selected value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                    } else option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+
+                    $("#choixProvince").append(option);
+                }
+            },
+            "json"
+        );
+	}
+
+    function choix_province() {
+        var idProvince = $("#choixProvince").val();
+
+        if (idProvince != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}", {
+                    ref: idProvince
+                },
+                function(response) {
+                    $("#choixVille").children().remove();
+                    $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laVille = response[i];
+
+                        var option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                        $("#choixVille").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else supprimer_villes();
+    }
+
+    function init_choix_province(la_province_id, la_ville_id) {
+        $.get(
+            "{% url 'module_configuration_list_places_filles' %}", {
+                ref: la_province_id
+            },
+            function(response) {
+                $("#choixVille").children().remove();
+                $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laVille = response[i];
+                    var option = "";
+                    if (laVille.id == parseInt(la_ville_id)) {
+                        option = "<option selected value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                    } else option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+
+                    $("#choixVille").append(option);
+                }
+            },
+            "json"
+        );
+	}
+
+    function choix_ville() {
+        var idVille = $("#choixVille").val();
+
+        if (idVille != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}", {
+                    ref: idVille
+                },
+                function(response) {
+                    $("#choixCommune").children().remove();
+                    $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laCommune = response[i];
+
+                        var option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                        $("#choixCommune").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else supprimer_communes();
+    }
+
+    function init_choix_ville(la_ville_id, la_commune_id) {
+        $.get(
+            "{% url 'module_configuration_list_places_filles' %}", {
+                ref: la_ville_id
+            },
+            function(response) {
+                $("#choixCommune").children().remove();
+                $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laCommune = response[i];
+                    var option = "";
+                    if (laCommune.id == parseInt(la_commune_id)) {
+                        option = "<option selected value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                    } else option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+
+                    $("#choixCommune").append(option);
+                }
+            },
+            "json"
+        );
+	}
+
+    function supprimer_communes() {
+        $("#choixCommune").children().remove();
+        $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+    }
+
+    function supprimer_villes() {
+        $("#choixVille").children().remove();
+        $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+        supprimer_communes();
+    }
+
+    function supprimer_provinces() {
+        $("#choixProvince").children().remove();
+        $("#choixProvince").append("<option value='0'>Sélectionnez l'état ou la province</option>");
+        supprimer_villes();
+    }
+
+	// Dialogue Banque ou Caisse
+	function launchDialogBanqueOrCaisse(id){
+		var dialog = $(id).data('dialog');
+		dialog.open();
+	}
+	// Dialogue Banque
+	function launchDialogBanque(id){
+		$("#resultBanque").children().remove();
+		var dialog = $(id).data('dialog');
+		dialog.open();
+	}
+	// Dialogue Caisse
+	function launchDialogCaisse(id){
+		$("#resultCaisse").children().remove();
+		var dialog = $(id).data('dialog');
+		dialog.open();
+	}
+	// Dialogue Année fiscale
+	function launchDialogAnneeFiscale(id){
+		$("#resultAnneeFiscale").children().remove();
+		var dialog = $(id).data('dialog');
+		dialog.open();
+	}
+	// Dialogue Données ouverture
+	function launchDialogOuverture(url){
+		console.log(window)
+		var newwindow = window.open(url, '','_blank, height = 690, width = 850');
+		console.log(newwindow)
+	}
+	// Fermer Boîte de dialogue
+	function closeDialog(id){
+		var dialog = $(id).data('dialog');
+		dialog.close();
+	}
+
+	$(document).ready(function(){
+		$('#emplacement_id').on('change', function() {
+			if($(this).val() != '0' || $(this).val() != '0') {
+				var id_emplacement = parseInt($(this).val())
+				$.get(
+					"{% url 'module_inventaire_article_of_emplacement' %}",
+					{ref : "{{ model.id }}", ref_emplacement : id_emplacement},
+					function(data)
+					{
+						if(data != null)
+						{
+							$("#id_quantite_theorique").val(data.quantite_theorique);
+						}
+					},
+					"json"
+				);
+
+			}
+		})
+
+	});
+
+	{% for journal in journaux %}
+		{% if journal.type_journal < 5 %}
+			var donnee = "{{ journal.kanban_dashboard_graph_datas|escape }}"
+			donnee = donnee.replace(/&quot;/g,'"');
+			console.log(donnee);
+			var result = JSON.parse(donnee);
+			console.log(result);
+			console.log("type: "+result[0].type);
+			console.log("key: "+result[0].key);
+			console.log("title: "+result[0].title);
+			var values = result[0].values;
+			var type = result[0].type;
+			var key = result[0].key;
+			var title = result[0].title;
+			var color = result[0].color;
+			var labels = new Array();
+			for(var i = 0; i < values.length; i++){ labels.push(values[i].label); }
+			var datas = new Array();
+			for(var i = 0; i < values.length; i++){ datas.push(values[i].value); }
+			var colors = new Array();
+			for(var i = 0; i < values.length; i++){ colors.push(values[i].color); }
+			if(type == "bar"){ color = colors; }
+			new Chart(document.getElementById("chart-{{ journal.value_type_journal }}-{{ journal.id }}"), {
+				type: type,
+				data: {
+					labels: labels,
+					datasets: [
+						{
+							label: key,
+							backgroundColor: color,
+							data: datas
+						}
+					]
+				},
+				options: {
+					legend: { display: false },
+					title: {
+						display: false,
+						text: title
+					}
+				}
+			});
+
+		{% endif %}
+	{% endfor %}
+
+</script>
+<script>
+    const data = {
+        labels: ["Jan", "Fev", "Mars", "Avr",
+            "Mai", "Juin", "Jul", "Aout","Sept", "Oct", "Nov", "Déc"
+        ],
+        datasets: [
+            {
+                name: "", type: "line",
+                values: [25, 40, 30, 35, 8, 52, 17, -5, -8, 0, 10, 25]
+            },
+        ]
+    }
+
+    const chart1 = new frappe.Chart("#chart", {
+        title: "",
+        data: data,
+        type: 'bar',
+        height: 150,
+        colors: ['#59215D', '#8600A7', '#D37FC3'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    const datachart2 = {
+        labels: ["Jan", "Fev", "Mars", "Avr",
+            "Mai", "Juin", "Jul", "Aout","Sept", "Oct", "Nov", "Déc"
+        ],
+        datasets: [
+            {
+                name: "", type: "line",
+                values: [-5, 8, 20, 17, 9 ,20, 8, 1, -8, 5, 11]
+            },
+        ]
+    }
+    const chart2 = new frappe.Chart("#second_chart", {
+        title: "",
+        data: datachart2,
+        type: 'bar',
+        height: 150,
+        colors: ['#59215D', '#8600A7', '#D37FC3'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    const datachart3 = {
+        labels: ["Jan", "Fev", "Mars", "Avr",
+            "Mai", "Juin", "Jul", "Aout","Sept", "Oct", "Nov", "Déc"
+        ],
+        datasets: [
+            {
+                name: "", type: "bar",
+                values: [-5, 8, 20, 17, 9 ,20, 8, 1, -8, 5, 11]
+            },
+        ]
+    }
+    const chart3 = new frappe.Chart("#third_chart", {
+        title: "",
+        data: datachart3,
+        type: 'bar',
+        height: 150,
+        colors: ['#59215D', '#8600A7', '#D37FC3'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button 
+            onclick="javascript:document.getElementById('submit').click()" 
+            class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_details_element' model.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;margin-left: 5px">Annuler</button>
+		<center><h4 style="color:red; font-weight: bold;">ELEMENT DU BULLETIN</h4></center>
+	</div>
+    
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+    <div class="row cells3 item-content" style="margin-top: 10px">
+        <div class="cell">
+            <form id="form" method="POST" action="{% url 'module_ressources_humaines_post_update_element' %}"
+                data-role="validator" 
+                data-show-required-state="false"
+                data-hint-mode="line"
+                data-hint-background="bg-red"
+                data-hint-color="fg-white"
+                data-hide-error="5000"
+                novalidate="novalidate"
+                data-on-error-input="notifyOnErrorInput"
+                data-show-error-hint="false">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+                <input name="ref" type="hidden" value="{{ model.id }}" >
+                <div class="row">
+					<table class="table no-margin">
+						<tr>
+							<td class="no-padding-top no-padding-left no-padding-bottom" width="35%">
+								<label>Désignation</label>
+								<div class="input-control text full-size" data-role="input">
+									<input name="designation" value="{{ model.designation }}" type="text" autocomplete="off"
+										data-validate-func="required" 
+										data-validate-hint="Entrez la désignation du poste!">
+									<span class="input-state-error mif-warning"></span>
+									<span class="input-state-success mif-checkmark"></span>
+								</div>							
+							</td>
+							<td  class="no-padding-top no-padding-bottom" width="35%">
+								<label>Référence</label>
+								<div class="input-control text full-size">
+									<input type="text" name="reference" value="{{ model.reference }}" id="reference" autocomplete="off" />
+								</div>
+							</td>
+							<td class="no-padding-top no-padding-bottom" width="30%"></td>
+						</tr>
+						<tr>
+							<td class="no-padding-top no-padding-left no-padding-bottom" width="35%">
+								<label>Département</label>
+								<div class="input-control text full-size">
+									<select name="departement_id" id="departement_id">
+										<option  value="0">Sélectionnez un département</option>
+										{% for item in departements %}
+											<option {% if model.departement.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+										{% endfor %}
+									</select>
+								</div>
+							</td>
+							<td class="no-padding-top no-padding-bottom" width="35%">
+								<label>Type</label>
+								<div class="input-control text full-size">
+									<input type="text" value="{{ model.type }}" name="type" id="type" autocomplete="off" />
+								</div>
+							</td>
+							<td class="no-padding-top no-padding-bottom" width="30%"></td>
+						</tr>
+					</table>
+                </div>
+                <!--div class="row">
+                    <label>Description</label>
+                    <div class="input-control textarea full-size" data-role="input">
+                        <textarea name="description" >{{ model.description }}</textarea>
+                    </div>
+                </div-->                
+            </form>
+        </div>        
+    </div>
+{% endblock %}

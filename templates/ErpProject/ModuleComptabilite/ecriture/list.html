@@ -1,0 +1,131 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{% load account_filters %} 
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>Liste des écritures comptables</h2>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">          
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <!--button onclick="javascript:window.location.assign('{% url 'module_comptabilite_creer_piece' %}')"  class="button small-button rounded primary_color_{{module.name|lower}}">Nouvelle écriture d'une pièce comptable</button>
+                    <hr class="hr-ligne">
+                    --> 
+                    <div class="row">
+                       <div class="col-md-3">
+                            <div id="btn-view" data-role="group" data-group-type="one-state">
+                                <button id="btn-tree" onclick="javascript:window.location.assign('{% url 'module_comptabilite_lister_ecritures' %}?view=list')" class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}"><span class="mif-list"></span></button>
+                                <button id="btn-kanban" onclick="javascript:window.location.assign('{% url 'module_comptabilite_lister_ecritures' %}?view=kanban')" class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}"><span class="mif-apps"></span></button>
+                            </div>
+                        </div>
+                    </div>   
+                    <hr class="hr-ligne">                    
+                    <!-- Appel de la fonction message -->
+                     {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                         
+                     <!-- Vue de type list -->
+                     {% if view == "list" %}
+                     <div id="list-view" class="row" style="margin-top: 10px;">
+                        <table id="data_table" class="display nowrap border bordered striped" style="width:100%">
+                        <thead>
+                                <tr>
+                                    <th>Libellé </th>
+                                    <th>Date</th>
+                                    <th>Compte</th>
+                                    <th>Pièce comptable</th>
+                                    <th>Partenaire</th>
+                                    <th>Débit</th>
+                                    <th>Crédit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in model %}
+                                    <tr>
+                                        <td> {{ item.designation }} </td>
+                                        <td> {{ item.piece_comptable.date_piece|date:"d/m/Y" }} </td>
+                                        <td> {{ item.compte.numero }} {{ item.compte.designation }} </td>
+                                        <td><a class="lien chargement-au-click" href="{% url 'module_comptabilite_details_piece' item.piece_comptable_id %}">{{ item.piece_comptable.designation }}</a></td>
+                                        <td> 
+                                            {% if item.piece_comptable.partenaire == None %}
+                                                {{ "-" }}
+                                            {% else %}
+                                                {{ item.piece_comptable.partenaire.nom_complet }}
+                                            {% endif %}
+                                        </td>
+                                        <td align="right"> {{ item.separateur_debit |monetary}}  {{ item.piece_comptable.devise.symbole_devise }}</td>
+                                        <td align="right">  {{ item.separateur_credit |monetary}}  {{ item.piece_comptable.devise.symbole_devise }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th id="equilibre_debit" style="text-align: right"></th>
+                                    <th id="equilibre_credit" style="text-align: right"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% elif view == "kanban" %}
+                    <!-- Vue de type card -->
+                <div id="kanban-view" class="row" style="margin-top: 10px">
+                    {% for item in model %}
+                    <div class="col-md-4">
+                        <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                            <div class="card-item-content">
+                                <div class="thumb">
+                                </div>
+                                <div class="texts">
+                                    <span class="inner-text"><a class="lien chargement-au-click" href="#">{{ item.designation }}</a></span><br>
+                                    <a class="link chargement-au-click" href="{% url 'module_comptabilite_details_piece' item.piece_comptable_id %}">{{ item.piece_comptable.designation }}</a><br>
+                                    <div class="mt-2"></div>
+                                    <span class="inner-text">Compte: {{ item.compte.numero }} {{ item.compte.designation }}</span><br>
+                                    <span class="inner-text">Date : {{ item.piece_comptable.date_piece|date:"d/m/Y" }} </span><br>
+                                    <span class="inner-text">Partenaire: {% if item.piece_comptable.partenaire == None %} {{ "-" }}{% else %}{{ item.piece_comptable.partenaire.nom_complet }}{% endif %}</span>
+
+                                    <a href="{% url 'module_comptabilite_details_piece' item.piece_comptable_id %}" class="mt-3 btn btn-block btn-wide rounded chargement-au-click">voir la pièce comptable</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+
+    <!-- Appel widget datatable -->
+   {% include 'ErpProject/ErpBackOffice/widget/datatable.html' with type_view=view %} 
+
+
+    <script>
+        var equilibre_credit = 0;
+        var equilibre_debit = 0;
+        var devise = "";
+
+        {% for item in model %}
+            equilibre_debit += parseFloat("{{ item.debit }}");
+            equilibre_credit += parseFloat("{{ item.credit }}");
+        {% endfor %}
+
+        $(document).ready(function(){
+            $("#equilibre_credit").text(equilibre_credit.toFixed(2));
+            $("#equilibre_debit").text(equilibre_debit.toFixed(2));
+        });
+    </script>
+{% endblock %}

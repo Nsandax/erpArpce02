@@ -1,0 +1,708 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+
+{%load static %}
+
+<!-- <link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap.min.css' %}"> -->
+<link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+
+<script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+<!-- <script src="{% static 'ErpProject/js/bootstrap.min.js' %}"></script> -->
+
+
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+                <div class="panel panel-default" style="border: none;">
+
+                    <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                        <div class="row">
+                            <div class="col-md-1">
+                                {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider"%}
+                            </div>
+                            <div class="col-md-1" style="margin-left:15px;">
+                                <button onclick="javascript:window.location.assign('{% url 'module_achat_list_demande_achat' %}')" class="theme-btn theme-btn-sm rounded">
+                                    Annuler
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="hr-ligne">
+                        <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                        <br>
+
+                        <form action="{% url 'module_achat_post_add_demande_achat' %}" method="POST"
+                            enctype="multipart/form-data"
+                            data-role="validator"
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+
+                            <input id="submit" type="submit" style="display: none">
+                            <input type="hidden" id="etat_actuel_id" name="etat_actuel_id" value="{{etat_actuel_id}}">
+                            <input id="nombreLigne" type="hidden" value="0" />
+
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                            <label>Numéro du bon d'achat</label>
+                                            <div class="input-control text full-size">
+                                                <input type="text" id="numero" disabled="true" autocomplete="off" />
+                                            </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                            <label>Date d'enregistrement</label>
+                                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input readonly type="text" id="date_prevue" name="date" readonly value="{% now "d/m/Y" %}"
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Précisez la date d'enregistrement svp.">
+                                                <div class="button"><span class="mif-calendar"></span></div>
+                                            </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Demandeur</label>
+                                        <div class="input-control text full-size">
+                                            <select type="text" name="demandeur_id" id="demandeur_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un demandeur!">
+                                                {% if etat_actuel_id == 0 %}
+                                                <option value="">Sélectionnez un employé</option>
+                                                {% for item in demandeurs %}
+                                                    <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                                {% endfor %}
+                                            {% else %}
+                                            <option value="{{ etat.demandeur.id }}"> {{ etat.demandeur.nom_complet }} </option>
+                                            {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label>Service référent</label>
+                                        <div class="input-control text full-size">
+                                            <select onchange="fill_account()" type="text" id="service_ref_id" name="service_ref_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un service référent!">
+
+                                                {% if etat_actuel_id == 0 %}
+                                                <option value="">Sélectionnez un service référent</option>
+                                                {% for item in warehouses %}
+                                                    <option value="{{ item.id }}"> {{ item.libelle }} </option>
+                                                {% endfor %}
+                                                {% else %}
+                                            <option value="{{ etat.services_ref.id }}"> {{ etat.services_ref.libelle }} </option>
+                                            {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="col-md-6">
+                                        <label>Document en attache</label>
+                                        <div class="input-control text full-size">
+                                            <input id="document_upload" name="document_upload" type="file" multiple>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                     <div class="col-md-6">
+                                        <label>Description de la demande</label>
+                                        <div class="input-control text full-size">
+                                            <textarea name="description_demande">
+
+                                            </textarea>
+                                        </div>
+                                    </div>
+                                    {% if etat_actuel_id == 0 %}
+                                    <div class="col-md-6" >
+                                        <div class="row">
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input value="0" name="est_groupe" id="est_groupe" type="checkbox" onclick="estgroupe()">
+                                                <span class="check"></span>
+                                                <span class="caption"  style="color: red;">Est une demande groupée ?</span>
+                                            </label>
+
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <div id="express" class="col-md-6">
+                                        <label>Expression de besoin :</label>
+                                        <div class="input-control text full-size ">
+                                            <select name="expression_id" id="expression_id" onchange="fill_lignes()">
+                                                {% if etat_actuel_id != 0 %}
+                                                    <option {% if etat_actuel_id == etat.id %} {{ "selected" }} {% endif %} value="{{ etat.id }}"> {{ etat.numero_expression}} </option>
+                                                 {% else %}
+                                                 <option value="">Sélectionnez une expression de besoin</option>
+                                                 {% for item in expressions %}
+
+                                                <option value="{{ item.id }}"> {{ item.numero_expression }} </option>
+                                                {% endfor %}
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!--Test sur Ajout sur plusieurs-->
+
+                                    <div id="tableauexpress" class="col-md-6">
+                                        <table id="TabExpress" class="table no-margin">
+                                            <thead class="no-border">
+                                                <tr>
+                                                    <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Expression de besoin</th>
+                                                    <th width="5%"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="itemsExpress">
+                                                <tr id="ligneExpress1">
+                                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                        <input id="id1" type="hidden" name="expression_rd" value="0" />
+                                                        <div class="input-control select full-size">
+                                                            <select id="express1" name="expression_list_id">
+                                                                <option value="">Sélectionnez une expression</option>
+                                                                {% for item in expressions %}
+                                                                    <option value="{{ item.id }}"> {{ item.numero_expression }} </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td class="no-padding-top no-padding-bottom">
+                                                        <div class="pagination no-border">
+                                                            <span class="item" title="Supprimer la ligne" onclick="supprimerLigneExpress(1)"><span class="mif-cross fg-red"></span></span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="row margin10 no-margin-left no-margin-right">
+                                            <button type="button" class="button small-button rounded" id="btnAjouterLigneExpress">Ajouter une expression</button>
+                                        </div>
+                                    </div>
+
+
+                                    <!--Fin Test-->
+
+                                </div>
+
+                                <br>
+
+                            <br>
+                            <br>
+                            <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                                <table id="tableau" class="table no-margin">
+                                    <thead class="no-border">
+                                        <tr>
+                                            <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Article</th>
+                                            <th width="20%">Quantité demandée</th>
+                                            <th width="25%">Description</th>
+                                            <th width="5%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items">
+                                        <tr id="ligne1">
+                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                <input id="id1" type="hidden" name="article_rd" value="0" />
+                                                <input id="stock1" type="hidden" value="0" />
+                                                <div class="input-control select full-size">
+                                                    <select  onchange="selectChange(event)" id="item1" name="article_id"
+                                                        >
+                                                        <option value="">Sélectionnez un article</option>
+
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="quantite_demandee" id="quantite1" type="text" placeholder="Ex: 10"
+                                                        >
+                                                    <span class="prepend-icon" style="margin-left:75%">
+                                                        <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name="description" id="description1" type="text" autocomplete="off" >
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                <div class="pagination no-border">
+                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                  <table id="tableau2" class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                                <tr >
+                                    <td class="head" >#</td>
+                                    <td class="head">ARTICLE</td>
+                                    <td class="head">QUANTITE</td>
+                                    <td class="head">DESCRIPTION</td>
+                                </tr>
+                                <div id="ligne_refresh">
+                                {% for item in lignes_etat %}
+
+                                    <tr>
+                                        <input type="hidden" name="article_id" value="{{item.article.id}}" />
+                                        <td class="td"></td>
+                                        <td class="td">{{ item.article.designation }}</td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                                <div class="input-control text full-size">
+                                                    <input name='quantite_demandee' type="text" placeholder="Ex: 1000"
+                                                        data-validate-func="number"
+                                                        data-validate-arg="1"
+                                                        data-validate-hint="Précisez le prix unitaire svp" value={{item.quantite_demande}}>
+                                                    <span class="prepend-icon" style="margin-left:75%">
+                                                        <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input name='description' type="text" placeholder="Ex: Marque, Specifications.."
+                                                            value={{item.description}}>
+                                                        <span class="prepend-icon" style="margin-left:75%">
+                                                            <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                    </tr>
+
+                                {% endfor %}
+                            </div>
+
+                            </table>
+                            </div>
+                            <div class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+
+
+
+
+    <script src="/static/ErpProject/js/fourniture-local.js"></script>
+    <script>
+        var deviseRef = "FCFA";
+
+        var lesCategories = new Array();
+        var lesArticles = new Array();
+        var lesDevises = new Array();
+
+        {% for item in categories %}
+            lesCategories.push({id:"{{ item.id }}", designation:"{{ item.designation }}"});
+        {% endfor %}
+
+        {% for item in articles %}
+            lesArticles.push({id:"{{ item.id }}", designation:"{{ item.designation }}", code_article:"{{ item.code_article }}", categorie_id:"{{ item.categorie_id }}"});
+        {% endfor %}
+
+        {% for item in devises %}
+            lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+        {% endfor %}
+    </script>
+    <script>
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+        var bon = {};
+
+         $(document).ready(function(){
+            var etat_actuel_id = $('#etat_actuel_id').val();
+            console.log("etat")
+
+            if (etat_actuel_id == 0){
+                $("#tableau2").hide();
+            }
+            else{
+                $("#items").empty();
+                $("#tableau").hide();
+                $("#btn_ligne").hide();
+            }
+        });
+
+        $(document).ready(function(){
+            $("div#tableauexpress").hide()
+            numero_bon = new Date().getTime() + "" + "{{ utilisateur.id }}";
+            bon = fournitureLocal.avoirFourniture();
+
+            if(bon != null)
+            {
+                //$("#numero").val(bon.numero);
+                $("#numero").val(numero_bon);
+                $("#fournisseur_id").val(bon.fournisseur_id);
+                $("#demandeur_id").val(bon.demandeur_id);
+                $("#date_prevue").val(bon.date_prevue);
+                $("#condition_reglement_id").val(bon.condition_reglement_id);
+                $("#devise_id").val(bon.devise_id);
+                $("#reference_document").val(bon.reference_document);
+
+                var lignes = fournitureLocal.avoirToutesLignes();
+                if(lignes.length != 0)
+                {
+                    for(var i = 0; i < lignes.length; i++)
+                    {
+                        var item = lignes[i];
+                        var k = i + 1;
+                        if(k == 1)
+                        {
+                            $("#item1").val(item.article_id);
+                            $("#stock1").val(item.stock_article_id);
+                            $("#quantite1").val(item.quantite_demandee);
+                            $("#prix1").val(item.prix_unitaire);
+                            $("#id1").val(item.ligne_id);
+                            $("#unite1").text(item.symbole_unite);
+                        }
+                        else
+                        {
+                            nombreLignes++;
+                            compteur++;
+                            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="article_rd" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" name="article_id" id="item' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article"><option value="0">Sélectionnez un article</option>';
+            nouvelleLigne += renvoyerOptionsArticles();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            //nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            /*nouvelleLigne += '<div class="input-control text full-size" style="display:none;">';
+            nouvelleLigne += '<input id="description' + compteur + '" name="description" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div>'*/
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="description' + compteur + '" name="description" type="text">';
+            nouvelleLigne += '</span></div>';
+            nouvelleLigne += '</td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+                            $("#items").append(nouvelleLigne);
+
+                            $("#items").append(nouvelleLigne);
+                        }
+                    }
+                    for(var i = 1; i < lignes.length; i++)
+                    {
+                        var item = lignes[i];
+                        var k = i + 1;
+                        $("#item" + k).val(item.article_id);
+                    }
+                }
+            }
+        });
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="article_id" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article"><option value="0">Sélectionnez un article</option>';
+            nouvelleLigne += renvoyerOptionsArticles();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            //nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            /*nouvelleLigne += '<div class="input-control text full-size" style="display:none;">';
+            nouvelleLigne += '<input id="description' + compteur + '" name="description" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div>'*/
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="description' + compteur + '" name="description" type="text">';
+            nouvelleLigne += '</span></div>';
+            nouvelleLigne += '</td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+
+
+
+        $("#btnAjouterLigneExpress").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligneExpress' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="expression_rd" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" name="expression_list_id" id="express' + compteur +'">' ;
+            nouvelleLigne += ' <option value="0">Sélectionnez une expression</option>';
+            nouvelleLigne += '{% for item in expressions %}<option value="{{ item.id }}"> {{ item.numero_expression }} </option>{% endfor %}';
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigneExpress(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#itemsExpress").append(nouvelleLigne);
+        });
+
+        function selectChange(event)
+        {
+            $select = $(event.target);
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+                if($("#" + id_element).val() != "0")
+                {
+                    nombreItems += 1;
+                    var idArticle = parseInt($("#" + id_element).val());
+                    console.log("ID ARTICLE : " + idArticle);
+                    $.get(
+                        "{% url  'module_achat_article_prix' %}",
+                        {ref : idArticle},
+                        function(data)
+                        {
+                            console.log("DATA " + data.id)
+                            if(data != null)
+                            {
+                                $("#id" + ligneActuelle).val(data.id);
+                                $("#quantite" + ligneActuelle).val(1);
+                                $("#prix" + ligneActuelle).val(data.prix_unitaire);
+                                $("#unite" + ligneActuelle).text(data.symbole_unite);
+                                console.log("prix : " + data.prix_unitaire);
+                            }
+                        },
+                        "json"
+                    );
+                }
+                else nombreItems -= 1;
+            }
+        }
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            if($("#id" + indice).val() != "0")
+            {
+                fournitureLocal.supprimerLigne($("#id" + indice).val());
+            }
+            $("#ligne" + indice).remove();
+        }
+
+        function supprimerLigneExpress(indice) {
+            nombreLignes--;
+            $("#ligneExpress" + indice).remove();
+        }
+
+        function choix_devise()
+        {
+            var id_devise = $("#devise_id").val();
+            if(id_devise == "0") deviseRef = "$";
+            else
+            {
+                for(var i = 0; i < lesDevises.length; i++)
+                {
+                    var devise = lesDevises[i];
+                    if(devise.id == id_devise)
+                    {
+                        deviseRef = devise.symbole_devise;
+                        $(".devise").text(deviseRef);
+                        break;
+                    }
+                }
+            }
+        }
+
+  function renvoyerOptionsArticles()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesarticlesfill.length; i++)
+            {
+                var article = lesarticlesfill[i];
+
+                ligne += '<option value="' + article.id + '"> [' + article.code_article + '] ' + article.designation + '</option>';
+
+            }
+            return ligne;
+        }
+
+
+    </script>
+        <script>
+    var lesarticlesfill = new Array();
+    var is_checked = false;
+    function fill_account() {
+
+            var choixService = $("#service_ref_id").val();
+            console.log(choixService)
+
+            if (choixService !== 0){
+                showDialog("chargement");
+                console.log(choixService)
+
+                $.get(
+                    "{% url 'module_achat_get_article_of_service_referent' %}",
+                    {ref:choixService}
+                    ,
+                    function (response) {
+                        console.log(response)
+                        $("#item1").children().remove();
+                        $("#item1").append("<option value='0'>Sélectionnez un article</option>");
+                            lesarticlesfill = [];
+                            for (var i = 0; i < response.length; i++) {
+                            var unarticle = response[i];
+                            lesarticlesfill.push({id:unarticle.id, code_article:unarticle.code_article, designation: unarticle.designation});
+
+                            var option = "<option value='" + unarticle.id + "'>[" + unarticle.code_article + "]"+" "+unarticle.designation+"</option>";
+                            $("#item1").append(option);
+                        }
+                       showDialog("chargement");
+                    },
+                    "json"
+                );
+
+            }
+
+
+        }
+
+
+        function estgroupe(){
+            var checkBox = document.getElementById("est_groupe");
+            is_checked = checkBox;
+            if (checkBox.checked == true){
+               $("div#express").hide();
+               $("div#tableauexpress").show()
+               $("#tableau").show();
+                $("#tableau").append(montableaudebase);
+               $("#tableau2").hide();
+               $("#service_ref_id").children().remove();
+        $("#service_ref_id").append(monselectOfServiceRef);
+        $("#demandeur_id").children().remove();
+        $("#demandeur_id").append(monselectOfDemandeur);
+            }else{
+                $("div#express").show();
+                $("div#tableauexpress").hide()
+            }
+        }
+    </script>
+
+
+<script>
+        $('.chosen-select').chosen();
+
+</script>
+
+<script>
+var montableaudebase = $("#tableau").children();
+var monselectOfServiceRef = $('#service_ref_id').children();
+var monselectOfDemandeur = $("#demandeur_id").children();
+
+
+function fill_lignes() {
+
+    var choixExpression = $("#expression_id").val();
+    console.log("nnn")
+    console.log(choixExpression)
+
+    if (choixExpression !== "0"){
+        showDialog("chargement");
+        console.log("Dedans oh")
+
+        console.log(choixExpression)
+
+        $.get(
+            "{% url 'module_achat_get_lignes_of_expression' %}",
+            {ref:choixExpression}
+            ,
+            function (response) {
+                console.log(response)
+                $("#tableau").hide();
+                $("#tableau2").show();
+                console.log("baratin");
+
+                $("#tableau2").children().remove();
+                $("#tableau2").append('<tr><td class="head" >#</td><td class="head">ARTICLE</td><td class="head">QUANTITE</td><td class="head">DESCRIPTION</td></tr>');
+                $("#tableau").children().remove();
+
+
+                $("#service_ref_id").children().remove();
+
+                $("#demandeur_id").children().remove();
+
+                for (var i = 0; i < response.length; i++) {
+                    var uneligne = response[i];
+                    console.log("baratin")
+                    console.log(uneligne)
+
+                    var option = '<tr><input type="hidden" name="article_id" value="'+ uneligne.article_id + '"/>';
+                        //option += '<input name="quantite_demandee" type="hidden" value="'+ uneligne.quantite_demandee + '">';
+                        //option += '<input type="hidden" name="description" value="'+ uneligne.description +'">';
+                        option += '<td class="td"></td>';
+                        option += '<td class="td">'+ uneligne.designation_article+'</td>';
+                        //option += '<td class="td"> '+ uneligne.quantite_demandee+'</td>';
+                        option += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input name="quantite_demandee" type="text" placeholder="Ex: 1000" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" value="'+uneligne.quantite_demandee+'"><span class="prepend-icon" style="margin-left:75%"><span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span></span></div></td>'
+                        //option += '<td class="td">'+ uneligne.description+'</td>';
+                        option += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input name="description" type="text" placeholder="Ex: Marque, Specifications.." value='+uneligne.description+'><span class="prepend-icon" style="margin-left:75%"><span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span></span></div></td>'
+                        option += "</tr>";
+
+
+                        get_text_of_service_ref = '<option value="'+uneligne.service_ref_id+'">'+uneligne.service_referent_libelle+'</option>';
+                        get_text_of_demandeur = '<option value="'+uneligne.demandeur_id+'">'+uneligne.demandeur_nom+'</option>';
+
+                    $("#tableau2").append(option);
+                }
+                $("#service_ref_id").append(get_text_of_service_ref);
+                $("#demandeur_id").append(get_text_of_demandeur);
+
+               showDialog("chargement");
+            },
+            "json"
+        );
+
+    }else{
+        console.log("ping")
+        $('#tableau2').children().remove();
+        $("#tableau2").hide();
+        $("#tableau").show();
+        $("#tableau").append(montableaudebase);
+
+        $("#service_ref_id").children().remove();
+        $("#service_ref_id").append(monselectOfServiceRef);
+        $("#demandeur_id").children().remove();
+        $("#demandeur_id").append(monselectOfDemandeur);
+    }
+
+
+}
+</script>
+{% endblock %}

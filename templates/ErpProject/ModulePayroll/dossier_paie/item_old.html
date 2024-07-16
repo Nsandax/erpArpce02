@@ -1,0 +1,305 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+	{% load account_filters %}
+   <div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_payroll_list_dossier_paie' %}">Liste des dossiers</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+<style>
+	#progress-bar {
+  margin-top: 1em;
+}
+</style>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_rh_add_employe" url_detail="module_rh_detail_employe" csrf_token=csrf_token module=module type_doc="" only %}
+	{% if model.est_actif %}
+    <div class="row">
+
+        <div class="col-md-2">
+                <button id="progress-bar-trigger" onclick="javascript:window.location.assign('#')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="width: 100%;">
+                    <span id="calculateLabel">{% if not model.est_calcul %} Lancer le calcul {% else %} Relancer le calcul {% endif %}</span>
+                </button>
+            </div>
+
+            <div class="col-md-2">
+                <button onclick="javascript:window.location.assign('{% url 'module_payroll_list_dossier_paie' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="width: 100%;">Annuler</button>
+                <!--button id="supprimer" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer</!button-->
+            </div>
+    </div>
+
+        <div id="progress-wrapper">
+            <div id="progress-bar" style="background-color: green; width: 0%;">&nbsp;</div>
+            <div id="progress-bar-message">En attente du traitement...</div>
+        </div>
+        {% else %}
+	    <div class="row">
+
+		<div class="col-md-2">
+				<button id="launchCalculCompta" onclick="generer_ecriture()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="width: 100%;">
+					Générer les écritures
+				</button>
+			</div>
+		</div>
+	  {% endif %}
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+	{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+	<br>
+	<div class="panel panel-default">
+        <div class="panel panel-body" style="background-color:white;">
+
+		<div class="row">
+			<div class="grid-container">
+				<div class="edit-profile grid-area">
+					<div class="header">
+						<h1>PERIODE DE PAIE</h1>
+					</div>
+					<!--div class="profile-picture">
+						<img src="{% static organisation.icon %}">
+					</div-->
+					<h1>{{ model }}</h1> <br>
+
+					<!--  -->
+					<div class="row">
+						<div class="tabcontrol2" data-role="tabcontrol">
+							<ul class="tabs" style="position: relative;left: 0%;">
+								<li class="active"><a href="#frame_fourniture">Lots Bulletins</a></li>
+								<li class=""><a href="#frame_unite_achat">Fichiers PDF</a></li>
+								<li class=""><a href="#frame_ecriture_comptable">Ecritures comptables</a></li>
+							</ul>
+							<div class="frames">
+
+								<div class="frame" id="frame_fourniture" style="display: none;">
+									<div class="row cells3">
+										<div class="cell">
+											{% for lot in lots_bulletin %}
+											<div class="row">
+												<p class="minor-header fg-gray">
+													<a href="{% url 'module_payroll_details_lotbulletin' lot.id %}">{{ lot.reference }}:</a>
+													<br>
+													<span class="sub-alt-header lien leaf">{{ lot.value_type }}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+													{% if lot.est_regulier %}
+													<small style="padding: 1px 7px; border-radius: 5px" class=" fg-white bg-green">Lot regulier </small>
+													{% endif %}
+													{% comment %}
+													{% if lot.est_soumis and lot.est_valide %}
+													<small style="padding: 1px 7px; border-radius: 5px" class=" fg-white bg-green">Lot valide et actif </small>
+													{% else %}
+													<button onclick="activer_soumettre({{lot.id}})" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" >
+														Designer comme lot actif
+													</button>
+													{% endif %}
+													{% endcomment %}
+												</p>
+											</div>
+											{% endfor %}
+											{% if not lots_bulletin %}
+											<div class="row">
+												<p class="minor-header fg-gray">
+													<span class="sub-alt-header lien leaf">Aucun lot de bulletin</span>
+												</p>
+											</div>
+											{% endif %}
+
+
+
+										</div>
+									</div>
+								</div>
+
+								<div class="frame" id="frame_unite_achat" style="display: none;">
+									<div class="row cells3">
+										<div class="cell">
+											<div class="row">
+												<p><span class="sub-alt-header fg-dark">Aucun rapport sur la paie des employés</span></p>
+
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="frame" id="frame_ecriture_comptable" style="display: none;">
+									<div class="row cells3">
+										<div class="cell">
+											<div class="row">
+												{% if not temp_ecritures_comptables %}
+												<p><span class="sub-alt-header fg-dark">Aucune écriture comptable générée</span></p>
+												{% else %}
+												<div class="row">
+													<p class="sub-header">Ecritures comptables...</p>
+													<table class="table border bordered">
+														<thead>
+															<tr>
+																<th class="no-padding-top no-padding-bottom" width="30%">Compte</th>
+																<th width="30%">Libellé</th>
+																<th width="20%">Débit</th>
+																<th width="20%">Crédit</th>
+															</tr>
+														</thead>
+														<tbody>
+															{% for ecriture in temp_ecritures_comptables %}
+																<tr class="table bordered border">
+																	<td> {{ ecriture.compte.numero }} {{ ecriture.compte.designation}}</td>
+																	<td> {{ ecriture.designation }} </td>
+																	<td> {{ ecriture.separateur_montant_debit |monetary}} </td>
+																	<td> {{ ecriture.separateur_montant_credit |monetary}}  </td>
+																</tr>
+															{% endfor %}
+															<tr class="table bordered border">
+																<td></td>
+																<td> </td>
+																<td><span class="monetary">{{ montant_debit |monetary}}</span></td>
+																<td><span class="monetary">{{ montant_credit |monetary}}</span></td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+												{% endif %}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+
+			</div>
+		</div>
+        </div>
+	</div>
+
+<script>
+var is_success_one_time = false;
+var bar = document.getElementById("progress-bar");
+var barMessage = document.getElementById("progress-bar-message");
+	function updateProgress (progressUrl) {
+		if (!is_success_one_time ){
+				fetch(progressUrl).then(function(response) {
+					response.json().then(function(data) {
+						// update the appropriate UI components
+						setProgress(data.state, data.details);
+						setTimeout(updateProgress, 500, progressUrl);
+					});
+				});
+		}else{
+			location.reload();
+		}
+}
+function setProgress(state, details ){
+
+	if (state == "SUCCESS"){
+		bar.style.width = "100%";
+		barMessage.innerHTML = '100 sur 100 % effectués.';
+		$("#calculateLabel").text("Relancer le calcul");
+		is_success_one_time = true;
+	} else if(state == "EN COURS"){
+		var current = details.current * 100 / details.total;
+		bar.style.width =  current + "%";
+		barMessage.innerHTML = current + ' sur 100 % effectués.';
+
+	}
+}
+
+var trigger = document.getElementById('progress-bar-trigger');
+trigger.addEventListener('click', async function(e) {
+		await kick_off_paiement();
+		$("#calculateLabel").text("En cours de calcul");
+		var progressUrl = '{% url "task_status" "1000" %}';  // django template usage
+		progressUrl = progressUrl.replace('1000', task_id);
+		updateProgress(progressUrl);
+})
+
+</script>
+
+<script>
+    let identifiant = "{{ model.id }}";
+    async function kick_off_paiement() {
+            if (identifiant !== 0){
+                showDialog("chargement");
+               await $.get(
+                    "{% url 'module_payroll_process_calcul_payment' %}",
+                    {ref:identifiant}
+                    ,
+                    function (response) {
+                        task_id = response[0].task_id
+                       showDialog("chargement");
+                    },
+                    "json"
+                );
+
+            }
+
+        }
+	async function generer_ecriture(){
+
+		var lot_actif = "{{ lot_actif }}"
+
+		//Dans le cas ou il n'y a aucun lot actif
+		if(lot_actif == "None"){
+			return Swal.fire(
+                     'Impossible de continuer!',
+                     'Aucun lot n\'est défini comme étant valide et soumis',
+                     'Veuillez en définir un!',
+                 )
+		}
+
+		Swal.fire({
+             title: 'Générer les écritures comptables',
+             text: "Voulez-vous générer les écritures pour le lot de bulletin {{ lot_actif.reference }}!" ,
+             icon: 'warning',
+             showCancelButton: true,
+             confirmButtonColor: '#3085d6',
+             cancelButtonColor: '#d33',
+             confirmButtonText: 'Oui, Générer!'
+         }).then((result) => {
+             if (result.value) {
+						if (identifiant !== 0){
+								showDialog("chargement");
+							 $.get(
+									"{% url 'module_payroll_generer_ecriture_comptable' %}",
+									{ref:identifiant}
+									,
+									function (response) {
+										console.log("response", response)
+									showDialog("chargement");
+									},
+									"json"
+								);
+								 location.reload();
+
+							}
+             }
+         })
+
+
+
+	}
+
+
+
+	async function activer_soumettre(id){
+		if (id !== 0){
+                showDialog("chargement");
+               await $.get(
+                    "{% url 'module_payroll_activer_lot_bulletin' %}",
+                    {ref:id}
+                    ,
+                    function (response) {
+						console.log("response", response)
+                       showDialog("chargement");
+                    },
+                    "json"
+                );
+				await location.reload();
+
+            }
+	}
+</script>
+{% endblock %}

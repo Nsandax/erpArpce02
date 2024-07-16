@@ -1,0 +1,140 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %} {%load static %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_vente_tableau_de_bord' %}">Module Vente</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row" style="padding-top: 30px;">
+                <div class="col-lg-12">
+                    <h2>Liste des Articles</h2>
+                <strong style="float: right;color: grey;opacity:1;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+                    <dir class="separ" style="background-color: grey;opacity: 0.2"></dir>
+                       <div class="panel panel-default" style="border: none;">
+
+                        <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+
+                                  <button onclick="javascript:window.location.assign('{% url 'module_vente_add_article' %}')" class="button small-button rounded primary chargement-au-click  primary primary_color_{{module.name|lower}}">Créer</button>
+
+                <div class="cell">
+                    <div data-role="group" data-group-type="one-state">
+                        <button id="btn-tree" class="button small-button rounded"><span class="mif-list"></span></button>
+                        <button id="btn-kanban" class="button small-button rounded"><span class="mif-apps"></span></button>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+                <br>
+
+
+                <div id="tree-view" class="row erp-hidden" style="margin-top: 10px">
+                    <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+
+                        <thead>
+                            <tr>
+                                <th style="width: 20px; background-color:#2e416a; white"></th>
+                                <th>Référence</th>
+                                <th>Designation</th>
+                                <th>Prix de vente</th>
+                                <th>Catégorie</th>
+                                <th>Type d'article</th>
+                                <th>Quantité en stock</th>
+                                <th>Quantité prévue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in model %}
+                            <tr>
+                                <td>
+                                    <label class="small-check">
+                                                <input type="checkbox">
+                                                <span class="check"></span>
+                                            </label>
+                                </td>
+                                <td>
+                                    <a class="lien chargement-au-click" href="{% url 'module_vente_details_article' item.id %}">{{ item.code_article }}</a>
+                                </td>
+                                <td> {{ item.designation }} </td>
+                                <td> {{ item.prix_unitaire }} {{ devise_ref.symbole_devise }} </td>
+                                <td> {{ item.categorie.designation }} </td>
+                                <td>
+                                    {% for type_article in types_article %} {% if type_article.id == item.type_article %} {{ type_article.designation }} {% endif %} {% endfor %}
+                                </td>
+                                <td> {{ item.quantite_stock }} {{ item.unite.symbole_unite }}</td>
+                                <td> {{ item.quantite_prevue }} {{ item.unite.symbole_unite }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="kanban-view" class="row cells3" style="margin-top: 10px">
+                    {% for item in model %}
+                    <div class="col-md-4">
+                        <div class="shadow padding10 clearfix" style="margin-top: 10px; margin-bottom: 15px">
+                            {% if item.image != None and item.image != "" %}
+                            <img src="{% static item.image %}" style="height: 70px; width: 70px; float: left;"> {% else %}
+                            <img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 70px; width: 70px; float: left;"> {% endif %}
+                            <div style="padding-left: 80px;">
+                                <span class="sub-header"><a class="lien chargement-au-click" href="{% url 'module_vente_details_article' item.id %}">{{ item.designation }}</a></span>
+                                <br>
+                                <span class="sub-alt-header">Prix : {{ item.prix_unitaire }} {{ devise_ref.symbole_devise }}</span>
+                                <br>
+                                <span class="sub-alt-header">Disponible : {{ item.quantite_stock }} {{ item.unite.symbole_unite }}</span>
+                                <br>
+                                <span class="sub-alt-header">Prévue : {{ item.quantite_prevue }} {{ item.unite.symbole_unite }}</span>
+                                <br>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+
+
+
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [{
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                }, {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                }, {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                }, {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        });
+    });
+</script>
+{% endblock %}

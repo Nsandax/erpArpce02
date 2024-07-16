@@ -1,0 +1,377 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    <style>
+        .left{
+            width:40%;
+            float: left;
+        }
+        .right{
+            width:60%;
+            float: right;
+        }
+        .carreau{
+            padding-top:3%;
+            padding-bottom:3%;
+            margin-bottom:1%;
+            align-items: center;
+            display: flex;
+            font-family:Circular Std Bold;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .Header_Back{
+            background-color: #b3cdd1;
+            background-image: linear-gradient(315deg, #b3cdd1 0%, #9fa4c4 74%);
+            color: #fff;
+            font-weight: 800;
+        }
+        .btSh{
+            background-color: #b3cdd1;
+            background-image: linear-gradient(315deg, #b3cdd1 0%, #9fa4c4 74%);
+            font-weight: 800;
+        }
+        .header_bar{
+            display:flex;
+            justify-content: center;
+            /* white-space: nowrap;overflow: hidden;text-overflow: ellipsis; */
+        }
+        .BK{
+            background-image: linear-gradient(45deg, #93a5cf 0%, #e4efe9 100%);
+        }
+    </style>
+    <div id="vue_admin" class="container" style="width: 100%;">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="col-lg-12 head_grid" style="background-color:#fff;margin-bottom:3%;padding:1%;">
+            <h2 style="font-family:Circular Std Bold;">Overview</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <br>
+            <button onclick="printScreen();" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer en PDF</button>
+            <br> <br>
+            <!--  indicateurs Principaux   -->
+             <div id="overviewPrint" class="col-lg-12">
+                <div class="Header_Back header_bar" style="height: 25px;color:#fff;">
+                    <i class="fab fa-chromecast"></i>  PRINCIPAUX INDICATEURS
+                </div>
+                <div class="left">
+                    <div class="col-md-12 item-dash header_bar btSh">
+                        Indicateurs de Mobilité
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 BK header_bar">
+                            Taux d'Entrée
+                        </div>
+                        <div class="col-md-4 BK header_bar">
+                            Taux de sortie
+                        </div>
+                        <div class="col-md-4 BK header_bar">
+                            Ratio
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 header_bar item-dash carreau">
+                           <span>{{taux_entre|last|floatformat:2}}</span>
+                        </div>
+                        <div class="col-md-4 header_bar item-dash carreau">
+                            <span>{{taux_sortie|last|floatformat:2}}</span>
+                        </div>
+                        <div class="col-md-4 header_bar item-dash carreau">
+                            <span>{{ratio|last|floatformat:2}}</span>
+                        </div>
+                    </div>
+                    <div class="clearflix"></div>
+                    <!--  -->
+                    <div class="col-md-12 item-dash header_bar btSh">
+                        Indicateurs d'intégration
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 BK header_bar">
+                            Taux départ
+                        </div>
+                        <div class="col-md-4 BK header_bar">
+                            Taux depart vol
+                        </div>
+                        <div class="col-md-4 BK header_bar">
+                            Taux de stage
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 header_bar item-dash carreau">
+                            <span>{{Mouvement_Perso_info}}</span>
+                        </div>
+                        <div class="col-md-4 header_bar item-dash carreau">
+                            <span>{{TxDv}}</span>
+                        </div>
+                        <div class="col-md-4 header_bar item-dash carreau">
+                            <span>{{TxSt}}</span>
+                        </div>
+                    </div>
+                    <!--  -->
+                    <div class="col-md-12 item-dash header_bar btSh">
+                        Indicateurs démographiques
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 BK header_bar">
+                            Âge moyen
+                        </div>
+                        <div class="col-md-6 BK header_bar">
+                            Ancienneté
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 header_bar item-dash carreau">
+                           <span>{{Age_Moyen|last|floatformat:2}}</span>
+                        </div>
+                        <div class="col-md-6 header_bar item-dash carreau">
+                            <span>{{ancien|last|floatformat:2}}</span>
+                        </div>
+                    </div>
+                    <!--  -->
+                    <div class="col-md-12 item-dash header_bar btSh">
+                        Indicateurs liés au risque maladie
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 BK header_bar">
+                            Taux d’absentéisme maladie
+                        </div>
+                        <div class="col-md-6 BK header_bar">
+                            Taux d’absentéisme maladie courte
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 header_bar item-dash carreau">
+                           <span>{{value_returTxDv|floatformat:2}}</span>
+                        </div>
+                        <div class="col-md-6 header_bar item-dash carreau">
+                            <span>{{indice_principal|floatformat:2}}</span>
+                        </div>
+                    </div>
+                    <!--  -->
+                    <div class="col-md-12 item-dash header_bar btSh" style="margin-bottom: 2%;">
+                        Taux de mobilité dans la catégorie
+                    </div>
+                    <div class="row" style="height: 140px; padding-top: 20px">
+                        <canvas id="chart_total_mobilite"  style="height: 150px!important; width: 100%"></canvas>
+                    </div>
+                </div>
+                <div class="right">
+                    <div class="card-body">
+                        <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+                    </div>
+                    <div class="clearflix"></div>
+                    <div class="col-md-12 item-dash header_bar btSh" style="margin-bottom: 2%;">
+                        Taux de depart en formation
+                    </div>
+                    <div class="row" style="height: 140px; padding-top: 20px">
+                        <canvas id="chart_depart_formation_cat"  style="height: 150px!important; width: 100%"></canvas>
+                    </div>
+                </div>
+             </div>
+            <!-- indicateurs Principaux -->
+        </div>
+    </div>
+    <!-- Load Librairie -->
+    <script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+    <script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+     <!-- Load Librairie -->
+<!-- Print Info -->
+<button type="button" id="lancermodal" data-toggle="modal" data-target="#monmodal" style="display: none;">executer</button>
+<div id="monmodal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <center>
+                    <iframe id="iframemodal" frameborder="0" style="width: 100%;" height="600px"></iframe>
+                </center>
+                <hr>
+                <center>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">FERMER</button>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/print.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.debug.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/cell.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.plugin.autotable.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/from_html.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/html2canvas.min.js' %}"></script>
+<!-- Print Document Function -->
+<script>
+    function printScreen() {
+        const filename = 'suivi carriere.pdf';
+        var pdf = new jsPDF('l', 'pt', 'ledger');
+
+        pdf.html($('#overviewPrint')[0], {
+            callback: function (pdf) {
+                var string = pdf.output('datauristring');
+                $('#iframemodal').attr('src', string);
+                $('#lancermodal').click();
+            }
+        });
+
+        margins = {
+            top: 0,
+            bottom: 0,
+            left: 0,
+            width: 0
+        };
+    }
+</script>
+<!-- Impression -->
+
+<script>
+        data = {{Agent_Direction|safe}}
+        window.onload = function () {
+
+        var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true,
+
+            title:{
+                text:"REPARTITION DES EMPLOYES",
+                fontSize: 15,
+            },
+            exportFileName: "Range Spline Area",  //Give any name accordingly
+		    exportEnabled: true,
+            axisX:{
+                interval: 1
+            },
+            axisY2:{
+                interlacedColor: "rgba(1,77,101,.2)",
+                gridColor: "rgba(1,77,101,.1)",
+                title: "Nombre Employe par Departement "
+            },
+            data: [{
+                type: "bar",
+                showInLegend: true,
+                name: "Departement",
+                axisYType: "secondary",
+                color: "#014D65",
+                dataPoints: data
+            }]
+        });
+        chart.render();
+        }
+</script>
+
+
+<!-- chart_Taux_mobilite -->
+<script>
+    var keys_Mobilitie = [];
+    // var labels = new Array();
+    var values_Mobilitie = [];
+    keys_Mobilitie = {{keys_Mobilitie|safe}}
+    values_Mobilitie = {{values_Mobilitie}}
+    console.log(keys_Mobilitie)
+    new Chart(document.getElementById("chart_total_mobilite"),
+    {
+            type: 'line',
+            data: {
+                labels: keys_Mobilitie,
+                datasets: [
+                    {
+                        label: 'Taux de Mobilité dans la categorie',
+                        backgroundColor:[
+                                'rgba(200, 213, 224, 0.5)',
+                                'rgba(44, 62, 85, 0.5)',
+                                'rgba(200, 213, 224, 0.5)'
+                                ],
+                        borderColor:['rgba(159, 164, 196)'],
+                        data: values_Mobilitie
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: false,
+                    text: 'Taux de Mobilité dans la categorie'
+                }
+            }
+        });
+</script>
+<!-- chart_total_mobilite  -->
+
+<!-- chart_depart_formation_cat -->
+<script>
+    var keys_formation = [];
+    var values_formation = [];
+    // Direction
+    var keys_formation_direct = [];
+    var values_formation_direct = [];
+
+        keys_formation_direct = {{Keys_Taux_formation_direct | safe}}
+        values_formation_direct = {{valeur_Taux_formation_direct}}
+
+        keys_formation = {{Keys_Taux_formation | safe}}
+        values_formation = {{valeur_Taux_formation}}
+    new Chart(document.getElementById("chart_depart_formation_cat"),
+    {
+            type: 'bar',
+            data: {
+                labels: keys_formation,
+                datasets: [
+                    {
+                        label: 'Par Categorie',
+                        type: 'bar',
+                        backgroundColor:[
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(67, 83, 97, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(35, 82, 124, 0.5)',
+                                'rgba(119, 109, 80, 0.5)',
+                                'rgba(22, 13, 58, 0.5)',
+                                'rgba(235, 93, 57, 0.5)',
+                                'rgba(35, 82, 124, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(159, 218, 238, 0.5)',
+                                'rgba(67, 83, 97, 0.5)',
+                                'rgba(255, 99, 132, 0.5)'
+                                ],
+                        data: values_formation
+                    },
+                    {
+                        label: 'Par Direction',
+                        type: 'line',
+                        backgroundColor:[
+                                'rgba(255, 99, 132, 0.5)',
+                                ],
+                        borderColor:['rgba(255, 177, 193)'],
+                        data: values_formation_direct
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: false,
+                    text: 'Taux de Depart en Formation par Categorie'
+                },
+                scales: {
+                        yAxes: [{
+                            ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            // Include a dollar sign in the ticks
+                            callback: function(label, index, labels) {
+                                return label+'%';
+                                }
+                            },
+
+                        }],
+                    }
+            }
+        });
+</script>
+<!-- chart_depart_formation_cat  -->
+{% endblock %}

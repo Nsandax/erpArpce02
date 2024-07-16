@@ -1,0 +1,87 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{%load static %}
+
+<div class="row " style="background-color: #f5f5f5;">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color:floralwhite;opacity: 0.2"></div>
+
+            <div class="panel panel-default" style="border: none;">
+                <div id="export" class="panel panel-body"
+                    style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+
+                  <img src="{% static 'ErpProject\image\header_rapport_o.png'%}" alt="" style="width: 400px;height: 150px;">
+
+                    <br>
+                    <center>
+                        <h1>{{title}} {{ligne_operation.reference}}</h1>
+                    </center>
+                    <center>
+                        <h2>Du {{ligne_operation.date_ligne_operation|date:'d/m/Y'}}</h2>
+                    </center>
+
+                    <br>
+                    <br>
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-md-8"> </div>
+                        <div class="col-6 col-md-4"><h2><span>MONTANT</span> : {{ligne_operation.montant}} {{ligne_operation.devise}}</h2></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-md-8"><h2><span>Bénéficiaire(s)</span>: {{ligne_operation.libelle}}</h2></div>
+                        {% if ligne_operation.facture %}
+                        <div class="col-12 col-sm-6 col-md-8"><h2><span>Facture</span>: {{ligne_operation.facture.numero_facture}}</h2></div>
+                        {% endif %}
+
+                    </div>
+                    <div class="row">
+
+                        <table class="display table nowrap border bordered" cellspacing="0" style="width:100%">
+                            <tbody>
+                                <tr>
+                                    <th  width="30%"><h2>Libelle</h2></th>
+                                    <th  width="20%"><h2>Type opération</h2></th>
+                                    <th  width="50%"><h2>Description</h2></th>
+                                </tr>
+                                <tr>
+                                    <td><h3>{{ligne_operation.libelle}}</h3></td>
+                                    <td><h3>{{ligne_operation.value_type_operation}}</h3></td>
+                                    <td><h3>{{ligne_operation.description}}</h3></td>
+
+                                </tr>
+                                <tr>
+                                    <td><h3>Montant en lettres :</h3> </td>
+                                    <td> - </td>
+                                    <td> <h3>{{ligne_operation.montant }} {{ligne_operation.devise}} </h3> <br><br></td>
+
+                                </tr>
+                                <tr>
+                                    <td><pre><h3>Le Caissier : {{auteur.nom_complet}}</h3></pre></td>
+                                    <td> <br> </td>
+                                    <td><h3>signature du bénéficiaire :</h3></td>
+
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+
+
+                <script>
+                    $("#btnExport").click(function (e) {
+                        window.open('data:application/vnd.ms-excel,' + encodeURIComponent($('#export').html()));
+                        e.preventDefault();
+                    });
+                </script>
+
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

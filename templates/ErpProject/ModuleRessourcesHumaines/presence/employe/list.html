@@ -1,0 +1,47 @@
+{% extends "ErpProject/ModuleRessourceshumaines/shared/layout.html" %}
+{% block page %}
+{%load static %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Vos employés</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+<div class="row">
+    {% for item in model %}
+          <div class="col-md-3">
+             <div class="card mb-3">
+                <div class="row">
+                <div class="col-md-6"><img class="card-img-top" height="80px" width="30px" src="{% static 'ErpProject/image/icone_profile.png' %}"></div>
+                <div class="col-md-6"><h4>{{item.nom_complet}}</h4></div>
+            </div>
+                <div class="card-body">
+                   <!--<p class="card-text"><strong>Dpt:</strong> {{item.hisunitefonctionnelle}}</p>
+                   <p class="card-text"><strong>Grade:</strong> {{item.hisgrade}}</p>-->
+                   <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_detail_presence_employe' item.id %}')" class="theme-btn theme-btn-sm rounded primary chargement-au-click">Consulter les présences</button>
+                </div>
+             </div>
+          </div>
+        {% endfor %}
+  </div>
+
+
+
+
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+{% endblock %}

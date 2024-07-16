@@ -1,0 +1,158 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote5.css' %}" rel="stylesheet">
+    <style type="text/css">
+      .tg  {border-collapse:collapse;border-spacing:0; width: 100%;}
+      .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg .tg-km2t{border-color:#ffffff;font-weight:bold;text-align:left;vertical-align:top}
+      .tg .tg-a0f7{background-color:#9b9b9b;border-color:inherit;color:#000000;font-size:16px;font-weight:bold;text-align:center;
+        vertical-align:top}
+      .tg .tg-zv4m{border-color:#ffffff;text-align:left;vertical-align:top}
+      .tg .tg-7fgd{background-color:#9b9b9b;font-size:16px;font-weight:bold;text-align:right;vertical-align:top}
+      .tg .tg-bn4c{background-color:#c0c0c0;font-size:16px;font-weight:bold;text-align:left;vertical-align:top}
+      .tg .tg-lqy6{text-align:right;vertical-align:top}
+      .tg .tg-2yz4{background-color:#c0c0c0;border-color:#343434;font-weight:bold;text-align:center;vertical-align:middle}
+      .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+      .tg .tg-dvpl{border-color:inherit;text-align:right;vertical-align:top}
+      .tg .tg-6ic8{border-color:inherit;font-weight:bold;text-align:right;vertical-align:top}
+      .tg .tg-fymr{border-color:inherit;font-weight:bold;text-align:left;vertical-align:top}
+      .tg .tg-0lax{text-align:left;vertical-align:top}
+      .tg .tg-jtjr{background-color:#c0c0c0;font-size:16px;font-weight:bold;text-align:right;vertical-align:top}
+      .tg .tg-tbew{background-color:#9b9b9b;font-size:16px;font-weight:bold;text-align:left;vertical-align:top}
+      </style>
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_6' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+        <col style="width: 36%">
+        <col style="width: 20%">
+        <col style="width: 21%">
+        <col style="width: 22%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="tg-a0f7" colspan="4">NOTE 6 : STOCKS ET ENCOURS(1)<br></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tg-km2t">Désignation de l'entreprise :</td>
+            <td class="tg-km2t">0</td>
+            <td class="tg-km2t">Exercice clos le</td>
+            <td class="tg-km2t">00/01/1900</td>
+          </tr>
+          <tr>
+            <td class="tg-km2t">SIGLE</td>
+            <td class="tg-km2t">0</td>
+            <td class="tg-km2t">Durée (en mois) </td>
+            <td class="tg-km2t">0</td>
+          </tr>
+          <tr>
+            <td class="tg-km2t">Numéro d'Identification FISCAL :</td>
+            <td class="tg-km2t">0</td>
+            <td class="tg-km2t"></td>
+            <td class="tg-km2t"></td>
+          </tr>
+          <tr>
+            <td class="tg-2yz4">Libellés</td>
+            <td class="tg-2yz4">Année <br>N</td>
+            <td class="tg-2yz4">Année <br>N-1</td>
+            <td class="tg-2yz4">Variation <br>en %</td>
+          </tr>
+          <tr>
+            <td class="tg-0pky">Marchandises</td>
+            <td class="tg-dvpl">40 000 000</td>
+            <td class="tg-6ic8">40 000 000</td>
+            <td class="tg-fymr">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-0pky">Matières première et fournitures liées</td>
+            <td class="tg-6ic8">27 500 000</td>
+            <td class="tg-6ic8">27 500 000</td>
+            <td class="tg-0pky">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-0lax">Autres approvisionnements</td>
+            <td class="tg-lqy6">250 000</td>
+            <td class="tg-lqy6">250 000</td>
+            <td class="tg-0lax">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-0lax">Produits en-cours</td>
+            <td class="tg-lqy6">-</td>
+            <td class="tg-lqy6">-</td>
+            <td class="tg-0lax"></td>
+          </tr>
+          <tr>
+            <td class="tg-0lax">Services en-cours</td>
+            <td class="tg-lqy6">-</td>
+            <td class="tg-lqy6">-</td>
+            <td class="tg-0lax"></td>
+          </tr>
+          <tr>
+            <td class="tg-0lax">Produits finis</td>
+            <td class="tg-lqy6">10 000 000</td>
+            <td class="tg-lqy6">10 000 000</td>
+            <td class="tg-0lax">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-0lax">Produits intermédiaires</td>
+            <td class="tg-lqy6">-</td>
+            <td class="tg-lqy6">-</td>
+            <td class="tg-0lax"></td>
+          </tr>
+          <tr>
+            <td class="tg-0lax">Stocks en –cours  de routes, en consignation ou en dépôt</td>
+            <td class="tg-lqy6">-</td>
+            <td class="tg-lqy6">-</td>
+            <td class="tg-0lax"></td>
+          </tr>
+          <tr>
+            <td class="tg-bn4c">TOTAL BRUT</td>
+            <td class="tg-jtjr">77 750 000</td>
+            <td class="tg-jtjr">77 750 000</td>
+            <td class="tg-bn4c">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-0lax">Dépréciations des stocks</td>
+            <td class="tg-lqy6">600 000</td>
+            <td class="tg-lqy6">600 000</td>
+            <td class="tg-0lax">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-tbew">TOTAL NET DE DEPRECIATIONS</td>
+            <td class="tg-7fgd">600 000</td>
+            <td class="tg-7fgd">600 000</td>
+            <td class="tg-tbew">0%</td>
+          </tr>
+          <tr>
+            <td class="tg-km2t" colspan="4">(1) Les stocks HAO seront inscrits dans l'actif circulant H.A.O que lorsque leur montant total est significatif (supérieur à 5% du total de l'actif circulant).</td>
+          </tr>
+          <tr>
+            <td class="tg-zv4m" colspan="4">Le commentaire porte sur :<br>L’indication de la date de prise d’inventaire et décrire brièvement la procédure, les méthodes comptables adoptées pour évaluer le stock ; les variations significatives des stocks ; l’indication le détail des stocks dépréciés et les évènements et circonstances qui ont conduit à la dépréciation et à la dépréciation et à ma repris</td>
+          </tr>
+        </tbody>
+        </table>
+        <br>
+    </div>
+{% endblock %}

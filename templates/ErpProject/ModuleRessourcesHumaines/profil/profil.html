@@ -1,0 +1,227 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+
+{%load static %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_ressources_humaines_list_employes' %}">Module Ressources Humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row cells2">
+
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+
+    <div class="row item" style="margin-top: 20px" id="content_bon">
+                    <div class="cell padding30 shadow">
+
+                    {% for item in profil %}
+                        <div style="width:100px;height:100px;float:right">
+                        <img src="{{item.agent.image}}">
+                        </div>
+                    <h4>INFORMATION PERSONNELLE</h4>
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Nom :<br>
+                                    {{item.agent.nom_complet}}
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    PostNom :<br>
+                                    {{item.agent.nom_complet}}
+                                </p>
+                            </div>
+
+                        </div>
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Email :<br>
+                                    {{item.agent.email}}
+                                </p>
+                            </div>
+
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Numero de Telephone :<br>
+                                    {{item.agent.phone}}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Date de Naissance:<br>
+                                    <span class="sub-alt-header fg-dark">{{ item.date_naissance|date:"d/m/Y" }}</span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                    <p class="minor-header fg-gray">
+                                        Lieu de Naissance :<br>
+                                        <span class="sub-alt-header fg-dark">{{ item.lieu_naissance}}</span>
+                                    </p>
+                            </div>
+                        </div>
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Nationalite :<br>
+                                    <span class="sub-alt-header fg-dark">{{ item.nationalite}}</span>
+                                </p>
+                            </div>
+
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Numero de Passeport :<br>
+                                    <span class="sub-alt-header fg-dark">{{ item.numero_passeport }}</span>
+                                </p>
+                            </div>
+
+                        </div>
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Genre :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ item.genre }} </span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Etat-civil :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ item.etat_civil }} </span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Niveau d'Etude :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.education }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Numero carte d'intentité :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ item.numero_identification  }} </span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Nombre de dependants :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.dependant }}</span>
+                                </p>
+                            </div>
+
+                        </div>
+                        <div class="row cells2">
+
+                        <h4>INFORMATION PROFESSIONNELLE</h4>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    MATRICULE :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.matricule}}</span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    EMAIL PROFESSIONNEL :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.email_professionnel}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    NUMERO TELEPHONE :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.phone_professionnel}}</span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    NUMERO INSS :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.numero_ss}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    GRADE :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.grade}}</span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    FONCTION :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.poste}}</span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    Date d'engagement :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.date_engagement|date:"d/m/Y" }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <h4>PARAMETRE BANQUE</h4>
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    NOM DE LA BANQUE :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.designation_banque}}</span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    ADRESSE DE LA BANQUE :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.adresse_banques}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row cells2">
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    NUMERO DE COMPTE :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.compte_bancaire}}</span>
+                                </p>
+                            </div>
+                            <div class="cell">
+                                <p class="minor-header fg-gray">
+                                    CODE SWIFT :
+                                    <br>
+                                    <span class="sub-alt-header fg-dark">{{ item.code_swift}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row cells2">
+
+
+                        </div>
+            {% endfor %}
+{% endblock %}
+
+
+
+
+
+
+

@@ -1,0 +1,58 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    <style>
+        .btSh{
+            border-radius: 0px;
+            padding-right: 0px;
+            margin-right: 10px;
+            margin-bottom: 0px;
+            background-color: #fff;
+            margin-bottom: 3%;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+    <div id="vue_admin" class="container">
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="col-lg-12 head_grid" style="background-color:#fff;margin-bottom:3%;padding:1%;">
+            <h2>Overview Formation</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="col-md-6">
+                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                        <div class="item-dash">
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                            <div class="item-dash">6</div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="item-dash">6</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                    <div class="item-dash">
+                        Indicateurs de la formation professionnelle
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,294 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumbs">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <h2 class="text-light no-margin-left">{{ title }}</h2>
+    </div>
+        
+    <div class="row">
+        <div class="col-md-2">
+            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+        </div>
+        <div class="col-md-2">
+            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_tableau_de_bord' %}')" class="theme-btn theme-btn-sm rounded">
+                Annuler 
+            </button>
+        </div>
+    </div> 
+    
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+    
+    <div class="row item-content" style="margin-top: 10px">
+        <form id="form" method="POST" action="{% url 'module_comptabilite_post_generer_balance_tiers' %}"
+            data-role="validator" 
+            data-show-required-state="false"
+            data-hint-mode="line"
+            data-hint-background="bg-red"
+            data-hint-color="fg-white"
+            data-hide-error="5000"
+            novalidate="novalidate"
+            data-on-error-input="notifyOnErrorInput"
+            data-show-error-hint="false">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Date de début :</label>
+                            <div id="input-date-debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" name="date_debut" id="date_debut" readonly
+                                    data-validate-func="required" 
+                                    data-validate-hint="Précisez la date de début svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Date de fin :</label>
+                            <div id="input-date-fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" name="date_fin" id="date_fin" readonly
+                                    data-validate-func="required" 
+                                    data-validate-hint="Précisez la date de fin svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Devise :</label>
+                            <div class="input-control select full-size">
+                                <select name="devise_id" id="devise_id" 
+                                    data-validate-func="min" 
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez la devise svp.">
+                                    <option value="0">Sélectionnez une devise</option>
+                                    {% for item in devises %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Type :</label>
+                            <div class="input-control select full-size">
+                                <select name="tiers" id="tiers" 
+                                    data-validate-func="min" 
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le type svp." onchange="choix_tiers()">
+                                    <option value="0">Sélectionnez un type</option>
+                                    <option value="1">Client</option>
+                                    <option value="2">Fournisseur</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6" id="choix_fournisseur" style="display: none">
+                            <label>Fournisseurs :</label>
+                            <div class="input-control text full-size">
+                                <select name="fournisseur" id="fournisseur" onchange="choix_fournisseur()">
+                                    <option value="0">Tous les Fournisseurs</option>
+                                    <option value="-1">Certains Fournisseurs</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="choix_client" style="display: none">
+                            <label>Clients :</label>
+                            <div class="input-control text full-size">
+                                <select name="client" id="client" onchange="choix_client()">
+                                    <option value="0">Tous les Clients</option>
+                                    <option value="-1">Certains Clients</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="liste_Clients" style="display: none">
+                        <p class="sub-header">Sélectionnez des clients...</p>
+                        <table class="table no-margin">
+                            <thead class="no-border">
+                                <tr>
+                                    <th class="no-padding-top no-padding-left no-padding-bottom" width="80%">Client</th>
+                                    <th width="20%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="items_clients">
+                            </tbody>
+                        </table>
+                        <div class="row margin10 no-margin-left no-margin-right">
+                            <button type="button" class="button small-button rounded" id="btnAjouterLigneClients">Ajouter une ligne</button>
+                        </div>
+                    </div>
+                    <div class="row" id="liste_Fournisseurs" style="display: none">
+                        <p class="sub-header">Sélectionnez des fournisseurs...</p>
+                        <table class="table no-margin">
+                            <thead class="no-border">
+                                <tr>
+                                    <th class="no-padding-top no-padding-left no-padding-bottom" width="80%">Fournisseur</th>
+                                    <th width="20%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="items_fournisseurs">
+                            </tbody>
+                        </table>
+                        <div class="row margin10 no-margin-left no-margin-right">
+                            <button type="button" class="button small-button rounded" id="btnAjouterLigneFournisseurs">Ajouter une ligne</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>       
+    </div>
+    <script>
+        var lesFournisseurs = new Array();
+    
+        {% for item in fournisseurs %}
+            lesFournisseurs.push({id:"{{ item.id }}", designation:"{{ item.nom_complet }}"});
+        {% endfor %}
+
+        var lesClients = new Array();
+    
+        {% for item in clients %}
+            lesClients.push({id:"{{ item.id }}", designation:"{{ item.nom_complet }}"});
+        {% endfor %}
+    </script>
+    <script>
+        var nombreLignes = 0;
+        var compteur = 0;
+
+        $("#btnAjouterLigneFournisseurs").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne_fournisseur' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<select name="fournisseur_id" id="fournisseur_id' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un compte svp"><option value="0">Sélectionnez un fournisseur</option>';
+            nouvelleLigne += renvoyerOptionsFournisseurs();
+            nouvelleLigne += '</select></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigneFournisseurs(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+    
+            $("#items_fournisseurs").append(nouvelleLigne);
+        });
+
+        function supprimerLigneFournisseurs(indice) {
+            nombreLignes--;
+            $("#ligne_fournisseur" + indice).remove();
+        }
+
+        function renvoyerOptionsFournisseurs()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesFournisseurs.length; i++)
+            {
+                var fournisseur = lesFournisseurs[i];
+                ligne += '<option value="' + fournisseur.id + '">' + fournisseur.nom_complet + '</option>';
+            }
+            return ligne;
+        }
+
+        function choix_fournisseur()
+        {
+            var choix = $("#fournisseur").val();
+            if(choix == "-1")
+            {
+                $("#btnAjouterLigne").click();
+                $("#liste_Fournisseurs").css("display", "block");
+            }
+            else
+            {
+                $("#liste_Fournisseurs").css("display", "none");
+                $("#items_fournisseurs").children().remove();
+            }
+        }
+
+
+
+        var nombreLignesClient = 0;
+        var compteurClient = 0;
+
+        $("#btnAjouterLigneClients").on("click", function () {
+            nombreLignesClient++;
+            compteurClient++;
+            var nouvelleLigne = '<tr id="ligne_client' + compteurClient + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<select name="client_id" id="client_id' + compteurClient + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un compte svp"><option value="0">Sélectionnez un client</option>';
+            nouvelleLigne += renvoyerOptionsClients();
+            nouvelleLigne += '</select></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigneClients(' + compteurClient + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+    
+            $("#items_clients").append(nouvelleLigne);
+        });
+
+        function supprimerLigneClients(indice) {
+            nombreLignesClient--;
+            $("#ligne_client" + indice).remove();
+        }
+
+        function renvoyerOptionsClients()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesClients.length; i++)
+            {
+                var client = lesClients[i];
+                ligne += '<option value="' + client.id + '">' + client.nom_complet + '</option>';
+            }
+            return ligne;
+        }
+
+        function choix_client()
+        {
+            var choix = $("#client").val();
+            if(choix == "-1")
+            {
+                $("#btnAjouterLigne").click();
+                $("#liste_Clients").css("display", "block");
+            }
+            else
+            {
+                $("#liste_Clients").css("display", "none");
+                $("#items_clients").children().remove();
+            }
+        }
+
+        function choix_tiers()
+        {
+            var choix = $("#tiers").val();
+            $("#items_fournisseurs").children().remove();
+            $("#items_clients").children().remove();
+            if(choix == "1")
+            {
+                $("#client").val("0");
+                $("#choix_client").show();
+                $("#liste_Clients").hide();
+                $("#choix_fournisseur").hide();
+                $("#liste_Fournisseurs").hide();
+            }
+            else if(choix == "2")
+            {
+                $("#fournisseur").val();
+                $("#choix_client").hide();
+                $("#liste_Clients").hide();
+                $("#choix_fournisseur").show();
+                $("#liste_Fournisseurs").hide();
+            }else{
+                $("#choix_fournisseur").hide();
+                $("#liste_Fournisseurs").hide();
+                $("#choix_client").hide();
+                $("#liste_Clients").hide();
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %} {%load static %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_vente_tableau_de_bord' %}">Module Vente</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_categorie_articles' %}">Liste des catégories d'article</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_vente_add_categorie_articles" url_detail="module_vente_details_categorie_articles" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row">
+    <div class="col-md-2">
+        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_update_categorie_articles' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+            Modifier
+        </button>
+    </div>
+    <div class="col-md-2">
+        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_list_categorie_articles' %}')" class="theme-btn theme-btn-sm rounded">
+            Annuler
+        </button>
+    </div>
+    <div class="col-md-2">
+        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_add_categorie_articles' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+            Créer
+        </button>
+    </div>
+    <!--div class="col-md-2">
+        <button id="supprimer" style="width: 100%;" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+            Supprimer
+        </button>
+    </div-->
+</div>
+
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+
+    <div class="row item-content" style="margin-top: 10px">
+        <p class="header">{{ model.designation }}</p>
+    </div>
+    <script>
+        function supprimer() {
+            var id = '{{model.id}}'
+            //-------deux variables pour la suppression---------------------------------
+            var modele = "Model_Categorie"
+            var the_url = "module_vente_list_categorie_articles"
+            // url de suppression ------------------------------------------------------
+            url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+            url = url.replace('100', id);
+            url = url.replace('nom_modele', modele);
+            url = url.replace('url_retour', the_url);
+            document.location.href = url;
+
+
+        }
+        $('#supprimer').on('click', function () {
+
+
+            Swal.fire({
+                title: 'Etes vous sure?',
+                text: "De vouloir supprimer cette item!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, Supprime le!'
+            }).then((result) => {
+                if (result.value) {
+                    supprimer();
+                    Swal.fire(
+                        'Supprimé!',
+
+                        'Votre Item est supprimé',
+                        'Avec Succes',
+                    )
+                }
+            })
+        })
+
+    </script>
+    <script>
+        //Script du droit supprimer
+        var lesactions = new Array();
+        var booleen = false;
+        {% for action in actions %}
+        lesactions.push({ droit: "{{ action.droit }}" });
+        {% endfor %}
+
+        $(document).ready(function () {
+
+            // Initialisation des sous-menus
+            $("#supprimer").hide();
+
+            for (var i = 1; i < lesactions.length; i++) {
+                act = lesactions[i];
+                if (act.droit === "CREER_RAPPORT") {
+                    booleen = true;
+                }
+            }
+
+            if (booleen) {
+                $("#supprimer").show();
+            }
+        });
+    </script>
+
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} {% block page %}
+    {% load account_filters %}{% load humanize %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_pret' %}">Liste des prets</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2> 
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">Le {% now " d/m/Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+            <!-- GESTION DU WORKFLOW -->
+            {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_ressourceshumaines_add_pret" url_detail="module_ressourceshumaines_details_pret" csrf_token=csrf_token module=module type_doc="" only %}  
+            <!--FIN GESTION DU WORKFLOW-->     
+            
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <br>
+            <div class="row">               
+                
+            </div>
+            <br>
+            <div class="panel panel-default" style="border: none;">                  
+                <div class="panel panel-body" style="background-color:white;">
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <h2>{{model.employe.nom_complet}}</h2>
+                            <p>Numéro matricule: <strong>{{model.employe.email}}</strong> <br> Téléphone: <strong>{{model.fournisseur.phone}}</strong>
+                            <br>{{model.employe.adresse_complete}}</p>
+                            
+                        </div>
+                       
+                        <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                        <div class="col-md-6" style="margin-bottom: 20px">            
+                            <p>                
+                                <strong>Date de la demande: </strong>{{model.created_at | date:"d/m/Y" }} <br>
+                                <strong>Référence : </strong>{{model.reference}}<br>
+                                <strong>Rubrique : </strong> {{model.rubrique}} <br>    
+                                <strong>Date de la première échéance: </strong>{{model.date_premiere_echeance | date:"d/m/Y" }} <br>
+                                <strong>Nombre de mensualité : </strong>{{model.nbre_mensualite}}<br>
+                                <strong>Montant : </strong>{{model.montant}} {{ model.devise.symbole_devise}}<br>
+                                <strong>Description : </strong> {{model.description}} <br>    
+                                                         
+                            </p>
+                        </div>
+                        <div class="col-md-6"></div>                     
+                       
+                        
+                        <div class="col-md-12"><br><br></div>                                                                                  
+                        <div class="col-md-12" >
+                            <div class="tabcontrol2" data-role="tabcontrol">
+                                <ul class="tabs">
+                                    <li class="active"><a href="#frame_paiement_pret">Paiements pret</a></li>
+                                    <li class=""><a href="#frame_echeanchier">Echéancier</a></li>
+                                </ul>
+                                <div class="frames">
+                                    <div class="frame" id="frame_paiement_pret" style="display: block;">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                                                    <thead>
+                                                        <td class="head">Date</td>
+                                                        <td class="head">Montant du pret</td>
+                                                        <td class="head">Mensualité</td>
+                                                        <td class="head">Prélèvement antérieur</td>
+                                                        <td class="head">Montant du prélèvement</td>
+                                                        <td class="head">Reste à recouvrer</td>
+                                                    </thead>
+
+                                                   <tbody>
+                                                    {% if not lignes_paiement_pret %}
+                                                    <tr class="table bordered border">
+                                                        <td class="td"> Aucun paiement de prêt</td>
+                                                        <td class="td"></td>
+                                                        <td class="td"></td>
+                                                        <td class="td"></td>
+                                                        <td class="td"></td>
+                                                        <td class="td"></td>
+                                                        
+                                                    </tr>
+                                                    {% endif %}
+                                                    
+                                                    {% for ligne in lignes_paiement_pret %}
+                                                        <tr class="table bordered border">
+                                                            <td class="td">{{ ligne.created_at}}</td>
+                                                            <td class="td">{{ ligne.montant |monetary }} {{ ligne.devise_iso }}</td>
+                                                            <td class="td" align="right">{{ ligne.mensualite |monetary }} {{ ligne.devise_iso }}</td>
+                                                            <td class="td" align="right">{{ ligne.prelevement_anterieur |monetary }} {{ ligne.devise_iso }}</td>
+                                                            <td class="td" align="right">{{ ligne.mensualite |monetary }} {{ ligne.devise_iso }}</td>
+                                                            <td class="td" align="right">{{ ligne.reste_a_recouvrer |monetary }} {{ ligne.devise_iso }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    
+                                                </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="frame" id="frame_echeanchier" >
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                                                    <thead>
+                                                        <td class="head">Date</td>
+                                                        <td class="head">Montant du pret</td>
+                                                        <td class="head">Mensualité</td>
+                                                        <td class="head">Prélèvement antérieur</td>
+                                                        <td class="head">Montant du prélèvement</td>
+                                                        <td class="head">Reste à recouvrer</td>
+                                                    </thead>
+                                                    <tbody>
+                            
+                                                    {% for ligne in lignes_remboursement %}
+                                                    <tr class="table bordered border">
+                                                        <td>{{ ligne.date_remboursement }}</td>
+                                                        <td align="right">{{ ligne.montant_pret |monetary}} {{ ligne.devise_iso }}</td>
+                                                        <td align="right">{{ ligne.mensualite |monetary}} {{ ligne.devise_iso }}</td>
+                                                        <td align="right">{{ ligne.prelevement_anterieur |monetary}} {{ ligne.devise_iso }}</td>
+                                                        <td align="right">{{ ligne.montant_du_prelevement |monetary}} {{ ligne.devise_iso }}</td>
+                                                        <td align="right">{{ ligne.reste_a_recouvrer |monetary}} {{ ligne.devise_iso }}</td>
+                                                        
+                                                        
+                                                    </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"><br><br></div> 
+                        
+                        <div  class="col-md-12"  style="margin-bottom: 15px">
+
+                            <h2>Documents attachés</h2>
+                            <hr>
+                            <ol>
+                                {% for item in documents %}
+                                    <li style="margin-bottom: 0.25em">
+                                        <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                      </div>
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            $(document).ready(function(){
+                $("tr > td > i").removeClass("fa-caret-down");
+                $("tr > td > i").addClass("fa-caret-right");
+                $("tr > td > i").data("show", false);
+
+                $(".tr-toggle").click(function() {
+                    var icone = $(this).find("i");
+                    if (icone.data("show") === true) {  
+                        icone.removeClass("fa-caret-down");
+                        icone.addClass("fa-caret-right");
+                        icone.data("show", false);                
+                    } else {
+                        icone.removeClass("fa-caret-right");
+                        icone.addClass("fa-caret-down");
+                        icone.data("show", true);
+                    }
+                });	
+            });
+        </script>
+    {% endblock %} 

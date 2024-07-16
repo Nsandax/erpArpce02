@@ -1,0 +1,133 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_home' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_bons_achat' %}">Liste des fournitures</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_add_bon_achat' %}">Nouvelle fourniture</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+<div class="row">
+    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Valider et Générer Facture</button>
+    <button onclick="javascript:window.location.assign('{% url 'module_achat_add_fourniture' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Modifier</button>
+</div>
+
+<hr class="hr-ligne">
+<!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<br>
+
+
+<div class="row item-content" style="margin-top: 10px">
+    <div class="cell padding30 shadow">
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Fournisseur :<br>
+                    <a class="sub-alt-header lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' fournisseur.id %}"> {{ fournisseur.nom_complet }} </a>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Modalité de réglèment :<br>
+                    <span class="sub-alt-header fg-dark"> {{ condition_reglement.designation }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Dévise :<br>
+                    <span class="sub-alt-header fg-dark"> {{ devise.designation }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Document externe :<br>
+                    <span id="reference_document" class="sub-alt-header fg-dark"></span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Agent acheteur :<br>
+                    <span class="sub-alt-header fg-dark"> {{ receveur.nom_complet }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table border bordered">
+                <thead>
+                    <tr>
+                        <th width="35%">Article</th>
+                        <th width="20%">Quantité fournie</th>
+                        <th width="20%">Prix unitaire</th>
+                        <th width="25%">Prix total</th>
+                    </tr>
+                </thead>
+                <tbody id="items">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td style="border:1px #999999 solid">TOTAL</td>
+                        <td style="border:1px #999999 solid" id="total"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <form id="form" method="POST" action="{% url 'module_achat_post_valider_fourniture' %}">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input type="hidden" name="fournisseur_id" value="{{ fournisseur.id }}">
+            <input type="hidden" name="receveur_id" value="1">
+            <input type="hidden" name="devise_id" value="{{ devise.id }}">
+            <input type="hidden" name="condition_reglement_id" value="{{ condition_reglement.id }}">
+            <input type="hidden" name="reference_document" id="input_reference_document">
+        </form>
+    </div>
+</div>
+<script src="/static/ErpProject/js/fourniture-local.js"></script>
+<script>
+    $(document).ready(function() {
+        var totalBon = 0;
+        var bon = fournitureLocal.avoirFourniture();
+
+        if (bon.reference_document.length == 0) $("#reference_document").text("-");
+        else {
+            $("#reference_document").text(bon.reference_document);
+            $("#input_reference_document").val(bon.reference_document);
+        }
+
+        lignes = fournitureLocal.avoirToutesLignes();
+        for (var i = 0; i < lignes.length; i++) {
+            var ligne = lignes[i];
+            var total = parseFloat(ligne.prix_unitaire) * parseFloat(ligne.quantite_fournie);
+            if (ligne.prix_lot != 0) total = parseFloat(ligne.prix_lot);
+
+            totalBon += total;
+            var nouvelleLigne = '<tr class="table bordered border"><td>' + ligne.nom_article + '</td>';
+            nouvelleLigne += '<td>' + ligne.quantite_fournie + ' ' + ligne.symbole_unite + '</td>';
+            if (parseFloat(ligne.prix_unitaire) != 0) {
+                nouvelleLigne += '<td>' + parseFloat(ligne.prix_unitaire).toFixed(2) + ' {{ devise.symbole_devise }}</td>';
+            } else nouvelleLigne += '<td> - </td>';
+            nouvelleLigne += '<td>' + total.toFixed(2) + ' {{ devise.symbole_devise }}</td></tr>';
+
+            $("#items").append(nouvelleLigne);
+
+            var input_article_id = '<input type="hidden" name="article_id" value="' + ligne.article_id + '" >';
+            $("#form").append(input_article_id);
+            var input_quantite_fournie = '<input type="hidden" name="quantite_fournie" value="' + ligne.quantite_fournie + '" >';
+            $("#form").append(input_quantite_fournie);
+            var input_prix_unitaire = '<input type="hidden" name="prix_unitaire" value="' + ligne.prix_unitaire + '" >';
+            $("#form").append(input_prix_unitaire);
+            var input_prix_lot = '<input type="hidden" name="prix_lot" value="' + ligne.prix_lot + '" >';
+            $("#form").append(input_prix_lot);
+        }
+        $("#total").text(totalBon.toFixed(2) + " {{ devise.symbole_devise }}");
+    });
+</script>
+{% endblock %}

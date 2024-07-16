@@ -1,0 +1,63 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <p>                   
+                    A la date du :<br>
+                    <span class="sub-header">{{ date_fin }}</span>
+                    <br>
+                    <br>
+                    Devise :<br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </p>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                    <td width="16%">Nom du client</td>
+                    <td width="12%">No Compte</td>
+                    <td width="12%">Date d'échéance</td>
+                    <td width="12%">En cours</td>
+                    <td width="12%">1-30 jours échu</td>
+                    <td width="12%">31-60 jours échu</td>
+                    <td width="12%">61-90 jours échu</td>
+                    <td width="12%">Plus de 90 jours</td>
+                </tr>
+                {% for client in clients %}     
+                    <tr class="tr-toggle" style="background-color:#f1f1f1;font-weight:700!important;" data-toggle="collapse" data-target=".facture{{ client.id }}" daria-expanded="false">
+                        <td width="16%">{{ client.nom_complet }}</td>
+                        <td width="12%">{{ client.compte.numero }} {{ client.compte.designation }}</td>
+                        <td width="12%"></td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_au_jour|monetary }} </td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_1_30|monetary }} </td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_31_60|monetary }} </td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_61_90|monetary }}</td>
+                        <td width="12%" style="text-align: right" width="12%">{{ client.montant_91_plus|monetary }}</td>
+                    </tr>
+                {% endfor %}
+                <tr style="background-color:#7c984a;color:#fff!important;">
+                    <th style="text-align: left" colspan="3">Total</th>
+                    <th style="text-align: right">{{ total_montant_au_jour|monetary }}</th>
+                    <th style="text-align: right">{{ total_montant_1_30|monetary }}</th>
+                    <th style="text-align: right">{{ total_montant_31_60|monetary }}</th>
+                    <th style="text-align: right">{{ total_montant_61_90|monetary }}</th>
+                    <th style="text-align: right">{{ total_montant_91_plus|monetary }}</th>
+                </tr>
+            </table>
+            
+        </div>
+    </body>
+</html>

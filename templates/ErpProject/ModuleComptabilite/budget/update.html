@@ -1,0 +1,388 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %} {%load static %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_budget' %}">Liste des Budgets</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>Modifier Budget</h3>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                    <div class="row only-on-small-screen">
+                        <h2 class="text-light no-margin-left">{{ title }}</h2>
+                    </div>
+
+
+                    <div class="row only-on-large-screen">
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button small-button rounded primary_color_{{module.name|lower}}" val="Valider"%}
+
+                        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_budget' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+
+                <br>
+
+
+                <form id="form" method="POST" action="{% url 'module_comptabilite_post_update_budget' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+
+                    <input id="submit" type="submit" style="display: none">
+                    <input name="ref" type="hidden" value="{{model.id}}">
+
+                    <br/>
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Désignation du Budget</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="designation" value="{{model.designation}}" id="designation"
+                                    data-validate-func="required"
+                                    data-validate-hint="Entrez la désignation du Budget svp." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Département</label>
+                            <div class="input-control text full-size">
+                                <select type="text" name="unite_fonctionnelle" id="unite_fonctionnelle"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le partenaire concerné svp.">
+                                    <option value="0">Sélectionnez un Département</option>
+                                    {% for item in unite_fonctionnelle %}
+                                    <option {% if model.unite_fonctionelle == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Année</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="annee" id="annee" value="{{model.annee}}"
+                                    data-validate-func="number"
+                                    data_validate-arg = 1
+                                    data-validate-hint="Entrez la valeur de l'année svp." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Solde</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="solde" id="solde" value="{{model.solde}}"
+                                    data-validate-func="number"
+                                    data_validate-arg = 1
+                                    data-validate-hint="Entrez la valeur du solde svp." />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Date de début</label>
+                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" id="date_debut" name="date_debut" readonly
+                                    data-validate-func="required" value="{{model.date_debut}}"
+                                    data-validate-hint="Précisez la date svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                        </div>
+                            <label>Date de fin</label>
+                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" id="date_fin" name="date_fin" readonly
+                                    data-validate-func="required" value="{{model.date_fin}}"
+                                    data-validate-hint="Précisez la date svp.">
+                            <div class="button"><span class="mif-calendar"></span></div>
+                        </div>
+
+                <br>
+                <br>
+                <br>
+            </div>
+            <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+            <!--
+            <div class="row margin20 no-margin-left no-margin-right">
+                <p class="sub-header">Lignes budgétaires...</p>
+                <br>
+                <table class="table no-margin" id="table_id">
+                    <thead class="no-border">
+                        <tr>
+                            <th class="no-padding-top no-padding-left no-padding-bottom" width="15%">Code</th>
+                            <th width="16%">Responsable</th>
+                            <th width="16%">Désignation</th>
+                            <th width="16%">Solde</th>
+                            <th width="16%">Date de Début</th>
+                            <th width="16%">Date de Fin</th>
+                            <th width="5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="items">
+                        <tr id="ligne1">
+                            <td class="no-padding-top no-padding-bottom">
+                                <div class="input-control text full-size">
+                                    <input id="code1" name="code" type="text"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez le code de la Ligne Budgétaire svp">
+                                </div>
+                            </td>
+                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                <div class="input-control select full-size">
+                                    <select id="responsable1" name="responsable"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez un Responsable svp">
+                                        <option value="0">Sélectionnez un Responsable</option>
+                                        {% for item in responsable %}
+                                            <option value="{{ item.id }}">{{ item.nom_complet }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </td>
+                            <td class="no-padding-top no-padding-bottom">
+                                <div class="input-control text full-size">
+                                    <input id="designation1" name="designation" type="text"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez une désignation pour la ligne budgétaire svp">
+                                </div>
+                            </td>
+                            <td class="no-padding-top no-padding-bottom">
+                                <div class="input-control text full-size">
+                                    <input id="solde1" name="solde" type="text"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez le solde de la ligne budgétaire svp">
+                                </div>
+                            </td>
+                            <td class="no-padding-top no-padding-bottom">
+                                <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                    <input readonly type="text" id="date_debut1" name="date_debut" readonly
+                                        data-validate-func="required"
+                                        data-validate-hint="Précisez la date svp.">
+                                    <div class="button"><span class="mif-calendar"></span></div>
+                            </td>
+                            <td class="no-padding-top no-padding-bottom">
+                                <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                    <input readonly type="text" id="date_fin1" name="date_fin" readonly
+                                        data-validate-func="required"
+                                        data-validate-hint="Précisez la date svp.">
+                                    <div class="button"><span class="mif-calendar"></span></div>
+                            </td>
+
+                            <td class="no-padding-top no-padding-bottom">
+                                <div class="pagination no-border">
+                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row margin10 no-margin-left no-margin-right">
+                <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+            </div>
+-->
+            </form>
+    </div>
+</div>
+    <script>
+        var deviseRef = "$";
+
+        var lesResponsable = new Array();
+
+        {% for item in responsable %}
+            lesResponsables.push({id:"{{ item.id }}", nom_complet:"{{ item.nom_complet }}"});
+        {% endfor %}
+
+        var lignes_budgets = new Array();
+        {% for item in ligne_budgetaire %}
+            lignes_budgtes.push({id:"{{item.id}}", code : "{{item.code}}", designation : "{{ item.designation }}", solde : "{{item.solde}}", date_debut : "{{ item.date_debut}}", date_fin : "{{ item.date_fin}}"});
+        {% endfor %}
+
+    </script>
+    <script>
+        /*
+        Ce script permet de générer automatiquement des lignes budgétaires du budget dans la table (cfr le mot laissé plus haut) des lignes.
+
+        En effet, elle va devoir créer le nombre de lignes en fonction de la taille des éléments dans la liste des lignes budgétaires du Budget
+        correspondant
+
+        */
+
+        compteur = 0;
+        for( var i = 0; i <= lignes_budgets.length; i++)
+        {
+            ligne = lignes_budgets[i]
+            compteur = i+1;
+            $('#table_id > tbody : last').append(' <tr id="ligne' + compteur + '"> <td class="no-padding-top no-padding-bottom"> <div class= "input-control text full-size"> <input id="code' + compteur + '" name="code" type="text" ');
+            $('#table_id > tbody : last').append(' data-validate-func="required" value = "' + ligne.code + 'data-validate-hint="Entrez le code de la Ligne Budgétaire svp"></div></td> ');
+            $('#table_id > tbody : last').append(' <td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size"><select id="responsable' + compteur + '" name="responsable" ');
+            $('#table_id > tbody : last').append(' data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un Responsable svp"><option value="0">Sélectionnez un Responsable</option> {% for item in responsable %} <option value="{{ item.id }}">{{ item.nom_complet }}</option> {% endfor %} </select></div></td> ');
+            $('#table_id > tbody : last').append(' <td class="no-padding-top no-padding-bottom"> <div class="input-control text full-size"> <input id="designation' + compteur + '" name="designation" value = "' + ligne.designation + '" type="text" data-validate-func="required" data-validate-hint="Entrez une désignation pour la ligne budgétaire svp"> </div></td> ');
+            $('#table_id > tbody : last').append(' <td class="no-padding-top no-padding-bottom"> <div class="input-control text full-size"> <input id="solde' + compteur + '" name="solde" value="' + ligne.solde + '" type="text" data-validate-func="required" data-validate-hint="Entrez le solde de la ligne budgétaire svp"></div></td> ');
+            $('#table_id > tbody : last').append(' <td class="no-padding-top no-padding-bottom"> <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr"><input readonly type="text" id="date_debut' + compteur + '" name="date_debut" value = "' + ligne.date_debut + '" readonly data-validate-func="required" data-validate-hint="Précisez la date svp."> <div class="button"><span class="mif-calendar"></span></div></td> ');
+            $('#table_id > tbody : last').append(' <td class="no-padding-top no-padding-bottom"> <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr"><input readonly type="text" id="date_fin' + compteur + '" name="date_fin" value = "' + ligne.date_fin + '" readonly data-validate-func="required" data-validate-hint="Précisez la date svp."> <div class="button"><span class="mif-calendar"></span></div></td> ');
+            $('#table_id > tbody : last').append(' <td class="no-padding-top no-padding-bottom"> <div class="pagination no-border"><span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span></div></td></tr> ');
+        }
+
+
+    </script>
+    <script>
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = lignes_budgets.length;
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<input id="code"' + compteur + ' name="code" type="text data-validate-func="required"';
+            nouvelleLigne += ' data-validate-hint="Entrez le code de la Ligne Budgétaire svp">';
+            nouvelleLigne += '</div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+            nouvelleLigne += '<select id="responsable1" name="responsable"' + compteur +'" data-validate-func="min" data-validate-arg="1" ';
+            nouvelleLigne += 'data-validate-hint="Sélectionnez un Responsable svp"><option value="0">Sélectionnez un Responsable</option>'
+            nouvelleLigne += renvoyerOptionsResponsables();
+            nouvelleLigne += '</select></div></td>'
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="designation" id="designation' + compteur + '" data-validate-func="required" ';
+            nouvelleLigne += 'data-validate-hint="Entrez une désignation pour la ligne budgétaire svp">  </div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="solde" id="solde' + compteur + '" data-validate-func="required" ';
+            nouvelleLigne += 'data-validate-hint="Entrez une désignation pour la ligne budgétaire svp">  </div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"> <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">';
+            nouvelleLigne += '<input readonly type="text" id="date_debut"' + compteur + ' name="date_debut" readonly data-validate-func="required" data-validate-hint="Précisez la date svp.">';
+            nouvelleLigne += '<div class="button"><span class="mif-calendar"></span></div> </td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"> <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">';
+            nouvelleLigne += '<input readonly type="text" id="date_fin"' + compteur + ' name="date_fin" readonly data-validate-func="required" data-validate-hint="Précisez la date svp.">';
+            nouvelleLigne += '<div class="button"><span class="mif-calendar"></span></div> </td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            if($("#id" + indice).val() != "0")
+            {
+                fournitureLocal.supprimerLigne($("#id" + indice).val());
+            }
+            $("#ligne" + indice).remove();
+        }
+
+        function enregistrer_ligneBudgetaire(){
+            var canPost = true;
+            var items = new Array();
+
+            for(var i = 1; i <= compteur; i++)
+            {
+                var ligneBudgetaire = document.getElementById("ligne" + i);
+                if(ligneBudgetaire != null)
+                {
+                    var item = {
+                        code:"",
+                        responsable : 0,
+                        designation : "",
+                        solde : 0,
+                        dateDebut : "",
+                        dateFin : "",
+                    };
+
+                    var code = $("#code" +i).val();
+                    if(code == ""){
+                        canPost = false;
+                        break;
+                    }
+                    else item.code = code;
+
+                    var responsable = $("#responsable" +i).val();
+                    if(responsable == -1){
+                        canPost = false;
+                        break;
+                    }
+                    else item.responsable = responsable;
+
+                    var designation = $("#designation" +i).val();
+                    if(designation == ""){
+                        canPost = false;
+                        break;
+                    }
+                    else item.designation = designation;
+
+                    var dateDebut = $("#date_debut" +i).val();
+                    if(dateDebut == ""){
+                        canPost = false;
+                        break;
+                    }
+                    else item.dateDebut = dateDebut;
+
+                    var dateFin = $("#date_fin" +i).val();
+                    if(dateFin == ""){
+                        canPost = false;
+                        break;
+                    }
+                    else item.dateFin = dateFin;
+
+                    var solde = $("#solde" + i).val();
+                    if(!((solde - 0) == solde && ('' + solde).trim().length > 0))
+                    {
+                        canPost = false;
+                        break;
+                    }
+                    else item.solde = parseFloat(solde);
+
+                }
+            }
+
+            if(canPost == true)
+            {
+                var total_solde = 0;
+                for(var i = 0; i < items.length; i++)
+                {
+                    var ecriture = items[i];
+                    total_solde += ecriture.solde;
+                }
+
+                if(solde < 0)
+                {
+                    $.Notify({
+                        caption: 'Information',
+                        content: "Votre Solde est négatif",
+                        type: 'alert'
+                    });
+                    return;
+                }
+            }
+            if(canPost == true) document.getElementById('submit').click();
+        }
+
+        function renvoyerOptionsResponsables()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesResponsable.length; i++)
+            {
+                var responsable = lesResponsable[i];
+                ligne += '<option value="' + responsable.id + '">' + responsable.nom_complet + '</option>';
+            }
+            return ligne;
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,41 @@
+
+        {% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+
+        {% if not isPopup %}
+        <!-- Suite Menu Nav -->
+
+        <!-- Menu lateral -->
+        <div class="sidebar" role="navigation" style="">
+
+            <div class="contenair-profil" style="background-color: transparent;">
+                <!-- <img src="/static/ErpProject/image/icone_profile.png" class="profil"> -->
+                {% if utilisateur.image != None and utilisateur.image != '' %}
+                <img src="{% static utilisateur.image %}"  class="profil">
+                {% else %}
+                    <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+                {% endif %}
+                <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+                <P class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</P>
+                <div class="divider" style="background-color: transparent;"></div>
+            </div>
+            <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+                <ul class=" nav" id="side-menu" style="background-color: transparent;">
+                    {% include 'ErpProject/ErpBackOffice/widget/menu.html' %}
+                </ul>
+            </div>
+
+            <!-- /.sidebar-collapse -->
+        </div>
+        <!-- /.Menu lateral -->
+        </nav>
+        <!-- /.Menu Navbar -->
+
+        <!-- Corps de la page (A definir dans chaque fonction du module) -->
+        <div id="page-wrapper" style="background-color:white;">
+        {% else %}
+        <div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+            {% endif %}
+            {% block page %}{% endblock %}
+        </div>
+        <!-- Fin Corps de la page -->
+        {% endblock %}

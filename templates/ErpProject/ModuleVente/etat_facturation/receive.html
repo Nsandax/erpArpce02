@@ -1,0 +1,120 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}{% load humanize %}
+{% block page %}
+{% load account_filters %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_bons_achat' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_bons_achat' %}">Liste des bons d'achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_details_bon_achat' model.id %}">{{ title }}</a></li>
+        <li>Réceptionner les articles</li>
+    </ul>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary">Valider</button>
+        {% if model.est_modifiable == True %}
+            <button onclick="javascript:window.location.assign('{% url 'module_achat_add_bon_achat' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Modifier</button>
+            <button onclick="javascript:window.location.assign('{% url 'module_achat_add_bon_achat' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler la commande</button>
+        {% endif %}
+    </div>
+
+    <hr class="hr-ligne" />
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+    <form action="{% url 'module_achat_post_receive_bon_achat' %}" method="POST"
+        data-role="validator" 
+        data-show-required-state="false"
+        data-hint-mode="line"
+        data-hint-background="bg-red"
+        data-hint-color="fg-white"
+        data-hide-error="5000"
+        novalidate="novalidate"
+        data-on-error-input="notifyOnErrorInput"
+        data-show-error-hint="false">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+        <input type="hidden" name="bon_id" value="{{ model.id }}">
+
+        <div class="row item-content" style="margin-top: 20px">
+            <div class="cell padding30 shadow">
+                <div class="row cells2">
+                    <div class="cell">
+                        <p class="minor-header fg-gray">
+                            Numéro du bon d'achat :<br>
+                            <span class="sub-alt-header fg-dark"> {{ model.numero }} </span>
+                        </p>
+                    </div>
+                    <div class="cell">
+                        <p class="minor-header fg-gray">
+                            Date prévue :<br>
+                            <span class="sub-alt-header fg-dark">{{ model.date_prevue|date:"d/m/Y" }}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="row cells2">
+                    <div class="cell">
+                        <p class="minor-header fg-gray">
+                            Fournisseur :<br>
+                            <a class="sub-alt-header lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' model.fournisseur.id %}"> {{ model.fournisseur.nom_complet }} </a>
+                        </p>
+                    </div>
+                    <div class="cell">
+                        <p class="minor-header fg-gray">
+                            Modalité de réglèment :<br>
+                            <span class="sub-alt-header fg-dark"> {{ model.condition_reglement.designation }} </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="row cells3">
+                    <div class="cell">
+                        <label>Agent receveur :</label>
+                        <div class="input-control text full-size">
+                            <select type="text" name="receveur_id" id="receveur_id"
+                                data-validate-func="min" 
+                                data-validate-arg="1"
+                                data-validate-hint="Sélectionnez l'agent svp.">
+                                <option value="{{  user.id }}"> {{  user.username }} </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">                
+                    <table class="table border bordered">
+                        <thead>
+                            <tr>
+                                <th width="25%">Article</th>
+                                <th width="18%">Quantité demandée</th>
+                                <th width="18%">Quantité déjà fournie</th>
+                                <th width="19%">Quantité fournie</th>
+                                <th width="20%">Prix unitaire</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ligne in lignes %}
+                                <input type="hidden" name="ligne_id" value="{{ ligne.id }}">
+                                <tr class="table bordered border">
+                                    <td>{{ ligne.nom_article}}</td>
+                                    <td>{{ ligne.quantite_demandee }} {{ ligne.unite.symbole_unite }}</td>
+                                    <td>{{ ligne.quantite_fournie }} {{ ligne.unite.symbole_unite }}</td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <input name="quantite_fournie" type="text" placeholder="Ex: 10"
+                                                data-validate-func="number" 
+                                                data-validate-arg="1"
+                                                data-validate-hint="Précisez la quantité fournie svp">
+                                            <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">{{ ligne.unite.symbole_unite }}</span>
+                                                </span>
+                                        </div>
+                                    </td>
+                                    <td>{{ ligne.prix_unitaire|intcomma }} {{ model.devise.symbole_devise }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

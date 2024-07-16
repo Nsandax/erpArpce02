@@ -1,0 +1,150 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumbs2 small">
+        <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+		{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+	<br>
+	
+		
+	<div class="row" style="margin-top: 10px">
+		<div class="cell padding10">
+			<div class="shadow padding20">			
+				<!-- Custom tabs (Charts with tabs)-->
+				<div class="tabcontrol2" data-role="tabcontrol">
+					<!-- Tabs within a box -->				
+					<ul class="tabs" style="">
+						<li class="active"><a href="#frame_area"><span class="icon mif-chart-bars"></span> Graphique en barres</a></li>
+						<li id="id_frame_line"><a href="#frame_line"><span class="icon mif-chart-line"></span> Courbes</a></li>
+						<li id="id_frame_donut"><a href="#frame_donut"><span class="icon mif-chart-pie"></span> Diagramme</a></li>
+					</ul>
+					<div class="frames">
+						<div class="frame" id="frame_area" style="display: block;">
+							<div class="box-body">
+								<div class="chart">
+									<canvas id="barChart" style="height:230px"></canvas>
+								</div>
+							</div>						
+						</div>
+						<div class="frame" id="frame_line" style="display: block;">
+							<div class="box-body">
+								<div class="chart">
+									<canvas id="lineChart" style="height:250px"></canvas>
+								</div>
+							</div>						
+						</div>
+						<div class="frame" id="frame_donut" style="display: block;">
+							<div class="box-body">
+								<canvas id="pieChart" style="height:250px"></canvas>
+							</div>
+						</div>	
+					</div>
+				</div>
+				<!-- /.nav-tabs-custom -->
+			</div>                        
+		</div>
+	</div>
+
+<script src="/static/ErpProject/js/Chart.js"></script>
+<script>
+
+$(document).ready(function(){
+	//showDialog("chargement");
+	$.get(
+		"/redevance/graphique/",
+		{ },
+		function (response) {
+			montants = new Array();
+			nombres = new Array();
+			names = new Array();
+			colors = ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"];
+			mois = ["Janvier","Fevrier","Mars","Avril","Mai"];
+			for (var i = 0; i < response.data.length; i++) {
+				var dataOperateur = response.data[i];
+				montants[i] = parseFloat(dataOperateur.total_montant);
+				nombres[i] = parseInt(dataOperateur.nbre_paiement);
+				names[i] = dataOperateur.name;
+			}
+			
+			// Bar chart
+			new Chart(document.getElementById("barChart"), {
+				type: 'bar',
+				data: {
+				  labels: names,
+				  datasets: [
+					{
+					  label: "Montant payé par Opérateur",
+					  backgroundColor: colors,
+					  data: montants 
+					}
+				  ]
+				},
+				options: {
+				  legend: { display: false },
+				  title: {
+					display: true,
+					text: 'Montant payé par Opérateur (en dollars)'
+				  }
+				}
+			});
+			
+			// Pie chart
+			new Chart(document.getElementById("pieChart"), {
+				type: 'pie',
+				data: {
+				  labels: names, 
+				  datasets: [{
+					label: "Montant payé par Opérateur  (en dollars)",
+					backgroundColor: colors,
+					data: montants
+				  }]
+				},
+				options: {
+				  title: {
+					display: true,
+					text: 'Montant payé par Opérateur'
+				  }
+				}
+			});
+			
+			// Line chart
+			datas = new Array();
+			
+			for (var i = 0; i < response.data.length; i++) {						
+				dtsets = {};
+				dtsets.data = [0,0,0,0,montants[i]];
+				dtsets.label = names[i];
+				dtsets.borderColor = colors[i];
+				dtsets.fill = false;
+				datas.push(dtsets);
+				console.log(montants[i]);
+			}
+			console.log(datas);
+			new Chart(document.getElementById("lineChart"), {
+				type: 'line',
+				data: {
+				labels: mois,
+				datasets: datas
+				},
+				options: {
+					title: {
+						display: true,
+						text: 'Montant payé par Opérateur, par mois (en dollars)'
+					}
+				}
+			});
+			
+			
+			
+		},
+		"json"
+	);
+});
+  
+</script>
+
+{% endblock %}

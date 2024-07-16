@@ -1,0 +1,256 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+        <!-- <li><a class="leaf" href="{% url 'module_inventaire_list_rebut' %}">Liste des bons de rebuts</a></li> -->
+        <li>{{ title }}</li>
+    </ul>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" >
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary chargement-au-click primary_color_{{module.name|lower}}">Valider</button>
+
+                    <button onclick="javascript:window.location.assign('{% url 'module_inventaire_tableau_de_bord' %}')" class="theme-btn theme-btn-sm rounded" style="margin-left: 5px">Annuler</button>
+                </div>
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                <form action="{% url 'module_inventaire_post_article_in_stock' %}" method="POST" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput"
+                data-show-error-hint="false">
+                {% csrf_token %}
+
+                    <input id="submit" type="submit" style="display: none">
+                    <input name="print" type="number" value="0" style="display: none">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Emplacement</label>
+                            <div class="input-control text full-size">
+                                <select onchange="fill_account()" name="emplacement_origine_id" id="emplacement_origine_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez l'emplacement d'origine svp.">
+                                    <option value="">Sélectionnez un emplacement</option>
+                                    {% for item in emplacements %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="article_inventorie">
+                                <label for="">Article</label>
+                                <div class="input-control select full-size">
+                                    <select  onchange="selectChange(event)" id="item1" name="article_id">
+                                            <option value="0">Sélectionnez un article</option>
+                                            {% for data in articles %}
+                                                <option value="{{data.id}}">{{data.designation}}</option>
+                                            {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="categorie_inventorie">
+                                <label>Catégorie</label>
+                                <div class="input-control text full-size">
+                                    <select name="categorie_id" id="categorie_id">
+                                        <option value="0">Sélectionnez une catégorie </option>
+                                        {% for item in categories %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Rapport de:</label>
+                            <div class="row">
+                                <label class="input-control radio small-check">
+                                    <input value="0" name="inventaire_de" checked type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">Tous les articles</span>
+                                </label><br>
+                                <label class="input-control radio small-check" style="/*margin-left: 15px*/">
+                                    <input value="1" name="inventaire_de" type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">Une catégorie d'articles</span>
+                                </label><br>
+                                <label class="input-control radio small-check">
+                                    <input value="2" name="inventaire_de" type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">Un article seulement</span>
+                                </label><br>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+
+        $("#categorie_inventorie").hide();
+        $("#article_inventorie").hide();
+
+        $("input[name='inventaire_de']").change(function(){
+        if($(this).val() == '0') {
+            $("#categorie_inventorie").hide();
+            $("#article_inventorie").hide();
+            $("#article_id").val('0');
+            $("#categorie_id").val('0');
+        } else if ($(this).val() == '1') {
+            $("#categorie_inventorie").show();
+            $("#article_inventorie").hide();
+            $("#article_id").val('0');
+        }else if ($(this).val() == '2') {
+            $("#categorie_inventorie").hide();
+            $("#article_inventorie").show();
+            $("#categorie_id").val('0');
+        }else if ($(this).val() == '3') {
+            $("#categorie_inventorie").hide();
+            $("#article_inventorie").hide();
+            $("#article_id").val('0');
+            $("#categorie_id").val('0');
+        }
+        });
+
+    });
+</script>
+
+<script>
+    var lesarticlesfill = new Array();
+    function fill_account() {
+
+            var choixService = $("#emplacement_origine_id").val();
+            console.log(choixService)
+
+            if (choixService !== 0){
+                showDialog("chargement");
+                console.log(choixService)
+
+                $.get(
+                    "{% url 'module_achat_get_stock_article_of_service_referent' %}",
+                    {ref:choixService, bool:1}
+                    ,
+                    function (response) {
+                        console.log(response)
+                        $("#item1").children().remove();
+                        // $("#item1").append("<option value='0'>Sélectionnez un article</option>");
+                        $("#item1").append("<option value='0'>Sélectionnez un article</option>");
+                            lesarticlesfill = [];
+                            for (var i = 0; i < response.length; i++) {
+                            var unarticle = response[i];
+                            lesarticlesfill.push({id:unarticle.id, code_article:unarticle.code_article, designation: unarticle.designation});
+
+                            var option = "<option value='" + unarticle.id + "'>[" + unarticle.code_article + "]"+" "+unarticle.designation+"</option>";
+                            $("#item1").append(option);
+                            load_cat(choixService);
+                        }
+                       showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+        }
+</script>
+
+<script>
+    function selectChange(event)
+        {
+            $select = $(event.target);
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            var choixService = $("#emplacement_origine_id").val();
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+                if($("#" + id_element).val() != "0")
+                {
+                    var idArticle = parseInt($("#" + id_element).val());
+                    console.log("Cod_Article= " + idArticle);
+                    $.get(
+                        "{% url 'module_achat_details_article_fourni' %}",
+                        {ref : idArticle},
+                        function(data)
+                        {
+                            if(data != null)
+                            {
+                                $("#quantite").val(1);
+                                $("#unite").val(data.symbole_unite);
+                                $("#unite_id").val(data.united_id);
+                                document.getElementById("quantite").setAttribute("disabled", "")
+                                // load_cat(choixService);
+                            }
+                        },
+                        "json"
+                    );
+                }
+            }
+        }
+</script>
+
+<script>
+    var lesassetsfill = new Array();
+    function load_asset(id, service_id){
+
+        $.get(
+            "{% url 'module_achat_get_assets_of_article' %}",
+            {ref : id, service:service_id},
+            function(data){
+                if(data != null){
+                    console.log('DATA ASSET', data)
+                    $("#item_serie").children().remove();
+                    $("#item_serie").append("<option value='0'>Sélectionnez la categorie</option>");
+                        lesassetsfill = [];
+                        for (var i = 0; i < data.length; i++) {
+                            var unasset = data[i];
+                            lesassetsfill.push({id:unasset.id, code:unasset.code});
+
+                            var option = "<option value='" + unasset.id + "'>" + unasset.code +"</option>";
+                            $("#item_serie").append(option);
+                        }
+                }
+            },
+            "json"
+        );
+    }
+</script>
+
+<script>
+    function load_cat(service_id){
+        $.get(
+            "{% url 'module_inventaire_get_categorie_of_article' %}",
+            {ref : service_id},
+            function(data){
+                if(data != null){
+                    console.log('DATA ASSET', data)
+                    $("#categorie_id").children().remove();
+                    $("#categorie_id").append("<option value='0'>Sélectionnez la categorie</option>");
+                        // lesassetsfill = [];
+                        for (var i = 0; i < data.length; i++) {
+                            var uncat = data[i];
+                            // lesassetsfill.push({id:uncat.id, code:uncat.designation});
+
+                            var option = "<option value='" + uncat.id + "'>" + uncat.designation +"</option>";
+                            $("#categorie_id").append(option);
+                        }
+                }
+            },
+            "json"
+        );
+    }
+</script>
+
+{% endblock %}

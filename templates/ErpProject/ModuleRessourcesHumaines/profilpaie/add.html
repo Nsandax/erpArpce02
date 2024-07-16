@@ -1,0 +1,206 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+		<li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_list_profilpaie' %}">Liste des Profils Paie</a></li>
+        <li>{{ title }}</li>
+    </ul>
+
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" 
+		class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">Valider</button>
+        <button class="theme-btn theme-btn-sm rounded " style="width: 20%;" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_list_profilpaie' %}')" style="margin-left: 5px">Annuler</button>
+		<center><h4 style="color:red; font-weight: bold;">PROFIL PAIE</h4></center>
+	</div>
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+		{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+	<br>
+	
+    <div class="row item-content" style="margin-top: 10px">
+        <div class="cell">
+            <form id="form" method="POST" action="{% url 'module_ressources_humaines_post_add_profilpaie' %}"
+                data-role="validator" 
+                data-show-required-state="false"
+                data-hint-mode="line"
+                data-hint-background="bg-red"
+                data-hint-color="fg-white"
+                data-hide-error="5000"
+                novalidate="novalidate"
+                data-on-error-input="notifyOnErrorInput"
+                data-show-error-hint="false">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+
+				<div class="row">
+					<div class="col-md-6">
+						<label>Désignation</label>
+						<div class="input-control text full-size" data-role="input">
+							<input name="designation" type="text" autocomplete="off"
+								data-validate-func="required" 
+								data-validate-hint="Entrez la désignation du poste!">
+							<span class="input-state-error mif-warning"></span>
+							<span class="input-state-success mif-checkmark"></span>
+						</div>	
+					</div>
+					<div class="col-md-6">
+						<label>Référence</label>
+						<div class="input-control text full-size">
+							<input type="text" name="reference" id="reference" autocomplete="off" />
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<label>Employé</label>
+						<div class="input-control text full-size">
+							<select name="employe_id" id="employe_id" onchange="choix_employe()"
+								data-validate-func="min" 
+								data-validate-arg="1"
+								data-validate-hint="Sélectionnez la devise svp.">
+								<option value="0">Sélectionnez un employé</option>
+								{% for item in employes %}
+									<option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<label>Devise</label>
+						<div class="input-control text full-size">
+							<select name="devise_id" id="devise_id" onchange="choix_devise()"
+								data-validate-func="min" 
+								data-validate-arg="1"
+								data-validate-hint="Sélectionnez la devise svp.">
+								<option value="0">Sélectionnez une devise</option>
+								{% for item in devises %}
+									<option value="{{ item.id }}"> {{ item.designation }} </option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<center><h4 style="color:red; font-weight: bold;">ELEMENTS DU BULLETINS</h4></center>
+				</div>
+				<hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+
+				<div class="row">
+					<table class="table border bordered">
+						<thead class="primary_color_{{module.name|lower}}">
+							<tr>
+								<th width="25%">Désignation</th>
+								<th width="10%">Type</th>
+								<th width="10%">Catégorie</th>
+								<th width="15%">Type de calcul</th>
+								<th width="8%">basé sur</th>
+								<th width="15%">Valeur du %</th>
+								<th width="15%">Montant fixe</th>
+								<th width="2%">Actif</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for element in elements %}
+								<tr class="table bordered border">
+									<input name="id_element" type="hidden" value="{{ element.id}}">
+									<input name="sequence" type="hidden" value="{{ element.sequence}}">
+									<input name="designation_element" type="hidden" value="{{ element.designation}}">
+									<!--input name="id_actif" type="hidden" value="0"-->
+									<td>{{ element.designation}}</td>
+									<td>
+										{% for item in types_element %}
+											{% if item.id == element.type_element %}
+												{{ item.designation }}
+											{% endif %}
+										{% endfor %}
+									</td>
+									<td>
+										{% for item in categories_element %}
+											{% if item.id == element.categorie_element %}
+												{{ item.designation }}
+											{% endif %}
+										{% endfor %}
+									</td>
+									<td>
+										{% for item in types_calcul %}
+											{% if item.id == element.type_calcul %}
+												{{ item.designation }}
+											{% endif %}
+										{% endfor %}
+									</td>
+									<td>
+										{% for item in types_resultat %}
+											{% if item.id == element.type_resultat %}
+												{{ item.designation }}
+											{% endif %}
+										{% endfor %}
+									</td>
+									<td>
+										<div class="input-control text full-size">
+											{% if element.pourcentage == None %}
+												<input name="pourcentage_element" type="text" placeholder="" value="0.0">
+											{% else %}
+												<input name="pourcentage_element" type="text" placeholder="" value="{{ element.pourcentage }}">
+											{% endif %}
+                                        </div>
+									</td>
+									<td>
+										<div class="input-control text full-size">
+                                            <input name="montant_element" type="text" placeholder="" value="{{ element.montant }}">
+                                            <span class="prepend-icon" style="margin-left:50%">
+												<span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole }}</span>
+											</span>
+                                        </div>
+									</td>
+									<td>
+										<label id="actif" class="small-check">
+											<input class="actif" type="checkbox" value="{{ element.id}}">
+											<span class="check"></span>
+										</label>
+										<input name="id_actif" id="id_actif{{ element.id}}" type="hidden" value="1">
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				
+            </form>
+        </div>        
+    </div>
+	<script>
+
+        $(document).ready(function(){		
+			$("#actif .actif").change(function() {			  
+				var id_element = $(this).val();				
+				if($(this).is(':checked')) {
+					$("#id_actif"+id_element+"").val("2");
+				}else{
+					$("#id_actif"+id_element+"").val("1");
+				}			  
+			});
+			
+			$("#devise_id").change(function() {			  
+				var id_devise = $("#devise_id").val();
+				if(id_devise == "0") deviseRef = "$";
+				else
+				{
+					for(var i = 0; i < lesDevises.length; i++)
+					{
+						var devise = lesDevises[i];
+						if(devise.id == id_devise)
+						{
+							deviseRef = devise.symbole_devise;
+							$(".devise").text(deviseRef);
+							break;
+						}
+					}
+				}			  
+			});
+							
+		});
+	</script>
+{% endblock %}

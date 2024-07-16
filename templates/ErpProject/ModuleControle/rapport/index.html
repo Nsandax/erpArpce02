@@ -1,0 +1,87 @@
+{% extends "ErpProject/ModuleControle/shared/layout.html" %} {% block page %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_controle_tableau' %}">Module Controle</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>{{ title }}</h3>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel panel-yellow">
+                                <div class="panel-heading">
+                                    <h4>Rapport des états de besoin</h4>
+                                </div>
+                                <form method="POST" action="{% url 'module_achat_rapports_demande' %}">
+                                    {% csrf_token %}
+                                    <div class="panel-body">
+                                        <div class="col-md-6">
+                                            <label>Date debut</label>
+                                            <div id="input-date-prevue" class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input readonly type="text" name="date_debut" readonly data-validate-func="required" style="border: none;" data-validate-hint="Précisez la date d'enregistrement svp." class="form-control" value="{% now "d/m/Y" %}">
+                                                <div class="button primary_color_{{module.name|lower}}"><span class="mif-calendar" style="color: white;"></span></div>
+                                            </div>
+
+                                            <label>Date fin</label>
+                                            <div id="input-date-prevue" class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input readonly type="text" name="date_fin" readonly data-validate-func="required" style="border: none;" data-validate-hint="Précisez la date d'enregistrement svp." class="form-control" value="{% now "d/m/Y" %}">
+                                                <div class="button primary_color_{{module.name|lower}}"><span class="mif-calendar" style="color: white;"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel-footer text-center">
+                                            <button type="submit" style="width: 40%;" class="button theme-btn-sm primary chargement-au-click primary_color_{{module.name|lower}}">Voir</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="panel panel-yellow">
+                                <div class="panel-heading">
+                                    <h4>Rapport des bons de commande</h4>
+                                </div>
+                                <form method="POST" action="{% url 'module_achat_rapports_reception' %}">
+                                    {% csrf_token %}
+                                    <div class="panel-body">
+                                        <div class="col-md-6">
+                                            <label>Date debut</label>
+                                            <div id="input-date-prevue" class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input readonly type="text" name="date_debut" readonly data-validate-func="required" style="border: none;" data-validate-hint="Précisez la date d'enregistrement svp." class="form-control" value="{% now "d/m/Y" %}">
+                                                <div class="button primary_color_{{module.name|lower}}"><span class="mif-calendar" style="color: white;"></span></div>
+                                            </div>
+
+                                            <label>Date fin</label>
+                                            <div id="input-date-prevue" class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input readonly type="text" name="date_fin" readonly data-validate-func="required" style="border: none;" data-validate-hint="Précisez la date d'enregistrement svp." class="form-control" value="{% now "d/m/Y" %}">
+                                                <div class="button primary_color_{{module.name|lower}}"><span class="mif-calendar" style="color: white;"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel-footer">
+                                        <center>
+                                            <button type="submit" style="width: 40%;" class="button theme-btn-sm primary chargement-au-click primary_color_{{module.name|lower}}">Voir</button>
+                                        </center>     
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+{% endblock %}

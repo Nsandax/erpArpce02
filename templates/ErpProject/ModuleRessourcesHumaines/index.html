@@ -1,0 +1,2089 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %} {%load static %}
+{% load customfilter %}
+<style type="text/css">
+    body {
+        background-color: grey!important;
+        min-height:auto;
+    }
+    .text-black{
+        color:#333333;
+    }
+    .btSh{
+        border-radius: 0px;
+        padding-right: 0px;
+        margin-right: 10px;
+        margin-bottom: 0px;
+        background-color: #fff;
+        margin-bottom: 3%;
+        display: flex;
+        justify-content: center;
+     }
+    .right{
+        float: right;
+        width:30%;
+    }
+    .left{
+        float: left;
+        width: 70%;
+    }
+    .barr{
+        background-color: #991B58;
+        height: 120px;
+        width: 5px;
+        position: relative;
+        left: -5%;
+    }
+    .item_header{
+
+    }
+    .information{
+        background-color:#F0F3F8;
+        border-radius:10px;
+        margin-bottom:3%;
+        padding: 2%;
+    }
+    .information span{
+        font-weight: 900;
+    }
+    .information span em{
+        font-style: normal;
+        font-size: 12px;
+        color:#A0A2A5;
+        font-weight: 500;
+    }
+    .progress.progress-md {
+        height: 8px
+    }
+
+    .template-demo .progress {
+        margin-top: 1.5rem
+    }
+
+    .progress {
+        border-radius: 3px;
+        height: 8px
+    }
+
+    .pl-2,
+    .px-2,
+    .template-demo .circle-progress-block {
+        padding-left: 0.5rem !important
+    }
+
+    .pr-2,
+    .px-2,
+    .template-demo .circle-progress-block {
+        padding-right: 0.5rem !important
+    }
+
+    .mb-3,
+    .template-demo .circle-progress-block,
+    .my-3 {
+        margin-bottom: 1rem !important
+    }
+    .iconChart:hover {
+        background-color:#E5E3E5;
+        padding:5px;
+    }
+    #draggable {
+			background: #e0ffee;
+			border: 1px solid #57a57a;
+			width: 200px;
+			padding: 5px;
+		  }
+	.dropzone {
+			width: 300px;
+			padding: 10px;
+			margin: 10px;
+			background: #eee;
+			border: 2px solid #000;
+	}
+
+		  /* [DROP ZONE HIGHLIGHTS]
+	.active {
+			background: #fffad6;
+			border: 2px solid #aaa479;
+		  }
+	.over {
+			background: #ffc6c6;
+			border: 2px solid #931414;
+		  }
+
+		  /* [CSS ANIMATION] */
+	/* #draggable, .dropzone {
+			transition: all 0.7s;
+    } */
+    #calendar {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+    .border_classe td{
+        border:1px solid #d9d9d9;
+    }
+    .bg-greenCustom{
+        background-color:#A9D08E;
+    }
+    .text_align_center{
+        text-align: center;
+    }
+    .bg-blueCustom{
+        background-color:#97CCEC;
+        color:#fff;
+    }
+    @media screen and (max-width: 850px) {
+        .right{
+            display:none;
+        }
+      }
+    @media screen and (max-width: 600px) {
+        .gridListe{
+            width: 182%;
+            margin-left: -21%;
+            margin-bottom: 3%;
+        }
+        .head_grid{
+            width: 128%;
+            margin-left: -14%;
+        }
+        .espace{
+            padding-top: 0px;
+        }
+
+      }
+
+
+</style>
+<!-- Model -->
+<div id="myModalEleve" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header" style="background-color:#0088CF;">
+          <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+          <h4 id='head_modal' class="modal-title" style="color:#fff;" >FORMATION</h4>
+        </div>
+        <div class="modal-body">
+            <div id="body_modal">
+
+            </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+</div>
+<!-- End modal-->
+
+<!-- Vue Admin -->
+ <div id="vue_admin" class="container" style="width: 100%;">
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>Tableau de Bord</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+                <!--Notification-->
+                <div class="panel" style="background-color:#f5f5f5;border: none;"></div>
+                    <!--Notification-->
+                    {% if temp_notif_count > 0 %}
+                    <div class="col-md-12" style="padding: 10px;">
+                        {% for item in temp_notif_list %}
+                        <div class="col-md-4" style="padding: 10px;z-index:1;">
+                            <div style="">
+                                    <div class="mb-4 ">
+                                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                                    <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                                            <div style="padding: 10px;">
+                                                            <strong class="sub-header" style="margin: 10px;font-weight: 900;">Notification</strong>
+                                                            <small style="margin-right:50">{{item.notification.created_at}}</small>
+                                                            <button onclick="javascript:window.location.assign('{% url 'module_rh_notification' item.id %}')" type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" >
+                                                                <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                                    </div>
+                                                    <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                                            <p>
+                                                    {{item.notification.text}}<br>
+
+                                                    {% if item.notification.conge != None %}
+                                                    Etat: {{item.notification.expression.etat}}<br>
+                                                    {% endif %}
+
+                                                            </p>
+
+                                                </div>
+                                                    <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                                                    <div style="padding: 15px;padding-top: 0px;"     >
+                                                                        {% if item.type_action == "Link" %}
+                                                                            <button  class="btn rounded primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button>
+                                                                            {% endif %}
+                                                                    </div>
+                                                                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+
+
+                                                    </div>
+                                            </div>
+                                    </div>
+                            </div>
+
+
+
+                        {% endfor %}
+                    </div>
+
+                    {% endif %}
+                    <!--END Notification-->
+            </div>
+            <div class="panel" style="background-color:#F9F9F9;border: none;">
+                <!-- Header Bar -->
+                <div class="col-lg-12 head_grid" style="background-color:#fff;margin-bottom:3%;padding:1%;">
+                    <div class="col-md-9">
+                        <!-- <div id="vue_G_chart_cross" class="iconChart" style="display: inline; margin-left:1%;">
+                            <span class="fa fa-area-chart"></span>
+                        </div> -->
+
+                        <!-- <div id="vue_G" class="iconChart" style=" display: inline;margin-left:1%;">
+                            <span class="fa fa-pie-chart"></span>
+                        </div> -->
+
+                        <!-- <div  id="vue_G_chart_perfom" class="iconChart" style=" display: inline;margin-left:1%;">
+                            <span   class="fa fa-line-chart"></span>
+                        </div> -->
+                        <div class="" style="display: inline; margin-left:1%;">
+                            <span class="fa fa-filter"></span>
+                            <strong class="cursor" class="dropdown-toggle " id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Filtres
+                            </strong>
+                             <span class="fa fa-sort-desc dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></span>
+                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <ul>
+                                    <li  class="cursor" id="congeTest" value="conge">Congé</li>
+                                    <li  class="cursor" id="Formationchoise" value="Formation">Formation</li>
+                                </ul>
+                              </div>
+                        </div>
+
+                        <!-- <div class="" style="display: inline; margin-left:2%;">
+                            <span class="fa fa-info-circle"></span>
+                            <strong class="cursor" id="vue_G_Globale"> Vue Globale </strong>
+                        </div> -->
+                    </div>
+                    <div class="col-md-3">
+                    </div>
+                </div>
+                <!-- Header Bar -->
+
+                <!-- Graphic Content -->
+                <div class="col-lg-12 head_grid" style="background-color:#fff;margin-bottom:1%;padding:1%;">
+                    <div id="vue_normal" class="panel" style="background-color:#fff;border: none;">
+                        <div class="col-md-12" style="padding: 10px;">
+                            <div>
+                                <div class="mb-4">
+
+                                    <div class="card-body">
+                                        <div class="chart-area item-dash" style="padding: 15px;background-color: white;">
+                                            <canvas id="myAreaChartRH"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4" style="padding: 10px;display:none">
+                            <div style="">
+                                <div class="mb-4 ">
+
+                                    <div class="card-body">
+                                        <div class="chart-pie pt-4 item-dash" style="padding: 15px;background-color: white;">
+                                            <canvas id="myPieChartRH"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="vue_grid" class="panel" style="margin-bottom: 2%;padding-left:0%;">
+                        <div id="chartContainer1" style="height: 400px; width:100%;"></div>
+                    </div>
+
+                    <div id="vue_grid_chart_cross" class="panel" style="margin-bottom: 2%;padding-left:0%;">
+                        <div id="chartContainer2" style="height: 400px; width:100%;"></div>
+                    </div>
+
+                    <div id="vue_grid_chart_perfom" class="panel" style="margin-bottom: 2%;padding-left:0%;">
+                        <div id="chartContainer3" style="height: 400px; max-width: 920px; margin: 0px auto;"></div>
+                    </div>
+                </div>
+                <!-- Graphic Content -->
+
+                <!-- Grapics  -->
+                    <!-- MOBILITE INFORMATION -->
+
+                        <div class="row" style="margin-bottom:10%;">
+
+                            <div class="col-md-6" style="padding-top: 15px!important;">
+                                <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                                    <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                    <div class="row item_header">
+                                        <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                            Part de recrutement via mobilité
+                                        </span>
+                                    </div>
+                                    <div class="row" style="padding-top:2%;">
+                                        <div class="col-md-4">
+                                            <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_more_info_mobility' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Plus d'analyse</button><br>
+                                        </div>
+                                       <div class="col-md-8"></div>
+                                    </div>
+                                    <div class="row" style="height: 140px; padding-top: 20px">
+                                        <canvas id="chart_mobilte_recru"  style="height: 120px!important; width: 100%"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6" style="padding-top: 15px!important;">
+                                <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                                    <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                    <div class="row item_header">
+                                        <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                            Taux de mobilité dans la catégorie
+                                        </span>
+                                    </div>
+                                    <div class="row" style="padding-top:2%;">
+                                        <div class="col-md-4">
+                                            <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_more_info_mobility' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Plus d'analyse</button><br>
+                                        </div>
+                                        <div class="col-md-8">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="height: 140px; padding-top: 20px">
+                                        <canvas id="chart_total_mobilite"  style="height: 120px!important; width: 100%"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12" style="padding-top: 15px!important;margin-bottom:2%;">
+                                <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                                    <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                    <div class="row item_header">
+                                        <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                            Total d'agents mobiles
+                                        </span>
+                                    </div>
+                                    <div class="row" style="height: 140px; padding-top: 20px">
+                                        <canvas id="chart_agent_mobilte"  style="height: 120px!important; width: 100%"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- MOBILITE INFORMATION -->
+
+                    <!-- MOUVEMENT PERSONNEL -->
+
+                        <div class="row" style="margin-bottom:5%;">
+                            <div class="col-md-6" style="padding-top: 15px!important; margin-bottom:2%;">
+                                <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                                    <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                    <div class="row item_header">
+                                        <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                            Mouvement du personnel
+                                        </span>
+                                    </div>
+                                    <div class="row" style="padding-top:2%;">
+                                        <div class="col-md-4">
+                                            <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_more_info_personnel_mouvement' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Plus d'analyse</button><br>
+                                        </div>
+                                       <div class="col-md-8"></div>
+                                    </div>
+                                    <div class="row" style="height: 140px; padding-top: 20px">
+                                        <canvas id="chart_Mouvement_perso"  style="height: 120px!important; width: 100%"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" style="padding-top: 15px!important;margin-bottom:2%;">
+                                <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                                    <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                    <div class="row item_header">
+                                        <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                            Type de recrutement sur le poste vacant
+                                        </span>
+                                    </div>
+                                    <div class="row" style="padding-top:2%;">
+                                        <div class="col-md-4">
+                                            <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_more_info_personnel_mouvement' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Plus d'analyse</button><br>
+                                        </div>
+                                       <div class="col-md-8"></div>
+                                    </div>
+                                    <div class="row" style="height: 140px; padding-top: 20px">
+                                        <canvas id="chart_recru_poste"  style="height: 120px!important; width: 100%"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- MOUVEMENT PERSONNEL -->
+
+                    <!-- INDICATEURS PRINCIPAUX DE SUIVI -->
+
+                        <div class="col-md-12" style="padding-top: 15px!important; margin-bottom:2%;">
+                            <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                <div class="row item_header">
+                                    <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                        Nombre d'agents par catégorie partis en formation
+                                    </span>
+                                </div>
+                                <div class="row" style="padding-top:2%;">
+                                    <div class="col-md-4">
+                                        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_get_indicateurs_principaux_de_suivi' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Plus d'analyse</button><br>
+                                    </div>
+                                   <div class="col-md-8"></div>
+                                </div>
+                                <div class="row" style="height: 140px; padding-top: 20px;">
+                                    <canvas id="chart_agent_formation"  style="height: 120px!important; width: 100%"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- INDICATEURS PRINCIPAUX DE SUIVI -->
+
+                    <!-- INDICATEURS DE LA FORMATION PROFESSIONNELLE  -->
+
+                        <div class="row" style="margin-bottom:5%;">
+                                <div class="col-md-6" style="padding-top: 15px!important;margin-bottom:2%;">
+                                    <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                        <div class="row item_header">
+                                            <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                                Taux de départ en formation par cétégorie
+                                            </span>
+                                        </div>
+                                        <div class="row" style="padding-top:2%;">
+                                            <div class="col-md-4">
+                                                <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_get_indicateurs_formation_prof' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Plus d'analyse</button><br>
+                                            </div>
+                                           <div class="col-md-8"></div>
+                                        </div>
+                                        <div class="row" style="height: 140px; padding-top: 20px">
+                                            <canvas id="chart_depart_formation_cat"  style="height: 120px!important; width: 100%"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6" style="padding-top: 15px!important;margin-bottom:2%;">
+                                    <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                                        <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                        <div class="row item_header">
+                                            <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                                Taux de départ en formation par Direction
+                                            </span>
+                                        </div>
+                                        <div class="row" style="padding-top:2%;">
+                                            <div class="col-md-4">
+                                                <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_get_indicateurs_formation_prof' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Plus d'analyse</button><br>
+                                            </div>
+                                           <div class="col-md-8"></div>
+                                        </div>
+                                        <div class="row" style="height: 140px; padding-top: 20px">
+                                            <canvas id="chart_depart_formation_direct"  style="height: 120px!important; width: 100%"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+
+                    <!-- INDICATEURS DE LA FORMATION PROFESSIONNELLE  -->
+
+                    <!-- TAUX DE FORMATION PAR FAMILLE PROFESSIONNELLE  -->
+
+                        <div class="col-md-12" style="padding-top: 15px!important;">
+                            <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                <div class="row item_header">
+                                    <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                        Taux de formation par famille  professionnelle
+                                    </span>
+                                </div>
+                                <div class="row" style="padding-top:2%;">
+                                    <div class="col-md-4">
+                                        <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_get_indicateurs_formation_famille_prof' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Plus d'analyse</button><br>
+                                    </div>
+                                   <div class="col-md-8"></div>
+                                </div>
+                                <div class="row" style="height: 140px; padding-top: 20px">
+                                    <canvas id="chart_formation_famille_pro"  style="height: 120px!important; width: 100%"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                    <!-- TAUX DE FORMATION PAR FAMILLE PROFESSIONNELLE  -->
+
+                    <div class="clearfix"> </div>
+                <!-- Grapics -->
+
+                <!-- Menu-->
+                <div style="margin-top:5%;">
+                    <!-- Menu Content left-->
+                    <div class="left" style="padding-top: 0px;">
+                            <div class="row espace" style="padding-left:10%;">
+                                <div class=" col-md-2  item-dash btSh">
+                                    <div class="barr"></div>
+                                    <div class="row item_header">
+                                        <span class="col-lg-12" id="totalEmployeHtml" style="color:#BDBDCB;margin:2% 0 2% 0;">EMPLOYES</span>
+                                        <span class="col-lg-12" id="totalEmploye"  style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                            {{NombreEmploye}}
+                                        </span>
+                                        <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                            {%if NombreEmploye >= 3 %}
+                                            <i class="fa fa-arrow-up" style="color:red;" ></i> <i style="color:red;" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Elevé</i>
+                                            {% else %}
+                                            <i class="fa fa-arrow-down" style="color:green;"></i> <i style="color:green; data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Faible</i>
+                                            {% endif %}
+                                            <br>
+                                            <span style="color:#7C7C7C;">Mobilisation vers une optimalisation</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class=" col-md-2 item-dash btSh">
+                                    <div class="barr"></div>
+                                    <div class="row item_header">
+                                        <span class="col-lg-12" id="totalDepartHtml" style="color:#BDBDCB;margin:2% 0 2% 0;">SERVICES</span>
+                                        <span class="col-lg-12" id="totalDepart" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                            {{NombreDepart}}
+                                        </span>
+                                        <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                            {%if NombreDepart >= 3 %}
+                                            <i class="fa fa-arrow-up" style="color:red;" ></i> <i  style="color:red;" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Elevé</i>
+                                            {% else %}
+                                            <i class="fa fa-arrow-down" style="color:green;"></i> <i  style="color:green;" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Faible</i>
+                                            {% endif %}
+                                            <br>
+                                            <span style="color:#7C7C7C;">Meilleur rendement de l'année {% now "Y" %} </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class=" col-md-2  item-dash btSh">
+                                    <div class="barr"></div>
+                                    <div class="row item_header">
+                                        <span class="col-lg-12" id="totalCongeHtml" style="color:#BDBDCB;margin:2% 0 2% 0;">CONGE</span>
+                                        <span class="col-lg-12" id="totalConge" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                            {{NombreConge}}
+                                        </span>
+                                        <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        {%if NombreConge >= 3 %}
+                                        <i class="fa fa-arrow-up" style="color:red;" ></i> <i style="color:red;" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Elevé</i>
+                                        {% else %}
+                                        <i class="fa fa-arrow-down" style="color:green;"></i> <i style="color:green; data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Faible</i>
+                                        {% endif %}
+                                        <br>
+                                        <span style="color:#7C7C7C;">Congé accordé aux employés actifs</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class=" col-md-2 item-dash btSh">
+                                    <div class="barr"></div>
+                                    <div class="row item_header">
+                                        <span class="col-lg-12" id="totalFormationHtml" style="color:#BDBDCB;margin:2% 0 2% 0;">FORMATION</span>
+                                        <span class="col-lg-12" id="totalFormation" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                            {{NombreFormation}}
+                                        </span>
+                                        <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                            {%if NombreFormation >= 3 %}
+                                            <i class="fa fa-arrow-up" style="color:red;" ></i> <i style="color:red; data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Elevé</i>
+                                            {% else %}
+                                            <i class="fa fa-arrow-down" style="color:green;"></i> <i style="color:green;" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Faible</i>
+                                            {% endif %}
+                                            <br>
+                                            <span style="color:#7C7C7C;">Les formations effectuées </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class=" col-md-2  item-dash btSh">
+                                    <div class="barr"></div>
+                                    <div class="row item_header">
+                                        <span class="col-lg-12" id="totalBulletinPHtml" style="color:#BDBDCB;margin:2% 0 2% 0;">PAIEMENT</span>
+                                        <span class="col-lg-12" id="totalBulletinP" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                            {{NombreBulletinPaie}}
+                                        </span>
+                                        <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                            {%if NombreBulletinPaie >= 3 %}
+                                            <i class="fa fa-arrow-up" style="color:red;" ></i> <i style="color:red;" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Elevé</i>
+                                            {% else %}
+                                            <i class="fa fa-arrow-down" style="color:green;"></i> <i style="color:green;" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Faible</i>
+                                            {% endif %}
+                                            <br>
+                                            <span style="color:#7C7C7C;">les details de la courbe</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class=" col-md-2  item-dash btSh">
+                                    <div class="barr"></div>
+                                    <div class="row item_header">
+                                        <span class="col-lg-12" style="color:#BDBDCB;margin:2% 0 2% 0;">ORDRE DE MISSION</span>
+                                        <span class="col-lg-12" id="" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                            {{ordreM}}
+                                        </span>
+                                        <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                            {%if ordreM >= 3 %}
+                                            <i class="fa fa-arrow-up" style="color:red;" ></i> <i style="color:red;" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Elevé</i>
+                                            {% else %}
+                                            <i class="fa fa-arrow-down" style="color:green;"></i> <i style="color:green;" data-toggle="tooltip" data-placement="top" title="Tooltip on top">Taux Faible</i>
+                                            {% endif %}
+                                            <br>
+                                            <span style="color:#7C7C7C;">tous les ordres de mission reçus</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                    </div>
+                    <!-- Menu Content left-->
+
+                    <!-- Menu Content right -->
+                    <div class="right shadow-sm" style="background-color:#fff;z-index:10;padding-bottom:2%">
+                            <div style="margin:0px 15px 0px 15px;">
+                                <div class="form-group">
+
+                                    <select onchange="get_personnel()"  class="form-control" name="formation" id="formation" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez le type d'article svp.">
+                                        <option value="">Sélectionnez une Formation</option>
+                                        {% for item in ListeFormationComplet %}
+                                        <option value="{{ item.id }}"> {{ item.theme}} </option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <span >Statistic de récente Formation </span>
+                            </div>
+                            <div id="formation_liste_presentation" class="" style="margin:0px 10px 0px 10px;">
+                                {%for item in ListeFormation %}
+                                        <div class="col-lg-12 information">
+                                            <span class="col-md-8">
+                                                {{item.theme}} <br>
+                                                <em>{{item.departement}} <br>
+                                                    {{item.objectif}}
+                                                </em>
+                                            </span>
+                                            <div class="col-sm-3 col-md-4  circle-progress-block" style="float:right;">
+                                                <div id="circleProgress5" class="progressbar-js-circle border rounded p-3"><svg viewBox="0 0 100 100" style="display: block; width: 100%;">
+                                                        <path d="M 50,50 m 0,-48 a 48,48 0 1 1 0,96 a 48,48 0 1 1 0,-96" stroke="#eee" stroke-width="4" fill-opacity="0"></path>
+                                                        <path d="M 50,50 m 0,-48 a 48,48 0 1 1 0,96 a 48,48 0 1 1 0,-96" stroke="rgb(98,194,205)" stroke-width="4" fill-opacity="0" style="stroke-dasharray: 301.635, 301.635; stroke-dashoffset:180.079;"></path>
+                                                    </svg>
+                                                    <div class="progressbar-text" style="position: absolute; left: 50%; top: 50%; padding: 0px; margin: 0px; transform: translate(-50%, -50%); color: rgb(0, 0, 0); font-size: 1rem;">{{item.nombre_jour_formation}}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                {% endfor %}
+
+
+                            </div>
+                    </div>
+                    <!--Menu Content right -->
+                </div>
+
+
+                <!-- CARD FOOD-->
+                        <div class="row" style="">
+                            <div class="col-md-4 gridListe">
+                                <div class="item-dash col-md-12" style="background-color: white;height: 250px;padding:10px;padding-top: 2px;">
+                                    <label style="font-weight: 900;display: flex;justify-content: center;">Liste  de Syndicat</label>
+                                    <hr>
+                                    <ul style="width: 100%;padding: 10px;padding-top: 2px;">
+                                            {%for item in ListSyndicat %}
+                                            <li>
+                                                <strong style="font-weight: 600;">
+                                                    <a class="lien chargement-au-click" href="{% url 'module_ressourceshumaines_detail_syndicat' item.id %}">{{ item.designation }}</a>
+                                                </strong>
+                                                <p style="float: right;font-size: 12px;color: grey;">
+                                                    {{item.created_at | date:"d-m-Y"}}
+                                                </p>
+                                                <p style="font-size: 11px;color: grey;">
+                                                Delegue Principal: <span>{{item.delegue_principal}}</span>
+                                                </p>
+                                            </li>
+                                            {% empty %}
+                                            <li>Aucune donnée actuelletment</li>
+                                            {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4 gridListe">
+                                <div class="item-dash col-md-12" style="background-color: white;height: 250px;padding:10px;padding-top: 0px;">
+                                    <label style="font-weight: 900;display: flex;justify-content: center;">Liste de recrutement</label>
+                                    <hr>
+                                    <ul style="width: 100%;padding: 10px;padding-top: 2px;">
+                                        {%for item in Listerecru %}
+                                            <li>
+                                                <strong style="font-weight: 600;">
+                                                    <a class="lien chargement-au-click" href="{% url 'module_ressourceshumaines_detail_recrutement_interne' item.id %}">{{ item.designation }}</a>
+                                                </strong>
+                                                <p style="float: right;font-size: 12px;color: grey;">
+                                                Date de debut: {{item.date_debut | date:"d-m-Y"}}
+                                                </p>
+                                                <p style="font-size: 11px;color: grey;">
+                                                    <span>{{item.service_id.libelle}}</span>
+                                                </p>
+                                            </li>
+
+                                            {% empty %}
+                                            <li>Aucune donnée actuelletment</li>
+                                            {% endfor %}
+
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4 gridListe">
+                                <div class="pg-orgchart">
+                                    <div class="org-chart">
+
+                                <ul>
+
+                                    <li>
+                                        <div class="user">
+                                        <img src="{% static utilisateur.profilrh.responsable_id.image%}" class="img-responsive" />
+                                        <div class="name">{{utilisateur.profilrh.responsable_id.nom_complet }}</div>
+                                        <div class="role">{{utilisateur.profilrh.responsable_id.poste.designation }}</div>
+                                        <!-- <a class="manager" href="#">Mike Dinardo</a> -->
+                                        </div>
+
+                                        <ul>
+
+                                        <li>
+                                            <div class="user">
+                                            <img src="{% static utilisateur.image%}"unite_fonctionnelles unite_fonctionnelle_parent class="img-responsive" />
+                                            <div class="name">{{utilisateur.nom_complet }}</div>
+                                            <div class="role">{{utilisateur.poste.designation  }}</div>
+
+                                            </div>
+
+                                    </li>
+
+                                </ul>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                <!-- CARD FOOD-->
+                <!-- Menu-->
+            </div>
+        </div>
+    </div>
+ </div>
+<!--Fin Vue Admin -->
+
+
+ <!-- Vue User -->
+<div id="vue_user" class="row" style="padding-top: 30px;">
+	<div class="col-lg-12">
+		<h2>Tableau de Bord</h2>
+		<strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+		<div class="separ" style="background-color: grey;opacity: 0.2"></div>
+		<div class="panel panel-default" style="border: none;">
+
+			<!-- Appel de la fonction message -->
+			{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+			<!--Notification-->
+			<div class="panel" style="background-color:#f5f5f5;border: none;"></div>
+				<!--Notification-->
+				{% if temp_notif_count > 0 %}
+				<div class="col-md-12" style="padding: 10px;">
+					{% for item in temp_notif_list %}
+					<div class="col-md-4" style="padding: 10px;">
+						<div style="">
+								<div class="mb-4 ">
+										<div class="card-body shadow" style="padding: 0px;background-color: white;">
+												<div  style="width: 100%;background-color: white;/*padding: 10px;">
+														<div style="padding: 10px;">
+														<strong class="sub-header" style="margin: 10px;font-weight: 900;">Notification</strong>
+														<small style="margin-right:50">{{item.notification.created_at}}</small>
+														<button onclick="javascript:window.location.assign('{% url 'module_rh_notification' item.id %}')" type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" >
+															<span aria-hidden="true">&times;</span>
+															</button>
+														</div>
+															<div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+												</div>
+												<div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+														<p>
+												{{item.notification.text}}<br>
+
+												{% if item.notification.conge != None %}
+												Etat: {{item.notification.expression.etat}}<br>
+												{% endif %}
+
+														</p>
+
+											</div>
+												<div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+																<div style="padding: 15px;padding-top: 0px;"     >
+																	{% if item.type_action == "Link" %}
+																		<button  class="btn rounded primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button>
+																		{% endif %}
+																</div>
+																	<div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+
+
+												</div>
+										</div>
+								</div>
+						</div>
+
+
+
+					{% endfor %}
+				</div>
+
+				{% endif %}
+				<!--END Notification-->
+		</div>
+			<div class="row">
+				<div class="col-md-3">
+					<div class="panel panel-success p1" style="border-radius: 10px;border-bottom: none;">
+						<div class="panel-heading" style="background-color: transparent;color: white;">
+							<div class="row">
+								<div class="col-xs-7 text-left">
+									<div style="font-weight: 500;">Congé</div>
+									<p style="font-size: 20px;font-family: gotham">{{NombreConge}}</p>
+								</div>
+								<div class="col-xs-5 text-right">
+									<i class="fa fa-calendar-o fa-2x" style="float: left;opacity: 0.3"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="panel panel-success p2" style="border-radius: 10px;border-bottom: none;">
+						<div class="panel-heading" style="background-color: transparent;color: white;">
+							<div class="row">
+								<div class="col-xs-7 text-left">
+									<div style="font-weight: 500;">Projets</div>
+									<p style="font-size: 20px;font-family: gotham">{{NombreProjetPro}}</p>
+								</div>
+								<div class="col-xs-5 text-right">
+									<i class="fa fa-book fa-2x" style="float: left;opacity: 0.3"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="panel panel-success p3" style="border-radius: 10px;border-bottom: none;">
+						<div class="panel-heading" style="background-color: transparent;color: white;">
+							<div class="row">
+								<div class="col-xs-7 text-left">
+									<div style="font-weight: 500;">Formation</div>
+									<p style="font-size: 20px;font-family: gotham">{{NombreFormation}}</p>
+								</div>
+								<div class="col-xs-5 text-right">
+									<i class="fa fa-book fa-2x" style="float: left;opacity: 0.3"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="panel panel-success p4" style="border-radius: 10px;border-bottom: none;">
+						<div class="panel-heading" style="background-color: transparent;color: white;">
+							<div class="row">
+								<div class="col-xs-7 text-left">
+									<div style="font-weight: 500;">Recrutement</div>
+									<p style="font-size: 20px;font-family: gotham">{{NombreRecru}}</p>
+								</div>
+								<div class="col-xs-5 text-right">
+									<i class="fa fa-user fa-2x" style="float: left;opacity: 0.3"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div   class="row">
+
+				<div class="col-md-3" style="padding: 10px;">
+					<div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+						<label style="font-weight: 900;display:flex; justify-content:center;">Liste de recrutement</label>
+						<hr>
+						<ul style="width: 100%;padding: 10px;">
+							{% for recru in Listerecru %}
+								<li><strong style="font-weight: 600;">
+										<a class="text-black" href="{% url 'module_ressourceshumaines_detail_recrutement_interne' recru.id %}">
+												{{recru.designation}}
+										</a>
+									</strong>
+									<p style="float: right;font-size: 12px;color: grey;">
+										{{recru.date_debut | date:"d M Y"}}
+									</p>
+									<p style="font-size: 13px;color: grey;display:flex; justify-content:space-between;">
+										<span>{{recru.service.libelle}}</span>
+										<span>
+											{% if recru.est_fini == true %}
+												Fini
+											{% else %}
+												En cours...
+											{% endif %}
+										</span>
+									</p>
+								</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-3" style="padding: 10px;">
+					<div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+						<label style="font-weight: 900;display:flex; justify-content:center;">Liste de Formation</label>
+						<hr>
+						<ul style="width: 100%;padding: 10px;">
+							{% for formation in ListeFormation %}
+								<li>
+									<strong style="font-weight: 600;">
+									<a class="text-black" href="{% url 'module_ressourceshumaines_detail_formation' formation.id %}">
+											{{formation.theme}}
+									</a>
+									</strong>
+									<p style="font-size: 12px;color: grey;margin-bottom:-9px;">
+										{{formation.date_debut | date:"d M Y"}} - {{formation.date_fin | date:"d M Y"}}
+									</p>
+									<p style="font-size: 13px;color: grey;display:flex; justify-content:space-between;">
+										<span>{{formation.nombre_participant_par_jour}} Personnes/Jour</span>
+										<span>{{formation.etat}}</span>
+									</p>
+								</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-3" style="padding: 10px;">
+					<div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+						<label style="font-weight: 900;display:flex; justify-content:center;">Liste de Syndicat</label>
+						<hr>
+						<ul style="width: 100%;padding: 10px;">
+							{% for syn in ListSyndicat %}
+								<li>
+									<strong style="font-weight: 600;">
+										<a class="text-black" href="{% url 'module_ressourceshumaines_detail_syndicat' syn.id %}">
+											{{syn.designation}}
+										</a>
+									</strong>
+									<p style="font-size: 12px;color: grey;margin-bottom:-5px;">
+										{{syn.role}}
+									</p>
+									<p style="font-size: 13px;color: grey;">
+										<span>{{syn.delegue_principal}} </span>
+									</p>
+								</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+                <div class="col-md-3"  >
+
+                        <div class="pg-orgchart">
+                            <div class="org-chart">
+
+                          <ul>
+
+                              <li>
+                                <div class="user">
+                                   <img src="{% static utilisateur.profilrh.responsable_id.image%}" class="img-responsive" />
+                                  <div class="name">{{utilisateur.profilrh.responsable_id.nom_complet }}</div>
+                                  <div class="role">{{utilisateur.profilrh.responsable_id.poste.designation }}</div>
+                                  <!-- <a class="manager" href="#">Mike Dinardo</a> -->
+                                </div>
+
+                                <ul>
+
+                                  <li>
+                                    <div class="user">
+                                     <img src="{% static utilisateur.image%}"unite_fonctionnelles unite_fonctionnelle_parent class="img-responsive" />
+                                      <div class="name">{{utilisateur.nom_complet }}</div>
+                                      <div class="role">{{utilisateur.poste.designation  }}</div>
+
+                                    </div>
+
+                              </li>
+
+                          </ul>
+
+                            </div>
+                        </div>
+					<!-- </div> -->
+
+				</div>
+			</div>
+
+		</div>
+</div>
+<!--Fin Vue User -->
+
+
+
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+
+<!-- Handle Profil User -->
+<script>
+var lesactions = new Array();
+var booleen = false;
+    {% for action in actions %}
+        lesactions.push({droit:"{{ action.droit }}"});
+    {% endfor %}
+    $("#vue_grid").hide();
+    $("#vue_grid_chart_cross").hide();
+    $("#vue_grid_chart_perfom").hide();
+    $(document).ready(function() {
+
+    // Initialisation des sous-menus
+        $("#vue_admin").hide();
+        $("#vue_user").hide();
+
+        for(var i = 1; i < lesactions.length; i++){
+            act = lesactions[i];
+        if(act.droit==="CREER_RAPPORT")
+        {
+                booleen = true;
+        }
+    }
+
+        if(booleen){
+            $("#vue_admin").show();
+        }
+        else{
+            $("#vue_user").show();
+        }
+    });
+</script>
+<!-- Handle Profil User -->
+
+<!-- Handle Button and Chart -->
+<script>
+    $("#vue_G").on("click", function () {
+        $("#vue_normal").hide();
+        $("#vue_grid_chart_cross").hide();
+        $("#vue_grid_chart_perfom").hide();
+        $("#vue_grid").show();
+    });
+</script>
+<script>
+    $("#vue_G_chart_cross").on("click", function () {
+        $("#vue_normal").hide();
+        $("#vue_grid").hide();
+        $("#vue_grid_chart_perfom").hide();
+        $("#vue_grid_chart_cross").show();
+    });
+</script>
+<script>
+    $("#vue_G_chart_perfom").on("click", function () {
+        $("#vue_normal").hide();
+        $("#vue_grid").hide();
+        $("#vue_grid_chart_cross").hide();
+        $("#vue_grid_chart_perfom").show();
+    });
+</script>
+ <script>
+    $("#vue_G_Globale").on("click", function () {
+        $("#vue_grid").hide();
+        $("#vue_grid_chart_cross").hide();
+        $("#vue_grid_chart_perfom").hide();
+        $("#vue_normal").show();
+    });
+ </script>
+<!-- Handle Button and Chart -->
+
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [{
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                }, {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                }, {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                }, {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        });
+    });
+</script>
+
+<!-- Chart Congé Load Page -->
+<script>
+    var donnees = [];
+    donnees = {{ListNumberCongebyMonth}}
+    console.log(donnees);
+    var ctxLine1;
+    var myLineChart;
+
+function chart_pie(couleur1){
+        Chart.defaults.global.defaultFontFamily =  'Roboto', 'Arial,sans-serif';
+        Chart.defaults.global.defaultFontColor = '#858796';
+
+        var ctxPie = document.getElementById("myPieChartRH");
+        var myPieChart = new Chart(ctxPie, {
+          type: 'doughnut',
+          data: {
+            labels: ["RH", "SI", "AR"],
+            datasets: [{
+              data: [55, 30, 15],
+              backgroundColor: [
+              'rgba(255, 99, 132, 0.5)',
+              'rgba(44, 62, 85, 0.5)',
+              'rgba(153, 27, 88, 0.5)'
+              ],
+              hoverBackgroundColor: [
+              'rgba(255, 99, 132, 0.8)',
+              'rgba(44, 62, 85, 0.8)',
+              'rgba(153, 27, 88, 0.8)'
+              ],
+              hoverBorderColor: couleur1,
+            }],
+          },
+          options: {
+            maintainAspectRatio: false,
+            tooltips: {
+              backgroundColor: "rgb(255,255,255)",
+              bodyFontColor: "#858796",
+              borderColor: '#dddfeb',
+              borderWidth: 1,
+              xPadding: 15,
+              yPadding: 15,
+              displayColors: false,
+              caretPadding: 10,
+            },
+            legend: {
+              display: true
+            },
+            cutoutPercentage: 80,
+          },
+        });
+
+}
+
+function chart_area(couleur1,couleur2,couleur3){
+        Chart.defaults.global.defaultFontFamily = 'Roboto', 'Arial,sans-serif';
+        Chart.defaults.global.defaultFontColor = '#858796';
+
+        function number_format(number, decimals, dec_point, thousands_sep) {
+                number = (number + '').replace(',', '').replace(' ', '');
+                var n = !isFinite(+number) ? 0 : +number,
+                prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                s = '',
+                toFixedFix = function(n, prec) {
+                    var k = Math.pow(10, prec);
+                    return '' + Math.round(n * k) / k;
+                };
+                // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+                s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+                if (s[0].length > 3) {
+                s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                }
+                if ((s[1] || '').length < prec) {
+                s[1] = s[1] || '';
+                s[1] += new Array(prec - s[1].length + 1).join('0');
+                }
+                return s.join(dec);
+      }
+
+
+    // chart
+    ctxLine1 = document.getElementById("myAreaChartRH");
+    myLineChart = new Chart(ctxLine1, {
+      type: 'line',
+      data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        datasets: [ {
+          label: "Nombre de congé par mois",
+          lineTension: 0.3,
+          backgroundColor: couleur3,
+          borderColor: couleur2,
+          pointRadius: 3,
+          pointBackgroundColor: couleur1,
+          pointBorderColor: couleur1,
+          pointHoverRadius: 3,
+          pointHoverBackgroundColor: couleur2,
+          pointHoverBorderColor: couleur2,
+          pointHitRadius: 10,
+          pointBorderWidth: 2,
+          data:donnees,
+        }],
+    },
+      options: {
+
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            left: 10,
+            right: 25,
+            top: 25,
+            bottom: 0
+          }
+        },
+
+        scales: {
+          xAxes: [{
+            time: {
+              unit: 'date'
+            },
+            gridLines: {
+              display: true,
+              drawBorder: true
+            },
+            ticks: {
+              maxTicksLimit: 7
+            }
+          }],
+          yAxes: [{
+            ticks: {
+              maxTicksLimit: 5,
+              padding: 10,
+              // Include a dollar sign in the ticks
+              callback: function(value, index, values) {
+                return  number_format(value);
+              }
+            },
+            gridLines: {
+              color: couleur2,
+              zeroLineColor: couleur2,
+              drawBorder: false,
+              borderDash: [2],
+              zeroLineBorderDash: [2]
+            }
+          }],
+        },
+        legend: {
+          display: true
+        },
+        tooltips: {
+          backgroundColor: "rgb(255,255,255)",
+          bodyFontColor: "#858796",
+          titleMarginBottom: 10,
+          titleFontColor: '#6e707e',
+          titleFontSize: 14,
+          borderColor: couleur3,
+          borderWidth: 1,
+          xPadding: 15,
+          yPadding: 15,
+          displayColors: false,
+          intersect: false,
+          mode: 'index',
+          caretPadding: 10,
+          callbacks: {
+            label: function(tooltipItem, chart) {
+              var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+              return datasetLabel + number_format(tooltipItem.yLabel);
+            }
+          }
+        }
+      }
+    }
+    );
+}
+
+</script>
+<!-- Chart Congé Load Page -->
+
+{% for item in modules %}
+            {% if module.value == item.numero_ordre %}
+             <div class="primary_color_{{ module.name|lower }}" style="display: none;" ></div>
+             <div class="secondary_color_{{ module.name|lower }}" style="display: none;" ></div>
+             <div class="thirdy_color_{{ module.name|lower }}" style="display: none;" ></div>
+             <script>
+             /* alert($(".primary_color_{{ module.name|lower }}").css('background-color'));*/
+              chart_pie($(".primary_color_{{ module.name|lower }}").css("background-color"));
+
+              chart_area($(".primary_color_{{ module.name|lower }}").css("background-color"),
+                         $(".secondary_color_{{ module.name|lower }}").css("background-color"),
+                         $(".thirdy_color_{{ module.name|lower }}").css("background-color"));
+            </script>
+    		{% endif %}
+{% endfor %}
+
+<!-- Part Recru Mobilité Chart -->
+    <script>
+        var keys_recru_Mobilite = [];
+        var valuer_recru_Mobilite = [];
+        keys_recru_Mobilite = {{Keys_recru_year|safe}}
+        valuer_recru_Mobilite = {{valuer_recru_year}}
+        new Chart(document.getElementById("chart_mobilte_recru"),
+        {
+				type: 'bar',
+				data: {
+					labels: keys_recru_Mobilite,
+					datasets: [
+						{
+							label: '',
+							backgroundColor:[
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(44, 62, 85, 0.5)',
+                                    'rgba(153, 27, 88, 0.5)',
+                                    'rgba(48, 62, 85, 0.5)',
+                                    'rgba(244, 62, 85, 0.5)',
+                                    'rgba(44, 62, 85, 0.5)',
+                                    'rgba(156, 62, 85, 0.5)',
+                                    'rgba(255, 62, 85, 0.5)',
+                                    ],
+							data: valuer_recru_Mobilite
+						}
+					]
+				},
+				options: {
+					legend: { display: false },
+					title: {
+						display: false,
+						text: 'Part de recrutement via mobilité'
+					},
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            // Include a dollar sign in the ticks
+                            callback: function(label, index, labels) {
+                                return label+'%';
+                                }
+                            },
+
+                        }],
+                    }
+
+				}
+			});
+    </script>
+<!-- Part Recru Mobilité Chart -->
+
+<!-- chart_Taux_mobilite -->
+    <script>
+        var keys_Mobilitie = [];
+        // var labels = new Array();
+        var values_Mobilitie = [];
+        keys_Mobilitie = {{keys_Mobilitie|safe}}
+        values_Mobilitie = {{values_Mobilitie}}
+        console.log(keys_Mobilitie)
+        new Chart(document.getElementById("chart_total_mobilite"),
+        {
+                type: 'bar',
+                data: {
+                    labels: keys_Mobilitie,
+                    datasets: [
+                        {
+                            label: 'Taux de Mobilité dans la categorie',
+                            backgroundColor:[
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(44, 62, 85, 0.5)',
+                                    'rgba(153, 27, 88, 0.5)'
+                                    ],
+                            data: values_Mobilitie
+                        }
+                    ]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: false,
+                        text: 'Taux de Mobilité dans la categorie'
+                    }
+                }
+            });
+    </script>
+<!-- chart_total_mobilite  -->
+
+<!-- chart_Taux_agent_mobilte -->
+    <script>
+        var keys_Mobilite = [];
+        var valuer_Mobilite = [];
+
+        keys_Mobilite = {{keys_Year | safe}}
+        values_Mobilitie = {{values_Mobilite_Year}}
+        new Chart(document.getElementById("chart_agent_mobilte"),
+        {
+                type: 'bar',
+                data: {
+                    labels: keys_Mobilite,
+                    datasets: [
+                        {
+                            label: 'Total d\'agents mobiles',
+                            backgroundColor:[
+                                    'rgba(255, 99, 132, 0.5)',
+                                    'rgba(44, 62, 85, 0.5)',
+                                    'rgba(153, 27, 88, 0.5)'
+                                    ],
+                            data: values_Mobilitie
+                        }
+                    ]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: false,
+                        text: 'Total d\'agents mobiles'
+                    }
+                }
+            });
+    </script>
+<!-- chart_Taux_agent_mobilte  -->
+
+
+<!-- chart_Mouvement_perso -->
+ <script>
+     var keys_recru_Mobilite = [];
+     var valuer_recru_Mobilite = [];
+     keys_recru_Mobilite = {{keys_Mouvement_P|safe}}
+     valuer_recru_Mobilite = {{values_Mouvement_P}}
+    new Chart(document.getElementById("chart_Mouvement_perso"),
+    {
+            type: 'line',
+            data: {
+                labels:keys_recru_Mobilite ,
+                datasets: [
+                    {
+                        label: 'Mouvement du Personnel',
+                        backgroundColor:[
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(44, 62, 85, 0.5)',
+                                'rgba(153, 27, 88, 0.5)'
+                                ],
+                        data: valuer_recru_Mobilite
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: false,
+                    text: 'Mouvement du Personnel'
+                },
+                scales: {
+                        yAxes: [{
+                            ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            // Include a dollar sign in the ticks
+                            callback: function(label, index, labels) {
+                                return label+'%';
+                                }
+                            },
+
+                        }],
+                    }
+            }
+        });
+ </script>
+<!-- chart_Mouvement_perso  -->
+
+<!-- chart_recru_poste-->
+<script>
+    var keys_Mobilite = [];
+    var valuer_Mobilite = [];
+
+        keys_Mobilite = {{Keys_recru_post_year | safe}}
+        values_Mobilitie = {{valuer_recru_post_year}}
+    new Chart(document.getElementById("chart_recru_poste"),
+    {
+            type: 'line',
+            data: {
+                labels: keys_Mobilite,
+                datasets: [
+                    {
+                        label: 'Type de recrutement sur le post vacant',
+                        backgroundColor:[
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(44, 62, 85, 0.5)',
+                                'rgba(153, 27, 88, 0.5)'
+                                ],
+                        data: values_Mobilitie
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: false,
+                    text: 'Type de recrutement sur le post vacant'
+                }
+            }
+        });
+</script>
+<!-- chart_recru_poste  -->
+
+<!-- Indices princiaux de suivi -->
+<!-- chart_agent_formation -->
+<script>
+    var keys_Agent = [];
+    var val_Agent = [];
+
+        keys_Agent = {{keys_Agent | safe}}
+        val_Agent = {{val_Agent}}
+    new Chart(document.getElementById("chart_agent_formation"),
+    {
+            type: 'bar',
+            data: {
+                labels: keys_Agent,
+                datasets: [
+                    {
+                        label: 'Nombre de congé par mois',
+                        backgroundColor:[
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(44, 62, 85, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(67, 83, 97, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(35, 82, 124, 0.5)',
+                                'rgba(119, 109, 80, 0.5)',
+                                'rgba(22, 13, 58, 0.5)',
+                                'rgba(235, 93, 57, 0.5)',
+                                ],
+                        data: val_Agent
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: false,
+                    text: 'Part de recrutement via mobilité'
+                }
+            }
+        });
+</script>
+<!-- chart_agent_formation  -->
+<!-- Indices princiaux de suivi -->
+
+<!-- chart_depart_formation_cat -->
+<script>
+    var keys_formation = [];
+    var values_formation = [];
+
+        keys_formation = {{Keys_Taux_formation | safe}}
+        values_formation = {{valeur_Taux_formation}}
+    new Chart(document.getElementById("chart_depart_formation_cat"),
+    {
+            type: 'bar',
+            data: {
+                labels: keys_formation,
+                datasets: [
+                    {
+                        label: 'Taux de Depart en Formation par Categorie',
+                        backgroundColor:[
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(67, 83, 97, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(35, 82, 124, 0.5)',
+                                'rgba(119, 109, 80, 0.5)',
+                                'rgba(22, 13, 58, 0.5)',
+                                'rgba(235, 93, 57, 0.5)',
+                                'rgba(35, 82, 124, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(159, 218, 238, 0.5)',
+                                'rgba(67, 83, 97, 0.5)',
+                                'rgba(255, 99, 132, 0.5)'
+                                ],
+                        data: values_formation
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: false,
+                    text: 'Taux de Depart en Formation par Categorie'
+                },
+                scales: {
+                        yAxes: [{
+                            ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            // Include a dollar sign in the ticks
+                            callback: function(label, index, labels) {
+                                return label+'%';
+                                }
+                            },
+
+                        }],
+                    }
+            }
+        });
+</script>
+<!-- chart_depart_formation_cat  -->
+
+
+<!-- chart_depart_formation_direct -->
+<script>
+    var keys_formation_direct = [];
+    var values_formation_direct = [];
+
+        keys_formation_direct = {{Keys_Taux_formation_direct | safe}}
+        values_formation_direct = {{valeur_Taux_formation_direct}}
+    new Chart(document.getElementById("chart_depart_formation_direct"),
+    {
+            type: 'bar',
+            data: {
+                labels: keys_formation_direct,
+                datasets: [
+                    {
+                        label: 'Taux de depart en formation par direction',
+                        backgroundColor:[
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(44, 62, 85, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(67, 83, 97, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(35, 82, 124, 0.5)',
+                                'rgba(119, 109, 80, 0.5)',
+                                'rgba(22, 13, 58, 0.5)',
+                                'rgba(235, 93, 57, 0.5)',
+                                'rgba(35, 82, 124, 0.5)',
+                                'rgba(153, 27, 88, 0.5)',
+                                'rgba(159, 218, 238, 0.5)',
+                                ],
+                        data: values_formation_direct
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: false,
+                    text: 'Taux de depart en formation par direction'
+                },
+                scales: {
+                        yAxes: [{
+                            ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            // Include a dollar sign in the ticks
+                            callback: function(label, index, labels) {
+                                return label+'%';
+                                }
+                            },
+
+                        }],
+                    }
+            }
+        });
+</script>
+<!-- chart_depart_formation_direct  -->
+
+<!-- chart_formation_famille_pro -->
+<script>
+    var formation = []
+    var keys_formation_direct = []
+
+    formation = {{Tx_formation_pro}}
+    keys_formation_direct = {{Keys_Taux_formation_direct | safe}}
+    new Chart(document.getElementById("chart_formation_famille_pro"),
+    {
+            type: 'bar',
+            data: {
+                labels: keys_formation_direct,
+                datasets: [
+                    {
+                        label: 'Nombre de congé par mois',
+                        backgroundColor:[
+                                'rgba(255, 99, 132, 0.5)','rgba(44, 62, 85, 0.5)','rgba(255, 99, 132, 0.5)',
+                                'rgba(153, 27, 88, 0.5)','rgba(44, 62, 85, 0.5)','rgba(255, 99, 132, 0.5)',
+                                'rgba(255, 99, 132, 0.5)','rgba(44, 62, 85, 0.5)','rgba(255, 99, 132, 0.5)',
+                                'rgba(153, 27, 88, 0.5)','rgba(44, 62, 85, 0.5)','rgba(255, 99, 132, 0.5)',
+                                ],
+                        data:formation
+                    }
+                ]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: false,
+                    text: 'Part de recrutement via mobilité'
+                }
+            }
+        });
+</script>
+<!-- chart_formation_famille_pro  -->
+
+
+<!--Formation Chart -->
+    <script>
+        $("#Formationchoise").on("click", function () {
+        // showDialog("chargement");
+            myLineChart.destroy();
+            $.get(
+                "{% url 'module_rh_get_listeformation_by_month' %}",
+                function (response) {
+                        coul3 = $(".thirdy_color_{{ module.name|lower }}").css("background-color")
+                        coul2 = $(".secondary_color_{{ module.name|lower }}").css("background-color")
+                        coul1 = $(".primary_color_{{ module.name|lower }}").css("background-color")
+                        donnees = response;
+                        console.log('les formations', donnees);
+                        //Debut Chart
+                        // chart
+                        var ctx = document.getElementById("myAreaChartRH");
+                        var myLineChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                            datasets: [ {
+                            label: "Nombre de formation par mois",
+                            backgroundColor: coul3,
+                            borderColor: coul2,
+                            pointRadius: 3,
+                            pointBackgroundColor: coul1,
+                            data:donnees,
+                            }],
+                        },
+
+                        }
+                        );
+                        //ctx.height = 300;
+                        //End Chart
+                    // showDialog("chargement");
+
+                // End Function
+                },
+                "json"
+                );
+            });
+    </script>
+<!-- Formation Chart-->
+
+<!-- Congé Chart -->
+    <script>
+        $("#congeTest").on("click", function () {
+            myLineChart.destroy();
+
+            $.get(
+                "{% url 'module_rh_get_listeconge_by_month' %}",
+                function (response) {
+                    coul3 = $(".thirdy_color_{{ module.name|lower }}").css("background-color")
+                    coul2 = $(".secondary_color_{{ module.name|lower }}").css("background-color")
+                    coul1 = $(".primary_color_{{ module.name|lower }}").css("background-color")
+                    donnees = response;
+                    var ctx = document.getElementById("myAreaChartRH");
+                    var myLineChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    datasets: [ {
+                        label: "Nombre de congé par mois",
+                        backgroundColor: coul3,
+                        pborderColor: coul2,
+                        pointRadius: 3,
+                        pointBackgroundColor: coul1,
+                        data:donnees,
+                        }],
+                    },
+                    });
+                },
+                "json"
+            );
+
+
+        });
+    </script>
+<!-- Congé Chart -->
+
+<!-- Drop drag Test -->
+    <script>
+        window.onload = function () {
+            // GET ALL THE PLAYERS - DRAGGABLE AND DROP ZONES
+            var draggable = document.getElementById("draggable"),
+                dropzones = document.getElementsByClassName("dropzone");
+
+            // DRAG START - HIGHLIGHT DROP ZONES WITH CSS CLASS
+            draggable.addEventListener("dragstart", function () {
+            for (let i = 0; i < dropzones.length; i++) {
+                dropzones[i].classList.add("active");
+            }
+            });
+
+            // DRAG END - REMOVE ALL ADDED ACTIVE & OVER CSS CLASS
+            draggable.addEventListener("dragend", function () {
+            for (let i = 0; i < dropzones.length; i++) {
+                dropzones[i].classList.remove("active");
+                dropzones[i].classList.remove("over");
+            }
+            });
+
+            // DRAG - AS YOU ARE DRAGGING
+            draggable.addEventListener("drag", function () {
+            // DO SOMETHING... IF YOU WANT
+            });
+
+            for (let i = 0; i < dropzones.length; i++) {
+            // DRAG ENTER - HIGHLIGHT THIS ZONE
+            dropzones[i].addEventListener("dragenter", function () {
+                dropzones[i].classList.add("over");
+            });
+
+            // DRAG LEAVE - REMOVE HIGHLIGHT ON THIS ZONE
+            dropzones[i].addEventListener("dragleave", function () {
+                dropzones[i].classList.remove("over");
+            });
+
+            // DRAG OVER - PREVENT THE DEFAULT "DROP", SO WE CAN DO OUR OWN
+            dropzones[i].addEventListener("dragover", function (evt) {
+                evt.preventDefault();
+            });
+
+            // ON DROP - MOVE THE DRAGGABLE ELEMENT
+            dropzones[i].addEventListener("drop", function (evt) {
+                evt.preventDefault();
+                // Will move the draggable element only if dropped into a different box
+                if (evt.target != draggable.parentNode && evt.target != draggable) {
+                draggable.parentNode.removeChild(draggable);
+                evt.target.appendChild(draggable);
+                }
+            });
+            }
+        };
+    </script>
+<!-- Drop drag Test -->
+
+<!-- other Chart -->
+    <script>
+        window.onload = function() {
+            var dataPointsData = [];
+            var dataPoint = [];
+            var y = 1000;
+            var limit = 50000;
+
+
+            for ( var i = 0; i < limit; i++ ) {
+                y += Math.round( 10 + Math.random() * (-10 -10));
+                dataPointsData.push({ y: y });
+            }
+            var lesMois = new Array ("janvier","février","mars","avril","mai","juin","juillet","août","septembre",
+                    "octobre","novenbre","Décembre") ;
+            for ( var i = 0; i < donnees.length; i++ ) {
+            dataPoint.push({y: donnees[i] });
+            }
+
+
+
+
+        var chart1 = new CanvasJS.Chart("chartContainer1", {
+            animationEnabled: true,
+            title: {
+                text: ""
+            },
+
+            exportFileName: "Range Spline Area",
+            width:720,
+            height: 260,
+
+            data: [{
+                type: "pie",
+                indexLabelLineDashType: "dash",
+                startAngle: 240,
+                toolTipContent: "<b>{label}</b>: {y}%",
+                yValueFormatString: "##0.00'%'",
+                indexLabelFontSize: 10,
+                indexLabel: "{label} {y}",
+                dataPoints: dataPoint
+            }]
+        });
+        var chart2 = new CanvasJS.Chart("chartContainer2", {
+            animationEnabled: true,
+            title:{
+                text: ""
+            },
+            exportFileName: "Range Spline Area",
+            axisX:{
+                valueFormatString: "DD MMM",
+                crosshair: {
+                    enabled: true,
+                    snapToDataPoint: true,
+                    labelFormatter: function(e) {
+                        return e.value + "e" +  "Mois";
+                    }
+                }
+            },
+            axisY: {
+                title: "Closing Price (in USD)",
+                includeZero: false,
+                valueFormatString: "$##0.00",
+                crosshair: {
+                    enabled: true,
+                    snapToDataPoint: true
+                    //labelFormatter: function(e) {
+                    //    return "$" + CanvasJS.formatNumber(e.value, "##0.00");
+                    // }
+                }
+            },
+            width:720,
+            height: 260,
+            data: [{
+                type: "area",
+                connectNullData : true ,
+                xValueFormatString: "DD MMM",
+                yValueFormatString: "$##0.00",
+                dataPoints: dataPoint
+            }]
+        });
+        var chart3 = new CanvasJS.Chart("chartContainer3", {
+            animationEnabled: true,
+            zoomEnabled: true,
+            title:{
+                text: ""
+            },
+            exportFileName: "Range Spline Area",
+            subtitles:[{
+                text: "Try Zooming and Panning"
+            }],
+            width:720,
+            height: 260,
+            data: [{
+                type: "column",
+                connectNullData : true ,
+                dataPoints: dataPoint
+            }],
+            axisY:{
+                includeZero: false
+            }
+        });
+
+        chart1.render();
+        chart2.render();
+        chart3.render();
+        }
+    </script>
+<!-- other Chart -->
+
+ <script>
+    /* window.onload = function () {
+
+        var chart2 = new CanvasJS.Chart("chartContainer2", {
+            theme: "light2",
+            animationEnabled: true,
+            zoomEnabled: true,
+            title: {
+                text: "Try Zooming and Panning"
+            },
+            data: [{
+                type: "area",
+                dataPoints: []
+            }]
+        });
+
+        addDataPoints(1000);
+        chart2.render();
+
+        function addDataPoints(noOfDps) {
+            var xVal = chart2.options.data[0].dataPoints.length + 1, yVal = 100;
+            for(var i = 0; i < noOfDps; i++) {
+                yVal = yVal +  Math.round(5 + Math.random() *(-5-5));
+                chart2.options.data[0].dataPoints.push({x: xVal,y: yVal});
+                xVal++;
+            }
+        }
+
+        }*/
+
+</script>
+
+<!-- Get person from formation -->
+<script>
+        var lesarticlesfill = new Array();
+        function get_personnel() {
+                var choixformation = $("#formation").val();
+                var textformation = $("#formation option[value='"+choixformation+"']").text();
+
+                console.log(choixformation);
+
+                if (choixformation !== 0){
+                    // alert('touched')
+                    console.log(choixformation)
+                    $("#head_modal").empty();
+                    $("#body_modal").empty();
+                    $("#formation_liste_presentation").empty();
+                    $.get(
+                        "{% url 'module_rh_list_employe_formation' %}",
+                        {id:choixformation}
+                        ,
+                        function (response) {
+                            console.log(response)
+
+                            $("#head_modal").append('<srong style="display:flex;justify-content:center;text-transform:uppercase;">'+ textformation +'</strong>');
+
+                                lesarticlesfill = [];
+                                var textHeader1 = '<p><span class="" style="colo:#000;display:flex;justify-content:center;font-weight:800;">Les Personnels qui assistent à cette formation</span></p>';
+
+                            $("#body_modal").append(textHeader1);
+                                for (var i = 0; i < response.length; i++) {
+                                var unarticle = response[i];
+
+                                var liste = '<span style="font-weight:600;text-transform:capitalize">' + response[i] + '</span> <br>'
+
+                                $("#body_modal").append(liste);
+                                }
+
+                        var format = '<div id="formation_liste_presentation" data-toggle="modal" data-target="#myModalEleve" class="" style="margin:0px 10px 0px 10px;">'
+                            format += '<div class="col-lg-12 information">'
+                            format += '<span class="col-md-8">'
+                            format += textformation +'<br>'
+                            format += '<span style="font-size:12px;font-weight:500">Clickez pour voir les employés souscrit dans cette formation.</span>'
+                            format +='</span>'
+                            format +='<div class="col-sm-3 col-md-4  circle-progress-block" style="float:right;">'
+                            format += '<div id="circleProgress5" class="progressbar-js-circle border rounded p-3"><svg viewBox="0 0 100 100" style="display: block; width: 100%;">'
+                            format += '<path d="M 50,50 m 0,-48 a 48,48 0 1 1 0,96 a 48,48 0 1 1 0,-96" stroke="#eee" stroke-width="4" fill-opacity="0"></path>'
+                            format += '<path d="M 50,50 m 0,-48 a 48,48 0 1 1 0,96 a 48,48 0 1 1 0,-96" stroke="rgb(98,194,205)" stroke-width="4" fill-opacity="0" style="stroke-dasharray: 301.635, 301.635; stroke-dashoffset:180.079;"></path>'
+                            format += '</svg>'
+                            format += '<div class="progressbar-text" style="position: absolute; left: 50%; top: 50%; padding: 0px; margin: 0px; transform: translate(-50%, -50%); color: rgb(0, 0, 0); font-size: 1rem;">5</div>'
+                            format += '</div>'
+                            format +='</div>'
+                            format +='</div>'
+                            format += '</div>'
+
+                            $("#formation_liste_presentation").append(format);
+
+                        },
+                        "json"
+                    );
+
+                }
+            }
+    </script>
+<!-- Get person from formation -->
+
+
+{% endblock %}

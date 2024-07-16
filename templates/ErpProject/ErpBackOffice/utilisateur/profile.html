@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html style="height: 100%; background-color: #efefef;">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <title>{{ title }}</title>
+    {%load static %}
+
+    <link rel="shortcut icon" href="{% static 'ErpProject/image/logo_arpce.png' %}">
+
+    <link href="{% static 'ErpProject/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'ErpProject/css/metisMenu.min.css' %}" rel="stylesheet">
+    <link href="{% static 'ErpProject/css/custom.css' %}" rel="stylesheet">
+    <!--  -->
+    <link href="{% static 'ErpProject/css/profil.css' %}" rel="stylesheet">
+    <link href="{% static 'ErpProject/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="{% static 'ErpProject/css/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/theme.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metro.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metro-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metro-schemes.css' %}">
+    <!-- Profil -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body class="page-container">
+    <div id="wrapper">
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom:0;">
+            <!-- navbar-header -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                <a class="navbar-band" href="{% url 'backoffice_index' %}">
+                    <div style="float: left;width: 250px;">
+                        <img src="{% static 'ErpProject/image/logo_arpce_large.png' %}" class="logo">
+                    </div>
+                </a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <!-- Liste d'applications -->
+            <ul class="nav navbar-top-links navbar-left nav-l">
+                {% for item in modules %}
+                <li class="active_module_{% if module.value == item.numero_ordre %}{{ item.nom_module|lower }}{% endif %}  chargement-au-click">
+                    <a href="/{{ item.url_vers }}">
+                            {{ item.nom_module }}
+                        </a>
+                </li>
+                {% endfor %}
+            </ul>
+            <!-- /.Liste d'applications -->
+
+            <!-- Reste du menu -->
+            <ul class="nav navbar-top-links navbar-right nav-d">
+
+
+                <!-- dropdown Profil Utilisateur-->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-user fa-fw"></i> {{ utilisateur.nom_complet }} <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="d-menu place-right" data-role="dropdown">
+                        <li><a href="{% url 'backoffice_profile' %}"><i class="fa fa-user fa-fw"></i> Profil d'utilisateure</a>
+                        </li>
+                        <li><a href="{% url 'backoffice_change_password' %}"><i class="fa fa-cog fa-fw"></i>paramètres</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a href="{% url 'backoffice_deconnexion' %}"><i class="fa fa-sign-out-alt fa-fw"></i> Déconnexion</a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- /.dropdown Profil Utilisateur-->
+            </ul>
+            <!-- /.Reste du menu -->
+        </nav>
+    </div>
+
+    <!-- body Profil -->
+    <div class="profile-main">
+    <div class="profile-header">
+        <div class="user-detail">
+            <div class="user-image">
+                <!-- <img src="http://nicesnippets.com/demo/up-profile.jpg"> -->
+                {% if model.image != None and model.image != "" %}
+						<img src="{% static model.image %}">
+					{% else %}
+						<img src="{% static 'ErpProject/image/user_profile.png' %}">
+				{% endif %}
+            </div>
+            <div class="user-data">
+                <h2>{{ utilisateur.nom_complet }}</h2>
+                <span class="post-label">
+                    {% if model.poste == None %}
+                        {{"Administrateur"}}
+                    {% else %}
+                        {{ model.poste.designation }}
+                    {% endif %}
+                </span>
+                <p>
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                    <strong>
+                        {% if model.profilrh.matricule != None %}
+                            {{ model.profilrh.matricule }} / {{model.profilrh.numero_ss}}
+                        {% else %}
+                            --
+                        {% endif %}
+
+                    </strong>
+                </p>
+                <p><strong>{{ model.unite_fonctionnelle.libelle }}</strong><br>
+                    {% if model.profilrh.contrat != None %}
+                        {{model.profilrh.contrat}}
+                    {% else %}
+                        --
+                    {% endif %}
+                     
+                </p>
+            </div>
+            <div class="social-icons">
+                <a href="" type="button" style="font-size: 12px;" class=""><i class="fa fa-envelope-o" aria-hidden="true"></i>
+                    {{ model.email }}
+                </a>
+            </div>
+        </div>
+        <div class="tab-panel-main">
+            <!-- <ul class="tabs">
+                <li class="tab-link current" data-tab="Basic-detail">INFORMATIONS</li>
+                <li class="tab-link" data-tab="Edu-detail">SITUATION FAMILlIALE</li>
+                <li class="tab-link" data-tab="Portfolio">BANQUE</li>
+            </ul> -->
+            <div id="Basic-detail" class="tab-content current">
+                <div class="detail-box">
+                    <p>INFORMATION PERSONNELLE</p>
+
+                    <ul class="ul-first">
+                        <li>Naissance :</li>
+                        <li>Lieu de N. :</li>
+                        <li>Nationnalité :</li>
+                        <li>N° Passport :</li>
+                        <li>N° Téléphone :</li>
+                    </ul>
+                    <ul class="ul-second">
+                        <li>
+                            {% if model.profilrh.date_naissance != None %}
+                                {{ model.profilrh.date_naissance|slice:"10" }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </li>
+                        <li>
+                            {% if model.profilrh.lieu_naissance != None %}
+                                {{ model.profilrh.lieu_naissance }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </li>
+                        <li>
+                            {% if model.profilrh.nationalite != None %}
+                                 {{ model.profilrh.nationalite }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </li>
+                        <li>
+                            {% if model.profilrh.numero_passeport != None %}
+                                {{ model.profilrh.numero_passeport }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </li>
+                        <li>
+                            {% if model.profilrh.phone_personnel != None %}
+                                {{ model.profilrh.phone_personnel }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </li>
+                    </ul>
+                </div>
+                <div class="bio-box">
+                    <div class="heading">
+                        <p>INFORMATION PERSONNELLE
+                            <label>Rejoint en {{model.profilrh.date_engagement|date:"M Y"}}</label>
+                        </p>
+
+                    </div>
+                    <div class="desc">
+                        <p>Niveau d'étude: <br>
+                            <span>
+                                <strong>
+                                    {% if model.diplome != None %}
+                                        {{ model.diplome }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </strong>
+                            </span>
+                        </p>
+
+                        <p>Lieu de Travail :<br>
+                            <span>
+                                    <strong>
+                                        {% if model.lieu_travail != None %}
+                                            {{ model.lieu_travail.designation }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </strong>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div id="Edu-detail" class="tab-content">
+                <div class="portfolio-box">
+                    <div class="row">
+                        <div class="col-md-6">
+
+                        <p> Sexe <br>
+                            <strong>
+                                {% if model.profilrh.genre != None and model.profilrh.genre != "" %}
+                                    {{ model.profilrh.genre }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </strong>
+                        </p>
+
+                        <p>Etat-civil <br>
+                            <strong>
+                                {% if model.profilrh.etat_civil != None %}
+                                    {{ model.profilrh.etat_civil }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </strong>
+                        </p>
+
+                        <p>Adresse Personnelle <br>
+                            <strong>
+                                {% if model.adresse_complete != None %}
+                                    {{ model.adresse_complete }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </strong>
+                        </p>
+                        <p>
+                            N° Identification : <br>
+                            {% if model.profilrh.numero_identification != None and model.profilrh.numero_identification != "" %}
+									{{ model.profilrh.numero_identification }}
+								{% else %}
+									-
+							{% endif %}
+                        </p>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <p>Numero d'enfant <br>
+                                <strong>
+                                    {% if model.nombre_enfants != None %}
+                                        {{ model.nombre_enfants }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </strong>
+                            </p>
+
+                            <p>Situation Familliale <br>
+                                <strong>
+                                    {% if model.profilrh.situation_famille != None %}
+                                        {{ model.profilrh.situation_famille }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </strong>
+                            </p>
+                            <p>
+                                Statut Employé <br>
+                                {{ model.statutrh.designation }}
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="Portfolio" class="tab-content">
+                <div class="portfolio-box">
+                    <table class="table dataTable striped border bordered">
+                        <thead class="no-border">
+                            <tr>
+                                <th width="18%">Banque</th>
+                                <th width="20%">Numéro Compte</th>
+                                <th width="10%">Répartition (en %)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl_posts_bodyb">
+                            {% for item_rib in ribs %}
+                            <tr id="grpa-{{forloop.counter}}">
+                                <td>
+                                    {{ item_rib.comptebanque.banque.designation }}
+                                </td>
+                                <td>
+                                    {{item_rib.comptebanque.numero_compte}}
+                                </td>
+                                <td>
+                                    {{item_rib.comptebanque.repartition}} %
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="clear: both;"></div>
+    <!-- <div class="footer">
+        <p><strong>My Badges</strong></p><br>
+        <div class="footer-box"><i class="fa fa-facebook"></i></div>
+        <div class="footer-box"><i class="fa fa-twitter"></i></div>
+        <div class="footer-box"><i class="fa fa-linkedin"></i></div>
+        <div class="footer-box"><i class="fa fa-google"></i></div>
+        <div class="footer-box"><i class="fa fa-instagram"></i></div>
+    </div> -->
+    </div>
+
+    <!-- End Profil -->
+    <script src="{% static 'ErpProject/js/jquery-2.1.3.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/metro.js' %}"></script>
+    <script src="{% static 'ErpProject/js/jquery.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/metisMenu.min.js' %}"></script>
+    <script src="{% static 'ErpProject/js/custom.js' %}"></script>
+    <script>
+            function showDialog(id) {
+                var dialog = $("#" + id).data('dialog');
+                if (!dialog.element.data('opened')) dialog.open();
+                else dialog.close();
+            }
+
+            function notifyOnErrorInput(input) {
+                var message = input.data('validateHint');
+                $.Notify({
+                    caption: 'Error',
+                    content: message,
+                    type: 'alert'
+                });
+            }
+
+            function showCharm(id) {
+                var charm = $("#" + id).data("charm");
+                if (charm.element.data("opened") === true) {
+                    charm.close();
+                    $("#btn-menu").removeClass("active");
+                } else {
+                    charm.open();
+                    $("#btn-menu").addClass("active");
+                }
+            }
+            $(document).on("click", function(event) {
+                var element = event.target;
+
+                if (element.id.length == 0 || (element.id != "btn-menu" && element.id != "span-menu")) {
+                    var charm = $("#menu").data("charm");
+                    if (charm.element.data("opened") === true) {
+                        charm.close();
+                        $("#btn-menu").removeClass("active");
+                    }
+                }
+            });
+
+            $("#toggle-tiles-dropdown").on("click", function(event) {
+                var charm = $("#menu").data("charm");
+                if (charm.element.data("opened") === true) {
+                    charm.close();
+                    $("#btn-menu").removeClass("active");
+                }
+            });
+            window.addEventListener("hashchange", function(e) {
+                console.log(window.status);
+                console.log(e);
+            })
+    </script>
+    <script>
+            // Item menu lien vers autre pages
+            $(function() {
+                $('.item-menu-click').on('click', function(e) {
+                    location.assign(location.origin + '/' + $(e.currentTarget).attr('href'));
+                });
+            })
+    </script>
+    <script type="text/javascript">
+            $(document).ready(function(){
+                $('ul.tabs li').click(function(){
+                    var tab_id = $(this).attr('data-tab');
+
+                    $('ul.tabs li').removeClass('current');
+                    $('.tab-content').removeClass('current');
+
+                    $(this).addClass('current');
+                    $("#"+tab_id).addClass('current');
+                });
+            });
+    </script>
+</body>
+
+</html>
+
+
+
+

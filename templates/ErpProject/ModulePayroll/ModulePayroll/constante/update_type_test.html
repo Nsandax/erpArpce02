@@ -1,0 +1,439 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_constante' %}">Liste des constantes</a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_payroll_details_constante' model.id %}">{{ model.designation }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_details_constante' model.id %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_payroll_post_update_constante' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+						<input type="text"  id="ref" name="ref" value ="{{ model.id }}" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+						<input type="text"  id="type_constante" name = "type_constante" value = "{{ type_constante }}" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation</label>
+                                <div class="input-control text full-size">
+                                    <input value="{{ model.designation }}" type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Code</label>
+                                <div class="input-control text full-size">
+                                    <input value="{{ model.code }}" type="text" name="code"  id="code"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez le code svp."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+							<div class="col-md-6">
+								<label>Référence</label>
+								<div class="input-control text full-size">
+									<input value="{{ model.reference }}" type="text" name="reference" id="reference" autocomplete="off" />
+								</div>
+							</div>
+                        </div>
+						<br><br>
+						<div class="row" style="margin-top: 10px">
+							<div class="tabcontrol2" data-role="tabcontrol">
+								<ul class="tabs">
+									<li class="active"><a href="#frame_constante">Paramètres</a></li>
+									<li class=""><a href="#frame_autres">Autres informations</a></li>
+								</ul>
+								<div class="frames">
+									<div class="frame" id="frame_constante" style="display: block;">
+										<br><br>
+										<div class="row">
+											<div class="col-md-9">
+												<table class="table bordered no-margin" style="width:100%;">
+													<thead>
+														<tr>
+															<th width="30%">Condition</th>
+															<th width="25%">Constante</th>
+															<th width="15%">Op.</th>
+															<th width="25%">Valeur</th>
+															<th width="5%"></th>
+														</tr>
+													</thead>
+
+													<tbody id="tbl_posts_body">
+														{% for item_test in model.parametres_tests.all %}
+														<tr id="rec-{{ item_test.sequence }}">
+															<td>
+																<div class="input-control text full-size">
+																	<input type="text" value="{{ item_test.sequence }}" id="sequence-{{ item_test.sequence }}" class="sequence" name="sequence" style="display: none">
+																	<select name="condition_select" id="condition_select-{{ item_test.sequence }}" class="select_condition">
+																		{% for item in type_condition_tests %}
+																			<option value="{{ item.id }}"> {{ item.designation }} </option>
+																		{% endfor %}
+																	</select>
+																</div>
+															</td>
+															<td>
+																<div class="input-control text full-size constante_select">
+																	<input type="text" id="code_input_is_const-{{ item_test.sequence }}" class="input_is_const" name="code_input_is_const" value="0" style="display: none">
+																	<input type="text" id="code_input-{{ item_test.sequence }}" name="code_input" value="0.0" class="input_text">
+																	<select name="code_select" id="code_select-{{ item_test.sequence }}" class="input_select">
+																		<option value="0">Sélectionnez la constante</option>
+																		{% for item in constantes %}
+																			<option value="{{ item.id }}"> {{ item.code }} </option>
+																		{% endfor %}
+																	</select>
+																	<div class="code_button button" id="code_button-{{ item_test.sequence }}" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+																</div>
+															</td>
+															<td>
+																<div class="input-control text full-size">
+																	<select name="operation_select" id="operation_select-{{ item_test.sequence }}" class="select_operation">
+																		{% for item in type_operation_tests %}
+																			<option value="{{ item.id }}"> {{ item.designation }} </option>
+																		{% endfor %}
+																	</select>
+																</div>
+															</td>
+															<td>
+																<div class="input-control text full-size constante_select">
+																	<input type="text" id="valeur_input_is_const-{{ item_test.sequence }}" class="input_is_const valeur_input_is_const" name="valeur_input_is_const" value="0" style="display: none">
+																	<input type="text" id="valeur_input-{{ item_test.sequence }}" name="valeur_input" value="0.0" class="input_text valeur_input_text">
+																	<select name="valeur_select" id="valeur_select-{{ item_test.sequence }}" class="input_select valeur_input_select">
+																		<option value="0">Sélectionnez la constante</option>
+																		{% for item in constantes %}
+																			<option value="{{ item.id }}"> {{ item.code }} </option>
+																		{% endfor %}
+																	</select>
+																	<div class="valeur_button button" id="valeur_button-{{ item_test.sequence }}" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+																</div>
+															</td>
+															<td>
+																<div class="pagination no-border">
+																	<span class="item delete-record" title="Supprimer la ligne" data-id="{{ item_test.sequence }}"><span class="mif-cross fg-red"></span></span>
+																</div>
+															</td>
+														</tr>
+														{% endfor %}
+													</tbody>
+												</table>
+											</div>
+											<div class="col-md-3">
+												<div class="row">
+													<label>Alors</label>
+													<div class="input-control text full-size constante_select">
+														<input type="text" id="alors_input_is_const" class="input_is_const" name="alors_input_is_const" value="0" style="display: none">
+														<input type="text" id="alors_input" name="alors_input" value="0.0" class="input_text">
+														<select name="alors_select" id="alors_select" class="input_select">
+															<option value="0">Sélectionnez la constante</option>
+															{% for item in constantes %}
+																<option value="{{ item.id }}"> {{ item.code }} </option>
+															{% endfor %}
+														</select>
+														<div class="button alors_button" id="alors_button" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+													</div>
+												</div>
+												<div class="row">
+													<label>Sinon</label>
+													<div class="input-control text full-size constante_select">
+														<input type="text" id="sinon_input_is_const" class="input_is_const" name="sinon_input_is_const" value="0" style="display: none">
+														<input type="text" id="sinon_input" name="sinon_input" value="0.0" class="input_text">
+														<select name="sinon_select" id="sinon_select" class="input_select">
+															<option value="0">Sélectionnez la constante</option>
+															{% for item in constantes %}
+																<option value="{{ item.id }}"> {{ item.code }} </option>
+															{% endfor %}
+														</select>
+														<div class="button sinon_button" id="sinon_button"  data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<br>
+												<button type="button" class="button rounded" id="add-record">Ajouter une constante/valeur</button>
+											</div>
+										</div>
+									</div>
+									<div class="frame" id="frame_autres" style="display: none;">
+										<div class="row">
+											<div class="col-md-6">
+												<label>Description</label>
+												<div class="input-control text full-size" style="min-height: 6.25rem !important;">
+													<textarea name="description" id="description">{{ model.description }}</textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+                </div>
+            </div>
+        </div>
+		<div style="display:none;">
+			<table id="sample_table">
+				<tr id="">
+					<td>
+						<div class="input-control text full-size">
+							<input type="text" value="" id="" class="sequence" name="sequence" style="display: none">
+							<select name="condition_select" id="" class="select_condition">
+								{% for item in type_condition_tests %}
+									<option value="{{ item.id }}"> {{ item.designation }} </option>
+								{% endfor %}
+							</select>
+						</div>
+					</td>
+					<td>
+						<div class="input-control text full-size constante_select">
+							<input type="text" id="" class="input_is_const" name="code_input_is_const" value="0" style="display: none">
+							<input type="text" id="" name="code_input" value="0.0" class="input_text">
+							<select name="code_select" id="" class="input_select">
+								<option value="0">Sélectionnez la constante</option>
+								{% for item in constantes %}
+									<option value="{{ item.id }}"> {{ item.code }} </option>
+								{% endfor %}
+							</select>
+							<div class="code_button button" id="" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+						</div>
+					</td>
+					<td>
+						<div class="input-control text full-size">
+							<select name="operation_select" id="" class="select_operation">
+								{% for item in type_operation_tests %}
+									<option value="{{ item.id }}"> {{ item.designation }} </option>
+								{% endfor %}
+							</select>
+						</div>
+					</td>
+					<td>
+						<div class="input-control text full-size constante_select">
+							<input type="text" id="" class="input_is_const valeur_input_is_const" name="valeur_input_is_const" value="0" style="display: none">
+							<input type="text" id="" class="input_text valeur_input_text" name="valeur_input" value="0.0" >
+							<select  id="" name="valeur_select" class="input_select valeur_input_select">
+								<option value="0">Sélectionnez la constante</option>
+								{% for item in constantes %}
+									<option value="{{ item.id }}"> {{ item.code }} </option>
+								{% endfor %}
+							</select>
+							<div class="valeur_button button" id="" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+						</div>
+					</td>
+					<td>
+						<div class="pagination no-border">
+							<span class="item delete-record" title="Supprimer la ligne" data-id="0"><span class="mif-cross fg-red"></span></span>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+    </div>
+	<script>
+		var compteur = "{{ model.last_sequence_test }}";
+		//compteur = parseInt(compteur);
+		//console.log("compteur: "+ compteur);
+		function initConstanteSelect(){
+			$(".constante_select .input_is_const").val('0');
+			$(".constante_select .input_text").val('0.00');
+			$(".constante_select .input_select").val('0');
+
+			$(".constante_select .input_text").show();
+			$(".constante_select .input_select").hide();
+
+			//Bouton actif non cliqué
+			$(".constante_select .button").css({"background-color": "#c4d8ea", "color": "#000"});
+			$(".constante_select .button").data("clicked", false);
+			$(".constante_select .button").data("disabled", false);
+		}
+
+		$(document).ready(function(){
+			initConstanteSelect();
+
+			//Restriction sur la saisie seulement des chiffres sur input
+			$(document).delegate('.constante_select .input_text', 'change', function(e) {
+                if (isNaN($(this).val())) {
+                    // if value is Not a Number
+                    $(this).val('0.00');
+                }
+            });
+
+			//Quand on clique sur le bouton d'activation des constantes
+			$(document).delegate('.constante_select .button', 'click', function(e) {
+				e.preventDefault();
+                e.stopPropagation();
+
+				if($(this).data("disabled") == false){
+					$(this).parent().find(".input_text").val('0.00');
+					$(this).parent().find(".input_select").val('0');
+
+					if($(this).data("clicked")){
+						$(this).css({"background-color": "#c4d8ea", "color": "#000"});
+						$(this).data("clicked", false);
+
+						$(this).parent().find(".input_is_const").val('0');
+
+						$(this).parent().find(".input_text").show();
+						$(this).parent().find(".input_select").hide();
+					}else{
+						$(this).css({"background-color": "#4fc2f8", "color": "#fff"});
+						$(this).data("clicked", true);
+
+						$(this).parent().find(".input_is_const").val('1');
+
+						$(this).parent().find(".input_text").hide();
+						$(this).parent().find(".input_select").show();
+					}
+				}
+			});
+
+			$(document).delegate('#add-record', 'click', function(e) {
+				e.preventDefault();
+				var content = $('#sample_table tr');
+				compteur++;
+				element = null;
+				element = content.clone();
+				element.attr('id', 'rec-'+compteur);
+				element.find('.delete-record').attr('data-id', compteur);
+				element.find('.sequence').val(compteur);
+
+				element.appendTo('#tbl_posts_body');
+
+				//Initialiser les IDs
+				element.find('.sequence').attr('id', 'sequence-'+compteur);
+
+				element.find('.input_is_const').attr('id', 'code_input_is_const-'+compteur);
+				element.find('.input_text').attr('id', 'code_input-'+compteur);
+				element.find('.input_select').attr('id', 'code_select-'+compteur);
+				element.find('.code_button').attr('id', 'code_button-'+compteur);
+
+				element.find('.valeur_input_is_const').attr('id', 'valeur_input_is_const-'+compteur);
+				element.find('.valeur_input_text').attr('id', 'valeur_input-'+compteur);
+				element.find('.valeur_input_select').attr('id', 'valeur_select-'+compteur);
+				element.find('.valeur_button').attr('id', 'valeur_button-'+compteur);
+
+				element.find('.select_operation').attr('id', 'operation_select-'+compteur);
+
+				element.find('.select_condition').attr('id', 'condition_select-'+compteur);
+
+				//console.log("sequence: "+ $('#sequence-'+compteur).val());
+			});
+
+
+			$(document).delegate('.delete-record', 'click', function(e) {
+				e.preventDefault();
+				var didConfirm = confirm("Etes-vous sûr de vouloir supprimer cette ligne");
+				if (didConfirm == true) {
+					var id = $(this).attr('data-id');
+					$('#rec-' + id).remove();
+					return true;
+				} else {
+					return false;
+				}
+			});
+
+			//Initialisation avec les valeurs de la BD
+			{% for item_test in model.parametres_tests.all %}
+				{% if item_test.code_is_const is True %}
+					$("#code_select-{{ item_test.sequence }}").show();
+					$("#code_input-{{ item_test.sequence }}").hide();
+					$("#code_button-{{ item_test.sequence }}").css({"background-color": "#4fc2f8", "color": "#fff"});
+					$("#code_button-{{ item_test.sequence }}").data("clicked", true);
+
+					$("#code_input_is_const-{{ item_test.sequence }}").val("1");
+					$("#code_select-{{ item_test.sequence }}").val("{{ item_test.code_const_id }}");
+					intitule_input = "{{ item_test.code_const.designation }}";
+				{% else %}
+					$("#code_select-{{ item_test.sequence }}").hide();
+					$("#code_input-{{ item_test.sequence }}").show();
+					$("#code_button-{{ item_test.sequence }}").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#code_button-{{ item_test.sequence }}").data("clicked", false);
+
+					$("#code_input-{{ item_test.sequence }}").val("{{ item_test.code }}");
+				{% endif %}
+
+				{% if item_test.valeur_is_const is True %}
+					$("#valeur_select-{{ item_test.sequence }}").show();
+					$("#valeur_input-{{ item_test.sequence }}").hide();
+					$("#valeur_button-{{ item_test.sequence }}").css({"background-color": "#4fc2f8", "color": "#fff"});
+					$("#valeur_button-{{ item_test.sequence }}").data("clicked", true);
+
+					$("#valeur_input_is_const-{{ item_test.sequence }}").val("1");
+					$("#valeur_select-{{ item_test.sequence }}").val("{{ item_test.valeur_const_id }}");
+					intitule_input = "{{ item_test.valeur_const.designation }}";
+				{% else %}
+					$("#valeur_select-{{ item_test.sequence }}").hide();
+					$("#valeur_input-{{ item_test.sequence }}").show();
+					$("#valeur_button-{{ item_test.sequence }}").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#valeur_button-{{ item_test.sequence }}").data("clicked", false);
+
+					$("#valeur_input-{{ item_test.sequence }}").val("{{ item_test.valeur }}");
+				{% endif %}
+
+				$("#operation_select-{{ item_test.sequence }}").val("{{ item_test.type_operation }}");
+				$("#condition_select-{{ item_test.sequence }}").val("{{ item_test.type_condition }}");
+			{% endfor %}
+
+			{% if model.alors_is_const is True %}
+				$("#alors_select").show();
+				$("#alors_input").hide();
+				$("#alors_button").css({"background-color": "#4fc2f8", "color": "#fff"});
+				$("#alors_button").data("clicked", true);
+
+				$("#alors_input_is_const").val("1");
+				$("#alors_select").val("{{ model.alors_const_id }}");
+			{% else %}
+				$("#alors_select").hide();
+				$("#alors_input").show();
+				$("#alors_button").css({"background-color": "#c4d8ea", "color": "#000"});
+				$("#alors_button").data("clicked", false);
+
+				$("#alors_input").val("{{ model.alors }}");
+			{% endif %}
+
+			{% if model.sinon_is_const is True %}
+				$("#sinon_select").show();
+				$("#sinon_input").hide();
+				$("#sinon_button").css({"background-color": "#4fc2f8", "color": "#fff"});
+				$("#sinon_button").data("clicked", true);
+
+				$("#sinon_input_is_const").val("1");
+				$("#sinon_select").val("{{ model.sinon_const_id }}");
+			{% else %}
+				$("#sinon_select").hide();
+				$("#sinon_input").show();
+				$("#sinon_button").css({"background-color": "#c4d8ea", "color": "#000"});
+				$("#sinon_button").data("clicked", false);
+
+				$("#sinon_input").val("{{ model.sinon }}");
+			{% endif %}
+
+		});
+	</script>
+{% endblock %}

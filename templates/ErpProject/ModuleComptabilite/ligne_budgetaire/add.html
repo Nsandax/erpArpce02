@@ -1,0 +1,137 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %} {%load static %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_ligne_budgetaire' %}">Liste des Lignes Budgétaires</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>Nouvelle Ligne Budgétaire</h3>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_ligne_budgetaire' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_ligne_budgetaire' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+
+                <br>
+
+
+                <form id="form" method="POST" action="{% url 'module_comptabilite_post_add_ligne_budgetaire' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+
+                    <input id="submit" type="submit" style="display: none">
+
+                    <br/>
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Code</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="code"  id="code"
+                                    data-validate-func="required"
+                                    data-validate-hint="Entrez la désignation de la Ligne Budgétaire svp." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Responsable</label>
+                            <div class="input-control text full-size">
+                                <select type="text" name="responsable" id="responsable"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le responsable concerné svp.">
+                                    <option value="0">Sélectionnez un Responsable</option>
+                                    {% for item in responsable %}
+                                        <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Désignation</label>
+                            <div class="input-control text full-size">
+                                <input type="text" name="designation"  id="designation"
+                                    data-validate-func="required"
+                                    data-validate-hint="Entrez la désignation de la Ligne Budgétaire svp." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Budget</label>
+                            <div class="input-control text full-size">
+                                <select type="text" name="budget" id="budget"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le budget concerné svp.">
+                                    <option value="0">Sélectionnez un Budget</option>
+                                    {% for item in budget %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Solde</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="solde" id="solde"
+                                        data-validate-func="number"
+                                        data_validate-arg = 1
+                                        data-validate-hint="Entrez la valeur du solde svp." />
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Date de début</label>
+                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" id="date_debut" name="date_debut" readonly
+                                    data-validate-func="required"
+                                    data-validate-hint="Précisez la date svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                        </div>
+                            <label>Date de fin</label>
+                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" id="date_fin" name="date_fin" readonly
+                                    data-validate-func="required"
+                                    data-validate-hint="Précisez la date svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

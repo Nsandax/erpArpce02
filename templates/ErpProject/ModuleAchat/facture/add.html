@@ -1,0 +1,242 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_home' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_factures' %}">Liste des factures</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+<div class="row">
+{% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button small-button rounded primary_color_{{module.name|lower}}" val="Valider"%}    <button onclick="javascript:window.location.assign('{% url 'module_achat_list_factures' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+</div>
+
+<hr class="hr-ligne" /> <!-- Appel de la fonction message -->
+{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+<div class="gird item-content">
+    <form action="{% url 'module_achat_post_add_facture' %}" method="POST" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+        data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+
+        <div class="row cells12">
+            <div class="cell colspan5">
+                <label>Numéro de la facture</label>
+                <div class="input-control text full-size">
+                    <input type="text" name="numero_facture" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="cell colspan5 input-margin-right">
+                <label class="label">Date de facturation</label>
+                <div id="input-date-prevue" class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                    <input readonly type="text" name="date_facturation" readonly data-validate-func="required" data-validate-hint="Précisez la date de facturation svp.">
+                    <div class="button"><span class="mif-calendar"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row cells12">
+
+            <div class="cell colspan5">
+                <label>Numéro de la facture</label>
+                <div class="input-control text full-size">
+                    <input type="text" name="numero_facture" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="cell colspan5 input-margin-right">
+                <label class="label">Date de facturation</label>
+                <div id="input-date-prevue" class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                    <input readonly type="text" name="date_facturation" readonly data-validate-func="required" data-validate-hint="Précisez la date de facturation svp.">
+                    <div class="button"><span class="mif-calendar"></span></div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+        <div class="row cells12">
+
+            <div class="cell colspan5">
+                <label>Fournisseur</label>
+                <div class="input-control text full-size">
+                    <select onchange="choix_fournisseur()" id="fournisseur_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez le fournisseur svp.">
+                                    <option value="0">Sélectionnez un fournisseur</option>
+                                    {% for item in fournisseurs %}
+                                        <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                    {% endfor %}
+                                </select>
+                </div>
+            </div>
+
+            <div class="cell colspan5 input-margin-right">
+                <label>Bon de commande</label>
+                <div class="input-control text full-size">
+                    <select name="order_id" id="order_id" onchange="choix_bon()" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez le bon de commande svp.">
+                                    <option value="0">Sélectionnez le bon de commande</option>
+                                    {% for item in fournitures %}
+                                        {% if item.numero != None and item.numero != "" %}
+                                            <option value="{{ item.id }}">{{ item.numero }} : {{ item.prix_total }} {{ item.devise.symbole_devise }}</option>
+                                        {% else %}
+                                            <option value="{{ item.id }}">{{ item.prix_total }} {{ item.devise.symbole_devise }} du {{ item.date_realisation|date:'d/m/Y' }}</option>
+                                        {% endif %}            
+                                    {% endfor %}
+                                </select>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="row cells12">
+
+            <div class="cell colspan5">
+                <label>Document externe</label>
+                <div class="input-control text full-size">
+                    <input type="text" readonly id="reference_document" />
+                </div>
+            </div>
+
+            <div class="cell colspan5 input-margin-right">
+                <!--label>Devise</label>
+                            <div class="input-control text full-size">
+                                <select name="devise_id" id="devise_id" onchange="choix_devise()"
+                                    data-validate-func="min" 
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez la devise svp.">
+                                    <option value="0">Sélectionnez une devise</option>
+                                    {% for item in devises %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div-->
+            </div>
+
+        </div>
+</div>
+
+<hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+<div class="row margin20 no-margin-left no-margin-right">
+    <table class="table no-margin">
+        <thead class="no-border">
+            <tr>
+                <th class="no-padding-top no-padding-left no-padding-bottom" width="35%">Article</th>
+                <th width="20%">Quantité demandée</th>
+                <th width="20%">Prix unitaire</th>
+                <th width="25%">Prix total</th>
+            </tr>
+        </thead>
+        <tbody id="items">
+        </tbody>
+    </table>
+</div>
+</form>
+</div>
+<script>
+    var deviseRef = "$";
+
+    var lesFournitures = new Array();
+    var lesFournisseurs = new Array();
+
+    { %
+        for item in fournitures %
+    } { %
+        if item.numero != None and item.numero != "" %
+    }
+    lesFournitures.push({
+        id: "{{ item.id }}",
+        fournisseur_id: "{{ item.fournisseur_id }}",
+        designation: "{{ item.numero }} : {{ item.prix_total }} {{ item.devise.symbole_devise }}"
+    }); { %
+        else %
+    }
+    lesFournitures.push({
+        id: "{{ item.id }}",
+        fournisseur_id: "{{ item.fournisseur_id }}",
+        designation: "{{ item.prix_total }} {{ item.devise.symbole_devise }} du {{ item.date_realisation|date:'d/m/Y' }}"
+    }); { % endif %
+    } { % endfor %
+    }
+
+    { %
+        for item in fournisseurs %
+    }
+    lesFournisseurs.push({
+        id: "{{ item.id }}",
+        nom_complet: "{{ item.nom_complet }}"
+    }); { % endfor %
+    }
+</script>
+<script>
+    function choix_fournisseur() {
+        $("#items").children().remove();
+        var fournisseur_id = $("#fournisseur_id").val();
+        if (fournisseur_id != "0") {
+            $("#order_id").children().remove();
+            $("#order_id").append('<option value="0">Sélectionnez le bon de commande</option>');
+
+            for (var i = 0; i < lesFournitures.length; i++) {
+                var fourniture = lesFournitures[i];
+                if (fourniture.fournisseur_id == fournisseur_id) {
+                    var ligne = '<option value="' + fourniture.id + '">' + fourniture.designation + '</option>';
+                    $("#order_id").append(ligne);
+                }
+            }
+        } else placerOptionsFournitures();
+    }
+
+    function choix_bon() {
+        var order_id = $("#order_id").val();
+        if (order_id != "0") {
+            $("#items").children().remove();
+            for (var i = 0; i < lesFournitures.length; i++) {
+                var fourniture = lesFournitures[i];
+                if (fourniture.id == order_id) {
+                    $("#fournisseur_id").val(fourniture.fournisseur_id);
+                    break;
+                }
+            }
+
+            $.get(
+                "{% url 'module_achat_list_fourniture' %}", {
+                    ref: order_id
+                },
+                function(data) {
+                    if (data != null) {
+                        var lignes = data.lignes;
+                        for (var i = 0; i < lignes.length; i++) {
+                            var ligne = lignes[i];
+                            var total = parseFloat(ligne.prix_unitaire) * parseFloat(ligne.quantite_fournie);
+                            if (ligne.prix_lot != 0) total = parseFloat(ligne.prix_lot);
+
+                            var nouvelleLigne = '<tr class="table bordered border"><td>' + ligne.nom_article + '</td>';
+                            nouvelleLigne += '<td>' + ligne.quantite_fournie + ' ' + ligne.symbole_unite + '</td>';
+                            if (parseFloat(ligne.prix_unitaire) != 0) {
+                                nouvelleLigne += '<td>' + parseFloat(ligne.prix_unitaire).toFixed(2) + ' ' + data.symbole_devise + '</td>';
+                            } else nouvelleLigne += '<td> - </td>';
+                            nouvelleLigne += '<td>' + total.toFixed(2) + ' ' + data.symbole_devise + '</td></tr>';
+
+                            $("#items").append(nouvelleLigne);
+                        }
+                    }
+                },
+                "json"
+            );
+        } else $("#items").children().remove();
+    }
+
+    function placerOptionsFournitures() {
+        $("#order_id").children().remove();
+        $("#order_id").append('<option value="0">Sélectionnez le bon de commande</option>');
+
+        for (var i = 0; i < lesFournitures.length; i++) {
+            var fourniture = lesFournitures[i];
+            var ligne = '<option value="' + fourniture.id + '">' + fourniture.designation + '</option>';
+            $("#order_id").append(ligne);
+        }
+    }
+</script>
+{% endblock %}

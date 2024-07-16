@@ -1,0 +1,64 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+    {% load printabletags %}
+
+    <body>
+        <div id="invoice">
+            <div class="separ col-md-12" style="background-color: grey;opacity: 0.3;margin-bottom: 10px;"></div>
+            <h1 class="align-center" style="color: red; font-weight: bold; font-size: 20px; text-transform: uppercase;">{{ title }}</h1>
+            <h3 style="text-align:center;font-weight: bold; font-size: 18px">ARPCE</h3>
+            <div class="col-md-6">
+                <p>
+                    <strong>République du Congo</strong> <br>
+                    <strong>91 bis Boulvard du 30 juin</strong> <br>
+                    <strong>+ 242 05 510 72 72</strong> <br>
+                    <strong>contact@arpce.cg</strong> <br>
+                </p>
+            </div>
+            <div class="col-md-6" style="text-align: right;">
+                <h3> {{model.type_marche}}</h3>
+                <h3 style="color: red; font-weight: bold">{{model.numero_reference}}</h3>
+            </div>
+
+        </div>
+
+        <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+        <div class="col-md-6">
+           <p>
+               <strong>Commission:</strong> {{model.designation_commission}}  <br>
+
+               <strong>Objet de l'appel :</strong>  {{model.objet_appel}} <br>
+
+               <strong>Type d'appel d'offre:</strong>  {{model.type_appel_offre}} <br>
+               <strong>Montant de la caution de soumission :</strong>  {{model.montant_commission |monetary}} <br>
+
+
+           </p>
+           <p><strong>Lieu(x) de consultation:</strong> {{model.lieu_consultation}}</p>
+           <p><strong>Lieu(x) de dépôt:</strong> {{model.lieu_depot}}</p>
+           <p><strong>Qualification:</strong> {{model.qualification}}</p>
+           <p><strong>Conditions:</strong> {{model.conditions}}</p>
+           <p><strong>Nombre lots:</strong> {{model.nombre_lots}}</p>
+           <p><strong>Description:</strong> {{model.desc}}</p>
+       </div>
+
+
+
+        <div  class="col-md-6" style="margin-bottom: 40px">
+            <p style="float: right;"><strong>Date signature: {{model.date_signature | date:"d/m/Y" }}</strong> <br>
+            <strong>Financement : {{model.financement}}</strong> <br>
+            <strong>Date dépôt: {{model.date_depot | date:"d/m/Y" }}</strong> <br>  <strong></p>
+        </div>
+
+        </div>
+    </div>
+    </body>
+</html>

@@ -1,0 +1,226 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_inventaire_list_articles_stockables' %}">Liste des articles stockables</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+ {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_inventaire_add_article" url_detail="module_inventaire_details_article" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <button onclick="javascript:window.location.assign('{% url 'module_inventaire_update_article' model.id %}')" class="theme-btn theme-btn-sm rounded primary chargement-au-click primary primary_color_{{module.name|lower}}">Modifier</button>
+                        <button class="theme-btn theme-btn-sm rounded" onclick="updateStock('#dialog')" style="margin-left: 5px">Mettre à jour le stock disponible</button>
+                        <button class="theme-btn theme-btn-sm rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_inventaire_add_article' %}')" style="margin-left: 5px">Créer</button>
+                    </div>
+
+                    <div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialog">
+                        <div class="row cells3 padding20" style="margin-top: 10px">
+                            <h3>Mettre à jour la quantité d'articles</h3>
+                            <div class="cells2">
+                                <form id="form" method="POST" action="{% url 'module_inventaire_post_valider_inventaire_initial' %}"
+                                    data-role="validator"
+                                    data-show-required-state="false"
+                                    data-hint-mode="line"
+                                    data-hint-background="bg-red"
+                                    data-hint-color="fg-white"
+                                    data-hide-error="5000"
+                                    novalidate="novalidate"
+                                    data-on-error-input="notifyOnErrorInput"
+                                    data-show-error-hint="false">
+                                    {% csrf_token %}
+                                    <input id="submit" type="submit" style="display: none">
+                                    <input type="hidden" name="article" value="{{ model.designation }}">
+                                    <input type="hidden" name="article_id" value="{{ model.id }}">
+                                    <input type="hidden" name="quantite_theorique" id="id_quantite_theorique" value="">
+                                    <div class="row">
+                                        <p class="header shadow" style="height: 100px; width: 100px;">
+                                        {% if model.image != None and model.image != "" %}
+                                            <img src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                        {% else %}
+                                            <img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                        {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="row">
+                                        <h4>{{ model.designation }}</h4>
+                                    </div>
+                                    <div class="row">
+                                        <label>Emplacement</label>
+                                        <div class="input-control text full-size">
+                                                <select name="emplacement_id" id="emplacement_id"
+                                                    data-validate-func="min"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez l'emplacement à inventorier SVP.">
+                                                    <option value="0">Sélectionnez un emplacement</option>
+                                                    {% for item in emplacements %}
+                                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                        </div>
+                                    </div>
+                                   <div class="row">
+                                        <label>Nouvelle quantité disponible</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="quantite_reelle" type="number" data-validate-func="required" data-validate-hint="Entrez la quantité réelle SVP!">
+                                            <span class="input-state-error mif-warning"></span>
+                                            <span class="input-state-success mif-checkmark"></span>
+                                        </div>
+                                    </div>
+                                    <hr style="background-color: #f7f5f5;">
+                                    <div class="row">
+                                        <button onclick="javascript:document.getElementById('submit').click()"  class="button small-button rounded primary chargement-au-click" type="submit">Appliquer</button>
+                                        <button class="button small-button rounded" onclick="closeUpdateStock('#dialog')" style="margin-left: 5px">Annuler</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+
+                    <div class="row item-content">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="header shadow" style="height: 100px; width: 100px;">
+                                {% if model.image != None and model.image != "" %}
+                                    <img src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                {% else %}
+                                    <img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                {% endif %}
+                                </p>
+                                <p class="header">{{ model.designation }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table border bordered" style="max-width:220px;">
+                                    <tr>
+                                        <td><a class="chargement-au-click" href="#"><span class="mif-dollar2" style="float:left; font-size: 1.5rem;"></span><div style="float:right;"><span class="">{{ model.nombre_vente }}</span><br><span class="">Ventes</span></div></a></td>
+                                        <td><a class="chargement-au-click" href="{% url 'module_inventaire_list_articles_stockables' %}"><span class="mif-cart" style="float:left; font-size: 1.5rem;"></span><div style="float:right;"><span class="">{{ model.nombre_achat }}</span><br><span class="">Achats</span></div></a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a class="chargement-au-click" href="{% url 'module_inventaire_list_mouvements_stock_article' model.id %}"><span class="mif-history" style="float:left; font-size: 1.5rem;"></span><div style="float:right;"><span class="">{{ model.quantite_prevue }} {{ model.unite.symbole_unite }}</span><br><span class="">Prévision</span></div></a></td>
+                                        <td><a class="chargement-au-click" href="{% url 'module_inventaire_list_articles_stockables' %}"><span class="mif-database" style="float:left; font-size: 1.5rem;"></span><div style="float:right;"><span class="">{{ model.quantite_stock }} {{ model.unite.symbole_unite }}</span><br><span class="">En stock</span></div></a></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Code article :<br>
+                                    <span class="fg-dark"> {{ model.code_article }} </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Type d'article :<br>
+                                    {% for item in types_article %}
+                                        {% if item.id == model.type_article %}
+                                            <span class="fg-dark">{{ item.designation }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Designation court :<br>
+                                    {% if model.designation_court != None and model.designation_court != "" %}
+                                        <span class="fg-dark">{{ model.designation_court }}</span>
+                                    {% else %}
+                                        <span class="fg-dark">-</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Designation court :<br>
+                                    {% if model.designation_court != None and model.designation_court != "" %}
+                                        <span class="fg-dark">{{ model.designation_court }}</span>
+                                    {% else %}
+                                        <span class="fg-dark">-</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Unité de mesure :<br>
+                                    <span class="fg-dark"> {{ model.unite.designation }} </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Catégorie :<br>
+                                    <span class="fg-dark"> {{ model.categorie.designation }} </span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Prix de vente unitaire :<br>
+                                    <span class="fg-dark"> {{ model.separateur_prix_unitaire }} {{ devise_ref.symbole_devise }} </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+
+
+    <script>
+        function updateStock(id){
+            var dialog = $(id).data('dialog');
+            dialog.open();
+        }
+        function closeUpdateStock(id){
+            var dialog = $(id).data('dialog');
+            dialog.close();
+        }
+
+        $(document).ready(function(){
+
+            $('#emplacement_id').on('change', function() {
+                console.log("********** ******************************************************************************");
+                 if($(this).val() != '0' || $(this).val() != '0') {
+                    var id_emplacement = parseInt($(this).val())
+                    $.get(
+                        "{% url 'module_inventaire_article_of_emplacement' %}",
+                        {ref : "{{ model.id }}", ref_emplacement : id_emplacement},
+                        function(data)
+                        {
+                            if(data != null)
+                            {
+                                $("#id_quantite_theorique").val(data.quantite_theorique);
+                                console.log(data.quantite_theorique);
+                            }
+                        },
+                        "json"
+                    );
+
+                 }
+            })
+
+        });
+
+    </script>
+{% endblock %}

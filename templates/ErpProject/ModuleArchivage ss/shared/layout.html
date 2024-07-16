@@ -1,0 +1,88 @@
+
+        {% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+
+        {% if not isPopup %}
+        <!-- Suite Menu Nav -->
+
+        <!-- Menu lateral -->
+        <div class="sidebar" role="navigation" style="">
+
+            <div class="contenair-profil" style="background-color: transparent;">
+                <!-- <img src="/static/ErpProject/image/icone_profile.png" class="profil"> -->
+                {% if utilisateur.image != None and utilisateur.image != '' %}
+                <img src="{% static utilisateur.image %}"  class="profil">
+                {% else %}
+                    <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+                {% endif %}
+                <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+                <P class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</P>
+                <div class="divider" style="background-color: transparent;"></div>
+            </div>
+            <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+                <ul class=" nav" id="side-menu" style="background-color: transparent;">
+                    <li class="li-menu">
+                        <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/Dashboard.svg" style="margin-right: 10px;width:17px;"> Tableau de bord </a>
+                        <!-- nav-second-niveau -->
+                        <ul class="nav nav-second-level">
+                            <li class="{% if menu == 1 %}{ 'active' }{% endif %} chargement-au-click">
+                                <a href="{% url 'module_archivage_index' %}" class="a-menu">Accueil</a>
+                            </li>
+                        </ul>
+                     </li>
+
+                        <!-- /.nav-second-niveau -->
+
+                        <li class="li-menu">
+                        <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/Archivage.svg" style="margin-right: 10px;width:17px;"> Mes documents <span class="fa fa arrow"></span></a>
+
+                                <!-- nav-second-niveau -->
+                                <ul class="nav nav-second-level">
+                                    <li class="{% if menu == 1 %}{ 'active' }{% endif %} chargement-au-click">
+                                        <a href="{% url 'module_archivage_list_document' %}" class="a-menu">Lister les documents</a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-second-level">
+                                    <li class="{% if menu == 1 %}{ 'active' }{% endif %} chargement-au-click">
+                                        <a href="{% url 'module_archivage_add_document' %}" class="a-menu">Uploader un document</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        <li class="li-menu">
+                        <a href="#" class="a-menu"><img src="/static/ErpProject/image/icones/Dossier.svg" style="margin-right: 10px;width:17px;"> Mes dossiers <span class="fa fa arrow"></span></a>
+
+                                <!-- nav-second-niveau -->
+                                <ul class="nav nav-second-level">
+                                    <li class="{% if menu == 1 %}{ 'active' }{% endif %} chargement-au-click">
+                                        <a href="{% url 'module_archivage_list_dossier' %}" class="a-menu">Consulter les dossiers</a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-second-level">
+                                    <li class="{% if menu == 1 %}{ 'active' }{% endif %} chargement-au-click">
+                                        <a href="{% url 'module_archivage_add_dossier' %}" class="a-menu">Nouveau dossier</a>
+                                    </li>
+                                </ul>
+                            </li>
+
+
+                            <li class="li-menu">
+                                <a href="{% url 'module_archivage_search_document' %}" class="a-menu"><img src="/static/ErpProject/image/icones/Dossier.svg" style="margin-right: 10px;width:17px;"> Moteur de recherche </span></a>
+
+                            </li>
+                    </ul>
+            </div>
+
+            <!-- /.sidebar-collapse -->
+        </div>
+        <!-- /.Menu lateral -->
+        </nav>
+        <!-- /.Menu Navbar -->
+
+        <!-- Corps de la page (A definir dans chaque fonction du module) -->
+        <div id="page-wrapper" style="background-color:white;">
+        {% else %}
+        <div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+            {% endif %}
+            {% block page %}{% endblock %}
+        </div>
+        <!-- Fin Corps de la page -->
+        {% endblock %}

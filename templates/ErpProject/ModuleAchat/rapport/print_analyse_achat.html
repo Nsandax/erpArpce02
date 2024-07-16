@@ -1,0 +1,65 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="invoice">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <p>
+                    Période :<br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                    <br>
+                    <br>
+                </p>
+            </div>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#f1f1f1">
+                    <th>Référence</th>
+                    <th>Date de création</th>
+                    <th>Statut</th>
+                    <th>
+                        {% if typeExtraction == 1 %}
+                            Demandeur
+                        {% else %}
+                            Fournisseur
+                        {% endif %}
+                    </th>
+                    {% if typeExtraction == 3 %}
+                        <th>Montant</th>
+                    {% endif %}
+                </tr>
+                {% for item in model %}
+                <tr>
+                    {% if typeExtraction == 1 %}
+                        <td>{{item.numero_expression}}</td>
+                    {% elif typeExtraction == 2 %}
+                        <td>{{item.numero_demande}}</td>
+                    {% elif typeExtraction == 3 %}
+                        <td>{{item.numero_reception}}</td>
+                    {% endif %}
+                    <td>{{item.creation_date}}</td>
+                    <td>{{item.statut}}</td>
+                    {% if typeExtraction == 1 %}
+                        <td>{{item.demandeur}}</td>
+                    {% else %}
+                        <td>{{item.fournisseur}}</td>
+                    {% endif %}
+                    {% if typeExtraction == 3 %}
+                        <td> {{item.montant_total}} {{item.devise.symbole_devise}}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,142 @@
+{% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {%load static %}
+{% if not isPopup %}
+<!-- Suite Menu Nav -->
+<!-- Menu lateral -->
+<div class="sidebar" role="navigation">
+    <div class="contenair-profil only-on-large-screen" style="background-color: transparent;">
+        <!-- <img src="/static/ErpProject/image/icone_profile.png" class="profil"> -->
+        {% if utilisateur.image != None and utilisateur.image != '' %}
+        <img src="{% static utilisateur.image %}"  class="profil">
+        {% else %}
+            <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+        {% endif %}
+        <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+        <p class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</p>
+        <div class="divider" style="background-color: transparent;"></div>
+    </div>
+    <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+        <ul class=" nav" id="side-menu" style="background-color: transparent;">
+            {% include 'ErpProject/ErpBackOffice/widget/menu.html' %}
+        </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+<!-- /.Menu lateral -->
+</nav>
+<!-- /.Menu Navbar -->
+
+<!-- Corps de la page (A définir dans chaque fonction du module) -->
+<div id="page-wrapper" style="background-color:#f9f9f9;">
+{% else %}
+<div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+    {% endif %}
+    {% block page %}{% endblock %}
+
+</div>
+
+<!-- SCRIPT DE TRAITEMENT DES DROITS VISUELS -->
+<script>
+    var lesactions = new Array();
+    var menu1 = 0;
+    var menu2 = 0;
+    var menu3 = 0;
+    var menu4 = 0;
+    var menu5 = 0;
+    var i = 0
+
+
+    {% for action in actions %}
+    lesactions.push({droit:"{{ action.droit }}"});
+    {% endfor %}
+
+    console.log(lesactions);
+
+
+
+    //Initialisation des sous-menus
+    $("#facture_fournisseur").hide();
+    $("#facture_client").hide();
+    $("#facture_avoir").hide();
+    $("#reception_facture").hide();
+    $("#plan_comptable").hide();
+    $("#ecriture_comptable").hide();
+    $("#piece_comptable").hide();
+    $("#immobilisation").hide();
+    $("#local").hide();
+    $("#tableau_immobilisation").hide();
+
+    $("#caisse").hide();
+    $("#compte_banque").hide();
+    $("#rapport_tresorerie").hide();
+
+    $("#ordre_paiement").hide();
+
+
+    $("#parametre").hide();
+    $("#devise").hide();
+    $("#journaux").hide();
+    $("#articles").hide();
+    $("#fournisseurs").hide();
+    $("#taxe").hide();
+    $("#menuBI").hide();
+    $("#annee_fiscale").hide();
+    $("#ecriture_analytique").hide();
+    $("#cloture_periode").hide();
+
+
+    $("#compte_analytique").hide();
+    $("#groupement_analytique").hide();
+
+    for(var i = 1; i < lesactions.length; i++)
+
+    {
+        action = lesactions[i];
+        if(action.droit==="LISTER_FACTURE_FOURNISSEUR"){$("#facture_fournisseur").show(); menu1++;}
+        if(action.droit==="LISTER_FACTURE_FOURNISSEUR"){$("#facture_avoir").show(); menu1++;}
+        if(action.droit==="LISTER_FACTURE_CLIENT"){$("#facture_client").show();menu1++;}
+        if(action.droit==="LISTER_FACTURE_FOURNISSEUR"){$("#reception_facture").show();menu1++;}
+        if(action.droit==="LISTER_PLAN_COMPTABLE"){$("#plan_comptable").show();menu2++;}
+        if(action.droit==="LISTER_ECRITURE"){$("#ecriture_comptable").show();menu2++;}
+        if(action.droit==="LISTER_PIECE"){$("#piece_comptable").show();menu2++;}
+        if(action.droit==="CREER_RAPPORT"){$("#menuBI").show();$("#cloture_periode").show(); }
+
+        if(action.droit==="LISTER_IMMOBILISATION"){$("#immobilisation").show();menu2++;}
+
+
+        if(action.droit==="LISTER_CAISSE"){$("#caisse").show();menu3++;}
+        if(action.droit==="LISTER_BANQUE"){$("#compte_banque").show();menu3++;}
+
+        if(action.droit==="CREER_RAPPORT"){$("#rapport_tresorerie").show();menu3++;}
+
+        if(action.droit==="CREER_RAPPORT"){$("#parametre").show();menu4++;}
+        if(action.droit==="LISTER_DEVISE"){$("#devise").show();menu4++;}
+        if(action.droit==="LISTER_JOURNAL"){$("#journaux").show();menu4++;}
+        if(action.droit==="LISTER_FOURNISSEUR"){$("#fournisseurs").show();menu4++;}
+        if(action.droit==="LISTER_ARTICLE"){$("#articles").show();menu4++;}
+        if(action.droit==="LISTER_TAXE"){$("#taxe").show();menu4++;}
+        if(action.droit==="LISTER_ANNEE_FISCALE"){$("#annee_fiscale").show();menu4++;}
+        if(action.droit==="LISTER_ECRITURE_ANALYTIQUE"){$("#compte_analytique").show();menu6++;}
+        if(action.droit==="LISTER_ECRITURE_ANALYTIQUE"){$("#groupement_analytique").show();menu6++;}
+        if(action.droit==="LISTER_ECRITURE_ANALYTIQUE"){$("#ecriture_analytique").show();menu6++;}
+
+        if(action.droit==="LISTER_ORDRE_PAIEMENT"){$("#ordre_paiement").show();menu3++;}
+
+        if(action.droit==="LISTER_IMMOBILISATION"){$("#immobilisation").show();menu5++;}
+        if(action.droit==="LISTER_LOCAL"){$("#local").show();menu5++;}
+        if(action.droit==="LISTER_IMMOBILISATION"){$("#tableau_immobilisation").show();menu5++;}
+
+
+    }
+    //Traitement des menus
+
+    if (menu1 == 0){ $("#menu1").hide();}
+    if (menu2 == 0){$("#menu2").hide();}
+    if (menu3 == 0){$("#menu3").hide();}
+    if (menu4 == 0){$("#menu4").hide();}
+    if (menu5 == 0){$("#menu5").hide();}
+
+
+    </script>
+    <!-- FIN SCRIPT -->
+<!-- Fin Corps de la page -->
+{% endblock %}

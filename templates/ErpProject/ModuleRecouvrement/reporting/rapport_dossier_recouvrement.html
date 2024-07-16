@@ -1,0 +1,45 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {%load static %}{% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <p>
+                    Période :<br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                    <br>
+                    <br>
+                </p>
+            </div>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#f1f1f1">
+                    <th>Désignation</th>
+                    <th>Client</th>
+                    <th>Description</th>
+                    <th>Date de création</th>
+                    <th>Créé par</th>
+                </tr>
+                {% for item in model %}
+                <tr>
+                    <td>{{item.designation|truncatechars:22}}</td>
+                    <td>{{item.client}}</td>
+                    <td>{{item.description|truncatechars:22}}</td>
+                    <td>{{item.creation_date|date:'d/m/Y'}}</td>
+                    <td>{{item.auteur.nom_complet}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>

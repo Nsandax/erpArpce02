@@ -1,0 +1,49 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="facture" style="font-size: 12pt!important;">
+            <div id="courrier">
+                <div class="row" style="height:4cm">
+                    <div class="col-md-7">
+                        <p class="invoice-text" style="font-weight:bold;line-height: 200%;margin-bottom: .0001pt;text-align: justify;margin-top:1pt">N° 429/ARPCE-DG/DAFC/SCT/{{model.id}}</p>
+                    </div>
+                    <div class="col-md-5" style="text-align:center">
+                        <br>
+                        <span class="invoice-text" style="margin-top:10pt">Brazzaville, le  {{model.creation_date|date:"d M. Y" }}</span><br><br>
+                         <span class="invoice-text" style="font-weight:bold;">Date de création :{{model.creation_date|date:"d M. Y" }}</span><br>
+                        <span class="invoice-text" style="font-weight:bold;">Date d'impréssion:{{datenow|date:"d M. Y" }}</span><br>
+                        <span class="invoice-text" style="font-weight:bold;">Etat dossier :{% if model.etat != None %}{{model.etat}}{% else %} Aucune observation émise {% endif %} </span><br>                   
+                        <span class="invoice-text" style="font-weight:bold;text-decoration:underline;text-transform: uppercase;">BRAZZAVILLE</span> 
+                    </div>
+                </div>
+                <br><br>
+                <div class="row" style="">
+                    <p class="invoice-text" ><span style="font-weight:bold;text-decoration:underline;">Objet</span> :Dossier Social/ {{ model.sujet_plainte }}</p><br><br>
+                    <p class="invoice-text" >Dossier concernant l'établissement: {{model.structure}} </p><br>
+                    <p style='line-height: 150%;font-family: "Century Gothic",sans-serif!important;'>Description:{{model.description}}</p><br>
+                    <p style='line-height: 150%;font-family: "Century Gothic",sans-serif!important;'>Situé sur l'adresse:{{model.lieu}}</p><br>
+                </div>
+                <div class="row" style="">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5" style="text-align:center">
+                        <p class="invoice-text" style="font-weight:bold;">Responsable</p>
+                        <br>
+                        <p class="invoice-text" style="font-weight:bold;">{{model.responsable.nom_complet}}.</p>                
+                    </div> 
+                </div> 
+            </div>
+            <div id="detail">
+                
+            </div>
+        </div>
+    </body>
+</html>

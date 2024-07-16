@@ -1,0 +1,63 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}{% block page %}
+   <div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module HR</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_list_departement' %}">Liste des departements</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_detail_departement' departement.id %}">{{departement.libelle}}</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_detail_departement' departement.id %}">{{model.designation}}</a></li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_ressources_humaines_post_add_from_department" url_detail="module_ressources_humaines_detail_poste_from_department" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row">
+        <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_update_poste_from_department' departement.id model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Modifier</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_list_postes' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Annuler</button>
+        
+</div>
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+    <hr class="hr-ligne">
+    
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Désignation :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+               
+                    
+                    <p class="fg-gray">
+                            Département :<br>
+                            {% if model.departement == None %}
+                            <span class="sub-alt-header fg-dark"> Aucun </span>
+                            {% else %}
+                            <span class="sub-alt-header fg-dark"> {{ model.departement.libelle }} </span>
+                            {% endif %}
+                    </p>
+                    <p class="fg-gray">
+                            Description :<br>
+                            <span class="sub-alt-header fg-dark"> {{ model.description }} </span>
+                        </p>
+            </div>
+            
+        </div>
+        <br>
+
+        <div  class="col-md-12"  style="margin-bottom: 15px">
+
+                <h2>Fiches de poste</h2>
+                <hr>
+                <ol>
+                    {% for item in documents %}
+                        <li style="margin-bottom: 0.25em">
+                            <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                        </li>
+                    {% endfor %}
+                </ol>
+          </div>
+    </div>
+{% endblock %}

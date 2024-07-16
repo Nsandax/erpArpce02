@@ -1,0 +1,159 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %} {% block page %} {%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_modele_bulletin' %}">Liste des modèles de bulletins</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_list_modele_bulletin' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_payroll_post_add_modele_bulletin' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Type structure</label>
+                                <div class="input-control text full-size">
+                                    <select name="type_id" id="type_id">
+                                        <option value="0">Sélectionnez le type</option>
+                                        {% for item in type_structures %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Devise</label>
+                                <div class="input-control text full-size">
+                                    <select name="devise_id" id="devise_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez la devise svp.">
+                                        <option value="0">Sélectionnez la devise</option>
+                                        {% for item in devises %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Paie planifiée</label>
+                                <div class="input-control text full-size">
+                                    <select name="horaire_paye" id="horaire_paye"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez l'horaire svp.">
+                                        <option value="0">Sélectionnez l'horaire</option>
+                                        {% for item in horaire_payes %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="input-control checkbox small-check full-size">
+                                    <input name="par_defaut" id="par_defaut"  type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Structure de paie regulière</span>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Libellé du bulletin</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="libelle_bulletin"  id="libelle_bulletin"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Description</label>
+                                <div class="input-control text full-size" style="min-height: 6.25rem !important;">
+                                    <textarea name="description" id="description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="tabcontrol2" data-role="tabcontrol">
+                                <ul class="tabs">
+                                    <li class="active"><a href="#frame_rubriques">Rubriques</a></li>
+                                    <li class=""><a href="#frame_comptabilite">Comptabilité</a></li>
+                                </ul>
+                                <div class="frames">
+                                    <div class="frame" id="frame_rubriques" style="display: block;">
+                                        <div class="row">
+                                            <div class="row margin20 no-margin-left no-margin-right">
+                                                <p class="sub-header"></p>
+                                                <div class="col-md-12">
+                                                    <label>Rubriques</label><br>
+                                                    <div class="text full-size">
+                                                        <select multiple="multiple" class="multi-select" id="multi_select1" name="multi_select_rubriques[]" >
+                                                            {% for item in rubriques %}
+                                                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="frame" id="frame_comptabilite" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label>Journal des salaires</label>
+                                                <div class="input-control text full-size">
+                                                    <select name="journal_id" id="journal_id" >
+                                                        <option value="0">Sélectionnez un journal</option>
+                                                        {% for item in journaux %}
+                                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $(document).ready(function(){
+        $('#multi_select1').multiSelect();
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_recrutement_interne' %}">Liste des récrutements internes</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_get_upload_recrutement_interne' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer à partir d'un fichier Excel</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_recrutement_interne' %}')"  class="theme-btn theme-btn-sm rounded " style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_recrutement_interne' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+            <form id="form" method="POST" action="{% url 'module_ressourceshumaines_post_add_recrutement_interne' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <div class="row">
+
+                <div class="col-md-6">
+                            <label>Designation</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="designation" id="designation" type="text" data-validate-func="required" data-validate-hint="Entrez designation !">
+                            </div>
+
+                </div>
+
+                <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <!-- <input name="description" id="description" type="text" data-validate-func="required" data-validate-hint="Entrez description !"> -->
+                                <textarea name="description" id="description" cols="30" rows="50"></textarea>
+                            </div>
+
+                </div>
+                <br>
+                <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                <br>
+                <div class="col-md-6">
+                    <label>Date de début</label>
+                    <div id="date_debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_debut" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez date_debut svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+
+                <div class="col-md-6">
+                    <label>Date de fin</label>
+                    <div id="date_fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_fin" readonly
+                            data-validate-func="required"
+                            data-validate-hint="Precisez date_fin svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                    </div>
+
+                <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                <input value="1" name="est_fini" id="est_fini" checked type="checkbox">
+                                <span class="check"></span>
+                                <span class="caption">Est fini</span>
+                            </label>
+
+                </div>
+
+                <div class="col-md-6">
+                        <label>Service</label>
+                        <div class="input-control text full-size">
+                                {#{% include 'ErpProject/ErpBackOffice/widget/select.html' with url="/service/recrutement_interne/add?isPopup=1" model="Model_Service" name="service_id" id="service_id" hint="Selectionnez la service" only %}#}
+                                <select  onchange="fill_account()" id="service" name="service_id"
+                                    data-validate-func="required"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez un departement svp">
+                                    <option value="0">Sélectionnez un service</option>
+                                        {% for item in service %}
+                                            <option value="{{ item.id }}"> {{ item.libelle }} </option>
+                                        {% endfor %}
+
+                                </select>
+                            </div>
+                </div>
+
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+{% endblock %}

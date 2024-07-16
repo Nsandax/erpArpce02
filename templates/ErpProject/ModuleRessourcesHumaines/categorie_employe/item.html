@@ -1,0 +1,83 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_categorie_employe' %}">Catégorie & Echelon</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+            <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_categorie_employe' categorie_employe.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">
+                        Modifier
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_categorie_employe' %}')"  class="theme-btn theme-btn-sm rounded " style="width: 15%;margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_categorie_employe' categorie_employe.id %}')" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_categorie_employe' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row padding20 no-padding-top no-padding-bottom" style="border-right: 1px solid #f7f5f5;">
+                                    <p>
+
+            Catégorie :
+                    <br>
+                    <span class="sub-alt-header">{{ categorie_employe.categorie }}</span>
+                    <br>
+                    <br>
+            Echelon :
+                    <br>
+                    <span class="sub-alt-header">{{ categorie_employe.echelon }}</span>
+                    <br>
+                    <br>
+
+            Salaire de base :
+                    <br>
+                    <span class="sub-alt-header"><span class="monetary">{{ categorie_employe.separateur_salaire_base }}</span></span>
+                    <br>
+                    <br>
+
+            Dévise :
+                    <br>
+                    <span class="sub-alt-header">{{ categorie_employe.devise }}</span>
+                    <br>
+                    <br>
+
+            Description :
+                    <br>
+                    <span class="sub-alt-header">{{ categorie_employe.description }}</span>
+                    <br>
+                    <br>
+
+        </p>
+                                </div>
+                            </div>
+                        </div>
+
+           {% endblock %}}

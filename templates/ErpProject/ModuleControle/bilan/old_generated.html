@@ -1,0 +1,86 @@
+{% extends "ErpProject/ModuleControle/shared/layout.html" %}
+{% block page %}
+    <div class="row" style="margin-top: 10px">
+        <p class="align-center header">{{ title }}</p>
+        <div class="row">
+            <p>
+                Période :<br>
+                <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                <br>
+                <br>
+                Devise :<br>
+                <span class="sub-header">{{ devise.designation }}</span>
+            </p>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <table class="table striped border bordered no-margin" style="width: 100%">
+                    <thead style="border-bottom: none">
+                        <tr>
+                            <th>ACTIFS</th>
+                        </tr>
+                    </thead>
+                </table>
+                <table class="table striped border bordered no-margin" style="width: 100%">
+                    <thead style="border-bottom: none">
+                        <tr>
+                            <td width="20%">Numéro</td>
+                            <td width="50%">Compte</td>
+                            <td width="30%">Balance</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in model_des_actifs %}
+                            <tr>
+                                <td width="20%">{{ item.numero_compte }}</td>
+                                <td width="50%">{{ item.designation_compte }}</td>
+                                <td style="text-align: right" width="30%"> {{ item.balance }} </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th style="text-align: right">{{ total_des_actifs }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="cell">
+                <table class="table striped border bordered no-margin" style="width: 100%">
+                    <thead style="border-bottom: none">
+                        <tr>
+                            <th>PASSIFS</th>
+                        </tr>
+                    </thead>
+                </table>
+                <table class="table striped border bordered no-margin" style="width: 100%;">
+                    <thead style="border-bottom: none">
+                        <tr>
+                            <td width="20%">Numéro</td>
+                            <td width="50%">Compte</td>
+                            <td width="30%">Balance</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in model_des_passifs %}
+                            <tr>
+                                <td width="20%">{{ item.numero_compte }}</td>
+                                <td width="50%">{{ item.designation_compte }}</td>
+                                <td style="text-align: right" width="30%"> {{ item.balance }} </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th style="text-align: right">{{ total_des_passifs }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>        
+    </div>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends "ErpProject/ModuleControle/shared/layout.html" %} {% block page %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_controle_tableau' %}">Module Controle de Gestion</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_controle_list_centre_cout' %}">Liste des centres de coût</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_controle_add_centre_cout" url_detail="module_controle_detail_centre_cout" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_controle_update_centre_cout' centre_cout.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">
+                        Modifier
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_controle_list_centre_cout' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    <button class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_controle_detail_ecriture_analytique_centre_cout' centre_cout.id %}')" style="margin-left: 5px">Ecritures analytiques</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:window.location.assign('{% url 'module_controle_update_centre_cout' centre_cout.id %}')" class="theme-btn theme-btn-sm rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_controle_list_centre_cout' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne"> {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <p>
+
+                            <div class="col-md-6">
+                                Label :
+                                <br>
+                                <span class="sub-alt-header">{{ centre_cout.get_label }}</span>
+                                <br>
+                                <br>
+                            </div>
+                            <div class="col-md-6">
+                                Designation :
+                                <br>
+                                <span class="sub-alt-header">{{ centre_cout.designation }}</span>
+                                <br>
+                                <br>
+                            </div>
+                            <div class="col-md-6">
+                                Code :
+                                <br>
+                                <span class="sub-alt-header">{{ centre_cout.code }}</span>
+                                <br>
+                                <br>
+                            </div>
+                            <div class="col-md-6">
+                                Type :
+                                <br>
+                                <span class="sub-alt-header">{{ centre_cout.value_typeCentre }}</span>
+                                <br>
+                                <br>
+                            </div>
+                            <div class="col-md-6">
+                                Groupe analytique:
+                                <br> {% if centre_cout.groupe_analytique_id %}
+                                <span class="sub-alt-header">{{ centre_cout.groupe_analytique }}</span> {% else %}
+                                <span class="sub-alt-header">Aucun</span> {% endif %}
+                                <br>
+                                <br>
+                            </div>
+                            <div class="col-md-6">
+                                Centre cout parent :
+                                <br> {% if centre_cout.centre_cout_id %}
+                                <span class="sub-alt-header">{{ centre_cout.centre_cout }}</span> {% else %}
+                                <span class="sub-alt-header">Aucun</span> {% endif %}
+                                <br>
+                                <br>
+                            </div>
+
+
+                            <div class="col-md-6">
+                                Montant alloué :
+                                <br>
+                                <span class="sub-alt-header">{{ montant_alloue |monetary}}</span>
+                                <br>
+                                <br>
+                            </div>
+                            <div class="col-md-6">
+                                Montant consommé:
+                                <br>
+                                <span class="sub-alt-header">{{ montant_consomme |monetary}}</span>
+                                <br>
+                                <br>
+                            </div>
+
+                            {% if centre_cout.groupe_analytique.est_projet %}
+
+                            <div class="col-md-6">
+                                Date début:
+                                <br>
+                                <span class="sub-alt-header">{{ centre_cout.date_debut }}</span>
+                                <br>
+                                <br>
+                            </div>
+
+                            <div class="col-md-6">
+                                Date de fin:
+                                <br>
+                                <span class="sub-alt-header">{{ centre_cout.date_fin }}</span>
+                                <br>
+                                <br>
+                            </div>
+
+                            {% endif %}
+
+
+                        </p>
+
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p class="sub-header">Combinaisons Budgétaires...</p>
+                                <table class="table border bordered">
+                                    <thead>
+                                        <tr>
+                                            <th width="15%">Combinaison</th>
+                                            <th width="16%">Responsable</th>
+                                            <th width="16%">Désignation</th>
+                                            <th width="8%">Activité</th>
+                                            <th width="16%">Montant</th>
+                                            <th width="16%">Centre de coûts</th>
+                                            <th width="16%">Label centre de coût</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ligne in ligne_budgetaire %}
+                                        <tr class="table bordered border">
+                                            <td> <a class="lien chargement-au-click" href="{% url 'module_budget_detail_ligne_budgetaire' ligne.id %}">{{ ligne.code }}</a></td>
+                                            <td> {{ ligne.responsable }} </td>
+                                            <td> {{ ligne.designation }}</td>
+                                            <td> {{ ligne.activite }}</td>
+                                            <td class="monetary"> {{ ligne.separateur_montant_alloue |monetary}}</td>
+                                            <td><a class="lien chargement-au-click" href="{% url 'module_controle_detail_centre_cout' ligne.centre_cout_id %}">{{ ligne.centre_cout.code }} {{ ligne.centre_cout }}</a></td>
+                                            <td><a class="lien chargement-au-click" href="{% url 'module_controle_detail_centre_cout' ligne.centre_cout_id %}"> {{ ligne.centre_cout.get_label }}</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                {% endblock %}}

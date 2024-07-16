@@ -1,0 +1,389 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_vente_tableau_de_bord' %}">Module Vente</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>Nouveau bon de commande</h2> 
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+            
+            <div class="panel panel-body" style=    "background-color:#f5f5f5;border: none;border-radius: none;">
+        
+                <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary">Valider</button>
+                <button class="button small-button rounded">Annuler</button>
+
+    <hr class="hr-ligne" style="background-color:grey; opacity: 0.1;">
+    <br>
+    
+    <form method="POST" action="{% url 'module_vente_post_add_bon_commande' %}"
+        enctype="multipart/form-data" 
+        data-role="validator" 
+        data-show-required-state="false" 
+        data-hint-mode="line" 
+        data-hint-background="bg-red" 
+        data-hint-color="fg-white" 
+        data-hide-error="5000" 
+        novalidate="novalidate" 
+        data-on-error-input="notifyOnErrorInput"
+        data-show-error-hint="false">
+        {% csrf_token %}
+        
+        <input type="hidden" id="etat_actuel_id" name="etat_actuel_id" value="{{etat_actuel_id}}">
+        <input type="hidden" name="etape_wkf" value="{{etape_wkf}}">
+        <input type="hidden" name="demande_wkf" value="{{demande_wkf}}" >
+    
+        <input id="submit" type="submit" style="display: none">
+        <input id="nombreLigne" type="hidden" value="0" />
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Numéro de commande</label>
+                <div class="input-control text full-size">
+                    <input type="text" class="form-control" style="border: none;" id="numero" disabled="true" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label>Date prévue</label>
+                <div id="input-date-prevue" class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                    <input readonly type="text" name="date_prevue" id="date_prevue" readonly data-validate-func="required" style="border: none;" data-validate-hint="Précisez la date d'enregistrement svp." class="form-control" value="{% now "d/m/Y" %}">
+                    <div class="button primary_color_{{module.name|lower}}"><span class="mif-calendar" style="color: white;"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Client</label>
+                <div class="input-control text full-size">
+                    <select type="text" class="form-control" style="border: none;" name="client_id" id="client_id" data-validate-func="min " data-validate-arg="1 " data-validate-hint="Sélectionnez le fournisseur svp. ">
+                        <option value="">Sélectionnez un client</option>
+                        {% for item in clients %}
+                            <option value="{{ item.id }} "> {{ item.nom_complet }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="col-md-6 ">
+                <label>Modalité de réglèment</label>
+                <div class="input-control text full-size ">
+                    <select type="text " name="condition_reglement_id " class="form-control " style="border: none; id="condition_reglement_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez la condition de réglèment svp.">
+                    <option value="-1">Sélectionnez la modalité de réglèment</option>
+                    {% for item in conditions_reglement %}
+                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                    {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Devise</label>
+                <div class="input-control text full-size">
+                    <select name="devise_id" class="form-control" style="border: none; id=" devise_id " onchange="choix_devise() " data-validate-func="min " data-validate-arg="1 " data-validate-hint="Sélectionnez la devise svp. ">
+                        <option value="0 ">Sélectionnez une devise</option>
+                        {% for item in devises %}
+                            <option value="{{ item.id }} "> {{ item.designation }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div> 
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <label>Document externe (Ex: Facture proformat)</label>
+                <div class="input-control text full-size">
+                    <input type="text" class="form-control" style="border: none; id=" reference_document " placeholder=" " autocomplete="off " />
+                </div>
+            </div>
+
+            <div class="col-md-6 ">
+                <label>Document en attache</label>
+                <div class="input-control text full-size ">
+                    <input class="form-control " style="border: none; id="document_upload" name="document_upload" type="file">
+                </div>
+            </div>
+        </div>
+
+
+        <br>
+        <br>
+        <hr class="att-ligne" style="background-color: grey; height:1px; opacity: 0.2;  margin-top:10px">
+        <div class="row margin20 no-margin-left no-margin-right">
+            <table id="tableau" class="table no-margin">
+                <thead class="no-border">
+                    <tr>
+                        <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Article</th>
+                        <th width="20%">Quantité demandée</th>
+                        <th width="25%">Prix unitaire</th>
+                        <th width="5%"></th>
+                    </tr>
+                </thead>
+                <tbody id="items">
+                    <tr id="ligne1">
+                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                            <input id="id1" type="hidden" name="article_id" value="0" />
+                            <input id="stock1" type="hidden" value="0" />
+                            <div class="input-control select full-size">
+                                <select   onchange="selectChange(event)" id="item1"
+                                    data-validate-func="min" 
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez un article svp">
+                                    <option value="">Sélectionnez un article</option>
+                                    {% for item in categories %}
+                                        <optgroup label="{{ item.designation }}">
+                                            {% for article in articles %}
+                                                {% if article.categorie_id == item.id %}
+                                                    <option value="{{ article.id }}">[{{ article.code_article }}] {{ article.designation }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </optgroup>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="col-sm-12 input-control text full-size">
+                                <input name="quantite_demandee" id="quantite1" type="text" placeholder="Ex: 10"
+                                    data-validate-func="number" 
+                                    data-validate-arg="1"
+                                    data-validate-hint="Précisez la quantité svp">
+                                <span class="prepend-icon" style="margin-left:75%">
+                                    <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="col-sm-12 input-control text full-size">
+                                <input name="prix_unitaire" id="prix1" type="text" autocomplete="off" placeholder="Ex: 100"
+                                    data-validate-func="number"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Précisez le prix unitaire svp">
+                                <span class="prepend-icon" style="margin-left:75%">
+                                    <span style="margin-top: 1px;" class="sub-header place-right devise">$</span>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="pagination no-border">
+                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <table id="tableau2" class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                    <tr >
+                        <td class="head" >#</td>
+                        <td class="head">ARTICLE</td>
+                        <td class="head">QUANTITE</td>
+                        <td class="head">PRIX UNITAIRE</td>
+                        <td class="head">TOTAL</td>
+                    </tr>
+
+                    {% for item in lignes_etat %}
+                        <tr>
+                            <input type="hidden" name="article_id" value="{{item.article.id}}" />
+                            <input name="quantite_demandee" type="hidden" value="{{item.quantite_demande}}">
+                            <input type="hidden" name="prix_unitaire" value="{{ item.prix_unitaire }}">
+                            <td class="td"></td>
+                            <td class="td">{{ item.article.designation }}</td>
+                            <td class="td"> {{item.quantite_demande}} </td>
+                            <td class="td">{{ item.prix_unitaire }} </td>
+                            <td class="td">{{ item.montant_total }} </td>
+                        </tr>
+                    {% endfor %}
+                    
+                </table>
+        </div>
+        <div id="btn_ligne" class="row margin10 no-margin-left no-margin-right">
+            <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+        </div>
+
+    </form>
+
+
+</div>
+</div>
+</div>
+<!-- /.col-lg-12 -->
+</div>
+
+<script src="/static/ErpProject/js/fourniture-local.js"></script>
+    <script>
+        var deviseRef = "$";
+    
+        var lesCategories = new Array();
+        var lesArticles = new Array();
+        var lesDevises = new Array();
+
+        {% for item in categories %}
+            lesCategories.push({id:"{{ item.id }}", designation:"{{ item.designation }}"});
+        {% endfor %}
+    
+        {% for item in articles %}
+            lesArticles.push({id:"{{ item.id }}", designation:"{{ item.designation }}", code_article:"{{ item.code_article }}", categorie_id:"{{ item.categorie_id }}"});
+        {% endfor %}
+
+        {% for item in devises %}
+            lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+        {% endfor %}
+    </script>
+
+    <script>
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+        var bon = {};
+    
+        $(document).ready(function(){
+            var etat_actuel_id = $('#etat_actuel_id').val();
+            if (etat_actuel_id == 0){
+                $("#tableau2").hide();
+            }
+            else{  
+                $("#items").empty();
+                $("#tableau").hide();
+                $("#btn_ligne").hide();
+            }
+        });
+    
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="article_id" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article"><option value="0">Sélectionnez un article</option>';
+            nouvelleLigne += renvoyerOptionsArticles();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input id="prix' + compteur + '" name="prix_unitaire" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+    
+            $("#items").append(nouvelleLigne);
+        });
+    
+        function selectChange(event)
+        {
+            $select = $(event.target); 
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+    
+                if($("#" + id_element).val() != "0")
+                {
+                    nombreItems += 1;
+                    var idArticle = parseInt($("#" + id_element).val());
+                    console.log("ID ARTICLE : " + idArticle);
+                    $.get(
+                        "{% url  'module_achat_article_prix' %}",
+                        {ref : idArticle},
+                        function(data)
+                        {   
+                            console.log("DATA " + data.id)
+                            if(data != null)
+                            {
+                                $("#id" + ligneActuelle).val(data.id);
+                                $("#quantite" + ligneActuelle).val(1);
+                                $("#prix" + ligneActuelle).val(data.prix_unitaire);
+                                $("#unite" + ligneActuelle).text(data.symbole_unite);
+                                console.log("prix : " + data.prix_unitaire);
+                            }
+                        },
+                        "json"
+                    );
+                }
+                else nombreItems -= 1;
+            }
+        }
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            if($("#id" + indice).val() != "0")
+            {
+                fournitureLocal.supprimerLigne($("#id" + indice).val());
+            }
+            $("#ligne" + indice).remove();
+        }
+        
+        function choix_devise()
+        {
+            var id_devise = $("#devise_id").val();
+            if(id_devise == "0") deviseRef = "$";
+            else
+            {
+                for(var i = 0; i < lesDevises.length; i++)
+                {
+                    var devise = lesDevises[i];
+                    if(devise.id == id_devise)
+                    {
+                        deviseRef = devise.symbole_devise;
+                        $(".devise").text(deviseRef);
+                        break;
+                    }
+                }
+            }
+        }
+    
+        function renvoyerOptionsArticles()
+        {
+            var ligne = "";
+            var hasArticle = "0";
+            for(var i = 0; i < lesCategories.length; i++)
+            {
+                var categorie = lesCategories[i];
+                for(var j = 0; j < lesArticles.length; j++)
+                {
+                    var article = lesArticles[j];
+                    if(article.categorie_id == categorie.id)
+                    {
+                        hasArticle = "1";
+                        break;
+                    }
+                }
+                if(hasArticle == "1")
+                {
+                    ligne += '<optgroup label="' + categorie.designation + '">';
+                    for(var j = 0; j < lesArticles.length; j++)
+                    {
+                        var article = lesArticles[j];
+                        if(article.categorie_id == categorie.id)
+                        {
+                            ligne += '<option value="' + article.id + '"> [' + article.code_article + '] ' + article.designation + '</option>';
+                        }
+                    }
+                    ligne += '</optgroup>';
+                }
+            }
+            return ligne;
+        }
+    </script>
+
+{% endblock %}

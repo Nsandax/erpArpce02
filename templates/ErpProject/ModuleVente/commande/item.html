@@ -1,0 +1,142 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %}
+{% block page %}
+{%load static %}
+{% load account_filters %}
+    <ul class="breadcrumbs2 small">
+        <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_commande' %}">Module Vente</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_commande' %}">Liste des ventes</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        {% if model.numero == None or model.numero == "" %}
+            <button onclick="javascript:window.location.assign('{% url 'module_vente_add_commande' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Modifier</button>
+        {% endif %}
+
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="cell padding30 shadow">
+                <img src="{% static 'ErpProject/image/upload/organisation/logo-admin.png' %}" style="height: 100px; display: inline-block; margin-right: 10px;float:left"/>
+				<!--center><h4><strong>ARPCE</strong></h4> </center-->
+                <center><h4 style="color: red; margin-top: 100px; font-size: 35px; margin-bottom: 40px; text-decoration: underline">BON DE VENTE</h4> </center>
+
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Numéro du bon de vente :<br>
+                        {% if model.numero != None and model.numero != "" %}
+                            <span class="sub-alt-header fg-dark">{{ model.numero }}</span>
+                        {% else %}
+                            <span class="sub-alt-header fg-dark">-</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Date d'enregistrement :<br>
+                        <span class="sub-alt-header fg-dark">{{ model.creation_date|date:"d/m/Y" }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Client :<br>
+                        <a class="sub-alt-header lien chargement-au-click" href="{% url 'module_vente_details_client' model.client.id %}"> {{ model.client.nom_complet }} </a>
+                    </p>
+                </div>
+                {% if model.est_realisee %}
+                <div class="row">
+                    <p class="minor-header fg-gray">
+                        Vente réalisée à la date du :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.date_realisation|date:"d/m/Y" }} </span>
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Modalité de réglèment :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.condition_reglement.designation }} </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Dévise :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.devise.designation }} </span>
+                    </p>
+                </div>
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Document externe :<br>
+                        {% if model.reference_document != None and model.reference_document != "" %}
+                        <a href="{{ model.document }}">{{ model.reference_document }}</a>
+                        {% else %}
+                            <span class="sub-alt-header fg-dark">-</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="row cells2">
+                <div class="cell">
+                    <p class="minor-header fg-gray">
+                        Agent receveur :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.receveur.nom_complet }} </span>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th width="25%">Article</th>
+                            <th width="18%">Quantité demandée</th>
+                            <th width="18%">Quantité fournie</th>
+                            <th width="19%">Prix unitaire</th>
+                            <th width="20%">Prix total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in lignes %}
+                            <tr class="table bordered border">
+                                <td>{{ ligne.nom_article}}</td>
+                                <td>{{ ligne.quantite_demandee }}</td>
+                                <td>{{ ligne.quantite_fournie }}</td>
+                                <td>{{ ligne.prix_unitaire |monetary}} {{ model.devise.symbole_devise }}</td>
+                                <td>{{ ligne.total }} {{ model.devise.symbole_devise }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td style="border:1px #999999 solid">TOTAL</td>
+                            <td style="border:1px #999999 solid">{{ model.prix_total |monetary}} {{ model.devise.symbole_devise }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="/static/ErpProject/js/fourniture-local.js"></script>
+    <script>
+		$(document).ready(function(){
+			fournitureLocal.supprimerFourniture();
+			fournitureLocal.supprimerToutesLignes();
+		});
+	</script>
+{% endblock %}

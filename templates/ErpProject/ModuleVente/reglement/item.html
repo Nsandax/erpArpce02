@@ -1,0 +1,65 @@
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %}
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_tableau_de_bord' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_reglement' %}">Liste des conditions de réglement</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_vente_add_reglement" url_detail="module_vente_details_reglement" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Detail d'un réglement</h2>
+        <strong style="float: right;color:grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_update_reglement' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                            Modifier
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_list_recouvrement' %}')" class="theme-btn theme-btn-sm rounded">
+                            Annuler
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_vente_add_reglement' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                            Créer
+                        </button>
+                    </div>
+                    <!--div class="col-md-2">
+                        <button id="supprimer" style="width: 100%;" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                            Supprimer
+                        </button>
+                    </div-->
+                </div>
+
+                <hr class="hr-ligne">
+                <br/>
+
+                <div style="margin-top: 10px">
+                    <p> Designation : </p>
+                    <p class="header">{{ model.designation }}</p>
+                </div>
+                <div style="margin-top: 10px">
+                   <p> Nombre de jours : </p>
+                    <p class="header">{{ model.nombre_jours }}</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+{% endblock %}

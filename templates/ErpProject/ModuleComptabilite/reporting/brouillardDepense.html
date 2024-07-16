@@ -1,0 +1,70 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="facture">
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <h3>Brouillard Caisse Depenses</h3>
+            <h1 class="align-center">{{designation}}</h1>
+            <h3 class="align-center">Etabli à la date du {{ model.date_operation|date:'d/m/Y' }}</h3>
+            <br><br>
+            <div class="row">
+                <table class="display table nowrap border bordered" cellspacing="0" style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td colspan="5" width="70%">
+                               <img id="logo_header" src="/static/ErpProject/image/header.png" alt="">
+                            </td>
+                            <td colspan="3" width="30%">
+                                <p class="align-center"><strong>BRAZZAVILLE</strong></p>
+                                <span style="text-align:center;">Journal de caisse</span><br>
+                                <span style="text-align:center;">Depenses</span><br>
+                                <span style="font-size:10px;text-align:center;">Période:2022</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Dates<br><br> </th>
+                            <th>CODES<br><br></th>
+                            <th>N° DDP<br><br> </th>
+                            <th>N° PC<br><br></th>
+                            <th width="60%">Libellés<br><br></th>
+                            <th>Entrées<br><br></th>
+                            <th>Dépenses<br><br></th>
+                            <th>Solde<br><br></th>
+                        </tr>
+                        {% for ligne in ligne_operation %}
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="monetary">15000</td>
+                                <td class="monetary">500000</td>
+                                <td class="monetary">57420</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>TOTAL DE LA PAGE :  </td>
+                            <td>15000</td>
+                            <td>500000</td>
+                            <td class="monetary">{{model.solde}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>

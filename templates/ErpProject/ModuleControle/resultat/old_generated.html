@@ -1,0 +1,52 @@
+{% extends "ErpProject/ModuleControle/shared/layout.html" %}
+{% block page %}
+    <div class="row" style="padding-top: 30px">
+        <p class="align-center header">{{ title }}</p>
+        <div class="row">
+            <p>
+                Période :<br>
+                <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                <br>
+                <br>
+                Devise :<br>
+                <span class="sub-header">{{ devise.designation }}</span>
+            </p>
+        </div>
+        <table class="table striped border bordered no-margin" style="width: 100%">
+            <thead style="border-bottom: none">
+                <tr>
+                    <th width="20%">Numéro</th>
+                    <th width="40%">Compte</th>
+                    <th width="20%">Débit</th>
+                    <th width="20%">Crédit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                    {% if item.est_produit == True %}
+                        <tr style="background-color:rgb(148, 255, 154)">
+                            <td>{{ item.numero_compte }}</td>
+                            <td>{{ item.designation_compte }}</td>
+                            <td style="text-align:right;"> {{ item.balance }} </td>
+                            <td style="text-align:right;"> </td>
+                        </tr>
+                    {% elif item.est_resultat == True %}
+                        <tr>
+                            <td><b>{{ item.numero_compte }}</b></td>
+                            <td><b>{{ item.designation_compte }}</b></td>
+                            <td style="text-align:right;"></td>
+                            <td style="text-align:right;"><b>{{ item.balance }}</b></td>
+                        </tr>
+                    {% else %}
+                        <tr style="background-color:rgb(255, 148, 148)">
+                            <td>{{ item.numero_compte }}</td>
+                            <td>{{ item.designation_compte }}</td>
+                            <td style="text-align:right;"> </td>
+                            <td style="text-align:right;"> {{ item.balance }} </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>        
+    </div>
+{% endblock %}

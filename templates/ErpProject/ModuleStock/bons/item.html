@@ -1,0 +1,131 @@
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %}{% load humanize %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_stock_list_bon_receptions' %}">Liste des bons de reception</a></li>
+            <li>{{ title }}</li>
+        </ul>
+        <br>
+        <!--button id="supprimer" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer </!--button-->
+        <br>
+    </div>
+     {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="" url_detail="module_inventaire_details_bon_reception" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <br><br>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:white;">
+                    <div class="row">
+                        {% if model.est_realisee == False %}
+                            <button onclick="javascript:window.location.assign('{% url 'module_stock_receive_bon_reception' model.id %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Réceptionner les articles</button>
+                        {% endif %}
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <h2>ARPCE</h2>
+                            <p>Brazzaville, R. Congo <br> + 242 05 510 72 72</p>
+                            <p>91 bis Avenue de l'Amitié <br> Centre ville Brazzaville</p>
+                        </div>
+                        <div class="col-md-6" style="text-align: right;">
+                            {% if model.est_realisee == True %}
+                                <h3>Bon de reception </h3>
+                            {% else %}
+                                <h3>Bon de commande </h3>
+                            {% endif %}
+                            <form  method="POST" action="{% url 'module_achat_bon_reception_print' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value={{model.id}}>
+                                <button type="submit" class="btn btn-default" style="background-color: #41435d;border:none;color: white;" >Imprimer</button>
+                            </form>
+                            <h3 style="color: red; font-weight: bold">N° {{model.numero_reception}}</h3>
+                        </div>
+                        <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                            <div class="col-md-6">
+                            <p style="">
+                                <strong>Nom du contact: </strong> <br>
+                                <strong>Tél/Fax:</strong> <br><br>
+                                <strong>Nom du fournisseur : </strong>{{model.fournisseur.nom_complet}}<br>
+                                <strong>B.P : </strong> <br>
+                                <strong>Email: </strong> {{model.fournisseur.email}} <br/>
+                                <strong>Pays: </strong> <br>
+                                <strong>Réf. du fournisseur : </strong> <br/>
+                                <strong>Description des biens/services : </strong>
+                            </p>
+                        </div>
+                        <div class="col-md-6" style="margin-bottom: 40px">
+                            <p style="float: right;">
+                                <strong>Date du bon: </strong>{{model.date_prevue | date:"d/m/Y" }} <br>
+                                <strong>Statut du bon : </strong>{{model.etat}} <br>
+                                <strong>Demandé: : </strong> <br>
+                                <strong>Fonction: </strong> <br>
+                                <strong>Nature achat: </strong> <br/>
+                                <strong>Ligne budgetaire : </strong>{{model.ligne_budgetaire.designation}} <br>
+                                <strong>Modalité de réglement : </strong>{{model.condition_reglement.designation}}
+                            </p>
+                        </div>
+                        <br><br>
+                        <div class="col-md-12" >
+                            <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                                <thead>
+                                    <tr>
+                                        <th width="25%">Article</th>
+                                        <th width="18%">Quantité demandée</th>
+                                        <th width="18%">Quantité fournie</th>
+                                        <th width="19%">Prix unitaire</th>
+                                        <th width="20%">Prix total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ligne in lignes %}
+                                        <tr class="table bordered border">
+                                            <td>{{ ligne.nom_article}}</td>
+                                            <td>{{ ligne.quantite_demande }} {{ ligne.unite.symbole_unite }}</td>
+                                            <td>{{ ligne.quantite_fournie }} {{ ligne.unite.symbole_unite }}</td>
+                                            <td>{{ ligne.prix_unitaire|intcomma }} {{ model.devise.symbole_devise }}</td>
+                                            <td>{{ ligne.total|intcomma }} {{ model.devise.symbole_devise }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="border:1px #999999 solid">TOTAL</td>
+                                        <td style="border:1px #999999 solid">{{ model.prix_total }} {{ model.devise.symbole_devise }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div  class="col-md-12" >
+                            <h2 style="float: right; margin-top:35px; margin-bottom : 20px">TOTAL GENERAL : {{total|intcomma}} FCFA</h2>
+                        </div>
+                        <div class="col-md-12"  style="margin-bottom: 15px">
+                            <h2>Documents attachés</h2><hr>
+                            <ol>
+                                {% for item in documents %}
+                                    <li style="margin-bottom: 0.25em">
+                                        <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

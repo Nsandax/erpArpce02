@@ -1,0 +1,99 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+
+    <div class="row">
+		{% if can_update == True %}
+			<button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_update_employe' model.id %}')"
+				class="button rounded">Modifier</button>
+		{% endif %}
+		{% if can_create == True %}
+			<button class="button rounded leaf primary leaf primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_employe' %}')" style="margin-left: 5px">Créer</button>
+		{% endif %}
+    </div>
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+		{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+	<br>
+
+
+    <div class="row cells2 item-content" style="margin-top: 10px">
+
+		<p class="header shadow" style="height: 100px; width: 100px;">
+		{% if model.image != None and model.image != "" %}
+			<img src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+		{% else %}
+			<img src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+		{% endif %}
+		</p>
+		<p class="header">{{ model.nom_complet }}</p>
+		<div  class="cell">
+			<p class="minor-header fg-gray">
+				Adresse complète :
+				<br>
+				<span class="sub-alt-header fg-dark">{{ model.adresse_complete }}</span>
+				<br>
+				<br>
+				Adresse email :
+				<br>
+				{% if model.email != None and model.email != "" %}
+					<a href="mailto:{{ model.email }}" target="blank" class="sub-alt-header lien leaf">{{ model.email }}</a>
+				{% else %}
+					<span class="sub-alt-header lien leaf">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Numéro de téléphone :
+				<br>
+				{% if model.phone != None and model.phone != "" %}
+					<span class="sub-alt-header fg-dark">{{ model.phone }}</span>
+				{% else %}
+					<span class="sub-alt-header lien leaf">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Catégorie :
+				<br>
+				{% if model.categorie != None %}
+					<span class="sub-alt-header fg-dark">{{ model.categorie.designation }}</span>
+				{% else %}
+					<span class="sub-alt-header lien leaf">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Langue de préférence :
+				<br>
+				{% if model.langue != None %}
+					<span class="sub-alt-header fg-dark">{{ model.langue.designation }}</span>
+				{% else %}
+					<span class="sub-alt-header lien leaf">-</span>
+				{% endif %}
+			</p>
+		</div>
+		<div class="cell">
+			<p class="minor-header fg-gray">
+				Poste :<br>
+				{% if model.poste != None and model.poste != 0 %}
+					<span class="sub-alt-header fg-dark"> {{ model.poste.designation }} </span>
+				{% else %}
+					<span class="sub-alt-header fg-dark">Attaché à aucun poste</span>
+				{% endif %}
+			</p>
+			<p class="minor-header fg-gray">
+				Département :<br>
+				{% if model.departement != None and model.departement != 0 %}
+					<span class="sub-alt-header fg-dark"> {{ model.departement.designation }} </span>
+				{% else %}
+					<span class="sub-alt-header fg-dark">Attaché à aucun département</span>
+				{% endif %}
+			</p>
+		</div>
+    </div>
+{% endblock %}

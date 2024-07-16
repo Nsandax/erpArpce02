@@ -1,0 +1,236 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_factures_fournisseur' %}">Liste des factures fournisseurs</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_add_facture_fournisseur' %}">Nouvelle facture</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="button rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_factures_fournisseur' %}')" class="button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+                    
+
+                    <div class="row item-content" style="margin-top: 10px">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Numéro de la facture :<br>
+                                        <span id="numero" class="fg-dark">{{ facture.numero_facture }}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Date de facturation :<br>
+                                        <span id="date_facturation" class="fg-dark">{{ facture.date_facturation }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray" style="width: 180px">
+                                        Fournisseur :<br>
+                                        <a class="lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' fournisseur.id %}"> {{ fournisseur.nom_complet }} </a>
+                                        <br> <strong> Numéro Fournisseur: {{ fournisseur.id }} </strong>
+                                        <br><br> {{ fournisseur.adresse_complete }}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Bon de commande :<br>
+                                        <span class="fg-dark">{{ bon_achat.numero_reception }} : {{ bon_achat.prix_total }} {{ devise.symbole_devise }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Dévise :<br>
+                                        <span class="fg-dark"> {{ devise.designation }} </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Document externe :<br>
+                                        <span id="reference_document" class="fg-dark"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="fg-gray">
+                                        Autres informations :<br>
+                                        <span class="fg-dark">{{ facture.autres_infos }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <h5>Lignes de commande</h5>
+                                <table class="table border bordered">
+                                    <thead>
+                                        <tr>
+                                            <th width="20%">Article</th>
+                                            <th width="10%">Quantité</th>
+                                            <th width="15%">Prix unitaire</th>
+                                            <th width="15%">Remise (%)</th>
+                                            <th width="15%">Prix total</th>                                            
+                                            <th width="15%">Taxe</th>                                            
+                                            <th width="20%"> Total général</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items">
+                                        {% for item in lignes_facture %}
+                                            <tr>
+                                                <input type="hidden" name="article_id" value="{{item.id}}"/>
+                                                <input type="hidden" name="qte" value="{{item.quantite}}">
+                                                <input type="hidden" name="prix_unitaire" value="{{item.prix_unitaire}}">
+                                                <input type="hidden" name="ligne_montant_taxe" value="{{item.montant_taxe}}">
+                                                <input type="hidden" name="remise" value="{{item.remise}}">
+
+                                                <td>{{ item.nom_article }}</td>
+                                                <td>{{ item.quantite }} {{ item.symbole_unite }}</td>
+                                                <td align="right">{{ item.prix_unitaire }}</td>
+                                                <td align="right">{{ item.remise }} %</td>
+                                                <td align="right">{{ item.prix_total }} {{ devise.symbole_devise }}</td>
+                                                
+                                                <td align="right">{{ item.montant_taxe }} {{ devise.symbole_devise }}</td>
+                                                
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td style="text-align: right; border:1px #999999 solid">TOTAL</td>
+                                            <td style="text-align: right; border:1px #999999 solid" id="total_ht">{{ facture.montant_ht }} {{ devise.symbole_devise }}</td>
+                                            <td style="text-align: right; border:1px #999999 solid" id="total">-</td>
+                                            <td style="text-align: right; border:1px #999999 solid" id="total_tt">{{ facture.montant_taxe_total }} {{ devise.symbole_devise }}</td>
+                                            <td style="text-align: right; border:1px #999999 solid" id="total">{{ facture.montant_total }} {{ devise.symbole_devise }}</td>
+                                            
+                                        </tr>
+                                        
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <hr style="margin: 20px -15px 15px; background-color: #999999; height: 1px;">
+                       
+                            <form id="form" method="POST" action="{% url 'module_comptabilite_post_add_facture_fournisseur' %}">
+                                {% csrf_token %}
+                                <input id="submit" type="submit" style="display: none">
+                                <input type="hidden" name="numero_facture" id="numero_facture" value="{{ facture.numero_facture }}">
+                                <input type="hidden" name="date_facturation" id="date_facturation" value="{{ facture.date_facturation }}">
+                                <input type="hidden" name="order_id" id="order_id" value="{{ facture.order_id }}">
+                                <input type="hidden" name="reference_facture" id="reference_facture" value="{{ facture.reference_facture }}">
+                                <input type="hidden" name="est_integral" id="est_integral" value="{{ facture.est_integral }}">
+                                <input type="hidden" name="autres_infos" id="autres_infos" value="{{ facture.autres_infos }}">
+                                <input type="hidden" name="fournisseur_id" value="{{ fournisseur.id }}">
+                                <input type="hidden" name="reference_document" id="input_reference_document">
+                                <input type="hidden" name ="devise_id" value="{{devise.id}}">
+                                <input type="hidden" name="type_facture" value="{{type_facture}}">
+                                <input type="hidden" name ="montant_taxe" value="{{facture.montant_taxe_total}}">
+                                <input type="hidden" name ="condition_reglement_id" value="{{facture.condition_reglement_id}}">
+                                
+
+
+                                {% for item in lignes_facture %}
+                                    <input type="hidden" name="article_id" value="{{item.article_id}}"/>
+                                    <input type="hidden" name="qte" value="{{item.quantite}}">
+                                    <input type="hidden" name="prix_unitaire" value="{{item.prix_unitaire}}">
+                                    <input type="hidden" name="ligne_montant_taxe" value="{{item.montant_taxe}}">
+                                    <input type="hidden" name="remise" value="{{item.remise}}">
+                                    <input type="hidden" name="ligne_bon_commande_id" value="{{item.ligne_bon_commande_id}}">
+                                    <input type="hidden" name="compte_id" value="{{item.compte_id}}">
+                                    
+                                {% endfor %}
+                                <div class="row">
+                                    <h5>Les écritures comptables devant être générées</h5>
+                                    <table class="table border bordered">
+                                        <thead>
+                                            <tr>
+                                                <th width="35%">Libellé</th>
+                                                <th width="20%">Compte</th>
+                                                <th width="20%">Débit</th>
+                                                <th width="25%">Crédit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="items">
+                                            {% for item in ecritures_debit %}
+                                                <tr>
+                                                    <input type="hidden" name="centre_cout_id" value="{{item.centre_cout_id}}"/>
+                                                    <input type="hidden" name ="libelle_debit" value="{{ item.libelle }}">
+                                                    <td>
+                                                        {{ item.libelle }}
+                                                    </td>
+                                                    <td>
+                                                        <div class="input-control text">
+                                                            <select name="compte_debit_id" id="compte_debit_id" 
+                                                                data-validate-func="min" 
+                                                                data-validate-arg="1"
+                                                                data-validate-hint="Sélectionnez un compte svp.">
+                                                                <option value="0">Sélectionnez un compte</option>
+                                                                {% for compte in comptes %}
+                                                                    <option {% if item.id == compte.id %}{{ "selected" }}{% endif %} value="{{ compte.id }}">{{ compte.numero }} {{ compte.designation }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>									
+                                                    </td>
+                                                    <input type="hidden" name ="montant_debit" value="{{ item.montant }}">
+                                                    <input type="hidden" name ="devise_debit" value="{{ devise.id }}">
+                                                    <td align="right">{{ item.montant }} {{ devise.symbole_devise }}</td>
+                                                    <td align="right">0</td>
+                                                </tr>
+                                            {% endfor %}
+                                            {% for item in ecritures_credit %}
+                                                <tr>
+                                                    <input type="hidden" name ="libelle_credit" value="{{  item.libelle }}">
+                                                    <td>
+                                                        {{ item.libelle }}
+                                                    </td>
+                                                    <td>
+                                                        <div class="input-control text">
+                                                            <select name="compte_credit_id" id="compte_credit_id" 
+                                                                data-validate-func="min" 
+                                                                data-validate-arg="1"
+                                                                data-validate-hint="Sélectionnez un compte svp.">
+                                                                <option value="0">Sélectionnez un compte</option>
+                                                                {% for compte in comptes %}
+                                                                    <option {% if item.id == compte.id %}{{ "selected" }}{% endif %} value="{{ compte.id }}">{{ compte.numero }} {{ compte.designation }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>	
+                                                    </td>
+                                                    <input type="hidden" name ="montant_credit" value="{{ item.montant }}">
+                                                    <input type="hidden" name ="devise_credit" value="{{ devise.id }}">
+                                                    <td align="right">0</td>
+                                                    <td align="right">{{ item.montant }} {{ devise.symbole_devise }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

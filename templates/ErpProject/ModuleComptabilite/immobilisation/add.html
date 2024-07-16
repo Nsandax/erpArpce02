@@ -1,0 +1,217 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_immobilisations' %}">Liste des immobilisations</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color:grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <div class="col-md-2">
+                            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+                        </div>
+                        <div class="col-md-2">
+                            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_immobilisations' %}')" class="theme-btn theme-btn-sm rounded">
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+                    <br>
+                    <div class="row" style="margin-top: 10px">
+                        <form id="form" method="POST" action="{% url 'module_comptabilite_post_add_immobilisation' %}"
+                            data-role="validator"
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Code de l'immobilisation</label>
+                                    <div class="input-control text full-size">
+                                        <input type="text" name="code" id="code" value="{{numeroref}}" readonly style="background-color: #d9d9d9;"
+                                            data-validate-func="required"
+                                            data-validate-hint="Entrez le code de l'immobilisation svp." />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Immobilier</label>
+                                    <div class="input-control text full-size">
+                                        <select name="immobilier_id" id="immobilier_id"
+                                            data-validate-func="min"
+                                            data-validate-arg="1" onchange="choix_immobilier()"
+                                            data-validate-hint="Sélectionnez l'immobilier svp.">
+                                            {% if asset %}
+                                            <option value="{{asset.id}}">{{asset.numero_identification}} - {{ asset.article.designation }}</option>
+                                            {% else %}
+                                            <option value="0">Sélectionnez un immobilier</option>
+                                            {% for item in immobiliers %}
+                                                <option value="{{ item.id }}"> {{item.numero_identification}} - {{ item.article.designation }} </option>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Type d'amortissement</label>
+                                    <div class="input-control text full-size">
+                                        <select name="type_amortissement" id="type_amortissement"
+                                            data-validate-func="min"
+                                            data-validate-arg="1"
+                                            data-validate-hint="Sélectionnez le type d'amortissement svp!">
+                                            <option value="0">Sélectionnez un type d'amortissement</option>
+                                            <option value="1">Linéaire</option>
+                                            <option value="2">Dégressif</option>
+
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Valeur d'acquisition</label>
+                                    <div class="input-control text full-size">
+                                        <input name="valeur_acquisition" id="valeur_acquisition" type="text" placeholder="Ex: 100"
+                                            data-validate-func="number"
+                                            data-validate-hint="Précisez la valeur d'acquisition svp"
+                                            {% if asset %} value="{{asset.article.prix_unitaire}}" {% endif %}>
+                                        <span class="prepend-icon" style="margin-left:75%">
+                                            <span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole_devise }}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Date d'acquisition</label>
+                                    <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                        <input readonly type="text" name="date_acquisition" readonly
+                                            data-validate-func="required"
+                                            data-validate-hint="Précisez la date d'acquisition svp.">
+                                        <div class="button"><span class="mif-calendar"></span></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Durée de vie (en année)</label>
+                                    <div class="input-control text full-size">
+                                        <input name="duree_amortissement" id="duree_amortissement" type="text" placeholder="Ex: 5"
+                                            data-validate-func="number"
+                                            data-validate-hint="Précisez la durée de l'immobilier svp">
+                                        <span class="prepend-icon" style="margin-left:75%">
+                                            <span style="margin-top: 1px;" class="sub-header place-right devise">ANS</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Compte de l'immobilier</label>
+                                    <div class="input-control select full-size">
+                                        <select id="compte_immobilier" name="compte_immobilier"
+                                            data-validate-func="min"
+                                            data-validate-arg="1"
+                                            data-validate-hint="Sélectionnez un compte svp">
+                                            <option value="0">Sélectionnez un compte</option>
+                                            {% for item in comptes %}
+                                            <option {% if asset %}{% if item.id == asset.article.compte_id %}{{ "selected" }}{% endif %}{% endif %} value="{{ item.id }}">{{ item.numero }} {{ item.designation }}</option>
+                                           {% endfor %}
+                                        </select>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Compte de dépréciation (Amortissement)</label>
+                                    <div class="input-control select full-size">
+                                        <select id="compte_depreciation" name="compte_depreciation"
+                                            data-validate-func="min"
+                                            data-validate-arg="1"
+                                            data-validate-hint="Sélectionnez un compte svp">
+                                            <option value="0">Sélectionnez un compte</option>
+                                            {% for item in comptes %}
+                                            <option value="{{ item.id }}">{{ item.numero }} {{ item.designation }}</option>
+                                           {% endfor %}
+                                        </select>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Compte de dotation</label>
+                                    <div class="input-control select full-size">
+                                        <select id="compte_dotation" name="compte_dotation"
+                                            data-validate-func="min"
+                                            data-validate-arg="1"
+                                            data-validate-hint="Sélectionnez un compte svp">
+                                            <option value="0">Sélectionnez un compte</option>
+                                            {% for item in comptes %}
+                                                <option value="{{ item.id }}">{{ item.numero }} {{ item.designation }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-md-6">
+                                    <label>Local</label>
+                                    <div class="input-control select full-size">
+                                        <select id="local_id" name="local_id">
+                                            <option value="0">Sélectionnez un local</option>
+                                            {% for item in locaux %}
+                                                <option value="{{ item.id }}">{{ item.designation }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <script>
+        var lesImmobiliers = new Array();
+        {% for item in immobiliers %}
+            lesImmobiliers.push({id:"{{ item.id }}", designation:"{{ item.article.designation }}", valeur:"{{ item.article.prix_unitaire }}", compte_id:"{{item.article.compte_id}}"});
+        {% endfor %}
+        function choix_immobilier()
+        {
+            console.log("CHOIX");
+            var valeur_immobilier = "0.00";
+            var find = false
+            var immobilier_id = $("#immobilier_id").val();
+            if(immobilier_id != "0") {
+                for(var i = 0; i < lesImmobiliers.length; i++) {
+                    var immobilier = lesImmobiliers[i];
+                    if(immobilier.id == immobilier_id) {
+                        valeur_immobilier = immobilier.valeur;
+
+                        //Traitement compte depreciation
+                        find = true
+                        break;
+                    }
+                }
+            }
+
+            $("#valeur_acquisition").val(valeur_immobilier);
+        }
+    </script>
+{% endblock %}

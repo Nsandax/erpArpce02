@@ -1,0 +1,7 @@
+Password)!
+sudo docker build . -t erparpcev1
+7SVLUCYJ4ymZYYS6b8nw
+
+Nsandax2016
+#COMMNDE COPIE File
+sudo docker cp bacf26233257:/ErpProject/static/ErpProject/image/upload/excel/data2021.xls /home/

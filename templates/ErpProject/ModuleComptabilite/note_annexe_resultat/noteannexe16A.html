@@ -1,0 +1,389 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote16A.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_16A' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg" >
+        <colgroup>
+          <col style="width: 27%">
+          <col style="width: 9%">
+          <col style="width: 9%">
+          <col style="width: 11%">
+          <col style="width: 9%">
+          <col style="width: 10%">
+          <col style="width: 13%">
+          <col style="width: 12%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td class="tg-nqil" colspan="8">NOTE 16 A : DETTES FINANCIERES ET RESSOURCES ASSIMILEES</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Exercice clos&nbsp;&nbsp;le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">SIGLE :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b">Durée (en mois) :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-kf42">Libell‚s</td>
+              <td class="tg-kf42">Année N</td>
+              <td class="tg-kf42">Année N-1</td>
+              <td class="tg-kf42">Variation en valeur absolue</td>
+              <td class="tg-kf42">Variation en %</td>
+              <td class="tg-kf42">Dettes à un an au plus</td>
+              <td class="tg-kf42">Dettes à plus d'un an et à deux ans au plus</td>
+              <td class="tg-kf42">Dettes à plus de deux ans</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Emprunts obligataires</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Emprunts et dettes auprès des établissements de crédit</td>
+              <td class="tg-lvth">17 000 000</td>
+              <td class="tg-lvth">17 000 000</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">0%</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">17 000 000</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Avances reçues de l'Etat</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Avances re‡ues et comptes courants bloqués</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Dépôts et cautionnements reçus</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Intérêts courus</td>
+              <td class="tg-lvth">200 000</td>
+              <td class="tg-lvth">200 000</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">0%</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">200 000</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Avances assorties de conditions particulières</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Autres emprunts&nbsp;&nbsp;et dettes</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Dettes liées à des participations</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Comptes permanents bloqués  des établissements et succursales</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-bn4c">TOTAL EMPRUNTS ET DETTES FINANCIERES</td>
+              <td class="tg-kf42">17 200 000</td>
+              <td class="tg-kf42">17 200 000</td>
+              <td class="tg-kf42">-</td>
+              <td class="tg-kf42">0%</td>
+              <td class="tg-kf42"></td>
+              <td class="tg-kf42"></td>
+              <td class="tg-kf42">17 200 000</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Crédit-bail immobilier</td>
+              <td class="tg-lvth">4 800 000</td>
+              <td class="tg-lvth">4 800 000</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">0%</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">4 800 000</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Crédit-bail mobilier</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Location-vente</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Intérêts courus</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Autres dettes de locations</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth">-</td>
+            </tr>
+            <tr>
+              <td class="tg-bn4c">TOTAL DETTES DE LOCATIONS ACQUISITION</td>
+              <td class="tg-kf42">4 800 000</td>
+              <td class="tg-kf42">4 800 000</td>
+              <td class="tg-kf42">-</td>
+              <td class="tg-kf42">0%</td>
+              <td class="tg-kf42"></td>
+              <td class="tg-kf42"></td>
+              <td class="tg-kf42">4 800 000</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions pour litiges</td>
+              <td class="tg-lvth">800 000</td>
+              <td class="tg-lvth">800 000</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">0%</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions pour garantie donn‚s aux clients</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions pour pertes sur marché à achèvement futur</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions pour impôts</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions pour pensions et obligations similaires</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Actif du régime de retraite</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions pour restructuration</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions pour amendes et pénales</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions pour propre assureur</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions pour démantèlement et remise à l'état</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Provisions de droits à déduction</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Autres provisions</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth">-</td>
+              <td class="tg-lvth"> </td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-bn4c">TOTAL PROVISIONS POUR RISQUES ET CHARGES</td>
+              <td class="tg-kf42">800 000</td>
+              <td class="tg-kf42">800 000</td>
+              <td class="tg-kf42">-</td>
+              <td class="tg-kf42">0%</td>
+              <td class="tg-kf42"></td>
+              <td class="tg-kf42"></td>
+              <td class="tg-kf42"></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b" colspan="8">Le commentaire de la Note 16B porte essentiellement :</td>
+            </tr>
+            <tr>
+              <td class="tg-czno" colspan="8">Pour chaque emprunt et dette de location acquisition : la mention la date d’octroi, le nom de l’organisme financier, le montant initial de l’emprunt ou de la dette, la durée du crédit, les garanties données par la société.  L’indication des évènements et circonstances qui ont conduit à la provision et à la reprise. Pour les pensions et obligations de retraite : indiquer la méthode d’évaluation retenue ; pour les actifs du régime, indiquer le nom de la compagnie d’assurance ou du fonds de pension, le descriptif de la convention signée avec l’organisme, la périodicité des versements, le montant et la durée de la convention ; indication de la valeur retenue pour les principales hypothèses actuarielle à la date de clôture et leur base de détermination</td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+{% endblock %}

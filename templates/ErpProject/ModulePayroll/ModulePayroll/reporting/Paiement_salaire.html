@@ -1,0 +1,101 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="invoice">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+
+            <div class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr>
+                    <th width="30%">
+                        <div style="height: 100px;">
+                            <div class=""  style="margin-bottom:17%;">
+                                <strong style="font-size:20px;">ARPCE</strong>
+                            </div>
+                            <div class="">Siege ARPCE</div>
+                        </div>
+                    </th>
+                    <th width="40%">
+                        <div style="margin-bottom:4%;text-align: center;">
+                            <strong style="font-size:20px;">{{title}}</strong>
+                        </div>
+                        <p class="mb-2">Exercice: 2021</p>
+                        <div class="row" style="text-align:start;">
+                            <span class="col-md-6">Mois: Mars</span>
+                            <span class="col-md-6">N° d'Ordre: 1</span>
+                        </div>
+                    </th>
+                    <th width="30%" style="vertical-align: middle;">Page 1 / 1</th>
+                </tr>
+            </table>
+            <!-- <p class="align-center header">{{title}}</p> -->
+            <br>
+            <br>
+            <h4>CREDIT DU CONGO</h4>
+            <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                <tr>
+                    <th width="22%">Nom</th>
+                    <th width="22%">Prénom</th>
+                    <th width="12%">Matricule</th>
+                    <th width="22%">N° Comptes</th>
+                    <th width="22%">Montant à payer</th>
+                </tr>
+                <tr>
+                    <td width="22%">JEAN</td>
+                    <td width="22%">JACQUES</td>
+                    <td width="12%">001245</td>
+                    <td width="22%">11245233544523333</td>
+                    <td width="22%"></td>
+                </tr>
+                <tr>
+                    <td width="22%">Patrick</td>
+                    <td width="22%">Rolland</td>
+                    <td width="12%">01243</td>
+                    <td width="22%">53314336558744122</td>
+                    <td width="22%"></td>
+                </tr>
+                <tr>
+                    <td width="22%">Zaccari</td>
+                    <td width="22%">Kashala</td>
+                    <td width="12%">00124536</td>
+                    <td width="22%">44500525044252651</td>
+                    <td width="22%"></td>
+                </tr><tr>
+                    <td width="22%">Sakara</td>
+                    <td width="22%">Thomas</td>
+                    <td width="12%">56312</td>
+                    <td width="22%">998521236655224412</td>
+                    <td width="22%"></td>
+                </tr>
+                <tr>
+                    <td width="22%">Ilunga</td>
+                    <td width="22%">Dorcas</td>
+                    <td width="12%">62410</td>
+                    <td width="22%">89632445555624479665</td>
+                    <td width="22%"></td>
+                </tr>
+
+                <tr>
+                    <th colspan="4" style="text-align:end;">TOTAUX</th>
+                    <th width=""></th>
+                </tr>
+            </table>
+            <br>
+            <br>
+
+        </div>
+            </div>
+        </div>
+    </body>
+</html>

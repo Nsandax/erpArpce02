@@ -1,0 +1,1071 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_rubrique' %}">Liste des rubriques</a></li>
+			            <li><a class="chargement-au-click" href="{% url 'module_payroll_details_rubrique' model.id %}">{{ model.designation }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_details_rubrique' model.id %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+					<form id="form" method="POST" action="{% url 'module_payroll_post_update_rubrique' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+						<input type="text"  id="ref" name="ref" value ="{{ model.id }}" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="designation"  id="designation"
+									    value="{{ model.designation }}"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Code</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="code"  id="code"
+										value="{{ model.code }}"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez le code svp."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+							<div class="col-md-6">
+								<label>Référence</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="reference"  id="reference"
+										value="{{ model.reference }}"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la référence svp."/>
+                                </div>
+							</div>
+                            <div class="col-md-6">
+                                <label>Devise</label>
+                                <div class="input-control text full-size">
+                                    <select name="devise_id" id="devise_id"
+                                        data-validate-hint="Sélectionnez la devise svp.">
+                                        <option value="0">Sélectionnez la devise</option>
+                                        {% for item in devises %}
+                                            <option {% if model.devise_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="input-control checkbox small-check full-size">
+                                    <input name="apparait_dans_bulletin"
+									{% if model.apparait_dans_bulletin == True %}{{ "checked" }}{% endif %}
+									id="apparait_dans_bulletin"  type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Apparaît sur le bulletin de paie</span>
+                                </label>
+                            </div>
+							<div class="col-md-6">
+								<label>Séquence</label>
+								<div class="input-control text full-size" >
+									<input type="text" name="sequence" id="sequence" autocomplete="off"
+									value="{{ model.sequence }}"
+									data-validate-func="required"
+									data-validate-hint="Entrez la séquence svp."/>
+								</div>
+							</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Description</label>
+                                <div class="input-control text full-size" style="min-height: 6.25rem !important;">
+                                    <textarea name="description" id="description" value="{{ model.description }}"></textarea>
+                                </div>
+                            </div>
+							<div class="col-md-6">
+								<label>Type de Rubrique</label>
+								<div class="input-control text full-size">
+									<select name="type_rubrique" id="type_rubrique"
+										data-validate-func="min"
+										data-validate-arg="1"
+										data-validate-hint="Sélectionnez le type de rubrique svp.">
+										<option value="0">Sélectionnez un type de rubrique</option>
+										{% for item in type_rubriques %}
+											<option {% if model.type_rubrique == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+                        </div>
+
+						<div class="row" style="margin-top: 10px">
+							<div class="tabcontrol2" data-role="tabcontrol">
+								<ul class="tabs">
+									<li class="active"><a href="#frame_rubrique">Règle salariale</a></li>
+									<li class=""><a href="#frame_cumuls">Cumuls</a></li>
+									<li class=""><a href="#frame_comptabilite">Comptabilité</a></li>
+								</ul>
+								<div class="frames">
+									<div class="frame" id="frame_rubrique" style="display: block;">
+										<div class="row">
+											<div class="col-md-6">
+												<label>Type Formule</label>
+												<div class="input-control text full-size">
+													<select name="type_formule" id="type_formule">
+														{% for item in type_formules %}
+															<option {% if item.id == model.type_formule %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+														{% endfor %}
+													</select>
+												</div>
+											</div>
+											<div class="col-md-6">
+												<label>Type Montant</label>
+												<div class="input-control text full-size">
+													<select name="type_element" id="type_element">
+														{% for item in type_elements %}
+															<option {% if model.type_element == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+														{% endfor %}
+													</select>
+												</div>
+											</div>
+											<div class="col-md-12">
+												<br><hr><br>
+											</div>
+										</div>
+
+										<div class="row">
+											<div class="col-md-12">
+												<p class="header">Formule</p>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<table id="part_salariale_tab" class="table bordered no-margin" style="width:100%;">
+                									<tr>
+														<th width="20%"></th>
+														<th width="20%">Nombre</th>
+														<th width="20%">Base</th>
+														<th width="20%">Taux(%)</th>
+														<th width="20%">Montant</th>
+													</tr>
+													<tr>
+														<td>
+															<label>Part salariale</label>
+														</td>
+														<td>
+															<div class="input-control text full-size constante_select">
+																<input type="text" class="input_is_const" name="nombre_input_is_const" value="0" style="display: none">
+																<input type="text" id="nombre_input" name="nombre_input" value="0.0" class="input_text">
+																<select name="nombre_select" id="nombre_select" class="input_select">
+																	<option value="0">Sélectionnez la constante</option>
+																	{% for item in constantes %}
+																		<option {% if model.nombre_parsal_const_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+																<div class="button" id="nombre_button" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+															</div>
+														</td>
+														<td>
+															<div class="input-control text full-size constante_select">
+																<input type="text" class="input_is_const" name="base_input_is_const" value="0" style="display: none">
+																<input type="text" id="base_input" name="base_input" value="0.0" class="input_text">
+																<select name="base_select" id="base_select" class="input_select">
+																	<option value="0">Sélectionnez la constante</option>
+																	{% for item in constantes %}
+																		<option {% if model.base_parsal_const_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+																<div class="button" id="base_button" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+															</div>
+														</td>
+														<td>
+															<div class="input-control text full-size constante_select">
+																<input type="text" class="input_is_const" name="taux_input_is_const" value="0" style="display: none">
+																<input type="text" id="taux_input" name="taux_input" value="0.0" class="input_text">
+																<select name="taux_select" id="taux_select" class="input_select">
+																	<option value="0">Sélectionnez la constante</option>
+																	{% for item in constantes %}
+																		<option {% if model.taux_parsal_const_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+																<div class="button" id="taux_button" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+															</div>
+														</td>
+														<td>
+															<div class="input-control text full-size constante_select">
+																<input type="text" class="input_is_const" name="montant_input_is_const" value="0" style="display: none">
+																<input type="text" id="montant_input" name="montant_input" value="0.0" class="input_text">
+																<select name="montant_select" id="montant_select" class="input_select">
+																	<option value="0">Sélectionnez la constante</option>
+																	{% for item in constantes %}
+																		<option {% if model.montant_parsal_const_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+																<div class="button" id="montant_button" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+															</div>
+														</td>
+													</tr>
+												</table>
+
+												<table id="part_patronale_tab" class="table bordered no-margin" style="width:100%;display: none">
+													<tr>
+														<td width="20%"><label>Part patronale</label></td>
+														<td width="20%"></td>
+														<td width="20%"></td>
+														<td width="20%">
+															<div class="input-control text full-size constante_select">
+																<input type="text" class="input_is_const" name="patronal_taux_input_is_const" value="0" style="display: none">
+																<input type="text" id="patronal_taux_input" name="patronal_taux_input" value="0.0" class="input_text">
+																<select name="patronal_taux_select" id="patronal_taux_select" class="input_select">
+																	<option value="0">Sélectionnez la constante</option>
+																	{% for item in constantes %}
+																		<option {% if model.taux_parpat_const_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+																<div class="button" id="patronal_taux_button" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+															</div>
+														</td>
+														<td width="20%">
+															<div class="input-control text full-size constante_select">
+																<input type="text" class="input_is_const" name="patronal_montant_input_is_const" value="0" style="display: none">
+																<input type="text" id="patronal_montant_input" name="patronal_montant_input" value="0.0" class="input_text">
+																<select name="patronal_montant_select" id="patronal_montant_select" class="input_select">
+																	<option value="0">Sélectionnez la constante</option>
+																	{% for item in constantes %}
+																		<option {% if model.montant_parpat_const_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+																	{% endfor %}
+																</select>
+																<div class="button" id="patronal_montant_button" data-clicked="false" data-disabled="false"><span class="mif-menu"></span></div>
+															</div>
+														</td>
+													</tr>
+												</table>
+											</div>
+										</div>
+									</div>
+									<div class="frame" id="frame_cumuls" style="display: none;">
+										<div class="row">
+											<div class="col-md-12">
+												<label>Le montant est à cumuler dans</label>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<table class="table no-margin" style="width:100%;">
+													<tr>
+														<td width="40%"><label>Brut</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="brut" id="brut" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+														<td width="40%"><label>Cotisations salariales</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="cotisal" id="cotisal" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<td width="40%"><label>Brut congés année en cours</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="brutcong" id="brutcong" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+														<td width="40%"><label>Cotisations patronales</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="cotipat" id="cotipat" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<td width="40%"><label>Net Imposable</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="netimpo" id="netimpo" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+														<td width="40%"><label>Coût total salarial</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="coutotsal" id="coutotsal" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<td width="40%"><label>Net à payer</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="netpaie" id="netpaie" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+														<td width="40%"><label>Coût total patronal</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="coutotpat" id="coutotpat" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<td width="40%"><label>Avantages en nature</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="avantur" id="avantur" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+														<td width="40%"><label>Sous total patronal</label></td>
+														<td width="10%">
+															<div class="input-control text full-size">
+																<select name="sous_pat" id="sous_pat" class="cumul_select">
+																	<option value="1">Non</option>
+																	<option value="2">(+)</option>
+																	<option value="3">(-)</option>
+																</select>
+															</div>
+														</td>
+													</tr>
+												</table>
+											</div>
+                                        </div>
+									</div>
+									<div class="frame" id="frame_comptabilite" style="display: none;">
+										<div class="row">
+                                            <div class="col-md-6">
+                                                <label>Compte débit</label>
+                                                <div class="input-control text full-size">
+                                                    <select name="compte_debit_id" id="compte_debit_id"
+													data-validate-func="min"
+													data-validate-arg="1"
+													data-validate-hint="Sélectionnez un compte de débit dans l'onglet Comptabilité" >
+                                                        <option value="0">Sélectionnez un compte</option>
+                                                        {% for item in comptes %}
+                                                            <option {% if model.compte_debit_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.numero }} {{ item.designation }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>Compte crédit</label>
+                                                <div class="input-control text full-size">
+                                                    <select name="compte_credit_id" id="compte_credit_id"
+													data-validate-func="min"
+													data-validate-arg="1"
+													data-validate-hint="Sélectionnez un compte de crédit dans l'onglet Comptabilité" >
+                                                        <option value="0">Sélectionnez un compte</option>
+                                                        {% for item in comptes %}
+                                                            <option {% if model.compte_credit_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.numero }} {{ item.designation }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script>
+		function initConstanteSelect(){
+
+			$(".constante_select .input_text").hide();
+			$(".constante_select .input_select").show();
+
+
+			//Bouton actif non cliqué
+			$(".constante_select .button").css({"background-color": "#c4d8ea", "color": "#000"});
+			$(".constante_select .button").data("clicked", false);
+			$(".constante_select .button").data("disabled", false);
+
+			//Désactivation salariale champ montant
+			$("#montant_button").css({"background-color": "#ebebe4", "color": "#000"});
+			$("#montant_button").data("disabled", true);
+			$('input[name="montant_input"]').prop("disabled", true);
+
+			//Désactivation patronale champ montant
+			$("#patronal_montant_button").css({"background-color": "#ebebe4", "color": "#000"});
+			$("#patronal_montant_button").data("disabled", true);
+			$('input[name="patronal_montant_input"]').prop("disabled", true);
+		}
+		$(document).ready(function(){
+			initConstanteSelect();
+
+			//Restriction sur la saisie seulement des chiffres sur input
+			$(".constante_select .input_text").change(function() {
+				if (isNaN($(this).val())) {
+					// if value is Not a Number
+					$(this).val('0.00');
+				}
+			});
+
+			//Quand on clique sur le bouton d'activation des constantes
+			$(".constante_select .button").on('click', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				if($(this).data("disabled") == false){
+					$(this).parent().find(".input_text").val('0.00');
+					$(this).parent().find(".input_select").val('0');
+
+					if($(this).data("clicked")){
+						$(this).css({"background-color": "#c4d8ea", "color": "#000"});
+						$(this).data("clicked", false);
+
+						$(this).parent().find(".input_is_const").val('0');
+
+						$(this).parent().find(".input_text").show();
+						$(this).parent().find(".input_select").hide();
+					}else{
+						$(this).css({"background-color": "#4fc2f8", "color": "#fff"});
+						$(this).data("clicked", true);
+
+						$(this).parent().find(".input_is_const").val('1');
+
+						$(this).parent().find(".input_text").hide();
+						$(this).parent().find(".input_select").show();
+					}
+				}
+			});
+
+			//Quand on choisie un type de rubrique
+			$("#type_rubrique").change(function() {
+				var type_rubrique = $("#type_rubrique").val();
+				if(type_rubrique == "1"){
+					$("#part_patronale_tab").hide();
+					initConstanteSelect();
+					//Gestion des cumuls
+					$(".cumul_select").val("1");
+					$("#brut").val("2");
+					$("#brutcong").val("2");
+					$("#coutotsal").val("2");
+					$("#netpaie").val("2");
+					$("#netimpo").val("2");
+				}else if(type_rubrique == "2"){
+					$("#part_patronale_tab").show();
+					initConstanteSelect();
+					var type_formule = $("#type_formule").val();
+					if(type_formule != "1" && type_formule != "5"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}else if(type_formule == "15"){
+						//Bouton montant actif non cliqué
+						$("#patronal_montant_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_montant_button").data("clicked", false);
+						$("#patronal_montant_button").data("disabled", false);
+						//Input montant activé
+						$('input[name="patronal_montant_input"]').prop("disabled", false);
+					}
+					//Gestion des cumuls
+					$(".cumul_select").val("1");
+					$("#cotisal").val("2");
+					$("#cotipat").val("2");
+					$("#coutotpat").val("2");
+					$("#netpaie").val("3");
+					$("#netimpo").val("3");
+				} else if(type_rubrique == "3"){
+					$("#part_patronale_tab").hide();
+					initConstanteSelect();
+					//Gestion des cumuls
+					$(".cumul_select").val("1");
+					$("#netpaie").val("2");
+				}
+			});
+
+			//Quand on choisie un type de formule
+			$("#type_formule").change(function() {
+				var type_formule = $("#type_formule").val();
+				if(type_formule == "1"){
+					//(1, "Nombre x Base")
+					initConstanteSelect()
+
+					// Tous les Boutons inactifs
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Tous les Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+				}else if (type_formule == "2"){
+					//(2, "Nombre x Taux")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "3"){
+					//(3, "Nombre x Base x Taux")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "4"){
+					//(4, "Base x Taux")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "5"){
+					//(5, "Nombre / Base")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+				}else if (type_formule == "6"){
+					//(6, "Nombre / Taux")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "7"){
+					//(7, "Nombre / Base / Taux")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "8"){
+					//(8, "Base / Taux")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "9"){
+					//(9, "Nombre / Base X Taux")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "10"){
+					//(10, "Nombre X Base / Taux")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "11"){
+					//(11, "Taux / Base")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "12"){
+					//(12, "Taux / Nombre")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "13"){
+					//(13, "Taux / Nombre / Base")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "14"){
+					//(14, "Taux / Nombre X Base")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+
+					//Bouton nombre actif non cliqué
+					$("#nombre_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#nombre_button").data("clicked", false);
+					$("#nombre_button").data("disabled", false);
+					//Input nombre activé
+					$('input[name="nombre_input"]').prop("disabled", false);
+
+					//Bouton base actif non cliqué
+					$("#base_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#base_button").data("clicked", false);
+					$("#base_button").data("disabled", false);
+					//Input base activé
+					$('input[name="base_input"]').prop("disabled", false);
+
+					//Bouton taux actif non cliqué
+					$("#taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#taux_button").data("clicked", false);
+					$("#taux_button").data("disabled", false);
+					//Input taux activé
+					$('input[name="taux_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton taux actif non cliqué
+						$("#patronal_taux_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_taux_button").data("clicked", false);
+						$("#patronal_taux_button").data("disabled", false);
+						//Input taux activé
+						$('input[name="patronal_taux_input"]').prop("disabled", false);
+					}
+				}else if (type_formule == "15"){
+					//(15, "Montant fixe")
+					initConstanteSelect()
+
+					// Boutons actifs non cliqué
+					$(".constante_select .button").css({"background-color": "#ebebe4", "color": "#000"});
+					$('.constante_select .button').data("disabled", true);
+					// Inputs désactivés
+					$('.input_text').prop("disabled", true);
+
+					//Bouton montant actif non cliqué
+					$("#montant_button").css({"background-color": "#c4d8ea", "color": "#000"});
+					$("#montant_button").data("clicked", false);
+					$("#montant_button").data("disabled", false);
+					//Input montant activé
+					$('input[name="montant_input"]').prop("disabled", false);
+
+					var type_rubrique = $("#type_rubrique").val();
+					if(type_rubrique == "2"){
+						//Bouton montant actif non cliqué
+						$("#patronal_montant_button").css({"background-color": "#c4d8ea", "color": "#000"});
+						$("#patronal_montant_button").data("clicked", false);
+						$("#patronal_montant_button").data("disabled", false);
+						//Input montant activé
+						$('input[name="patronal_montant_input"]').prop("disabled", false);
+					}
+				}
+			});
+		});
+	</script>
+
+{% endblock %}

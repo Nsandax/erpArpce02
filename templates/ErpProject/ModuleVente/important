@@ -1,0 +1,645 @@
+
+
+layout du Module Vente:
+
+    tout juste au-dessus de Clients
+
+        <!--li class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"> <a href="{% url 'module_vente_list_commande' %}">Vente directe</a></li-->
+                <!--li class="{% if menu == 2 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_list_bons_vente' %}">Vente avec livraison</a></li-->
+                <!--li class="{% if menu == 9 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_list_bons_vente' %}?status=1">Valider vente livraison</a></li-->
+
+
+
+    tout juste après Article
+        <li class="title">Facturation</li>
+                <li class="{% if menu == 3 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_list_factures'%}">Factures clients</a></li>
+                <li class="title">Rapport</li>
+				<li class="{% if menu == 9 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_report' %}">Rapports</a></li>
+
+    Dans configuration :
+        <li class="{% if menu == 6 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_list_categorie_clients' %}">Catégories de clients</a></li>
+        <li class="{% if menu == 8 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_list_civilite' %}">Civilité</a></li>
+        <!--<li class="{% if menu == 10 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_configuration' %}">Paramètrage</a></li>-->
+
+    tout juste dans le dernier <div></div>
+        Ventes :
+            <li class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_list_commande' %}">Vente directe</a></li>
+            <li class="{% if menu == 2 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_list_bons_vente' %}">Vente avec livraison</a></li>
+        Facturation:
+        <li class="title bg-darkCobalt">Facturation</li>
+            <li class="{% if menu == 5 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_list_factures'%}">Factures clients</a></li>
+        Configuration :
+            <li class="{% if menu == 6 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_list_categorie_clients' %}">Catégories de client</a></li>
+            <li class="{% if menu == 8 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_list_civilite' %}">Civilité</a></li>
+			<li class="{% if menu == 10 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_configuration' %}">Paramètrage</a></li>
+
+index du Module Vente:
+
+    tout juste après me <ul><li>{{title}}</li></ul>
+    <!--div class="row">
+        <button class="button small-button rounded primary" onclick="javascript:window.location.assign('{% url 'module_pos_add_pos' %}')" style="margin-left: 5px">Créer</button>
+    </div-->
+
+
+Ancienne Liste Clients version :
+
+
+    <div class="row cells12">
+                <li class="title">Ventes</li>
+
+                <!--Celui qui suit était le menue 3 et ajouter +1 aux autres suivants ainsi de suite-->
+                <li class="{% if menu == 1 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_list_clients' %}">Clients</a></li>
+                <li class="{% if menu == 2 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_list_articles'%}">Articles</a></li>
+                <li class="title">Rapport</li>
+				<li class="{% if menu == 9 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="#">Rapports</a></li>
+                <li class="title">Configuration</li>
+
+                <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} chargement-au-click"><a href="{% url 'module_vente_list_categorie_articles' %}">Catégories d'articles</a></li>
+            </ul>
+        </div>
+        <div class="cell colspan9 padding10" style="padding-right: 20px">
+            <div>
+                <div class="grid">{% block page %}{% endblock %}</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu" data-role="charm" data-position="left" class="bg-darkCobalt fg-white charm left-side" style="width:230px; margin-top: 45px">
+        <ul class="sidebar2 compact bg-darkCobalt" style="max-width: 100%;">
+			<li class="{% if menu == 0 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_tableau_de_bord' %}">Tableau de bord</a></li>
+            <li class="title bg-darkCobalt">Ventes</li>
+            <li class="{% if menu == 3 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_list_clients' %}">Clients</a></li>
+            <li class="{% if menu == 4 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_list_articles'%}">Articles</a></li>
+            <li class="title bg-darkCobalt">Rapport</li>
+			<li class="{% if menu == 9 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="#">Rapports</a></li>
+            <li class="title bg-darkCobalt">Configuration</li>
+            <li class="{% if menu == 7 %}{{ 'active' }}{% endif %} chargement-au-click"><a class="bg-darkCobalt fg-white" href="{% url 'module_vente_list_categorie_articles' %}">Catégories d'article</a></li>
+
+        </ul>
+    </div>
+{% endblock %}
+
+
+Ancien list client
+</div>
+    <ul class="breadcrumbs2 small">
+        <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_client' %}">Module Vente</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row cells2">
+		<div class="cell">
+			<button class="button small-button rounded primary chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_vente_add_client' %}')" style="margin-left: 5px">Créer</button>
+		</div>
+		<div class="cell">
+			<div data-role="group" data-group-type="one-state">
+				<button id="btn-tree" class="button small-button rounded"><span class="mif-list"></span></button>
+				<button id="btn-kanban"  class="button small-button rounded"><span class="mif-apps"></span></button>
+			</div>
+		</div>
+    </div>
+
+    <hr class="hr-ligne" />
+
+    <div id="tree-view" class="row erp-hidden" style="margin-top: 10px">
+        <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+            <thead>
+                <tr>
+                    <th style="width: 20px; background-color:#2e416a; white"></th>
+                    <th>Nom</th>
+                    <th>Téléphone</th>
+                    <th>Courriel</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                    <tr>
+                        <td>
+                            <label class="small-check">
+                                <input type="checkbox">
+                                <span class="check"></span>
+                            </label>
+                        </td>
+                        <td>
+                            <a class="lien chargement-au-click" href="{% url 'module_vente_details_client' item.id %}">{{ item.nom_complet }}</a>
+                        </td>
+                        <td> {{ item.phone }} </td>
+                        <td> {{ item.email }} </td>
+                        <td>
+                            {% if item.est_particulier == True %}
+                                {{ "Particulier" }}
+                            {% else %}
+                                {{ "Entreprise" }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+	<div id="kanban-view" class="row cells3" style="margin-top: 10px">
+		{% for item in model %}
+			<div class="cell padding10" style="/*min-height: 250px!important;*/">
+				<div class="shadow padding10 clearfix" style="margin-top: 10px">
+					{% if item.image != None and item.image != "" %}
+						<img src="{% static item.image %}" style="height: 70px; width: 70px; float: left;">
+					{% else %}
+						<img src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 70px; width: 70px; float: left;">
+					{% endif %}
+					<div style="padding-left: 80px;">
+						<span class="sub-header"><a class="lien chargement-au-click" href="{% url 'module_vente_details_client' item.id %}">{{ item.nom_complet }}</a></span>
+						<!--span class="minor-header fg-gray">{{ item.adresse_complete }}</span-->
+						<br>
+						{% if item.email != None and item.email != "" %}
+							<span class="mif-envelop fg-dark"></span> <a href="mailto:{{ item.email }}" target="blank" class="sub-alt-header lien leaf"><span class="minor-header">{{ item.email }}</span></a>
+						{% else %}
+							<span class="mif-envelop fg-dark"></span> <span class="sub-alt-header lien leaf">---</span>
+						{% endif %}
+						<br>
+						{% if item.phone != None and item.phone != "" %}
+							<span class="mif-phone fg-dark"></span> <span class="sub-alt-header fg-dark">{{ item.phone }}</span>
+						{% else %}
+							<span class="mif-phone fg-dark"></span> <span class="sub-alt-header lien leaf">---</span>
+						{% endif %}
+						<br>
+						<span class="sub-alt-header fg-dark">
+							{% if item.est_particulier == True %}
+                                {{ "Particulier" }}
+                            {% else %}
+                                {{ "Entreprise" }}
+                            {% endif %}
+						</span>
+                        <br>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable( {
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extends: 'copyHtml5',
+                        text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                        titleAttr: "Copier"
+                    },
+                    {
+                        extends: 'excelHtml5',
+                        text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                        titleAttr: "Exporter en excel"
+                    },
+                    {
+                        extends: 'csvHtml5',
+                        text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                        titleAttr: "Exporter en csv"
+                    },
+                    {
+                        extends: 'pdfHtml5',
+                        text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                        titleAttr: "Exporter en pdf"
+                    },
+                    //'copyHtml5',
+                    //'excelHtml5',
+                    //'csvHtml5',
+                    //'pdfHtml5'
+                ]
+            } );
+        } );
+    </script>
+{% endblock %}
+
+
+Ancienne version Listes Articles :
+
+{% extends "ErpProject/ModuleVente/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <ul class="breadcrumbs2 small">
+        <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_articles' %}">Module Vente</a></li>
+        <li>{{ title }}</li>
+    </ul>
+
+    <div class="row cells2">
+		<div class="cell">
+			<button onclick="javascript:window.location.assign('{% url 'module_vente_add_article' %}')" class="button small-button rounded primary chargement-au-click">Créer</button>
+		</div>
+		<div class="cell">
+			<div data-role="group" data-group-type="one-state">
+				<button id="btn-tree" class="button small-button rounded"><span class="mif-list"></span></button>
+				<button id="btn-kanban"  class="button small-button rounded"><span class="mif-apps"></span></button>
+			</div>
+		</div>
+    </div>
+    <hr class="hr-ligne" />
+
+    <div id="tree-view" class="row erp-hidden" style="margin-top: 10px">
+        <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+            <thead>
+                <tr>
+                    <th style="width: 20px; background-color:#2e416a; white"></th>
+                    <th>Référence</th>
+                    <th>Désignation</th>
+                    <th>Prix de vente</th>
+                    <th>Catégorie</th>
+                    <th>Type d'article</th>
+                    <th>Quantité en stock</th>
+                    <th>Quantité prévue</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                    <tr>
+                        <td>
+                            <label class="small-check">
+                                <input type="checkbox">
+                                <span class="check"></span>
+                            </label>
+                        </td>
+                        <td>
+                            <a class="lien chargement-au-click" href="{% url 'module_vente_details_article' item.id %}">{{ item.code_article }}</a>
+                        </td>
+                        <td> {{ item.designation }} </td>
+                        <td> {{ item.prix_unitaire }} {{ devise_ref.symbole_devise }} </td>
+                        <td> {{ item.categorie.designation }} </td>
+                        <td>
+                            {% for type_article in types_article %}
+                                {% if type_article.id == item.type_article %}
+                                    {{ type_article.designation }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td> {{ item.quantite_stock }} {{ item.unite.symbole_unite }}</td>
+                        <td> {{ item.quantite_prevue }} {{ item.unite.symbole_unite }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="kanban-view" class="row cells3" style="margin-top: 10px">
+		{% for item in model %}
+			<div class="cell padding10">
+				<div class="shadow padding10 clearfix" style="margin-top: 10px">
+					{% if item.image != None and item.image != "" %}
+						<img src="{% static item.image %}" style="height: 70px; width: 70px; float: left;">
+					{% else %}
+						<img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 70px; width: 70px; float: left;">
+					{% endif %}
+					<div style="padding-left: 80px;">
+						<span class="sub-header"><a class="lien chargement-au-click" href="{% url 'module_vente_details_article' item.id %}">{{ item.designation }}</a></span>
+						<br>
+						<span class="sub-alt-header">Prix : {{ item.prix_unitaire }} {{ devise_ref.symbole_devise }}</span>
+						<br>
+                        <span class="sub-alt-header">Disponible : {{ item.quantite_stock }} {{ item.unite.symbole_unite }}</span>
+						<br>
+                        <span class="sub-alt-header">Prévue : {{ item.quantite_prevue }} {{ item.unite.symbole_unite }}</span>
+                        <br>
+                        <br>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable( {
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'copyHtml5',
+                        text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                        titleAttr: "Copier"
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                        titleAttr: "Exporter en excel"
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                        titleAttr: "Exporter en csv"
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                        titleAttr: "Exporter en pdf"
+                    },
+                    //'copyHtml5',
+                    //'excelHtml5',
+                    //'csvHtml5',
+                    //'pdfHtml5'
+                ]
+            } );
+        } );
+    </script>
+
+{% endblock %}
+
+
+Ancien add Client :
+
+{% extends "ErpProject/ModuleVente/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <ul class="breadcrumbs2 small">
+        <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_clients' %}">Module Vente</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_vente_list_clients' %}">Liste des clients</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary primary_color_{{module.name|lower}}">Valider</button>
+        <button class="button small-button rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_vente_list_clients' %}')" style="margin-left: 5px">Annuler</button>
+    </div>
+
+    <hr class="hr-ligne" />
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                <div class="row" style="margin:10px 0">
+                    <div class="row cells12 padding10 fg-white" style="background-color:#ff6a00;">
+                        <div class="cell colspan3" style="width: 32px;">
+                            <span class="mif-info mif-2x"></span>
+                        </div>
+                        <div class="cell colspan9" style="margin-left: 10px">
+                            <span class="notify-title"><b>Information :</b></span><br>
+                            <span class="notify-text">
+                                {{ message }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="row cells3 item-content" style="margin-top: 10px">
+        <div class="cell">
+            <form id="form" method="POST" action="{% url 'module_vente_post_add_client' %}"
+				enctype="multipart/form-data"
+                data-role="validator"
+                data-show-required-state="false"
+                data-hint-mode="line"
+                data-hint-background="bg-red"
+                data-hint-color="fg-white"
+                data-hide-error="5000"
+                novalidate="novalidate"
+                data-on-error-input="notifyOnErrorInput"
+                data-show-error-hint="false">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+                <div class="row">
+                    <label class="input-control radio small-check">
+                        <input value="1" name="est_particulier" checked type="radio">
+                        <span class="check"></span>
+                        <span class="caption">Particulier</span>
+                    </label>
+                    <label class="input-control radio small-check" style="margin-left: 15px">
+                        <input value="0" name="est_particulier" type="radio">
+                        <span class="check"></span>
+                        <span class="caption">Entreprise</span>
+                    </label>
+                </div>
+				<div class="row">
+					<input id="image_upload" name="image_upload" type="file" accept="image/*" style="display:none;">
+					<div class="tile-container">
+						<a onclick="$('input[id=image_upload]').click();" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+							<div class="tile-content slide-up" >
+								<div class="slide" >
+									<img id="image_preview" src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+								</div>
+								<div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+									<span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
+                <div class="row">
+                    <label>Nom</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="nom_complet" type="text" data-validate-func="required" data-validate-hint="Entrez le nom du client !">
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Adresse</label>
+                    <div class="input-control select full-size" data-role="input">
+                        <select onchange="choix_pays()" id="choixPays">
+                            <option value="0">Sélectionnez un pays</option>
+                            {% for item in pays %}
+                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                            {% endfor %}
+                        </select>
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                    <div class="input-control select full-size" data-role="input">
+                        <select onchange="choix_province()" id="choixProvince" >
+                            <option value="0">Sélectionnez un état ou une province</option>
+                        </select>
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                    <div class="input-control select full-size" data-role="input">
+                        <select onchange="choix_ville()" id="choixVille">
+                            <option value="0">Sélectionnez une ville</option>
+                        </select>
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                    <div class="input-control select full-size" data-role="input">
+                        <select name="commune_quartier_id" id="choixCommune">
+                            <option value="0">Sélectionnez une commune</option>
+                        </select>
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="adresse" type="text" placeholder="Rue..." >
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Téléphone</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="phone" type="text">
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Courriel</label>
+                    <div class="input-control text full-size" data-role="input">
+                        <input name="email" type="email" data-validate-func="email" data-validate-hint="Entrez une adresse email valide !">
+                        <span class="input-state-error mif-warning"></span>
+                        <span class="input-state-success mif-checkmark"></span>
+                    </div>
+                </div>
+                <div id="more" class="row" style="display: none">
+                    <div class="row">
+                        <label>Catégorie</label>
+                        <div class="input-control select full-size" data-role="input">
+                            <select name="categorie_id">
+                                <option value="0"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label>Civilité</label>
+                        <div class="input-control select full-size">
+                            <select name="civilite_id" id="civilite_id" onchange="choix_civilite()">
+                                <option value="0"> Sélectionnez un civilité</option>
+                                {% for item in civilite %}
+                                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label>Langue</label>
+                        <div class="input-control select full-size" data-role="input">
+                            <select name="langue_id">
+                                <option value="0"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <button id="btnMore" class="button link" type="button">Plus d'information</button>
+                    <button id="btnLess" class="button link" type="button" style="display: none">Moins d'information</button>
+                    <script>
+                        $("#btnMore").on("click", function(){
+                            $("#more").css("display", "block");
+                            $("#btnLess").css("display", "block");
+                            $("#btnMore").css("display", "none");
+                        });
+                        $("#btnLess").on("click", function(){
+                            $("#more").css("display", "none");
+                            $("#btnMore").css("display", "block");
+                            $("#btnLess").css("display", "none");
+                        });
+                    </script>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        function readURL(input) {
+			if (input.files && input.files[0]) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					$('#image_preview').attr('src', e.target.result);
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		}
+
+		$("#image_upload").change(function(){
+			readURL(this);
+		});
+        function choix_pays() {
+            var idPays = $("#choixPays").val();
+
+            if (idPays != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_configuration_list_places_filles' %}",
+                    { ref: idPays },
+                    function (response) {
+                        $("#choixProvince").children().remove();
+                        $("#choixProvince").append("<option value='0'>Sélectionnez la province</option>");
+                        console.log(response);
+                        for (var i = 0; i < response.length; i++) {
+                            var laProvince = response[i];
+
+                            var option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                            $("#choixProvince").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+            else supprimer_provinces();
+        }
+
+        function choix_province()
+        {
+            var idProvince = $("#choixProvince").val();
+
+            if (idProvince != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_configuration_list_places_filles' %}",
+                    { ref: idProvince },
+                    function (response) {
+                        $("#choixVille").children().remove();
+                        $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                        for (var i = 0; i < response.length; i++) {
+                            var laVille = response[i];
+
+                            var option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                            $("#choixVille").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+            else supprimer_villes();
+        }
+
+        function choix_ville() {
+            var idVille = $("#choixVille").val();
+
+            if (idVille != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_configuration_list_places_filles' %}",
+                    { ref: idVille },
+                    function (response) {
+                        $("#choixCommune").children().remove();
+                        $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+
+                        for (var i = 0; i < response.length; i++) {
+                            var laCommune = response[i];
+
+                            var option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                            $("#choixCommune").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+            else supprimer_communes();
+        }
+
+        function supprimer_communes() {
+            $("#choixCommune").children().remove();
+            $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+        }
+
+        function supprimer_villes() {
+            $("#choixVille").children().remove();
+            $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+            supprimer_communes();
+        }
+
+        function supprimer_provinces() {
+            $("#choixProvince").children().remove();
+            $("#choixProvince").append("<option value='0'>Sélectionnez l'état ou la province</option>");
+            supprimer_villes();
+        }
+    </script>
+{% endblock %}

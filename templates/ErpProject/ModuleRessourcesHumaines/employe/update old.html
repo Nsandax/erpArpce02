@@ -1,0 +1,393 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="leaf" href="{% url 'module_ressources_humaines_list_employes' %}">Module Ressources humaines</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary">Valider</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_details_employe' model.id %}')" class="button small-button rounded leaf" style="margin-left: 5px">Annuler</button>
+    </div>
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+		{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+	<br>
+
+    <div class="row item-content" style="margin-top: 10px">
+		<form id="form" method="POST" action="{% url 'module_ressources_humaines_post_update_employe' %}"
+			enctype="multipart/form-data"
+			data-role="validator"
+			data-show-required-state="false"
+			data-hint-mode="line"
+			data-hint-background="bg-red"
+			data-hint-color="fg-white"
+			data-hide-error="5000"
+			novalidate="novalidate"
+			data-on-error-input="notifyOnErrorInput"
+			data-show-error-hint="false">
+			{% csrf_token %}
+			<input id="submit" type="submit" style="display: none">
+			<input name="ref" type="hidden" value="{{ model.id }}" >
+
+			<div class="row cells3">
+				<div class="cell">
+					<div class="row">
+						<!--label class="input-control radio small-check">
+							<input value="1" name="est_particulier"  type="radio"
+								{% if model.est_particulier == True %}{{ "checked" }}{% endif %} >
+							<span class="check"></span>
+							<span class="caption">Particulier</span>
+						</label>
+						<label class="input-control radio small-check" style="margin-left: 15px">
+							<input value="0" name="est_particulier"  type="radio"
+								{% if model.est_particulier == False %}{{ "checked" }}{% endif %} >
+							<span class="check"></span>
+							<span class="caption">Entreprise</span>
+						</label-->
+					</div>
+					<div class="row">
+						<input id="image_upload" name="image_upload" type="file" accept="image/*" style="display:none;">
+						<div class="tile-container">
+							<a onclick="$('input[id=image_upload]').click();" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+								<div class="tile-content slide-up" >
+									<div class="slide" >
+										{% if model.image != None and model.image != "" %}
+											<img id="image_preview" src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+										{% else %}
+											<img id="image_preview" src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+										{% endif %}
+									</div>
+									<div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+										<span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+									</div>
+								</div>
+							</a>
+						</div>
+					</div>
+					<div class="row">
+						<label>Nom</label>
+						<div class="input-control text full-size" data-role="input">
+							<input name="nom_complet" value="{{ model.nom_complet }}" type="text"
+								data-validate-func="required"
+								data-validate-hint="Entrez le nom de l'assujetti svp !">
+							<span class="input-state-error mif-warning"></span>
+							<span class="input-state-success mif-checkmark"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row cells3">
+				<div  class="cell">
+					<div class="row">
+						<label>Adresse</label>
+						<div class="input-control select full-size" data-role="input">
+							<select onchange="choix_pays()" id="choixPays"
+								data-validate-func="min"
+								data-validate-arg="1"
+								data-validate-hint="Précisez le pays de l'assujetti svp !" >
+								<option value="0">Sélectionnez un pays</option>
+								{% for item in pays %}
+									<option value="{{ item.id }}">{{ item.designation }}</option>
+								{% endfor %}
+							</select>
+							<span class="input-state-error mif-warning"></span>
+							<span class="input-state-success mif-checkmark"></span>
+						</div>
+						<div class="input-control select full-size" data-role="input">
+							<select onchange="choix_province()" id="choixProvince"
+								data-validate-func="min"
+								data-validate-arg="1"
+								data-validate-hint="Précisez la province de l'assujetti svp !">
+								<option value="0">Sélectionnez un état ou une province</option>
+							</select>
+							<span class="input-state-error mif-warning"></span>
+							<span class="input-state-success mif-checkmark"></span>
+						</div>
+						<div class="input-control select full-size" data-role="input">
+							<select onchange="choix_ville()" id="choixVille"
+								data-validate-func="min"
+								data-validate-arg="1"
+								data-validate-hint="Précisez la ville de l'assujetti svp !">
+								<option value="0">Sélectionnez une ville</option>
+							</select>
+							<span class="input-state-error mif-warning"></span>
+							<span class="input-state-success mif-checkmark"></span>
+						</div>
+						<div class="input-control select full-size" data-role="input">
+							<select name="commune_quartier_id" id="choixCommune"
+								data-validate-func="min"
+								data-validate-arg="1"
+								data-validate-hint="Précisez la commune de l'assujetti svp !">
+								<option value="0">Sélectionnez une commune</option>
+							</select>
+							<span class="input-state-error mif-warning"></span>
+							<span class="input-state-success mif-checkmark"></span>
+						</div>
+						<div class="input-control text full-size" data-role="input">
+							<input name="adresse" value="{{ model.adresse }}" type="text" placeholder="Rue..." >
+							<span class="input-state-error mif-warning"></span>
+							<span class="input-state-success mif-checkmark"></span>
+						</div>
+					</div>
+					<div class="row">
+						<label>Téléphone</label>
+						<div class="input-control text full-size" data-role="input">
+							<input name="phone" value="{{ model.phone }}" type="text">
+						</div>
+					</div>
+					<div class="row">
+						<label>Courriel</label>
+						<div class="input-control text full-size" data-role="input">
+							<input name="email" value="{{ model.email }}" type="email"
+								data-validate-func="email"
+								data-validate-hint="Entrez une adresse email valide !">
+							<span class="input-state-error mif-warning"></span>
+							<span class="input-state-success mif-checkmark"></span>
+						</div>
+					</div>
+				</div>
+				<div  class="cell">
+				</div>
+				<div class="cell">
+					<div class="row">
+						<label>Poste</label>
+						<div class="input-control text full-size">
+							<select name="poste" id="poste"
+								data-validate-func="min"
+								data-validate-arg="1"
+								data-validate-hint="Sélectionnez le poste svp.">
+								<option value="0">Sélectionnez un poste</option>
+								{% for item in postes %}
+									<option {% if model.poste.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<label>Département</label>
+						<div class="input-control text full-size">
+							<select name="departement" id="departement"
+								data-validate-func="min"
+								data-validate-arg="1"
+								data-validate-hint="Sélectionnez le departement svp.">
+								<option value="0">Sélectionnez un département</option>
+								{% for item in departements %}
+									<option {% if model.departement.id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<label>Catégorie</label>
+						<div class="input-control select full-size" data-role="input">
+							<select name="categorie_id">
+								<option value="0"></option>
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<label>Civilité</label>
+						<div class="input-control select full-size" data-role="input">
+							<select name="civilite_id">
+								<option value="0"></option>
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<label>Langue</label>
+						<div class="input-control select full-size" data-role="input">
+							<select name="langue_id">
+								<option value="0"></option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+    </div>
+    <script>
+		function readURL(input) {
+			if (input.files && input.files[0]) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					$('#image_preview').attr('src', e.target.result);
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		}
+
+		$("#image_upload").change(function(){
+			readURL(this);
+		});
+
+        function choix_pays() {
+            var idPays = $("#choixPays").val();
+
+            if (idPays != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_configuration_list_places_filles' %}",
+                    { ref: idPays },
+                    function (response) {
+                        $("#choixProvince").children().remove();
+                        $("#choixProvince").append("<option value='0'>Sélectionnez la province</option>");
+                        console.log(response);
+                        for (var i = 0; i < response.length; i++) {
+                            var laProvince = response[i];
+
+                            var option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                            $("#choixProvince").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+            else supprimer_provinces();
+        }
+
+        function choix_province()
+        {
+            var idProvince = $("#choixProvince").val();
+
+            if (idProvince != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_configuration_list_places_filles' %}",
+                    { ref: idProvince },
+                    function (response) {
+                        $("#choixVille").children().remove();
+                        $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                        for (var i = 0; i < response.length; i++) {
+                            var laVille = response[i];
+
+                            var option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                            $("#choixVille").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+            else supprimer_villes();
+        }
+
+        function choix_ville() {
+            var idVille = $("#choixVille").val();
+
+            if (idVille != 0) {
+                showDialog("chargement");
+                $.get(
+                    "{% url 'module_configuration_list_places_filles' %}",
+                    { ref: idVille },
+                    function (response) {
+                        $("#choixCommune").children().remove();
+                        $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+
+                        for (var i = 0; i < response.length; i++) {
+                            var laCommune = response[i];
+
+                            var option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                            $("#choixCommune").append(option);
+                        }
+                        showDialog("chargement");
+                    },
+                    "json"
+                );
+            }
+            else supprimer_communes();
+        }
+
+        function supprimer_communes() {
+            $("#choixCommune").children().remove();
+            $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+        }
+
+        function supprimer_villes() {
+            $("#choixVille").children().remove();
+            $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+            supprimer_communes();
+        }
+
+        function supprimer_provinces() {
+            $("#choixProvince").children().remove();
+            $("#choixProvince").append("<option value='0'>Sélectionnez l'état ou la province</option>");
+            supprimer_villes();
+        }
+
+        $(document).ready(function(){
+
+            $("#choixPays").val("{{ le_pays.id }}");
+
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}",
+                { ref: "{{ le_pays.id }}" },
+                function (response) {
+                    $("#choixProvince").children().remove();
+                    $("#choixProvince").append("<option value='0'>Sélectionnez la province</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laProvince = response[i];
+                        var option = "";
+                        if(laProvince.id == parseInt("{{ la_province.id }}"))
+                        {
+                            option = "<option selected value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                        }
+                        else option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+
+                        $("#choixProvince").append(option);
+                    }
+                },
+                "json"
+            );
+
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}",
+                { ref: "{{ la_province.id }}" },
+                function (response) {
+                    $("#choixVille").children().remove();
+                    $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laVille = response[i];
+                        var option = "";
+                        if(laVille.id == parseInt("{{ la_ville.id }}"))
+                        {
+                            option = "<option selected value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                        }
+                        else option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+
+                        $("#choixVille").append(option);
+                    }
+                },
+                "json"
+            );
+
+            $.get(
+                "{% url 'module_configuration_list_places_filles' %}",
+                { ref: "{{ la_ville.id }}" },
+                function (response) {
+                    $("#choixCommune").children().remove();
+                    $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laCommune = response[i];
+                        var  option = "";
+                        if(laCommune.id == parseInt("{{ la_commune.id }}"))
+                        {
+                            option = "<option selected value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                        }
+                        else option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+
+                        $("#choixCommune").append(option);
+                    }
+                },
+                "json"
+            );
+        });
+    </script>
+{% endblock %}

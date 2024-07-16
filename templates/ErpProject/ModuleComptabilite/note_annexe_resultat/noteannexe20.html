@@ -1,0 +1,132 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote20.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_20' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 42%">
+          <col style="width: 17%">
+          <col style="width: 21%">
+          <col style="width: 20%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td class="tg-wnxb" colspan="4">NOTE 20 : BANQUES, CREDIT D’ESCOMPTE ET DE TRESORERIE<br><br></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Exercice clos le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">SIGLE</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Duree(en mois)</td>
+              <td class="tg-cr4b">0</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-0di8">Libellés</td>
+              <td class="tg-0di8">Année <br>N</td>
+              <td class="tg-0di8">Année <br>N-1</td>
+              <td class="tg-0di8">Variation en %</td>
+            </tr>
+            <tr>
+              <td class="tg-r5qm">Escomptes de crédit de campagne</td>
+              <td class="tg-7jts">-</td>
+              <td class="tg-7jts">-</td>
+              <td class="tg-7jts">-</td>
+            </tr>
+            <tr>
+              <td class="tg-r5qm">Escomptes de crédit ordinaires</td>
+              <td class="tg-7jts">16 800 000</td>
+              <td class="tg-7jts">16 800 000</td>
+              <td class="tg-7jts">-</td>
+            </tr>
+            <tr>
+              <td class="tg-1ufo">TOTAL  CREDIT D’ESCOMPTE</td>
+              <td class="tg-j8xs">16 800 000</td>
+              <td class="tg-j8xs">16 800 000</td>
+              <td class="tg-j8xs">-</td>
+            </tr>
+            <tr>
+              <td class="tg-ewmv">Banque locales</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+            </tr>
+            <tr>
+              <td class="tg-ewmv">Banque autres Etats régions</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+            </tr>
+            <tr>
+              <td class="tg-ewmv">Autres Banques</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+            </tr>
+            <tr>
+              <td class="tg-nx8p">Banques intérêts courus</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+            </tr>
+            <tr>
+              <td class="tg-nx8p">Crédit de trésorerie</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+              <td class="tg-13pz">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cuvk">TOTAL  BANQUES ET CREDIT DE TRESORERIE</td>
+              <td class="tg-h2g2">-</td>
+              <td class="tg-h2g2">-</td>
+              <td class="tg-h2g2">-</td>
+            </tr>
+            <tr>
+              <td class="tg-4o4u">TOTAL GENERAL</td>
+              <td class="tg-wev4">16 800 000</td>
+              <td class="tg-wev4">16 800 000</td>
+              <td class="tg-wev4">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-z0zb">Le commentaire porte sur :</td>
+              <td class="tg-zv4m"></td>
+              <td class="tg-zv4m"></td>
+              <td class="tg-zv4m"></td>
+            </tr>
+            <tr>
+              <td class="tg-fa7u" colspan="4">Toutes variations significatives, indication du nom de l’organisme les conditions de crédit, la durée du crédit. Nota : Banques et intérêts courus figure dans cette rubrique si le compte principal attaché est créditeur.<br></td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+    {% endblock %}

@@ -1,0 +1,64 @@
+
+{% extends "ErpProject/ModuleControle/shared/layout.html" %} {% block page %}
+
+{%load static %}
+
+
+
+<script src="{% static 'ErpProject/cube/bootstrap/bootstrap.js' %}"></script>
+<script src="{% static 'ErpProject/cube/bootstrap-submenu/js/bootstrap-submenu.js' %}"></script>
+<script src="{% static 'ErpProject/cube/angular/angular.js' %}"></script>
+<script src="{% static 'ErpProject/cube/angular-cookies/angular-cookies.js' %}"></script>
+<script src="{% static 'ErpProject/cube/angular-bootstrap/ui-bootstrap-tpls.js' %}"></script>
+
+
+<link rel="stylesheet" href="{% static 'ErpProject/cube/angular-ui-grid/ui-grid.css' %}">
+
+<link rel="stylesheet" href="{% static 'ErpProject/cube/nvd3/nv.d3.css' %}">
+<link rel="stylesheet" href="{% static 'ErpProject/cube/cubesviewer/cubesviewer.css' %}">
+<link rel="stylesheet" href="{% static 'ErpProject/cube/bootstrap-submenu/css/bootstrap-submenu.css' %}"> <!-- after cubesviewer.css! -->
+
+<script src="{% static 'ErpProject/cube/angular-ui-grid/ui-grid.js' %}"></script>
+<script src="{% static 'ErpProject/cube/d3/d3.js' %}"></script>
+<script src="{% static 'ErpProject/cube/nvd3/nv.d3.js' %}"></script>
+<script src="{% static 'ErpProject/cube/flotr2/flotr2.min.js' %}"></script>
+<script src="{% static 'ErpProject/cube/masonry/masonry.pkgd.min.js' %}"></script>  <!-- needed for CubesViewer Studio only, not embedded views -->
+<script src="{% static 'ErpProject/cube/cubesviewer/cubesviewer.js' %}"></script>
+
+<script type="text/javascript">
+
+//Initialize CubesViewer when document is ready
+$(document).ready(function() {
+
+    cubesviewerStudio.init({
+        container: $('#cubesviewer').get(0),
+        cubesUrl: "{{ cubesviewer_cubes_url }}",
+        backendUrl: "{{ cubesviewer_backend_url }}",
+        user: "{{ user.id }}"
+    });
+});
+
+</script>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <!-- <button onclick="javascript:window.location.assign('{% url 'module_achat_add_expression' %}')" class="button small-button rounded primary chargement-au-click">Créer</button> -->
+
+
+<!-- Cubes Viewer container -->
+<div id="cubesviewer">
+</div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}

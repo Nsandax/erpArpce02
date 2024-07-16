@@ -1,0 +1,746 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %}
+{%load static %}
+<style>
+    .asterus{
+        color:red;
+    }
+</style>
+<!-- <link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap.min.css' %}"> -->
+<link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+
+<script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+<!-- <script src="{% static 'ErpProject/js/bootstrap.min.js' %}"></script> -->
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="#">Module Achat</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                <div class="row">
+                    <div class="col-md-1">
+                        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider"%}
+                    </div>
+                    <div class="col-md-1"></div>
+                    <div class="col-md-1">
+                        <button onclick="javascript:window.location.assign('{% url 'module_achat_list_bon_reception' %}')" class="theme-btn theme-btn-sm rounded">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+                <br>
+
+                <hr class="hr-ligne" style="background-color:grey; opacity: 0.1;">
+                <br>
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+                <form method="POST" action="{% url 'module_achat_modifier_bon_commande' %}"
+                    enctype="multipart/form-data"
+                    data-role="validator"
+                    data-show-required-state="false"
+                    data-hint-mode="line"
+                    data-hint-background="bg-red"
+                    data-hint-color="fg-white"
+                    data-hide-error="5000"
+                    novalidate="novalidate"
+                    data-on-error-input="notifyOnErrorInput"
+                    data-show-error-hint="false">
+                    {% csrf_token %}
+
+                    <input type="hidden" id="etat_actuel_id" name="etat_actuel_id" value="{{etat_actuel_id}}">
+                    <input type="hidden" name="etape_wkf" value="{{etape_wkf}}">
+                    <input type="hidden" name="demande_wkf" value="{{demande_wkf}}" >
+                    <input name="ref" type="hidden" value="{{ model.id }}">
+
+                    <input id="submit" type="submit" style="display: none">
+                    <input id="nombreLigne" type="hidden" value="0" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Numéro de commande <strong class="asterus">*</strong></label>
+                            <div class="input-control text full-size">
+                                <input type="text" class="form-control" value="{{model.numero_reception}}" readonly  style="border: none;" id="numero" disabled="true" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Date d'enregistrement <strong class="asterus">*</strong></label>
+                            <div id="input-date-prevue" class="input-control text full-size" data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" name="date_prevue" id="date_prevue" readonly data-validate-func="required" style="border: none;" data-validate-hint="Précisez la date d'enregistrement svp." class="form-control" value = "{{model.date_prevue|date:"d/m/Y"}}">
+                                <div class="button primary_color_{{module.name|lower}}"><span class="mif-calendar" style="color: white;"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Fournisseur <strong class="asterus">*</strong></label>
+                            <div class="input-control text full-size ">
+                                <select name="fournisseur_id" id="fournisseur_id">
+                                    {% for item in fournisseurs %}
+                                        <option {% if model.fournisseur.id == item.id %} {{ "selected" }} {% endif %} value="{{ model.fournisseur.id }}"> {{ model.fournisseur.nom_complet}} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                                <label>Combinaison budgétaire <strong class="asterus">*</strong></label>
+                                <div class="input-control text full-size">
+                                        <input type="text" id="ligne_budgetaire"  name="ligne_budgetaire" value="{{model.ligne_budgetaire.code}}" placeholder="Ex:1.605505.0.052.AP.V.01" autocomplete="off" data-validate-func="required" data-validate-hint="Entrez la combinaison budgetaire."/>
+                                </div>
+                            </div>
+
+                        <div class="col-md-6">
+                            <label>Devise <strong class="asterus">*</strong></label>
+                            <div class="input-control text full-size">
+                                <select name="devise_id" class="form-control"  id=" devise_id " onchange="choix_devise()" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez la devise.">
+                                    <option value="0">Sélectionnez une devise <strong class="asterus">*</strong></option>
+                                    {% for item in devises %}
+                                        <option {% if model.devise.id == item.id %} {{ "selected" }} {% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <label>Modalité de réglèment <strong class="asterus">*</strong></label>
+                            <div class="input-control text full-size ">
+                            <select type="text " name="condition_reglement_id " class="form-control "  id="condition_reglement_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez la modalité de réglèment svp.">
+                                <option value="-1">Sélectionnez la modalité de réglèment</option>
+                                {% for item in conditions_reglement %}
+                                <option {% if model.condition_reglement.id == item.id %} {{ "selected" }} {% endif %} value="{{ item.id }}"> {{ item.designation }} </option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Durée de vie <strong class="asterus">*</strong></label>
+                            <div class="input-control text full-size">
+                                <select type="text" name="duree_vie" class="form-control"  id="duree_vie" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez la durée de vie de ce bon de commande svp.">
+                                    <option value="-1">Sélectionnez la durée de vie de ce bon de commande</option>
+                                    <option {% if model.duree == 1 %} {{ "selected" }} {% endif %} value="1">6 Mois</option>
+                                    <option {% if model.duree == 2 %} {{ "selected" }} {% endif %} value="2">12 Mois</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="row">
+                            <div class="col-md-6">
+                                    <label>Description de la commande</label>
+                                    <div class="input-control text full-size">
+                                        <textarea name="description_commande">
+                                            {{model.description}}
+                                        </textarea>
+                                    </div>
+                                </div>
+
+                           {% if etat_actuel_id == 0 %}
+                           <div class="col-md-6" >
+                               <div class="row">
+                                   <label class="input-control checkbox small-check full-size">
+                                       {% if model.demandes_achat.all %}
+                                            <input value="0" name="est_groupe" id="est_groupe" type="checkbox" onclick="estgroupe()" checked>
+                                       {% else %}
+                                            <input value="0" name="est_groupe" id="est_groupe" type="checkbox" onclick="estgroupe()">
+                                       {% endif %}
+                                       <span class="check"></span>
+                                       <span class="caption"  style="color: red;">Est une commande groupée ?</span>
+                                   </label>
+
+                               </div>
+                           </div>
+                           {% endif %}
+
+                           <div id="express" class="col-md-6" {% if model.demandes_achat.all %} style="display:none;"{% endif %}>
+                               <label>Demande d'achat :</label>
+                               <div class="input-control text full-size ">
+                                   <select name="demande_id" id="demande_id" onchange="fill_lignes()">
+                                        {% for item in demandes %}
+                                            <option {% if model.demande_achat.id == item.id %} {{ "selected" }} {% endif %} value="{{ item.id }}"> {{ item.numero_demande }} </option>
+                                       {% endfor %}
+
+                                   </select>
+                               </div>
+                           </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!--Test sur Ajout sur plusieurs-->
+                        {% if model.demandes_achat.all.count > 0 %}
+                        <div id="tableauexpress" class="col-md-6">
+                            <table id="TabExpress" class="table no-margin">
+                                <thead class="no-border">
+                                    <tr>
+                                        <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Demande d'achat</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsExpress">
+                                 {% for element in demandes_achat.all %}
+                                    <tr id="ligneExpress{{forloop.counter}}">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <input id="id1" type="hidden" name="demande_rd" value="0" />
+                                            <div class="input-control select full-size">
+                                                <select  onchange="selectChange(event)" id="demande{{forloop.counter}}" name="demande_list_id">
+                                                    <option value="">Sélectionnez une demande</option>
+                                                    {% for item in demandes %}
+                                                        <option {% if element.id == item.id %} {{ "selected" }} {% endif %} value="{{ item.id }}"> {{ item.numero_demande }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigneExpress({{forloop.counter}})"><span class="mif-cross fg-red"></span></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="row margin10 no-margin-left no-margin-right">
+                                <button type="button" class="button small-button rounded" id="btnAjouterLigneExpress">Ajouter une demande</button>
+                            </div>
+                        </div>
+                        {% else %}
+                         <div id="tableauexpress" class="col-md-6">
+                             <table id="TabExpress" class="table no-margin">
+                                 <thead class="no-border">
+                                     <tr>
+                                         <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Demande d'achat</th>
+                                         <th width="5%"></th>
+                                     </tr>
+                                 </thead>
+                                 <tbody id="itemsExpress">
+                                     <tr id="ligneExpress1">
+                                         <td class="no-padding-top no-padding-left no-padding-bottom">
+                                             <input id="id1" type="hidden" name="demande_rd" value="0" />
+                                             <div class="input-control select full-size">
+                                                 <select  onchange="selectChange(event)" id="demande1" name="demande_list_id">
+                                                     <option value="">Sélectionnez une demande</option>
+                                                     {% for item in demandes %}
+                                                         <option value="{{ item.id }}"> {{ item.numero_demande }} </option>
+                                                     {% endfor %}
+                                                 </select>
+                                             </div>
+                                         </td>
+                                         <td class="no-padding-top no-padding-bottom">
+                                             <div class="pagination no-border">
+                                                 <span class="item" title="Supprimer la ligne" onclick="supprimerLigneExpress(1)"><span class="mif-cross fg-red"></span></span>
+                                             </div>
+                                         </td>
+                                     </tr>
+                                 </tbody>
+                             </table>
+                             <div class="row margin10 no-margin-left no-margin-right">
+                                 <button type="button" class="button small-button rounded" id="btnAjouterLigneExpress">Ajouter une demande</button>
+                             </div>
+                         </div>
+                        {% endif %}
+                        <!--Fin Test-->
+                    </div>
+                    <br>
+                    <br>
+                    <hr class="att-ligne" style="background-color: grey; height:1px; opacity: 0.2;  margin-top:3px">
+                    <div class="row margin20 no-margin-left no-margin-right">
+                        <table id="tableau" class="table no-margin">
+                            <thead class="no-border">
+                                <tr>
+                                    <th class="no-padding-top no-padding-left no-padding-bottom" width="40%">Article</th>
+                                    <th width="20%">Quantité demandée</th>
+                                    <th width="20%">Prix unitaire</th>
+                                    <th width="30%">Combinaison budgétaire particulière</th>
+                                    <!-- <th width="5%"></th> -->
+                                </tr>
+                            </thead>
+                            <tbody id="items">
+                                {% if lignes.count > 0 %}
+                                    {% for item in lignes %}
+                                    <!-- on recupere tous les ids_ligne-->
+                                    <input name="all_ligne_id" id="all_ligne_id{{forloop.counter}}" value="{{item.id}}" type="hidden" autocomplete="off">
+                                    <tr id="ligne{{forloop.counter}}">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <input name="ligne_id" id="ligne_id{{forloop.counter}}" type="hidden" value="{{ item.id }}" autocomplete="off">
+                                            <input id="id1" type="hidden" name="article_id" value="{{item.article.id}}" />
+                                            <input id="stock1" type="hidden" value="0" />
+                                            <div class="input-control select full-size">
+                                                <select onchange="selectChange(event)" id="item{{forloop.counter}}" name="article_id"
+                                                    data-validate-func="min"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez un article svp">
+                                                    <option value="{{item.article.id}}">{{item.article.designation}}</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input name="quantite_demandee" id="quantite{{forloop.counter}}" value="{{item.quantite_demande}}" type="text" placeholder="Ex: 10"
+                                                    data-validate-func="number"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Précisez la quantité svp">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input class="monetary" name="prix_unitaire" id="prix{{forloop.counter}}" value="{{item.prix_unitaire}}" type="text" autocomplete="off" placeholder="Ex: 100"
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Précisez le prix unitaire svp">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">CFA</span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input name="ligne_of_ligne_budgetaire" id="lignebudget{{forloop.counter}}" value="{{item.ligne_budgetaire.code}}" type="text" autocomplete="off" placeholder="Ex:1.605505.0.052.AP.V.01">
+
+                                            </div>
+                                        </td>
+                                        <!-- <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne({{forloop.counter}})"><span class="mif-cross fg-red"></span></span>
+                                            </div>
+                                        </td> -->
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr id="ligne1">
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <input name="ligne_id" name="ligne_id1" type="hidden" value="0">
+                                            <input id="id1" type="hidden" name="id1" value="0" />
+                                            <input id="stock1" type="hidden" value="0" />
+                                            <div class="input-control select full-size">
+                                                <select onchange="selectChange(event)" id="item1" name="article_id"
+                                                    data-validate-func="min"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez un article svp">
+                                                    <option value="">Sélectionnez un article</option>
+                                                    {% for item in categories %}
+                                                        <optgroup label="{{ item.designation }}">
+                                                            {% for article in articles %}
+                                                                {% if article.categorie_id == item.id %}
+                                                                    <option value="{{ article.id }}">[{{ article.code_article }}] {{ article.designation }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </optgroup>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input name="quantite_demandee" id="quantite1" type="text" placeholder="Ex: 10"
+                                                    data-validate-func="number"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Précisez la quantité svp">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input class="monetary" name="prix_unitaire" id="prix1" type="text" autocomplete="off" placeholder="Ex: 100"
+                                                    data-validate-func="required"
+                                                    data-validate-hint="Précisez le prix unitaire svp">
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" class="sub-header place-right devise">CFA</span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input name="ligne_of_ligne_budgetaire" id="lignebudget1" type="text" autocomplete="off" placeholder="Ex:1.605505.0.052.AP.V.01">
+
+                                            </div>
+                                        </td>
+                                        <!-- <td class="no-padding-top no-padding-bottom">
+                                            <div class="pagination no-border">
+                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                            </div>
+                                        </td> -->
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+
+                        <table id="tableau2" class="display nowrap border bordered striped" cellspacing="0" style="width: 100%; display:none;" >
+                                <tr >
+                                    <td class="head" >#</td>
+                                    <td class="head">ARTICLE</td>
+                                    <td class="head">QUANTITE</td>
+                                    <td class="head">PRIX UNITAIRE</td>
+                                    <td class="head">COMBINAISON BUDGETAIRE PARTICULIERE</td>
+                                </tr>
+
+                                {% for item in lignes_etat %}
+                                <tr>
+                                    <input type="hidden" name="article_id" value="{{item.article.id}}" />
+                                    <td class="td"></td>
+                                    <td class="td">{{ item.article.designation }}</td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                            <div class="input-control text full-size">
+                                                <input name='quantite_demandee' type="text" placeholder="Ex: 1000"
+                                                    data-validate-func="number"
+                                                    data-validate-arg="1"
+                                                    data-validate-hint="Précisez le prix unitaire svp" value={{item.quantite_demande}}>
+                                                <span class="prepend-icon" style="margin-left:75%">
+                                                    <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <input class="monetary" name='prix_unitaire' type="text" placeholder="Ex: 1000" value="{{item.prix_unitaire}}" readonly>
+                                            <span class="prepend-icon" style="margin-left:75%">
+                                                <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <input name="ligne_of_ligne_budgetaire" type="text" autocomplete="off" placeholder="Ex:1.605505.0.052.AP.V.01">
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+
+                        </table>
+                    </div>
+                    <!-- <div id="btn_ligne" class="row margin10 no-margin-left no-margin-right">
+                        <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                    </div> -->
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+
+<script src="/static/ErpProject/js/fourniture-local.js"></script>
+    <script>
+        var deviseRef = "CFA";
+
+        var lesCategories = new Array();
+        var lesArticles = new Array();
+        var lesDevises = new Array();
+
+        {% for item in categories %}
+            lesCategories.push({id:"{{ item.id }}", designation:"{{ item.designation }}"});
+        {% endfor %}
+
+        {% for item in articles %}
+            lesArticles.push({id:"{{ item.id }}", designation:"{{ item.designation }}", code_article:"{{ item.code_article }}", categorie_id:"{{ item.categorie_id }}"});
+        {% endfor %}
+
+        {% for item in devises %}
+            lesDevises.push({id:"{{ item.id }}", designation:"{{ item.designation }}", symbole_devise:"{{ item.symbole_devise }}"});
+        {% endfor %}
+    </script>
+
+    <script>
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+        var bon = {};
+        var lataille = 0;
+
+        {% for item in lignes %}
+            lataille += 1
+        {% endfor %}
+
+        console.log("taille", lataille);
+        if (lataille != 0) {
+            nombreLignes = lataille;
+            compteur = lataille;
+        }
+        console.log('****Le compteur', compteur);
+
+
+        $(document).ready(function(){
+            $("div#tableauexpress").hide()
+            var etat_actuel_id = $('#etat_actuel_id').val();
+            if (etat_actuel_id == 0){
+                $("#tableau2").hide();
+            }
+            else{
+                $("#items").empty();
+                $("#tableau").hide();
+                $("#btn_ligne").hide();
+            }
+        });
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            console.log('Le compteur', compteur);
+            var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="article_id" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input name="ligne_id" id="ligne_id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" data-validate-func="min"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article" ><option value="0">Sélectionnez un article</option>';
+            nouvelleLigne += renvoyerOptionsArticles();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="quantite' + compteur + '" name="quantite_demandee" data-validate-func="number" ';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+            nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+            nouvelleLigne += '<div class="input-control text full-size">';
+            nouvelleLigne += '<input class="monetary" id="prix' + compteur + '" name="prix_unitaire" data-validate-func="number"';
+            nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+            nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+            nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+            nouvelleLigne += '</span></div>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="ligne_of_ligne_budgetaire" type="text" autocomplete="off" placeholder="Ex:1.605505.0.052.AP.V.01"></div>';
+
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function selectChange(event)
+        {
+            $select = $(event.target);
+            console.log("jsuis la dam,n")
+            var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+                console.log("la ligne actuelle",ligneActuelle)
+                if ((ligneActuelle === "")||(ligneActuelle === null)){
+                   ligneActuelle = 1;
+                }
+
+                if($("#" + id_element).val() != "0")
+                {
+                    nombreItems += 1;
+                    var idArticle = parseInt($("#" + id_element).val());
+                    console.log("ID ARTICLE : " + idArticle);
+                    $.get(
+                        "{% url  'module_achat_article_prix' %}",
+                        {ref : idArticle},
+                        function(data)
+                        {
+                            console.log("DATA " + data.id)
+                            if(data != null)
+                            {
+                                $("#id" + ligneActuelle).val(data.id);
+                                $("#quantite" + ligneActuelle).val(1);
+                                $("#prix" + ligneActuelle).val(data.prix_unitaire);
+                                $("#unite" + ligneActuelle).text(data.symbole_unite);
+                                console.log("prix : " + data.prix_unitaire);
+                            }
+                        },
+                        "json"
+                    );
+                }
+                else nombreItems -= 1;
+            }
+        }
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            if($("#id" + indice).val() != "0")
+            {
+                fournitureLocal.supprimerLigne($("#id" + indice).val());
+            }
+            $("#ligne" + indice).remove();
+        }
+
+        function choix_devise()
+        {
+            var id_devise = $("#devise_id").val();
+            if(id_devise == "0") deviseRef = "CFA";
+            else
+            {
+                for(var i = 0; i < lesDevises.length; i++)
+                {
+                    var devise = lesDevises[i];
+                    if(devise.id == id_devise)
+                    {
+                        deviseRef = devise.symbole_devise;
+                        $(".devise").text(deviseRef);
+                        break;
+                    }
+                }
+            }
+        }
+
+        function renvoyerOptionsArticles()
+        {
+            var ligne = "";
+            var hasArticle = "0";
+            for(var i = 0; i < lesCategories.length; i++)
+            {
+                var categorie = lesCategories[i];
+                for(var j = 0; j < lesArticles.length; j++)
+                {
+                    var article = lesArticles[j];
+                    if(article.categorie_id == categorie.id)
+                    {
+                        hasArticle = "1";
+                        break;
+                    }
+                }
+                if(hasArticle == "1")
+                {
+                    ligne += '<optgroup label="' + categorie.designation + '">';
+                    for(var j = 0; j < lesArticles.length; j++)
+                    {
+                        var article = lesArticles[j];
+                        if(article.categorie_id == categorie.id)
+                        {
+                            ligne += '<option value="' + article.id + '"> [' + article.code_article + '] ' + article.designation + '</option>';
+                        }
+                    }
+                    ligne += '</optgroup>';
+                }
+            }
+            return ligne;
+        }
+    </script>
+
+    <script>
+        $("#btnAjouterLigneExpress").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligneExpress' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+            nouvelleLigne += '<input name="demande_rd" id="id' + compteur + '" type="hidden" value="0" />';
+            nouvelleLigne += '<div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="selectChange(event)" name="demande_list_id" id="demande' + compteur +'">' ;
+            nouvelleLigne += ' <option value="0">Sélectionnez une demande</option>';
+            nouvelleLigne += '{% for item in demandes %}<option value="{{ item.id }}"> {{ item.numero_demande }} </option>{% endfor %}';
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigneExpress(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#itemsExpress").append(nouvelleLigne);
+        });
+
+
+        function supprimerLigneExpress(indice) {
+            nombreLignes--;
+            $("#ligneExpress" + indice).remove();
+        }
+
+        function estgroupe(){
+            var checkBox = document.getElementById("est_groupe");
+            if (checkBox.checked == true){
+               $("div#express").hide();
+               $("div#tableauexpress").show();
+               $("#tableau").show();
+                $("#tableau").append(montableaudebase);
+               $("#tableau2").hide();
+            }else{
+                $("div#express").show();
+                $("div#tableauexpress").hide()
+            }
+        }
+    </script>
+
+<script>
+        $('.chosen-select').chosen();
+        $('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+</script>
+
+
+<script>
+var montableaudebase = $("#tableau").children();
+function fill_lignes() {
+
+    var choixDemande = $("#demande_id").val();
+    console.log("nnn")
+    console.log(choixDemande)
+
+    if (choixDemande !== "0"){
+        showDialog("chargement");
+        console.log("Dedans oh")
+
+        console.log(choixDemande);
+
+        $.get(
+            "{% url 'module_achat_get_lignes_of_demande' %}",
+            {ref:choixDemande}
+            ,
+            function (response) {
+                console.log(response)
+                $("#tableau").hide();
+                $("#tableau2").show();
+                console.log("baratin");
+
+                $("#tableau2").children().remove();
+                $("#tableau2").append('<tr><td class="head" >#</td><td class="head">ARTICLE</td><td class="head">QUANTITE</td><td class="head">PRIX UNITAIRE</td></tr>');
+                $("#tableau").children().remove();
+
+                for (var i = 0; i < response.length; i++) {
+                    var uneligne = response[i];
+                    console.log("baratin")
+                    console.log(uneligne)
+
+                    var option = '<tr><input type="hidden" name="article_id" value="'+ uneligne.article_id + '"/>';
+                        //option += '<input name="quantite_demandee" type="hidden" value="'+ uneligne.quantite_demandee + '">';
+                        option += '<input type="hidden" name="description" value="'+ uneligne.description +'">';
+                        option += '<td class="td"></td>';
+                        option += '<td class="td">'+ uneligne.designation_article+'</td>';
+                        //option += '<td class="td"> '+ uneligne.quantite_demandee+'</td>';
+                        option += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input name="quantite_demandee" type="text" placeholder="Ex: 1000" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" value="'+uneligne.quantite_demandee+'"><span class="prepend-icon" style="margin-left:75%"><span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span></span></div></td>'
+                        option += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input name="prix_unitaire" type="text" placeholder="Ex: 1000" data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp"><span class="prepend-icon" style="margin-left:75%"><span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span></span></div></td>';
+                        option += "</tr>";
+
+
+                    $("#tableau2").append(option);
+                }
+                showDialog("chargement");
+            },
+            "json"
+        );
+
+    }else{
+        console.log("ping")
+        $('#tableau2').children().remove();
+        $("#tableau2").hide();
+        $("#tableau").show();
+        $("#tableau").append(montableaudebase);
+    }
+
+
+}
+</script>
+
+
+{% endblock %}

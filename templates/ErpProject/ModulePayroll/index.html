@@ -1,0 +1,500 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+<style type="text/css">
+    body {background-color: grey!important;}
+    .epsace{
+        padding:10%;
+        padding-top: 5%;
+        padding-bottom: 0%;
+    }
+    .epsace h3{
+        text-align:center;
+        font-weight: 900;
+        font-size: 25px;
+    }
+    .epsace p{
+        text-align:center;
+        color:#c9c9c9;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+    .bg-white{
+        background: none !important;
+    }
+    .feature-card-title {
+        background: linear-gradient(to right, #0A9DD9,#0D65D9);
+        border-radius: 50%;
+        color: #2D3C49;
+        display: inline-block;
+        font-size: 45px;
+        font-weight: bold;
+        padding: 8px;
+        text-decoration: none;
+        height: 175px;
+        width: 175px;
+    }
+
+    #feature-cards {
+        max-width: 730px;
+        margin: auto;
+    }
+    .feature-card-title span {
+        background: #fff;
+        display: flex;
+        justify-content: center;
+        border-radius: 50%;
+        height: 159px;
+        width: 159px;
+        align-items: center;
+        font-weight: 900;
+        font-family: 'CelebriSans-Bold',sans-serif !important;
+    }
+    .card-item p {
+        max-width: 220px;
+        margin: auto;
+        margin-top: 10px;
+        font-size: 16px;
+        line-height: 18px;
+        font-weight: 400;
+        font-family: 'Regular'
+    }
+    .pgrid{
+        background-image: linear-gradient(to right, #865ec4, #8067cf, #7870d9, #6e78e4, #6381ed);
+    }
+
+
+</style>
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+            <!-- Appel de la fonction message -->
+            {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+            <div class="panel" style="background-color:#f5f5f5;border: none;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-6" style="">
+                            <div class="card-item">
+                                <div class="epsace">
+                                    <h3>7.05%</h3>
+                                    <p>Taux de fiche de prêt</p>
+                                </div>
+                                <div>
+                                    <div id="chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="">
+                            <div class="card-item">
+                                <div class="epsace">
+                                    <h3>1.862.7520</h3>
+                                    <p>Avantage paiement</p>
+                                </div>
+                                <div>
+                                    <div id="second_chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                            <div class="row">
+                                <div class="col">
+                                    <div id="" class="tm-box-icon style-02 card-item">
+                                        <div class="row">
+                                            <div class="col-12 text-center px-0 "> <!-- col-3 -->
+                                            </div>
+                                            <div class="card-item col-12 text-center">
+                                                <h4 class="feature-card-title"><span>36%</span></h4>
+                                                    <div class="feature-card-description">
+                                                        <div class="inner-feature-card-description">
+                                                            <p>lot de bulletin de paie calculer 36%</p>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-3">
+                        <div class="panel panel-success pgrid" style="border-radius: 10px;border-bottom: none;height: 120px;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div style="font-weight: 900;">Etat Impôt</div>
+                                        <p class="graphic_number">56</p>
+                                    </div>
+                                    <div class="col-xs-5 text-right">
+                                        <i class="fa fa-bank fa-3x" style="float: left;opacity: 0.3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success pgrid" style="border-radius: 10px;border-bottom: none;height: 120px;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div style="font-weight: 900;">Balance de paie</div>
+                                        <p class="graphic_number">35</p>
+                                    </div>
+                                    <div class="col-xs-5 text-right">
+                                        <i class="fa fa-bank fa-3x" style="float: left;opacity: 0.3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success pgrid" style="border-radius: 10px;border-bottom: none;height: 120px;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div style="font-weight: 900;">Provision Conge</div>
+                                        <p class="graphic_number">15</p>
+                                    </div>
+                                    <div class="col-xs-5 text-right">
+                                        <i class="fa fa-bank fa-3x" style="float: left;opacity: 0.3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success pgrid" style="border-radius: 10px;border-bottom: none;height: 120px;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div style="font-weight: 900;">Paiment Salaire</div>
+                                        <p class="graphic_number">15</p>
+                                    </div>
+                                    <div class="col-xs-5 text-right">
+                                        <i class="fa fa-bank fa-3x" style="float: left;opacity: 0.3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6" style="padding-top: 15px!important;">
+                        <div class="card-item" style="background-color: white;padding: 0!important;margin-bottom: 2%;">
+                            <div class="" style="height: 5px;background-color:#ACE5FE;"></div>
+                            <div class="row item_header">
+                                <div class="col-lg-12" style="color:#000;margin:2% 0 2% 0;">
+									<h3>DESIGNATION</h3>
+									<span style="font-size:130%;color:#bdbdcb; font-weight: 900;">
+										0.0
+									</span>
+								</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <button class="theme-btn theme-btn-sm rounded chargement-au-click" style="background-color:#ACE5FE;">
+                                        Nouvelle Constante</button><br>
+                                </div>
+                                <div class="col-md-8">
+                                    <table class="no-border" style="width: 100%">
+                                        <tr>
+                                            <td>Factures à valider</td>
+                                            <td style="text-align: right">0 CFA</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Factures Impayées</td>
+                                            <td style="text-align: right">0 CFA</td>
+                                        </tr>
+                                        <tr>
+                                            <td><a class="lien chargement-au-click" href="#">Plus d'analyse</a></td>
+                                            <td style="text-align: right"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="row" style="">
+                                    <div id="thrid_chart"></div>
+								</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="padding-top: 15px!important;">
+                        <div class="card-item" style="background-color: white;padding: 0!important;margin-bottom: 2%;">
+                            <div class="" style="height: 5px;background-color:#ACE5FE;"></div>
+                            <div class="row item_header">
+                                <div class="col-lg-12" style="color:#000;margin:2% 0 2% 0;">
+									<h3>DESIGNATION</h3>
+									<span style="font-size:130%;color:#bdbdcb; font-weight: 900;">
+										0.0
+									</span>
+								</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <button class="theme-btn theme-btn-sm rounded chargement-au-click" style="background-color:#ACE5FE;">Nouveau Bulletin</button><br>
+                                </div>
+                                <div class="col-md-8">
+                                    <table class="no-border" style="width: 100%">
+                                        <tr>
+                                            <td>Factures à valider</td>
+                                            <td style="text-align: right">0 CFA</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Factures Impayées</td>
+                                            <td style="text-align: right">0 CFA</td>
+                                        </tr>
+                                        <tr>
+                                            <td><a class="lien chargement-au-click" href="#">Plus d'analyse</a></td>
+                                            <td style="text-align: right"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="row" style="">
+                                    <div id="four_chart"></div>
+								</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4" style="padding: 10px;">
+                        <div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+                            <label style="font-weight: 900;">Documents Recents</label>
+
+                            <ul style="width: 100%;padding: 10px;">
+                                <li><strong style="font-weight: 600;">Bon d'achat BA001</strong>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+                                <li><label style="font-">Bon d'achat BA001</label>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+                                <li><label style="font-">Bon d'achat BA001</label>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+                                <li><label style="font-">Bon d'achat BA001</label>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="padding: 10px;">
+                        <div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+                            <label style="font-weight: 900;">Documents Recents</label>
+
+                            <ul style="width: 100%;padding: 10px;">
+                                <li><strong style="font-weight: 600;">Bon d'achat BA001</strong>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+                                <li><label style="font-">Bon d'achat BA001</label>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+                                <li><label style="font-">Bon d'achat BA001</label>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+                                <li><label style="font-">Bon d'achat BA001</label>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="padding: 10px;">
+                        <div class="item-dash col-md-12" style="background-color: white;height: 300px;padding: 20px;padding-top: 25px;">
+                            <label style="font-weight: 900;">Documents Recents</label>
+
+                            <ul style="width: 100%;padding: 10px;">
+                                <li><strong style="font-weight: 600;">Bon d'achat BA001</strong>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+                                <li><label style="font-">Bon d'achat BA001</label>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+                                <li><label style="font-">Bon d'achat BA001</label>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+                                <li><label style="font-">Bon d'achat BA001</label>
+                                    <p style="float: right;font-size: 12px;color: grey;">Mardi 01 2017
+                                    </p>
+                                    <p style="font-size: 13px;color: grey;">Approuve</p>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'ErpProject/js/frappe-charts.min.iife.js' %}"></script>
+<script>
+    const data = {
+        labels: ["12am-3am", "3am-6pm", "6am-9am", "9am-12am",
+            "12pm-3pm", "3pm-6pm", "6pm-9pm", "9am-12am"
+        ],
+        datasets: [
+            {
+                name: "", type: "line",
+                values: [25, 40, 30, 35, 8, 52, 17, -4]
+            },
+        ]
+    }
+
+    const chart1 = new frappe.Chart("#chart", {
+        title: "",
+        data: data,
+        type: 'line',
+        height: 150,
+        colors: ['#7cd6fd', '#743ee2'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    const datachart2 = {
+        labels: ["12am-3am", "3am-6pm", "6am-9am", "9am-12am",
+            "12pm-3pm", "3pm-6pm", "6pm-9pm", "9am-12am"
+        ],
+        datasets: [
+            {
+                name: "", type: "line",
+                values: [8, 52, 17, -4 ,30, 35, 25, 40 ]
+            },
+        ]
+    }
+    const chart2 = new frappe.Chart("#second_chart", {
+        title: "",
+        data: datachart2,
+        type: 'line',
+        height: 150,
+        colors: ['#7cd6fd', '#743ee2'],
+        lineOptions: {
+            regionFill: 1,
+            hideDots: 1,
+        },
+        axisOptions: {
+            xIsSeries: true, // default: false
+            yIsSeries: true,
+            xAxisMode: 'tick'
+        },
+    })
+</script>
+<script>
+    const dataT = {
+        labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        datasets: [
+      {
+        name: "Dataset 1",
+        values: [18, 40, 30, 35, 8, 52, 17, -4],
+        chartType: 'bar'
+      },
+      {
+        name: "Dataset 2",
+        values: [30, 50, -10, 15, 18, 32, 27, 14],
+        chartType: 'line'
+      }
+    ]
+    }
+
+    const chart3 = new frappe.Chart("#thrid_chart", {
+        title: "",
+        data: dataT,
+        type: 'axis-mixed',
+        height: 150,
+        colors: ['#7cd6fd', '#743ee2', '#6e78e4'],
+
+    })
+
+</script>
+<script>
+    const dataF = {
+        labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        datasets: [
+      {
+        name: "Dataset 1",
+        values: [8, 52, 17, -4, 18, 40, 30, 35],
+        chartType: 'bar'
+      },
+      {
+        name: "Dataset 2",
+        values: [10, 15,30, 50, -18, 32, 27, 14],
+        chartType: 'line'
+      }
+    ]
+    }
+
+    const chart4 = new frappe.Chart("#four_chart", {
+        title: "",
+        data: dataF,
+        type: 'axis-mixed',
+        height: 150,
+        colors: ['#7cd6fd', '#743ee2', '#6e78e4'],
+
+    })
+
+</script>
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [{
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                }, {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                }, {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                }, {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+            ]
+        });
+    });
+</script>
+
+
+{% endblock %}

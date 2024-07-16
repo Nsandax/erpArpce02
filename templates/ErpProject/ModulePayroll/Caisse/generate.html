@@ -1,0 +1,102 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <h2 class="text-light no-margin-left">{{ title }}</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+        </div>
+        <div class="col-md-2">
+            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_payroll_tableau_de_bord' %}')" class="theme-btn theme-btn-sm rounded">
+                Annuler
+            </button>
+        </div>
+    </div>
+
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row item-content" style="margin-top: 10px">
+        <form id="form" method="POST" action="{% url 'module_payroll_post_generer_caisse' %}"
+            data-role="validator"
+            data-show-required-state="false"
+            data-hint-mode="line"
+            data-hint-background="bg-red"
+            data-hint-color="fg-white"
+            data-hide-error="5000"
+            novalidate="novalidate"
+            data-on-error-input="notifyOnErrorInput"
+            data-show-error-hint="false">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Exercice :</label>
+                            <div class="input-control text full-size">
+                                <select name="exercice" id="exercice">
+                                    {% for item in list_years %}
+                                        <option value="{{item}}">{{item}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Mois :</label>
+                            <div class="input-control select full-size">
+                                <select name="periode" id="periode"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez le mois svp.">
+                                    <option value="0">Sélectionnez un mois</option>
+                                    <option value="1"> Janvier </option>
+                                    <option value="2"> Février </option>
+                                    <option value="3"> Mars </option>
+                                    <option value="4"> Avril </option>
+                                    <option value="5"> Mai </option>
+                                    <option value="6"> Juin </option>
+                                    <option value="7"> Juillet </option>
+                                    <option value="8"> Août </option>
+                                    <option value="9"> Septembre </option>
+                                    <option value="10"> Octobre </option>
+                                    <option value="11"> Novembre </option>
+                                    <option value="12"> Décembre </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Employe :</label>
+                            <div class="input-control select full-size">
+                                <select name="employe_id" id="employe_id"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez l'Employe svp.">
+                                    <option value="0">Sélectionnez un employé</option>
+                                    {% for item in employes %}
+                                        <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

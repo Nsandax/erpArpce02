@@ -1,0 +1,128 @@
+@charset "UTF-8";
+@font-face {
+    font-family: "Circular Std Book";
+    font-style: normal;
+    src: url("../fonts/CircularStd-Book.woff");
+}
+
+@font-face {
+    font-family: "Circular Std Light";
+    font-style: normal;
+    src: url("../fonts/CircularStd-Medium.woff");
+}
+
+@font-face {
+    font-family: "Circular Std Bold";
+    font-style: normal;
+    src: url("../fonts/CircularStd-Bold.woff");
+}
+
+@font-face {
+    font-family: "Roboto Thin";
+    font-style: bold;
+    src: url("../fonts/Roboto-Thin.ttf");
+}
+
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: normal;
+    src: url(/static/ErpProject/fonts/Poppins-Regular.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Thin';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Thin"), url(/static/ErpProject/fonts/Poppins-Thin.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Italic"), url(/static/ErpProject/fonts/Poppins-Italic.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Medium';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Medium"), url(/static/ErpProject/fonts/Poppins-Medium.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Bold';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Bold"), url(/static/ErpProject/fonts/Poppins-Bold.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Black';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Black"), url(/static/ErpProject/fonts/Poppins-Black.ttf) format("truetype"); }
+
+* {
+    font-family: 'Poppins';
+}
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+@page rapport3 {
+    size: A4;
+    margin-top: 80px;
+    /* margin-bottom: 20px; */
+        }
+        
+
+
+
+
+html body div#rapport3 {
+page: rapport3;
+font-size: 17px; }
+
+/* table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    background-color: transparent;
+    max-width: 100%!important;
+  }
+  table tr{
+    vertical-align: middle;
+    height: 15.95pt;
+    white-space: normal;
+    padding-left: 9px;
+  }
+  table tr td{
+    font-weight: 300;
+    font-style: normal;
+    text-decoration: none;
+  }
+  .table.bordered th, .table.bordered td {
+    border: 0.5px #000 solid;
+  }
+  .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    padding: 6px;
+    line-height: 1.42857143;
+  } */
+
+  .tg  {border-collapse:collapse;border-spacing:0; width: 100%;}
+  .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+    overflow:hidden;padding:10px 5px;word-break:normal;}
+  .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+    font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+  .tg .tg-km2t{border-color:#ffffff;font-weight:bold;text-align:left;vertical-align:top}
+  .tg .tg-a0f7{background-color:#9b9b9b;border-color:inherit;color:#000000;font-size:16px;font-weight:bold;text-align:center;
+    vertical-align:top}
+  .tg .tg-zv4m{border-color:#ffffff;text-align:left;vertical-align:top}
+  .tg .tg-7fgd{background-color:#9b9b9b;font-size:16px;font-weight:bold;text-align:right;vertical-align:top}
+  .tg .tg-bn4c{background-color:#c0c0c0;font-size:16px;font-weight:bold;text-align:left;vertical-align:top}
+  .tg .tg-lqy6{text-align:right;vertical-align:top}
+  .tg .tg-2yz4{background-color:#c0c0c0;border-color:#343434;font-weight:bold;text-align:center;vertical-align:middle}
+  .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+  .tg .tg-dvpl{border-color:inherit;text-align:right;vertical-align:top}
+  .tg .tg-6ic8{border-color:inherit;font-weight:bold;text-align:right;vertical-align:top}
+  .tg .tg-fymr{border-color:inherit;font-weight:bold;text-align:left;vertical-align:top}
+  .tg .tg-0lax{text-align:left;vertical-align:top}
+  .tg .tg-jtjr{background-color:#c0c0c0;font-size:16px;font-weight:bold;text-align:right;vertical-align:top}
+  .tg .tg-tbew{background-color:#9b9b9b;font-size:16px;font-weight:bold;text-align:left;vertical-align:top}

@@ -1,0 +1,200 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+    <div class="col-md-6">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color:grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Appliquer les modifications" %}
+                        </div>
+                        <div class="col-md-2">
+                            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_payroll_tableau_de_bord' %}')" class="theme-btn theme-btn-sm rounded">
+                                Annuler 
+                            </button>
+                        </div>
+                    </div> 
+                    
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+                    
+                    <br>
+                    <div class="row" style="margin-top: 10px">
+                        <form id="form" method="POST" action="{% url 'module_payroll_post_modifier_configuration' %}"
+                            data-role="validator" 
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            
+                            <div class="row" style="margin-top: 20px">
+                                <div class="col-md-6">
+                                    <label>Taux CNSS</label>
+                                    <div class="input-control text full-size">
+                                        <input type="text" name="tx_cnss"  id="tx_cnss" value="{{ tx_cnss }}"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Nombre de jours de travail par mois</label>
+                                    <div class="input-control text full-size">
+                                        <input type="text" name="nbre_jrs_travail"  id="nbre_jrs_travail" value="{{ nbre_jrs_travail }}"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Nombre de jours de congés à acquérir chaque mois</label>
+                                    <div class="input-control text full-size">
+                                        <input type="text" name="nbre_jrs_conge"  id="nbre_jrs_conge" value="{{ nbre_jrs_conge }}"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Nombre de mensualité de remboursement de prêt</label>
+                                    <div class="input-control text full-size">
+                                        <input type="text" name="nbre_mensualite_pret"  id="nbre_mensualite_pret" value="{{ config_payroll.nbre_mensualite }}"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Taux d'intérêt applicable sur le prêt</label>
+                                    <div class="input-control text full-size">
+                                        <input type="text" name="taux_interet"  id="taux_interet" value="{{ config_payroll.taux_interet }}"/>
+                                    </div>
+                                </div>
+
+                            </div>
+                          
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="tabcontrol2" data-role="tabcontrol">
+                                        <ul class="tabs">
+                                            <li class="active"><a href="#frame_regles">Rubriques et comptes comptables</a></li>
+                                        </ul>
+                                        <div class="frames">
+                                            <div class="frame" id="frame_regles" style="display: block;">
+                                                <table class="table no-margin">
+                                                    <thead class="no-border">
+                                                        <tr class="primary_color_{{module.name|lower}}">
+                                                            <th width="35%">Rubrique</th>
+                                                            <th width="30%">Compte débit</th>
+                                                            <th width="30%">Compte crédit</th>
+                                                            <th width="5%"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="items">
+                                                        {% for model in rubriques %}
+                                                        <tr id="ligne{{forloop.counter}}">
+                                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                                <input id="id{{forloop.counter}}" name="rubrique_id" value = "{{ model.id }}" type="hidden" value="0" />
+                                                                <div class="input-control text full-size">
+                                                                    <input id="rubrique{{forloop.counter}}" name="rubrique" type="text" value="{{ model.designation }}" readonly>
+                                                                </div>
+                                                            </td>
+                                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                                <div class="input-control select full-size">
+                                                                    <select name="compte_debit_id" id="compte_debit_id{{forloop.counter}}" 
+                                                                        >
+                                                                        <option value="0">Sélectionnez un compte</option>
+                                                                        {% for item in comptes %}
+                                                                            <option {% if model.compte_debit_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.numero }} {{ item.designation }} </option>
+                                                                        {% endfor %}                                       
+                                                                    </select>
+                                                                </div>
+                                                            </td>
+                                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                                <div class="input-control select full-size">
+                                                                    <select name="compte_credit_id" id="compte_credit_id{{forloop.counter}}" 
+                                                                        >
+                                                                        <option value="0">Sélectionnez un compte</option>
+                                                                        {% for item in comptes %}
+                                                                            <option {% if model.compte_credit_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item.numero }} {{ item.designation }} </option>
+                                                                        {% endfor %}                                       
+                                                                    </select>
+                                                                </div>
+                                                            </td>
+                                                            <!--td class="no-padding-top no-padding-bottom">
+                                                                <div class="pagination no-border">
+                                                                    <span class="item" title="Supprimer la règle" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                                </div>
+                                                            </td-->
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+
+    <script>
+
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+
+        var deviseRef = "$";   
+        var lesDevises = new Array();
+		var lesRegleSalariales = new Array();
+
+        $(document).ready(function(){		
+			
+			
+			$("#btnAjouterLigne").on("click", function () {
+				nombreLignes++;
+				compteur++;
+				var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+				nouvelleLigne += '<input id="id' + compteur + '" type="hidden" value="0" />';
+				nouvelleLigne += '<div class="input-control select full-size"> <select onchange="selectChangeRegle(event)" name="regle_id" id="regle' + compteur + '"><option value="0">Sélectionnez une règle salariale</option>';
+				nouvelleLigne += renvoyerRegleSalariales(compteur);
+				nouvelleLigne += '</select></div></td>';
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input onchange="inputChangeRegle(event)" data-ligne="' + compteur + '" id="temps' + compteur + '" name="temps" type="text" placeholder="Ex: 0.10"></div></td>';								
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input onchange="inputChangeRegle(event)" data-ligne="' + compteur + '"  id="taux' + compteur + '" name="taux" type="text" autocomplete="off" placeholder="Ex: 0" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le taux svp"><span class="prepend-icon" style="margin-left:75%"><span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span></div></td>';																									
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size"><input class="monetary"  id="montant' + compteur + '" name="montant" type="text" autocomplete="off" placeholder="Ex: 43680" data-validate-func="number" data-validate-arg="1" data-validate-hint="Précisez le montant à payer svp"><span class="prepend-icon" style="margin-left:75%"> <span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span></span></div></td>';								
+				nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border"><span class="item" title="Supprimer l\'élément" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span></div></td></tr>';		
+				$("#items").append(nouvelleLigne);
+			});	
+		});
+
+        function supprimerLigne(indice) {
+            nombreLignes--;           
+            $("#ligne" + indice).remove();
+        }
+		
+		function renvoyerRegleSalariales(compteur)
+        {
+			var ligne = "";
+            for(var i = 0; i < lesRegleSalariales.length; i++)
+            {
+                var regle = lesRegleSalariales[i];
+				ligne += '<option data-ligne="' + compteur + '" data-categorie="' + regle.categorie + '" data-type="' + regle.type_element + '" data-montant="' + regle.montant + '" value="' + regle.id + '">' + regle.designation + '</option>';
+            }
+            return ligne;
+        }
+
+    </script>
+{% endblock %}

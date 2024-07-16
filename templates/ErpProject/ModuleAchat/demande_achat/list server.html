@@ -1,0 +1,128 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+
+
+<div class="row" style="padding-top: 30px;">
+    <div class="col-lg-12">
+         <h2>{{ title }}</h2>
+    <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+           <div class="panel panel-default" style="border: none;">          
+            <div class="panel-body" >
+                <button onclick="javascript:window.location.assign('{% url 'module_achat_add_demande_achat' %}')" class="theme-btn theme-btn-sm rounded primary chargement-au-click">Créer</button>
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+    <br>
+
+        <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+            <thead>
+                <tr>
+                <!--    <th style="width: 20px; background-color:#2e416a; white"></th> -->
+                    <th>Référence</th>
+                    <th>Date du bon d'achat</th>
+                    <th>Demandeur</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <!--
+            <tbody>
+                {% for item in model %}
+                    <tr>
+                        <td>
+                            <label class="small-check">
+                                <input type="checkbox">
+                                <span class="check"></span>
+                            </label>
+                        </td>
+                        <td> 
+                            <a class="lien chargement-au-click" href="{% url 'module_achat_detail_demande_achat' item.id %}">{{ item.numero_demande }}</a> 
+                        </td>
+                        <td> {{ item.date_demande|date:"d/m/Y" }} </td>
+                        <td>
+                            <a class="lien chargement-au-click" href="#">{{ item.demandeur.nom_complet }}</a> 
+                        </td>
+                        <td> {{ item.etat }} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        -->
+        </table>
+       
+
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+    
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable( {
+                destroy : true,
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'copyHtml5',
+                        text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                        titleAttr: "Copier"
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                        titleAttr: "Exporter en excel"
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                        titleAttr: "Exporter en csv"
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                        titleAttr: "Exporter en pdf"
+                    },
+                    //'copyHtml5',
+                    //'excelHtml5',
+                    //'csvHtml5',
+                    //'pdfHtml5'
+                ],
+                serverSide : true,
+                ajax : '/achat/api/demande_achat/?format=datatables',
+                columns : [
+                    { data : 'url', name : 'url'},
+                    { data : 'date_demande', name : 'date_demande'},
+                    { data : 'demandeur', name : 'demandeur.url'},
+                    { data : 'etat', name : 'etat'}
+                ],
+            "language" : {
+                "sEmptyTable" : "Aucune donnée disponible",
+                "sInfo" : "Affichage des données de _START_ à _END_ sur un total de _TOTAL_ données",
+                "sInfoEmpty" : "Affichage 0 à 0 de 0 donnée",
+                "sInfoFiltered" : "(Filtrage de _MAX_ total de données)",
+                "sInfoThousands" : ".",
+                "sLengthMenu" : "Afficher _MENU_ données",
+                "sLoadingRecords" : "Chargement...",
+                "sProcessing": "Traitement...",
+                "sSearch" : "Recherche : ",
+                "sZeroRecords" : "Aucune données trouvées",
+                "oPaginate" : {
+                    "sFirst" : "Premier",
+                    "sLast" : "Dernier",
+                    "sNext" : "Suivant",
+                    "sPrevious" : "Précédent"
+                },
+                "oAria" : {
+                    "sSortAscending" : ": Activation des tris ascendant des colonnes",
+                    "sSortDescending" : ": Activation des tris descendant des colonnes",
+                }
+            }
+            } );
+        } );
+    </script>
+{% endblock %}

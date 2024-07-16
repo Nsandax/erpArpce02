@@ -1,0 +1,74 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Balance générale</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <p>
+                    Période :<br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                    <br>
+                    <br>
+                    Devise :<br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </p>
+            </div>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr class="bg-gray-blue">
+                    <th width="8%">Compte</th>
+                    <th width="20%">Désignation</th>
+                    <th width="24%" colspan="2">Ouverture</th>
+                    <th width="24%" colspan="2">Mouvements</th>
+                    <th width="24%" colspan="2">Clôture</th>
+                </tr>
+                <tr><td colspan="8" class="no-border-left no-border-right"></td></tr>
+                <tr class="bg-gray-blue">
+                    <td width="8%"></td>
+                    <td width="20%"></td>
+                    <td width="12%">Débit</td>
+                    <td width="12%">Crédit</td>
+                    <td width="12%">Débit</td>
+                    <td width="12%">Crédit</td>
+                    <td width="12%">Débiteur</td>
+                    <td width="12%">Créditeur</td>
+                </tr>
+                {% for item in model %}
+                    <tr>    
+                        <!-- <tr style="background-color: red;"> -->
+                        <td width="8%">{{ item.numero_compte }}</td>
+                        <td width="20%">{{ item.designation_compte }}</td>
+                        <td class="monetary" width="12%">{% if item.debit_ouverture == "0.00" %} - {% else %}  {{ item.debit_ouverture|monetary }} {% endif %}</td>
+                        <td class="monetary" width="12%">{% if item.credit_ouverture == "0.00" %} - {% else %}  {{ item.credit_ouverture|monetary }} {% endif %}</td>
+                        <td class="monetary" width="12%">{% if item.debit_mouvement == "0.00" %} - {% else %}  {{ item.debit_mouvement|monetary }} {% endif %}</td>
+                        <td class="monetary" width="12%">{% if item.credit_mouvement == "0.00" %} - {% else %}  {{ item.credit_mouvement|monetary }} {% endif %}</td>
+                        <td class="monetary" width="12%">{% if item.debit_solde == "0.00" %} - {% else %}  {{ item.debit_solde|monetary }} {% endif %}</td>
+                        <td class="monetary" width="12%">{% if item.credit_solde == "0.00" %} - {% else %}  {{ item.credit_solde|monetary }} {% endif %}</td>
+                    </tr>
+                {% endfor %}
+                <tr><td colspan="8" class="no-border-left no-border-right"></td></tr>
+                <tr class="bg-gray-blue">
+                    <th></th>
+                    <th></th>
+                    <th class="monetary">{{ equilibre_debit_ouverture|monetary }}</th>
+                    <th class="monetary">{{ equilibre_credit_ouverture|monetary }}</th>
+                    <th class="monetary">{{ equilibre_debit_mouvement|monetary }}</th>
+                    <th class="monetary">{{ equilibre_credit_mouvement|monetary }}</th>
+                    <th class="monetary">{{ equilibre_debit_solde|monetary }}</th>
+                    <th class="monetary">{{ equilibre_credit_solde|monetary }}</th>
+                </tr>
+            </table>
+            
+        </div>
+    </body>
+</html>

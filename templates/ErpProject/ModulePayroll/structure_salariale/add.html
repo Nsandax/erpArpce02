@@ -1,0 +1,247 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %} {% block page %} {%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_structure_salariale' %}">Liste des structures salariales</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_list_structure_salariale' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_payroll_post_add_structure_salariale' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Type structure</label>
+                                <div class="input-control text full-size">
+                                    <select name="type_id" id="type_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez le type svp.">
+                                        <option value="0">Sélectionnez le type</option>
+                                        {% for item in type_structures %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Devise</label>
+                                <div class="input-control text full-size">
+                                    <select name="devise_id" id="devise_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez la devise svp.">
+                                        <option value="0">Sélectionnez la devise</option>
+                                        {% for item in devises %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Paie planifiée</label>
+                                <div class="input-control text full-size">
+                                    <select name="horaire_paye" id="horaire_paye"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez l'horaire svp.">
+                                        <option value="0">Sélectionnez l'horaire</option>
+                                        {% for item in horaire_payes %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="input-control checkbox small-check full-size">
+                                    <input name="par_defaut" id="par_defaut"  type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Structure de paie regulière</span>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Libellé du bulletin</label>
+                                <div class="input-control text full-size">
+                                    <input type="text" name="libelle_bulletin"  id="libelle_bulletin"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Description</label>
+                                <div class="input-control text full-size" style="min-height: 6.25rem !important;">
+                                    <textarea name="description" id="description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="tabcontrol2" data-role="tabcontrol">
+                                <ul class="tabs">
+                                    <li class="active"><a href="#frame_regles">Règles salariales</a></li>
+                                    <li class=""><a href="#frame_comptabilite">Comptabilité</a></li>
+                                </ul>
+                                <div class="frames">
+                                    <div class="frame" id="frame_regles" style="display: block;">
+                                        <div class="row">
+                                            <div class="row margin20 no-margin-left no-margin-right">
+                                                <p class="sub-header"></p>
+                                                <table class="table no-margin">
+                                                    <thead class="no-border">
+                                                        <tr>
+                                                            <th class="no-padding-top no-padding-left no-padding-bottom" width="35%">Nom</th>
+                                                            <th width="30%">Code</th>
+                                                            <th width="30%">Catégorie</th>
+                                                            <th width="5%"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="items">
+                                                        <tr id="ligne1">
+                                                            <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                                <div class="input-control select full-size">
+                                                                    <select onchange="choixRegle(1)" id="regle_id1" name="regle_id">
+                                                                        <option value="0">Sélectionnez une règle salariale</option>
+                                                                        {% for item in regles %}
+                                                                            <option value="{{ item.id }}">{{ item.designation }}</option>
+                                                                        {% endfor %}
+                                                                    </select>
+                                                                </div>
+                                                            </td>
+                                                            <td class="no-padding-top no-padding-bottom">
+                                                                <div class="input-control text full-size">
+                                                                    <input id="code_regle1" name="code_regle" type="text" disabled="disabled">
+                                                                </div>
+                                                            </td>
+                                                            <td class="no-padding-top no-padding-bottom">
+                                                                <div class="input-control text full-size">
+                                                                    <input id="categorie_regle1" name="categorie_regle" type="text" disabled="disabled">
+                                                                </div>
+                                                            </td>
+                                                            <td class="no-padding-top no-padding-bottom">
+                                                                <div class="pagination no-border">
+                                                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="row margin10 no-margin-left no-margin-right">
+                                                <button type="button" class="theme-btn theme-btn-sm rounded" id="btnAjouterLigne">Ajouter un participant</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="frame" id="frame_comptabilite" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label>Journal des salaires</label>
+                                                <div class="input-control text full-size">
+                                                    <select name="journal_id" id="journal_id" >
+                                                        <option value="0">Sélectionnez un journal</option>
+                                                        {% for item in journaux %}
+                                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Gestion règle salariale
+        var lesRegles = new Array();
+
+        {% for item in regles %}
+            lesRegles.push({id:"{{ item.id }}", designation:"{{ item.designation }}", categorie:"{{ item.categorie.designation }}", code:"{{ item.code }}" });
+        {% endfor %}
+
+        var nombreLignes = 1;
+        var compteur = 1;
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '">';
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size">';
+            nouvelleLigne += '<select onchange="choixRegle(' + compteur + ')" name="regle_id" id="regle_id' + compteur + '" ><option value="0">Sélectionnez une règle</option>';
+            nouvelleLigne += renvoyerOptionsRegles();
+            nouvelleLigne += '</select></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input id="code_regle' + compteur +'" name="code_regle" type="text" disabled="disabled" ></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+            nouvelleLigne += '<input name="categorie_regle" id="categorie_regle' + compteur + '" type="text" disabled="disabled"></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+            nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+            nouvelleLigne += '</div></td></tr>';
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+
+        function renvoyerOptionsRegles(){
+            var ligne = "";
+            for(var i = 0; i < lesRegles.length; i++){
+                var regle = lesRegles[i];
+                ligne += '<option value="' + regle.id + '">' + regle.designation + '</option>';
+            }
+            return ligne;
+        }
+
+        function choixRegle(indice){
+            var id_regle = $("#regle_id"+ indice).val();
+            for(var i = 0; i < lesRegles.length; i++) {
+                var regle = lesRegles[i];
+                if(regle.id == id_regle) {
+                    code = regle.code;
+                    categorie = regle.categorie;
+                    $("#code_regle"+ indice).val(code);
+                    $("#categorie_regle"+ indice).val(categorie);
+                    break;
+                }
+            }
+        }
+    </script>
+{% endblock %}

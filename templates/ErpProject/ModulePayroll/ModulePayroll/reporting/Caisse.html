@@ -1,0 +1,54 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <meta name="description" content="Rapport Balance générale">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+
+    <body>
+        <div id="invoice">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+
+            <div class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                <div id="divTo#print" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+                    <div style="display:flex;justify-content: center;">
+                        <img src="static/ErpProject/image/upload/organisation/header.png" style="height:40%;width:40%;">
+                    </div>
+                    <br>
+                    <br>
+
+                    <table id="rapport" class="table bordered no-margin" style="width:100%;">
+                        <tr>
+                            <td colspan="4" align="center"><strong>{{title}}</strong></td>
+                        </tr>
+                        <tr>
+                            <td width="5%"><strong>N°</strong></td>
+                            <td width="30%"><strong>NOM</strong></td>
+                            <td width="30%"><strong>PRENOM</strong></td>
+                            <td width="35%"><strong>MONTANT(FCFA)</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"><strong>Total</strong></td>
+                        </tr>
+                        <tr>
+                           <td colspan="4" class="taille">Visas Responsable RHD</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="taille">Signature DAFC</td>
+                        </tr>
+
+                    </table>
+                    <br>
+                    <br>
+
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

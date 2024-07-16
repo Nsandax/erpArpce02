@@ -1,0 +1,128 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+{% load account_filters %} 
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_articles' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_articles' %}">Liste des articles achetables</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <button onclick="javascript:window.location.assign('{% url 'module_achat_update_article' model.id %}')" class="button small-button rounded primary chargement-au-click">Modifier</button>
+        <button class="button small-button rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_achat_add_article' %}')" style="margin-left: 5px">Créer</button>
+    </div>
+    
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+
+    <div class="row item-content">
+        <p class="header">{{ model.designation }}</p>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Code article :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.code_article }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Type d'article :<br>
+                    {% for item in types_article %}
+                        {% if item.id == model.type_article %}
+                            <span class="sub-alt-header fg-dark">{{ item.designation }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Unité de mesure :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.unite.designation }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Catégorie :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.categorie.designation }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Prix de vente unitaire :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.prix_unitaire |monetary}} {{ devise_ref.symbole_devise }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="tabcontrol2" data-role="tabcontrol">
+                <ul class="tabs">
+                    <li class="active"><a href="#frame_autres_informations">Autres informations</a></li>
+                    <li class=""><a href="#frame_fourniture">Fourniture</a></li>
+                    <li class=""><a href="#frame_unite_achat">Unités d'achat de l'article</a></li>
+                </ul>
+                <div class="frames">
+                    <div class="frame" id="frame_autres_informations" style="display: block;">                            
+                        <div class="row cells3">
+                            <div class="cell">
+                                <div class="row">
+                                    <p class="minor-header fg-gray">
+                                        Designation court :<br>
+                                        {% if model.designation_court != None and model.designation_court != "" %}
+                                            <span class="sub-alt-header fg-dark">{{ model.designation_court }}</span>
+                                        {% else %}
+                                            <span class="sub-alt-header fg-dark">-</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="row">
+                                    <p class="minor-header fg-gray">
+                                        Code barre :<br>
+                                        {% if model.code_barre != None and model.code_barre != "" %}
+                                            <span class="sub-alt-header fg-dark">{{ model.code_barre }}</span>
+                                        {% else %}
+                                            <span class="sub-alt-header fg-dark">-</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="frame" id="frame_fourniture" style="display: none;">
+                        <table class="table no-margin">
+                            <thead class="no-border">
+                                <tr>
+                                    <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Fournisseur</th>
+                                    <th width="25%">Quantité minimale</th>
+                                    <th width="25%">Prix unitaire</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in fournisseurs_article %}
+                                    <tr>
+                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                            <a class="lien chargement-au-click" href="{% url 'module_achat_details_fournisseur' item.fournisseur.id %}">{{ item.fournisseur.nom_complet }}</a> 
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            {{ item.quantite_minimale }} {{ model.unite.symbole_unite }}
+                                        </td>
+                                        <td class="no-padding-top no-padding-bottom">
+                                            {{ item.prix_unitaire |monetary}} {{ devise_ref.symbole_devise }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="frame" id="frame_unite_achat" style="display: none;">2</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

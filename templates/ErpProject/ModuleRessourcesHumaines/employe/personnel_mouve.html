@@ -1,0 +1,1237 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} {% block page %} {%load static %} {% load customfilter %}
+<style>
+    /* LE CODE DE TABLEAU DE MOUVEMENT DE PERSONNEL */
+
+    .tg {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    .tg td {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        padding: 10px 5px;
+        border-style: solid;
+        border-width: 1px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: black;
+    }
+
+    .tg td:hover {
+        text-decoration: underline;
+        color: #0088CF;
+    }
+
+    .tg th {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        padding: 10px 5px;
+        border-style: solid;
+        border-width: 1px;
+        overflow: hidden;
+        word-break: normal;
+        border-color: black;
+    }
+
+    .tg .tg-i8fm {
+        background-color: #2B3049;
+        border-color: #343434;
+        text-align: left;
+        vertical-align: middle;
+        color: #fff;
+    }
+
+    .tg .tg-1l09 {
+        background-color: #AABBCB;
+        border-color: #343434;
+        text-align: left;
+        vertical-align: middle
+    }
+
+    .tg .tg-9j8y {
+        font-weight: bold;
+        background-color: #ffcc67;
+        color: #000000;
+        border-color: #343434;
+        text-align: center;
+        vertical-align: middle
+    }
+
+    .tg .tg-d2z8 {
+        font-size: 16px;
+        background-color: #1b1c36;
+        color: #ffffff;
+        border-color: #343434;
+        text-align: center;
+        vertical-align: middle
+    }
+
+    .tg .tg-qf3e {
+        font-weight: bold;
+        background-color: #ffcc67;
+        border-color: #343434;
+        text-align: center;
+        vertical-align: middle
+    }
+
+    .tg .tg-wtw3 {
+        border-color: #343434;
+        text-align: left;
+        vertical-align: middle
+    }
+    /* LE CODE DE TABLEAU DE MOUVEMENT DE PERSONNEL */
+</style>
+<div id="vue_admin" class="container">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="col-lg-12 head_grid" style="background-color:#fff;margin-bottom:3%;padding:1%;">
+
+        <h2>Mouvement Personnel</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <!-- Graphic  Mouvements du Personnel -->
+        <!-- <div class="row" style="margin-bottom:5%;">
+            <div class="col-md-6" style="padding-top: 15px!important; margin-bottom:2%;">
+                <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                    <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                    <div class="row item_header">
+                        <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                Mouvement du personnel
+                            </span>
+                    </div>
+
+                    <div class="row" style="height: 140px; padding-top: 20px">
+                        <canvas id="chart_Mouvement_perso" style="height: 120px!important; width: 100%"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding-top: 15px!important;margin-bottom:2%;">
+                <div class="card-body shadow" style="background-color: white;padding: 0!important">
+                    <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                    <div class="row item_header">
+                        <span style="font-size:100%;color:#bdbdcb; font-weight: 900;display:flex;justify-content:center;">
+                                Type de recrutement sur le poste vacant
+                            </span>
+                    </div>
+
+                    <div class="row" style="height: 140px; padding-top: 20px">
+                        <canvas id="chart_recru_poste" style="height: 120px!important; width: 100%"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+        <!-- Graphic Mouvements du Personnel -->
+
+        <!-- Tableau de Mouvement Personnel  -->
+        <table class="tg">
+            <tr>
+                <th class="tg-d2z8" colspan="12"><span style="font-weight:bold">Mouvements du Personnel</span></th>
+            </tr>
+            <tr>
+                <td class="tg-9j8y">Libellé</td>
+                <!-- {% for item in Keys_recru_year %}
+                    <td class="tg-qf3e">{{item}}</td>
+                {% endfor %} -->
+                {% for item in Mouvement_Perso %}
+                <td class="tg-qf3e">{{item.annee}}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-i8fm">Taux de départ</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3">{{item.Tx_depart|floatformat:2}}%</td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-i8fm">Taux de départ volentaire</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3">{{item.Tx_depart_volontaire|floatformat:2}}%</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-i8fm">Taux de remplacement</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3">{{item.Tx_remplacement|floatformat:2}}%</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-i8fm">Taux de postes vacants</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3">{{item.Tx_poste_vacant|floatformat:2}}%</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Part de mobilité de la masse salariale</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#MasseS{{item.masse_salariale}}">
+                    {{item.masse_salariale|floatformat:2}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre des prorogations de stage</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#Pg{{item.prorogation_stage}}">
+                    {{item.prorogation_stage}}
+
+                </td>
+                {% endfor %}
+
+            </tr>
+            <tr>
+                <td class="tg-1l09">Total des mises en stage</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#MP{{item.total_mise_stage}}">
+                    {{item.total_mise_stage}}
+
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre de départ définitif</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#DD{{item.depart_definitif}}">
+                    {{item.depart_definitif}}
+
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre de départ provisoir</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#DPVS{{item.depart_provision}}">
+                    {{item.depart_provision}}
+
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Effectif physique moyen pays sur emploi permanent</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#Eff{{item.nombre_emploi_paye}}">
+                    {{item.nombre_emploi_paye}}
+
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre de départs volentaires</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#D_vol{{item.depart_volontaire}}">
+                    {{item.depart_volontaire}}
+
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre de démissions, mutations,détachements sur l'année</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#Demis{{item.demission}}">
+                    {{item.demission}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre d'arrivées</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#arrivee{{item.arrivee}}">
+                    {{item.arrivee}}
+
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre de postes vacants pourvus par des agents en mobilité interne</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#post_vac{{item.poste_vacant_by_mob}}">
+                    {{item.poste_vacant_by_mob}}
+
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre de postes vacants pourvus</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#post_vac_p{{item.poste_vacant_pouvu}}">
+                    {{item.poste_vacant_pouvu}}
+
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre total de postes pourvus</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3">{{item.Total_poste}}
+
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Nombre d'agents ayant moins de 5 ans dans l'ARPCE</td>
+                {% for item in agent_mois_cinq %}
+                <td class="tg-wtw3">
+                    {{item}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Type de recrutement sur emplois permanent</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#recru{{item.recru_emploi_permanent}}">
+                    {{item.recru_emploi_permanent}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Concours</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#con015{{item.concours}}">
+                    {{item.concours}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Mutation</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#mutation{{item.mutation}}">
+                    {{item.mutation}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Détachement</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#detach{{item.detachement}}">
+                    {{item.detachement}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Recrutement direct</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#recru_direct{{item.recru_direct}}">
+                    {{item.recru_direct}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Intérimaire</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#IT{{item.interimaire}}">
+                    {{item.interimaire}}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="tg-1l09">Total recrutement</td>
+                {% for item in Mouvement_Perso %}
+                <td class="tg-wtw3" data-toggle="modal" data-target="#total_recru{{item.total_recru}}">
+                    {{item.total_recru}}
+                </td>
+                {% endfor %}
+            </tr>
+        </table>
+        <!-- Tableau de Mouvement Personnel -->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="MasseS{{item.masse_salariale}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_masse_salariale' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                                data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submit{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Masse salariale</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="masse_salariale" id="masse_salariale" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee" id="annee" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submit{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+
+        <!-- Model -->
+        {% for item in Mouvement_Perso %}
+        <div id="Pg{{item.prorogation_stage}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_propagationstage' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                                data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitpg{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Nombre des propagations de stage</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="propagation_stage" id="propagation_stage" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_pg" id="annee_pg" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitpg{{forloop.counter}}').click()" style="margin-left:2%;" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Model -->
+        {% for item in Mouvement_Perso %}
+        <div id="MP{{item.total_mise_stage}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_total_mise_stage' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                                data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitTS{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Total Mise en stage</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="mise_stage" id="mise_stage" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_st" id="annee_st" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitTS{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Model -->
+        {% for item in Mouvement_Perso %}
+        <div id="DD{{item.depart_definitif}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_Depart_def' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                                data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitDD{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Total Mise en stage</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="Depart_D" id="Depart_D" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_D" id="annee_D" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitDD{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Model  -->
+        {% for item in Mouvement_Perso %}
+        <div id="DPVS{{item.depart_provision}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_Depart_prov' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                                data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitDProv{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Depart_provision</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="Depart_Pro" id="Depart_Pro" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_Pro" id="annee_Pro" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitDProv{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Model -->
+        {% for item in Mouvement_Perso %}
+        <div id="Eff{{item.nombre_emploi_paye}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_eff_physique' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                                data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitEff{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Effectif physique moyen payssur emploi permanent</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="eff_physique" id="eff_physique" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_eff" id="annee_eff" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitEff{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal  -->
+        {% for item in Mouvement_Perso %}
+        <div id="D_vol{{item.depart_volontaire}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_D_vol' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                                data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitD_vol{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Nombre de départs volentaire</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="D_vol" id="D_vol" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_vol" id="annee_vol" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitD_vol{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="Demis{{item.demission}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_Demision' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                                data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitDemission{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Nombre de démissions</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="Demission" id="Demission" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_Dem" id="annee_Dem" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitDemission{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="arrivee{{item.arrivee}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_Arriver' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+                                data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitArrive{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Nombre d'arrivées</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="arrive" id="arrive" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_Arriv" id="annee_Arriv" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitArrive{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="post_vac{{item.poste_vacant_by_mob}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_post_vac' %}" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitPostVac{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Nombre de postes vacants pourvus par des agents en mobilité interne</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="postvac" id="postvac" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_Arriv" id="annee_Arriv" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitPostVac{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="post_vac_p{{item.poste_vacant_pouvu}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0088CF;">
+                        <button type="button" class="close" style="color:#fff;" data-dismiss="modal">&times;</button>
+                        <h4 id='head_modal' class="modal-title" style="color:#fff;">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_poste_vacant_pouvu' %}" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitPostPrevu{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Nombre total de postes pourvus</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="postvacP" id="postvacP" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_P" id="annee_P" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitPostPrevu{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button " class="btn btn-default " data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="recru{{item.recru_emploi_permanent}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg ">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header " style="background-color:#0088CF; ">
+                        <button type="button " class="close " style="color:#fff; " data-dismiss="modal ">&times;</button>
+                        <h4 id='head_modal' class="modal-title " style="color:#fff; ">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_recru_emploi_permanent' %}" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitrecru{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Type de recrutement sur emplois permanent</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="recru" id="recru" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_recru" id="annee_recru" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitrecru{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button " class="btn btn-default " data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="con015{{item.concours}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg ">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header " style="background-color:#0088CF; ">
+                        <button type="button " class="close " style="color:#fff; " data-dismiss="modal ">&times;</button>
+                        <h4 id='head_modal' class="modal-title " style="color:#fff; ">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_concours' %}" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitconcour{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Concours</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="concour" id="concour" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_concour" id="annee_concour" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitconcour{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button " class="btn btn-default " data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="mutation{{item.mutation}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg ">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header " style="background-color:#0088CF; ">
+                        <button type="button " class="close " style="color:#fff; " data-dismiss="modal ">&times;</button>
+                        <h4 id='head_modal' class="modal-title " style="color:#fff; ">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_mutation' %}" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitMutation{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Mutation</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="mut" id="mut" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_mut" id="annee_mut" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitMutation{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button " class="btn btn-default " data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="detach{{item.detachement}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg ">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header " style="background-color:#0088CF; ">
+                        <button type="button " class="close " style="color:#fff; " data-dismiss="modal ">&times;</button>
+                        <h4 id='head_modal' class="modal-title " style="color:#fff; ">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_detachement' %}" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitdet{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Détachement</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="detachement" id="detachement" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_det" id="annee_det" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitdet{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button " class="btn btn-default " data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="recru_direct{{item.recru_direct}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg ">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header " style="background-color:#0088CF; ">
+                        <button type="button " class="close " style="color:#fff; " data-dismiss="modal ">&times;</button>
+                        <h4 id='head_modal' class="modal-title " style="color:#fff; ">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_recru_direct' %}" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitRD{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Recrutement Direct</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="recru_direct" id="recru_direct" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_RD" id="annee_RD" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitRD{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button " class="btn btn-default " data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="IT{{item.interimaire}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg ">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header " style="background-color:#0088CF; ">
+                        <button type="button " class="close " style="color:#fff; " data-dismiss="modal ">&times;</button>
+                        <h4 id='head_modal' class="modal-title " style="color:#fff; ">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_interimaire' %}" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitInterim{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Interimaire</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="interim" id="interim" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_interim" id="annee_interim" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitInterim{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button " class="btn btn-default " data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+        <!-- Modal -->
+        {% for item in Mouvement_Perso %}
+        <div id="total_recru{{item.total_recru}}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg ">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header " style="background-color:#0088CF; ">
+                        <button type="button " class="close " style="color:#fff; " data-dismiss="modal ">&times;</button>
+                        <h4 id='head_modal' class="modal-title " style="color:#fff; ">Mouvement Personnel</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="body_modal">
+                            <form method="POST" action="{% url 'module_ressourceshumaines_post_mouvement_Personnel_total_recru' %}" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                {% csrf_token %}
+
+                                <input id="submitTotalR{{forloop.counter}}" type="submit" style="display: none">
+                                <!-- <input id="nombreLigne" type="hidden" value="0" /> -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Total Recrutement</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="tot_recru" id="tot_recru" type="text" data-validate-func="required">
+                                        </div>
+                                        <input type="hidden" name="annee_tot_recru" id="annee_tot_recru" value="{{item.annee}}">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="row">
+                                <button type="button" onclick="javascript:document.getElementById('submitTotalR{{forloop.counter}}').click()" style="margin-left:2%;" id="nombreLigne" class="theme-btn theme-btn-sm rounded" id="">Valider</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button " class="btn btn-default " data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal content-->
+            </div>
+        </div>
+        {% endfor %}
+        <!-- End modal-->
+
+    </div>
+</div>
+<script src="{% static 'ErpProject/js/Chart.min.js' %} "></script>
+<script src="{% static 'ErpProject/js/chart-pie-demo.js' %} "></script>
+<script src="{% static 'ErpProject/js/chart-area-demo.js' %} "></script>
+<!-- chart_Mouvement_perso -->
+<script>
+    var keys_recru_Mobilite = [];
+    var valuer_recru_Mobilite = [];
+    keys_recru_Mobilite = {
+        {
+            keys_Mouvement_P | safe
+        }
+    }
+    valuer_recru_Mobilite = {
+        {
+            values_Mouvement_P
+        }
+    }
+    new Chart(document.getElementById("chart_Mouvement_perso "), {
+        type: 'line',
+        data: {
+            labels: keys_recru_Mobilite,
+            datasets: [{
+                label: 'Mouvement du Personnel',
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(44, 62, 85, 0.5)',
+                    'rgba(153, 27, 88, 0.5)'
+                ],
+                data: valuer_recru_Mobilite
+            }]
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: false,
+                text: 'Mouvement du Personnel'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        padding: 10,
+                        // Include a dollar sign in the ticks
+                        callback: function(label, index, labels) {
+                            return label + '%';
+                        }
+                    },
+
+                }],
+            }
+        }
+    });
+</script>
+<!-- chart_Mouvement_perso  -->
+
+<!-- chart_recru_poste-->
+<script>
+    var keys_Mobilite = [];
+    var valuer_Mobilite = [];
+
+    keys_Mobilite = {
+        {
+            Keys_recru_post_year | safe
+        }
+    }
+    values_Mobilitie = {
+        {
+            valuer_recru_post_year
+        }
+    }
+    new Chart(document.getElementById("chart_recru_poste "), {
+        type: 'line',
+        data: {
+            labels: keys_Mobilite,
+            datasets: [{
+                label: 'Type de recrutement sur le post vacant',
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(44, 62, 85, 0.5)',
+                    'rgba(153, 27, 88, 0.5)'
+                ],
+                data: values_Mobilitie
+            }]
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: false,
+                text: 'Type de recrutement sur le post vacant'
+            }
+        }
+    });
+</script>
+<!-- chart_recru_poste  -->
+
+{% for item in modules %} {% if module.value == item.numero_ordre %}
+<div class="primary_color_{{ module.name|lower }} " style="display: none; "></div>
+<div class="secondary_color_{{ module.name|lower }} " style="display: none; "></div>
+<div class="thirdy_color_{{ module.name|lower }} " style="display: none; "></div>
+<script>
+    /* alert($(".primary_color_{{ module.name|lower }} ").css('background-color'));*/
+    chart_pie($(".primary_color_{{ module.name|lower }} ").css("background-color "));
+
+    chart_area($(".primary_color_{{ module.name|lower }} ").css("background-color "),
+        $(".secondary_color_{{ module.name|lower }} ").css("background-color "),
+        $(".thirdy_color_{{ module.name|lower }} ").css("background-color "));
+</script>
+{% endif %} {% endfor %} {% endblock %}

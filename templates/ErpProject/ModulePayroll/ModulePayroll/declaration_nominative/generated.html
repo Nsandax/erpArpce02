@@ -1,0 +1,81 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+    {% block page %}
+        {%load static %}
+        {% load account_filters %}
+        <style>
+            .pos
+            {
+                text-align: center;
+                vertical-align: middle;
+                font-weight:700;
+            }
+        </style>
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="row">
+            <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+            <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+            <button onclick="javascript:window.location.assign('{% url 'module_payroll_generate_Balance_paie' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Retour</button>
+        </div>
+        <form id="form" method="POST" action="{% url 'module_payroll_to_print_declaration_nom' %}">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input type="text" name="periode" value="{{ periode }}" style="display: none">
+            <input type="text" name="exercice" value="{{ exercice }}" style="display: none">
+        </form>
+        <hr class="hr-ligne">
+        <div id="divToprint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <p>ARPCE</p>
+            <P>Boite Postale: B.P 2490</P>
+            <p style="margin-left:5%;">Ville: Brazzaville</p>
+            <p class="align-center header">{{title}}</p>
+            <br>
+            <p class="align-center">{{ lot.date_fin|date:"M Y" }} N° d'Ordre {{lot.id}}</p>
+            <br>
+            <h5>CNSS Brazzaville</h5>
+            <table id="rapport" class="table bordered no-margin" style="margin-top: 10px;overflow: auto; position: relative; display: inline-block;">
+                <tr>
+                    <th width="5%" rowspan="2">N°</th>
+                    <th width="20%" rowspan="2">Nom et Prénoms</th>
+                    <th width="5%" rowspan="2">Matricule CNSS</th>
+                    <th width="10%" rowspan="2">Salaire Brut</th>
+                    <th width="10%" rowspan="2">Salaire Brut imposable</th>
+                    <th width="10%" rowspan="2">s/plafonné PVD 1.200.000/mois 14.400.000/an</th>
+                    <th width="8%" rowspan="2">s/plafonné AF.AT/MP 600.000/mois 7.200.000/an</th>
+                    <td colspan="2" class="pos">Cotisation PVD</td>
+                    <th width="7%" rowspan="2">Cotisation AF (10.03%)</th>
+                    <th width="5%" rowspan="2">Cotisation AT/MP (2.25%)</th>
+                    <th width="10%" rowspan="2">TOTAl (24.28%)</th>
+                </tr>
+                <tr>
+                    <th width="8%">Part patronale (8%)</th>
+                    <th width="8%">Part employé (4%)</th>
+                </tr>
+                {% for item in models %}
+                <tr>
+                    <td>{{item.id}}</td>
+                    <td>{{item.employe}}</td>
+                    <td>{{item.matricule}}</td>
+                    <td>{{item.salbrut|monetary}}</td>
+                    <td>{{item.salbrutimpo|monetary}}</td>
+                    <td>{{item.base_pvid|monetary}}</td>
+                    <td>{{item.base_atmp|monetary}}</td>
+                    <td>{{item.cnss_pat|monetary}}</td>
+                    <td>{{item.cnss_sal|monetary}}</td>
+                    <td>{{item.cnss_af|monetary}}</td>
+                    <td>{{item.cnss_atmp|monetary}}</td>
+                    <td>{{item.total_af_atmp|monetary}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <br>
+            <br>
+
+        </div>
+        {% include 'ErpProject/ErpBackOffice/widget/export_excel.html' with btn_id="btn_export" table_id="rapport" filename="journal" only %}
+{% endblock %}

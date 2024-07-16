@@ -1,0 +1,238 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}{%load static %}
+<style type="text/css">
+    .text-black{
+        color:#333333;
+    }
+    .btSh{
+        border-radius: 0px;
+        padding-right: 0px;
+        margin-right: 10px;
+        margin-bottom: 0px;
+        background-color: #fff;
+        margin-bottom: 3%;
+        display: flex;
+        justify-content: center;
+     }
+    .barr{
+        background-color: #991B58;
+        height: 120px;
+        width: 5px;
+        position: relative;
+        left: -10%;
+    }
+    .pl-2,
+    .px-2,
+    .template-demo .circle-progress-block {
+        padding-left: 0.5rem !important
+    }
+
+    .pr-2,
+    .px-2,
+    .template-demo .circle-progress-block {
+        padding-right: 0.5rem !important
+    }
+
+    .mb-3,
+    .template-demo .circle-progress-block,
+    .my-3 {
+        margin-bottom: 1rem !important
+    }
+</style>
+
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_lister_journaux' %}">Liste des journaux</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ"></div>
+            <div class="panel panel-default" style="border: none; margin-top:2%;background-color: rgb(249, 249, 249)!important;">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+                <div class="row">
+                    <div class="col-md-12" style="padding: 10px;">
+                        <h3>Solde en trésorérie</h3>
+                        <h2 style="color: green;font-weight: bold;">1 200 0000 CFAA</h2>
+                    </div>
+                    <div class="col-md-4" style="padding: 10px;">
+                        <div class="mb-4">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                    <div style="padding: 10px;">
+                                        <strong class="sub-header" style="margin: 10px;font-weight: 900;">Caisse en Francs</strong>
+                                    </div>
+                                    <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                </div>
+                                <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                    <h3 style="color: gray;font-weight: bold;">1 200 0000 CFA</h3>
+                                    <div class="" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        <span class="fg-green"><i class="fa fa-arrow-down"></i> <i>1 200 0000 CFA</i></span>
+                                        <span class="fg-red" style="margin-left:20px"><i class="fa fa-arrow-up"></i> <i>1 200 0000 CFA</i></span>
+                                    </div>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                <div style="padding: 15px;padding-top: 0px;"     >
+                                    <button  onclick="javascript:window.location.assign('')" class="btn rounded primary_color_{{module.name|lower}}">Voir plus</button>
+                                    <button  onclick="javascript:window.location.assign('')" class="button rounded btn btn-default ">Annuler</button>
+                                </div>
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4" style="padding: 10px;">
+                        <div class="mb-4 ">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                    <div style="padding: 10px;">
+                                        <strong class="sub-header" style="margin: 10px;font-weight: 900;">Caisse en Dollars</strong>
+                                    </div>
+                                    <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                </div>
+                                <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                    <h3 style="color: gray;font-weight: bold;">1 200 0000 USD</h3>
+                                    <div class="" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        <span class="fg-green"><i class="fa fa-arrow-down"></i> <i>1 200 0000 USD</i></span>
+                                        <span class="fg-red" style="margin-left:20px"><i class="fa fa-arrow-up"></i> <i>1 200 0000 USD</i></span>
+                                    </div>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                <div style="padding: 15px;padding-top: 0px;"     >
+                                    <button  class="btn rounded primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('')">Voir plus</button>
+                                    <button  class="button rounded btn btn-default" onclick="javascript:window.location.assign('')">Annuler</button>
+                                </div>
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4" style="padding: 10px;">
+                        <div class="mb-4 ">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                    <div style="padding: 10px;">
+                                        <strong class="sub-header" style="margin: 10px;font-weight: 900;">Caisse en Euro</strong>
+                                    </div>
+                                    <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                </div>
+                                <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                    <h3 style="color: gray;font-weight: bold;">1 200 0000 EUR</h3>
+                                    <div class="" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                        <span class="fg-green"><i class="fa fa-arrow-down"></i> <i>1 200 0000 EUR</i></span>
+                                        <span class="fg-red" style="margin-left:20px"><i class="fa fa-arrow-up"></i> <i>1 200 0000 EUR</i></span>
+                                    </div>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                <div style="padding: 15px;padding-top: 0px;">
+                                    <button  onclick="javascript:window.location.assign('')" class="btn rounded primary_color_{{module.name|lower}}">Voir plus</button>
+                                    <button  onclick="javascript:window.location.assign('')" class="button rounded btn btn-default ">Annuler</button>
+                                </div>
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="bar-chart" width="800" height="300"></canvas>
+                    </div>
+                </div>
+                <br><br>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="row" style="padding-left:10%;">
+                            <div class="col-md-12">
+                                <canvas id="pie-chart-2" width="420" height="450"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <canvas id="pie-chart-1" width="420" height="450"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+
+                    </div>
+                    <div class="col-md-6">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+    <script>
+        // Bar chart
+        new Chart(document.getElementById("bar-chart"), {
+            type: 'bar',
+            data: {
+            labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+            datasets: [
+                {
+                label: "Population (millions)",
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                data: [2478,5267,734,784,433]
+                }
+            ]
+            },
+            options: {
+            legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Predicted world population (millions) in 2050'
+                }
+            }
+        });
+
+        new Chart(document.getElementById("pie-chart-1"), {
+            type: 'pie',
+            data: {
+            labels: ["Facture", "Avoir"],
+            datasets: [{
+                label: "Nombre facture",
+                backgroundColor: ["#ff7f0e", "#1f77b4"],
+                data: [8,2]
+            }]
+            },
+            options: {
+            title: {
+                display: true,
+                text: 'Ratio Facture / Avoir'
+            }
+            }
+        });
+        new Chart(document.getElementById("pie-chart-2"), {
+            type: 'pie',
+            data: {
+            labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+            datasets: [{
+                label: "Comptage",
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                data: [2478,5267,734,784,433]
+            }]
+            },
+            options: {
+            title: {
+                display: true,
+                text: 'Moyen'
+            }
+            }
+        });
+
+    </script>
+{% endblock %}

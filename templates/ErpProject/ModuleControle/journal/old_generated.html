@@ -1,0 +1,65 @@
+{% extends "ErpProject/ModuleControle/shared/layout.html" %}
+{% block page %}
+    <div class="row" style="padding-top: 30px">
+        <p class="align-center header">{{ title }}</p>
+        <div class="row">
+            <p>
+                Période :<br>
+                <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                <br>
+                <br>
+                Devise :<br>
+                <span class="sub-header">{{ devise.designation }}</span>
+            </p>
+        </div>
+        <table class="table striped border bordered" style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Pièce comptable</th>
+                    <th>Date</th>
+                    <th>Libellé</th>
+                    <th>Compte</th>
+                    <th>Débit</th>
+                    <th>Crédit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                    <tr>
+                        <td>{{ item.piece_comptable.designation }}</td>
+                        <td> {{ item.piece_comptable.date_piece|date:"d/m/Y" }} </td>
+                        <td> {{ item.designation }} </td>
+                        <td> {{ item.compte.numero }} {{ item.compte.designation }} </td>
+                        <td align="right"> {% if item.debit != "0.00" %} {{ item.debit }} {% endif %} </td>
+                        <td align="right"> {% if item.credit != "0.00" %} {{ item.credit }} {% endif %} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th id="equilibre_debit" style="text-align: right"></th>
+                    <th id="equilibre_credit" style="text-align: right"></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <script>
+        var equilibre_credit = 0;
+        var equilibre_debit = 0;
+        var devise = "";
+
+        {% for item in model %}
+            equilibre_debit += parseFloat("{{ item.debit }}");
+            equilibre_credit += parseFloat("{{ item.credit }}");
+        {% endfor %}
+
+        $(document).ready(function(){
+            $("#equilibre_credit").text(equilibre_credit.toFixed(2));
+            $("#equilibre_debit").text(equilibre_debit.toFixed(2));
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,508 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_home' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_fournitures' %}">Liste des fournitures</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+<div class="row">
+    <button onclick="javascript:enregistrer_bon()" class="button small-button rounded primary_color_{{module.name|lower}}">Valider</button>
+    <button onclick="javascript:window.location.assign('{% url 'module_achat_list_fournitures' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+</div>
+
+<hr class="hr-ligne" />
+<br>
+<!-- Appel de la fonction message -->
+{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+<div class="row item-content" style="margin-top: 10px">
+    <form action="{% url 'module_achat_valider_fourniture' %}" method="POST" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+        <input id="nombreLigne" type="hidden" value="0" />
+        <div class="row">
+            <table class="table no-margin">
+                <tr>
+                    <td class="no-padding-top no-padding-left no-padding-bottom" width="35%">
+                        <label>Fournisseur</label>
+                        <div class="input-control text full-size">
+                            <select type="text" name="fournisseur_id" id="fournisseur_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez le fournisseur svp.">
+                                    <option value="0">Sélectionnez un fournisseur</option>
+                                    {% for item in fournisseurs %}
+                                        <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                    {% endfor %}
+                                </select>
+                        </div>
+                    </td>
+                    <td class="no-padding-top no-padding-bottom" width="35%">
+                        <label>Modalité de réglèment</label>
+                        <div class="input-control text full-size">
+                            <select type="text" name="condition_reglement_id" id="condition_reglement_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez la Modalité de réglèment svp.">
+                                    <option value="-1">Sélectionnez la Modalité de réglèment</option>
+                                    {% for item in conditions_reglement %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                        </div>
+                    </td>
+                    <td class="no-padding-top no-padding-bottom" width="30%"></td>
+                </tr>
+                <tr>
+                    <td class="no-padding-top no-padding-left no-padding-bottom" width="35%">
+                        <label>Devise</label>
+                        <div class="input-control text full-size">
+                            <select name="devise_id" id="devise_id" onchange="choix_devise()" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez la devise svp.">
+                                    <option value="0">Sélectionnez une devise</option>
+                                    {% for item in devises %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                        </div>
+                    </td>
+                    <td class="no-padding-top no-padding-bottom" width="35%">
+                        <label>Document externe</label>
+                        <div class="input-control text full-size">
+                            <input type="text" id="reference_document" autocomplete="off" />
+                        </div>
+                    </td>
+                    <td class="no-padding-top no-padding-bottom" width="30%"></td>
+                </tr>
+                <tr>
+                    <td class="no-padding-top no-padding-left no-padding-bottom" width="35%">
+                        <label>Document en attache</label>
+                        <div class="input-control text full-size">
+                            <input id="document_upload" name="document_upload" type="file" />
+                        </div>
+                    </td>
+                    <td class="no-padding-top  no-padding-bottom" width="35%">
+                        <label>Agent receveur</label>
+                        <div class="input-control text full-size">
+                            <select type="text" name="receveur_id" id="receveur_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez le fournisseur svp.">
+                                    <option value="{{  user.id }}"> {{  user.username }} </option>
+                                   
+                                </select>
+                        </div>
+                    </td>
+                    <td class="no-padding-top no-padding-bottom" width="35%"></td>
+                    <td class="no-padding-top no-padding-bottom" width="30%"></td>
+                </tr>
+            </table>
+        </div>
+        <hr class="att-ligne" style="background-color: #4d4a4a; height:3px; margin-top:10px">
+        <div class="row margin20 no-margin-left no-margin-right">
+            <table class="table no-margin">
+                <thead class="no-border">
+                    <tr>
+                        <th class="no-padding-top no-padding-left no-padding-bottom" width="35%">Article</th>
+                        <th width="20%">Quantité fournie</th>
+                        <th width="20%">Prix unitaire</th>
+                        <th width="20%">Prix du lot</th>
+                        <th width="5%"></th>
+                    </tr>
+                </thead>
+                <tbody id="items">
+                    <tr id="ligne1">
+                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                            <input id="id1" type="hidden" value="0" />
+                            <input id="stock1" type="hidden" value="0" />
+                            <div class="input-control select full-size">
+                                <select onchange="selectChange(event)" id="item1" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez un article svp">
+                                        <option value="0">Sélectionnez un article</option>
+                                        {% for item in categories %}
+                                            <optgroup label="{{ item.designation }}">
+                                                {% for article in articles %}
+                                                    {% if article.categorie_id == item.id %}
+                                                        <option value="{{ article.id }}">{{ article.designation }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </optgroup>
+                                        {% endfor %}
+                                    </select>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="input-control text full-size">
+                                <input id="quantite1" type="text" placeholder="Ex: 10" data-validate-func="number" data-validate-hint="Précisez la quantité svp">
+                                <span class="prepend-icon" style="margin-left:75%">
+                                        <span style="margin-top: 1px;" id="unite1" class="sub-header place-right"></span>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="input-control text full-size">
+                                <input id="prix1" type="text" placeholder="Ex: 100" data-validate-func="number" data-validate-hint="Précisez le prix unitaire svp">
+                                <span class="prepend-icon" style="margin-left:75%">
+                                        <span style="margin-top: 1px;" class="sub-header place-right devise">$</span>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="input-control text full-size">
+                                <input id="prix_lot1" type="text" placeholder="Ex: 100" data-validate-func="number" data-validate-hint="Précisez le prix du lot svp">
+                                <span class="prepend-icon" style="margin-left:75%">
+                                        <span style="margin-top: 1px;" class="sub-header place-right devise">$</span>
+                                </span>
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="pagination no-border">
+                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row margin10 no-margin-left no-margin-right">
+            <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+        </div>
+    </form>
+</div>
+<script src="/static/ErpProject/js/fourniture-local.js"></script>
+<script>
+    var deviseRef = "$";
+
+    var lesCategories = new Array();
+    var lesArticles = new Array();
+    var lesDevises = new Array();
+
+    { %
+        for item in categories %
+    }
+    lesCategories.push({
+        id: "{{ item.id }}",
+        designation: "{{ item.designation }}"
+    }); { % endfor %
+    }
+
+    { %
+        for item in articles %
+    }
+    lesArticles.push({
+        id: "{{ item.id }}",
+        designation: "{{ item.designation }}",
+        categorie_id: "{{ item.categorie_id }}"
+    }); { % endfor %
+    }
+
+    { %
+        for item in devises %
+    }
+    lesDevises.push({
+        id: "{{ item.id }}",
+        designation: "{{ item.designation }}",
+        symbole_devise: "{{ item.symbole_devise }}"
+    }); { % endfor %
+    }
+</script>
+<script>
+    var nombreLignes = 1;
+    var nombreItems = 0;
+    var ligneActuelle = 0;
+    var compteur = 1;
+    var bon = {};
+
+    $(document).ready(function() {
+        bon = fournitureLocal.avoirFourniture();
+
+        if (bon != null) {
+            $("#fournisseur_id").val(bon.fournisseur_id);
+            $("#receveur_id").val(bon.receveur_id);
+            $("#condition_reglement_id").val(bon.condition_reglement_id);
+            $("#devise_id").val(bon.devise_id);
+            $("#reference_document").val(bon.reference_document);
+
+            var lignes = fournitureLocal.avoirToutesLignes();
+            if (lignes.length != 0) {
+                for (var i = 0; i < lignes.length; i++) {
+                    var item = lignes[i];
+                    var k = i + 1;
+                    if (k == 1) {
+                        $("#item1").val(item.article_id);
+                        $("#stock1").val(item.stock_article_id);
+                        $("#quantite1").val(item.quantite_fournie);
+                        $("#prix1").val(item.prix_unitaire);
+                        $("#prix_lot1").val(item.prix_lot);
+                        $("#id1").val(item.ligne_id);
+                        $("#unite1").text(item.symbole_unite);
+                    } else {
+                        nombreLignes++;
+                        compteur++;
+                        var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+                        nouvelleLigne += '<input id="id' + compteur + '" type="hidden" value="' + item.ligne_id + '" />';
+                        nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="' + item.stock_article_id + '" /><div class="input-control select full-size">';
+                        nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" data-validate-func="min"';
+                        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article">';
+                        nouvelleLigne += '<option value="0">Sélectionnez un article</option>';
+                        nouvelleLigne += renvoyerOptionsArticles();
+                        nouvelleLigne += '</select></div></td>';
+                        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+                        nouvelleLigne += '<input id="quantite' + compteur + '" value="' + item.quantite_fournie + '" data-validate-func="number"';
+                        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+                        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+                        nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right">' + item.symbole_unite + '</span></span>';
+                        nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+                        nouvelleLigne += '<div class="input-control text full-size">';
+                        nouvelleLigne += '<input id="prix' + compteur + '" value="' + item.prix_unitaire + '" data-validate-func="number"';
+                        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+                        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+                        nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+                        nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+                        nouvelleLigne += '<input id="prix_lot' + compteur + '" value="' + item.prix_lot + '" type="text" placeholder="Ex: 100"';
+                        nouvelleLigne += ' data-validate-func="number" data-validate-hint="Précisez le prix du lot svp">';
+                        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+                        nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+                        nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+                        nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+                        nouvelleLigne += '</div></td></tr>';
+
+                        $("#items").append(nouvelleLigne);
+                    }
+                }
+                for (var i = 1; i < lignes.length; i++) {
+                    var item = lignes[i];
+                    var k = i + 1;
+                    $("#item" + k).val(item.article_id);
+                }
+            }
+        }
+    });
+
+    $("#btnAjouterLigne").on("click", function() {
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne = '<tr id="ligne' + compteur + '"><td class="no-padding-top no-padding-left no-padding-bottom">';
+        nouvelleLigne += '<input id="id' + compteur + '" type="hidden" value="0" />';
+        nouvelleLigne += '<input id="stock' + compteur + '" type="hidden" value="0" /><div class="input-control select full-size">';
+        nouvelleLigne += '<select onchange="selectChange(event)" id="item' + compteur + '" data-validate-func="min"';
+        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Sélectionnez un article"><option value="0">Sélectionnez un article</option>';
+        nouvelleLigne += renvoyerOptionsArticles();
+        nouvelleLigne += '</select></div></td>';
+        nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        nouvelleLigne += '<input id="quantite' + compteur + '" data-validate-func="number" ';
+        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez la quantité svp" type="text" placeholder="Ex: 10">';
+        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+        nouvelleLigne += '<span style="margin-top: 1px;" id="unite' + compteur + '" class="sub-header place-right"></span></span>';
+        nouvelleLigne += '</div></td><td class="no-padding-top no-padding-bottom">';
+        nouvelleLigne += '<div class="input-control text full-size">';
+        nouvelleLigne += '<input id="prix' + compteur + '" data-validate-func="number"';
+        nouvelleLigne += ' data-validate-arg="1" data-validate-hint="Précisez le prix unitaire svp" type="text" placeholder="Ex: 100">';
+        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+        nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+        nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="input-control text full-size">';
+        nouvelleLigne += '<input id="prix_lot' + compteur + '" type="text" placeholder="Ex: 100"';
+        nouvelleLigne += ' data-validate-func="number" data-validate-hint="Précisez le prix du lot svp">';
+        nouvelleLigne += '<span class="prepend-icon" style="margin-left:75%">';
+        nouvelleLigne += '<span style="margin-top: 1px;" class="sub-header place-right devise">' + deviseRef + '</span>';
+        nouvelleLigne += '</span></div></td><td class="no-padding-top no-padding-bottom"><div class="pagination no-border">';
+        nouvelleLigne += '<span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span>';
+        nouvelleLigne += '</div></td></tr>';
+
+
+
+
+        $("#items").append(nouvelleLigne);
+
+        var Quant = "#quantite" + compteur;
+        var Punit = "#prix" + compteur;
+        var Lot = "#prix_lot" + compteur;
+
+        $(Quant).change(function() {
+            var qte = $(this).val();
+            var pu = $(Punit).val();
+
+            var Total = parseFloat(qte) * parseFloat(pu);
+            $(Lot).val(Total);
+        });
+
+
+    });
+
+
+    $("#quantite1").change(function() {
+        var qte = $(this).val();
+        var pu = $("#prix1").val();
+
+        var Total = parseFloat(qte) * parseFloat(pu);
+        $("#prix_lot1").val(Total);
+    });
+
+    function selectChange(event) {
+        $select = $(event.target);
+        var id_element = $select[0].id; //window.location.assign(""); //window.location.reload(true)
+
+        if (id_element.substring(0, 4) == "item") {
+            ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+            if ($("#" + id_element).val() != "0") {
+                nombreItems += 1;
+                var idArticle = parseInt($("#" + id_element).val());
+                console.log("ID ARTICLE : " + idArticle);
+                $.get(
+                    "{% url 'module_achat_details_article_fourni' %}", {
+                        ref: idArticle
+                    },
+                    function(data) {
+                        if (data != null) {
+                            $("#quantite" + ligneActuelle).val("");
+                            $("#prix" + ligneActuelle).val(data.prix_unitaire);
+                            $("#unite" + ligneActuelle).text(data.symbole_unite);
+                        }
+                    },
+                    "json"
+                );
+            } else nombreItems -= 1;
+        }
+    }
+
+    function supprimerLigne(indice) {
+        nombreLignes--;
+        if ($("#id" + indice).val() != "0") {
+            fournitureLocal.supprimerLigne($("#id" + indice).val());
+        }
+        $("#ligne" + indice).remove();
+    }
+
+    function choix_devise() {
+        var id_devise = $("#devise_id").val();
+        if (id_devise == "0") deviseRef = "$";
+        else {
+            for (var i = 0; i < lesDevises.length; i++) {
+                var devise = lesDevises[i];
+                if (devise.id == id_devise) {
+                    deviseRef = devise.symbole_devise;
+                    $(".devise").text(deviseRef);
+                    break;
+                }
+            }
+        }
+    }
+
+    function enregistrer_bon() {
+        var canPost = true;
+        var ordre = {
+            devise_id: 0,
+            condition_reglement_id: 0,
+            fournisseur_id: 0,
+            receveur_id: 0,
+            reference_document: "",
+            description: ""
+        };
+        var items = new Array();
+
+        for (var i = 1; i <= compteur; i++) {
+            var ligneCommande = document.getElementById("item" + i);
+            if (ligneCommande != null) {
+                var item = {
+                    ligne_id: new Date().getTime() + "-" + i,
+                    article_id: 0,
+                    nom_article: "",
+                    stock_article_id: 0,
+                    quantite_demandee: 0,
+                    quantite_fournie: 0,
+                    unite_achat_id: 0,
+                    prix_unitaire: 0,
+                    symbole_unite: "",
+                    prix_lot: 0,
+                    type: "ligne-fourniture"
+                };
+                if ($("#id" + i).val() != "0") item.ligne_id = $("#id" + i).val();
+
+                if ($("#item" + i).val() != "0") {
+                    item.article_id = $("#item" + i).val();
+
+                    for (var k = 1; k < $("#item" + i).children().length; k++) {
+                        var found = false;
+                        var optGroup = $("#item" + i).children()[k];
+
+                        for (var j = 0; j < optGroup.children.length; j++) {
+                            var option = $(optGroup.children[j]);
+                            if (item.article_id == option.val()) {
+                                item.nom_article = option.text();
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found == true) break;
+                    }
+                } else {
+                    canPost = false;
+                    break;
+                }
+
+                var prix = $("#prix" + i).val();
+                if (!((prix - 0) == prix && ('' + prix).trim().length > 0)) {
+                    canPost = false;
+                    break;
+                } else item.prix_unitaire = prix;
+
+                var prix_lot = $("#prix_lot" + i).val();
+                if (!((prix_lot - 0) == prix_lot && ('' + prix_lot).trim().length > 0)) {
+                    canPost = false;
+                    break;
+                } else item.prix_lot = prix_lot;
+
+                var quantite = $("#quantite" + i).val();
+                if (!((quantite - 0) == quantite && ('' + quantite).trim().length > 0)) {
+                    canPost = false;
+                    break;
+                } else item.quantite_fournie = quantite;
+
+                item.symbole_unite = $("#unite" + i).text();
+                items.push(item);
+            }
+        }
+
+        if ($("#receveur_id").val() == "0") canPost = false;
+        else ordre.receveur_id = $("#receveur_id").val();
+
+        if ($("#fournisseur_id").val() == "0") canPost = false;
+        else ordre.fournisseur_id = $("#fournisseur_id").val();
+
+        if ($("#devise_id").val() == "0") canPost = false;
+        else ordre.devise_id = $("#devise_id").val();
+
+        if ($("#condition_reglement_id").val() == "-1") canPost = false;
+        else ordre.condition_reglement_id = $("#condition_reglement_id").val();
+
+        ordre.reference_document = $("#reference_document").val();
+
+        if (canPost == true) {
+            $.each(items, function(i, ligne) {
+                fournitureLocal.ajouterLigneFourniture(ligne);
+            });
+            fournitureLocal.ajouterFourniture(ordre);
+        }
+        document.getElementById('submit').click();
+    }
+
+    function renvoyerOptionsArticles() {
+        var ligne = "";
+        var hasArticle = "0";
+        for (var i = 0; i < lesCategories.length; i++) {
+            var categorie = lesCategories[i];
+            for (var j = 0; j < lesArticles.length; j++) {
+                var article = lesArticles[j];
+                if (article.categorie_id == categorie.id) {
+                    hasArticle = "1";
+                    break;
+                }
+            }
+            if (hasArticle == "1") {
+                ligne += '<optgroup label="' + categorie.designation + '">';
+                for (var j = 0; j < lesArticles.length; j++) {
+                    var article = lesArticles[j];
+                    if (article.categorie_id == categorie.id) {
+                        ligne += '<option value="' + article.id + '">' + article.designation + '</option>';
+                    }
+                }
+                ligne += '</optgroup>';
+            }
+        }
+        return ligne;
+    }
+</script>
+{% endblock %}

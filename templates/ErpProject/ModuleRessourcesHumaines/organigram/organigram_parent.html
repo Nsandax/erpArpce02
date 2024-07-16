@@ -1,0 +1,63 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %} 
+{%load static%}
+{% block page %}
+
+<div class="div">
+
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_liste_CategorieDesignation' %}">Liste des categories</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div  class="row">
+    <div  class="col-lg-12">
+        <h2>{{title}}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+       
+        {% for item in uni_fonc %}
+        <div class="pg-orgchart">
+            <div class="org-chart">
+             
+          <ul>
+           
+              <li>     
+                <div class="user">
+                  <!-- <img src="{% static 'ErpProject/image/upload/personnes/default.png'%}" class="img-responsive" /> -->
+                  <div class="name">{{ item.designation }}</div>
+                  <div class="role">{{item.responsable}}</div>
+                 
+                </div>
+               
+                <ul>
+                  {%for item2 in item.unite_fonctionnelle_parent.all%}
+                  <li>
+                    <div class="user">
+                      <!-- <img src="{% static 'ErpProject/image/upload/personnes/default.png'%}"unite_fonctionnelles unite_fonctionnelle_parent class="img-responsive" /> -->
+                      <div class="name">{{item2.libelle}}</div>
+                      <div class="role">{{item2.responsable}}</div>
+                     
+                     
+                    </div>
+                  
+              </li>
+              {% endfor %}
+          </ul>
+         
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <!-- /.col-lg-12 -->
+     
+</div>
+</div>
+    
+{% endblock %}

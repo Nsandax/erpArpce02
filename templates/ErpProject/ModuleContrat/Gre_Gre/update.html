@@ -1,0 +1,200 @@
+{% extends "ErpProject/ModuleContrat/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_contrat_index' %}">Avis d'appel d'offre</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_contrat_list_avis_appel_offre' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Modifier Avis_appel_offre</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button small-button rounded primary_color_{{module.name|lower}}" val="Valider"%}
+                    <button onclick="javascript:window.location.assign('{% url 'module_contrat_list_avis_appel_offre' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_contrat_list_avis_appel_offre' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+            <form id="form" method="POST" action="{% url 'module_contrat_post_update_avis_appel_offre' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                             <input name="ref" type="hidden" value="{{ model.id }}">
+                            <div class="row">
+                    
+                                <div class="col-md-6">
+                                    <label>Numéro de reference</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="numero_reference" id="numero_reference" type="text" data-validate-func="required" data-validate-hint="Entrez numero_reference !" value = "{{model.numero_reference}}">
+                                    </div>
+                                    
+                        </div>
+                    
+                        <div class="col-md-6">
+                                    <label>Numero du dossier d'appel d'offre</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="numero_dossier" id="numero_dossier" type="text" data-validate-func="required" data-validate-hint="Entrez numero_dossier !" value = "{{model.numero_dossier}}">
+                                    </div>
+                                    
+                        </div>
+                    
+                        <div class="col-md-6">
+                                    <label>Designation de la commission</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="designation_commission" id="designation_commission" type="text" data-validate-func="required" data-validate-hint="Entrez designation_commission !" value = "{{model.designation_commission}}">
+                                    </div>
+                                    
+                        </div>
+                    
+                        <div class="col-md-6">
+                                    <label>Objet de l'appel</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="objet_appel" id="objet_appel" type="text" data-validate-func="required" data-validate-hint="Entrez objet_appel !" value = "{{model.objet_appel}}">
+                                    </div>
+                                    
+                        </div>
+                    
+                        <div class="col-md-6">
+                                    <label>Financement</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="financement" id="financement" type="text" data-validate-func="required" data-validate-hint="Entrez financement !" value = "{{model.financement}}">
+                                    </div>
+                                    
+                        </div>
+                    
+                        <div class="col-md-6">
+                                    <label>Type d'appel d'offre</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="type_appel_offre" id="type_appel_offre" type="text" data-validate-func="required" data-validate-hint="Entrez type_appel_offre !" value = "{{model.type_appel_offre}}">
+                                    </div>
+                                    
+                        </div>
+                    
+                        <div class="col-md-6">
+                                    <label>Lieu de consultation</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="lieu_consultation" id="lieu_consultation" type="text" data-validate-func="required" data-validate-hint="Entrez lieu_consultation !" value = "{{model.lieu_consultation}}">
+                                    </div>
+                                    
+                        </div>
+                    
+                        
+                        
+        
+                        <div class="col-md-6">
+                            <label>Date de signature</label>
+                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" id="date_signature" name="date_signature" readonly value="{% now "d/m/Y" %}"
+                                    data-validate-func="required"       
+                                    data-validate-hint="Précisez la date d'enregistrement svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </div>
+                    
+                       
+                        <div class="col-md-6">
+                                    <label>Lieu de dépôt</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="lieu_depot" id="lieu_depot" type="text" data-validate-func="required" data-validate-hint="Entrez lieu_depot !" value = "{{model.lieu_depot}}">
+                                    </div>
+                                    
+                        </div>
+                    
+                        
+                        <div class="col-md-6">
+                            <label>Date de dépôt</label>
+                            <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" id="date_depot" name="date_depot" readonly value="{% now "d/m/Y" %}"
+                                    data-validate-func="required"       
+                                    data-validate-hint="Précisez la date d'enregistrement svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </div>
+                    
+                        <div class="col-md-6">
+                                    <label>Délai d'engagement (en jours)</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="delai_engagement" id="delai_engagement" type="text" data-validate-func="required" data-validate-hint="Entrez delai_engagement !" value = "{{model.delai_engagement}}">
+                                    </div>
+                                    
+                        </div>
+                    
+                        <div class="col-md-6">
+                                    <label>Montant de la caution de soumission</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="montant_commission" id="montant_commission" type="text" data-validate-func="required" data-validate-hint="Entrez montant_commission !" value = "{{model.montant_commission}}">
+                                    </div>
+                                    
+                        </div>
+                        
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size">
+                                <textarea name="desc" id="desc" value = "{{model.desc}}">
+        
+                                </textarea>
+                            </div>
+                        </div>
+                   <div class="col-md-6">
+                            <label>Qualification</label>
+                            <div class="input-control text full-size">
+                                <textarea name="qualification" id="qualification" value = "{{model.qualification}}">
+        
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <br>
+                    <div class="row">
+                        
+                        <div class="col-md-6">
+                            <label>Conditions</label>
+                            <div class="input-control text full-size">
+                                <textarea name="conditions" id="conditions" value = "{{model.condtitions}}">
+        
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <br>
+                    <br>
+                    <br>
+                    
+                    
+                </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+    
+{% endblock %}

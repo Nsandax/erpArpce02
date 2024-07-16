@@ -1,0 +1,113 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{%load static %}
+
+    <body>
+        <div id="facture" style="margin-left:-1px;margin-right:-1px;">
+            <p class="invoice-text" style="float: left;font-size:12px;">République du Congo</p>
+            <br><br><br>
+            <div class="row">
+                <div class="" style="font-size:9px;float: left;width: 30%;">
+                    <strong style="font-weight:900;font-size:16px;">{{model.client.nom_complet}}</strong><br>
+                    <strong>{{model.client.phone}}</strong>  <br>
+                    <strong> {{model.client.email}} </strong><br/>
+                    <strong>{{model.client.adresse_complete}}</strong> <br>
+                </div>
+                <div class="" style="float: right;width: 60%;position:relation;top:-50px">
+                    <table class="table bordered no-margin" style="width: 100%">
+                        <tr style="color:#000!important;font-weight:800">
+                            <td colspan="3" class="align-center" width="50%">Facture N°: {{ model.numero_facture }}</td>
+                        </tr>
+                        <tr style="color:#000!important;font-weight:800">
+                            <td>DATE</td>
+                            <td>CLIENT</td>
+                            <td>PAGE</td>
+                        </tr>
+                        <tr style="color:#000!important;font-weight:500">
+                            <td>{{model.date_facturation | date:"d/m/Y" }}</td>
+                            <td>{{model.type_service.designation}}</td>
+                            <td>1/1</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <br><br>
+            <div class="col-md-12" style="margin-bottom:2rem;">
+                <table id="rapport" class="display table nowrap border bordered" cellspacing="0" style="width:100%">
+                    <tr>
+                        <td width="40%" style="font-weight:800;">objet: -</td>
+                        <td width="20%" style="font-weight:800;">Date d'échéance</td>
+                        <td width="40%" style="font-weight:800;">Conditions de Règlement: Chèque, Espèces, Virement</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Type de service: {{model.type_service.designation}}</td>
+                        <td width="20%">{{model.date_facturation | date:"d/m/Y" }}</td>
+                        <td width="40%">{{bon.condition_reglement.designation}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-12" style="border:1px #BFBFBF solid;height:350px;">
+                <table class="table bordered no-margin" style="width: 100%; height:300px;;">
+                    <tr style="background-color:#BFBFBF;color:#000!important;font-weight:800;height:30px;">
+                        <td width="40%"><strong style="font-weight:900;text-align: center;">Désignation</strong></td>
+                        <td width="10%"><strong style="font-weight:900;text-align: center;">Qté</strong></td>
+                        <td width="15%"><strong style="font-weight:900;text-align: center;">P.U (F.Cfa)</strong></td>
+                        <td width="10%"><strong style="font-weight:900;text-align: center;">Rem(%)</strong></td>
+                        <td width="25%"><strong style="font-weight:900;text-align: center;">Montant HT</strong></td>
+                    </tr>
+                    <tbody style="height:250px;">
+                    {% for ligne in lignes %}
+                        <tr class="table bordered border">
+                            <td class="td" style="border-top:none;border-bottom:none;border-left:2px#000 solid;">{{ ligne.nom_article}}</td>
+                            <td class="td" style="border-top:none;border-bottom:none;">{{ ligne.quantite_demande }} {{ ligne.unite.symbole_unite }}</td>
+                            <td class="td" style="border-top:none;border-bottom:none;text-align: right;">{{ ligne.prix_unitaire|monetary }} {{ bon.devise.symbole_devise }}</td>
+                            <td class="td" style="border-top:none;border-bottom:none;">{{ligne.remise}}</td>
+                            <td class="td" style="border-top:none;border-bottom:none;border-right:2px#000 solid;text-align: right;">{{ ligne.total|monetary }} {{ bon.devise.symbole_devise }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <p><strong style="font-weight:800;">Remarque:</strong> Cette facture est établie sur base "hors taxes" si une taxation devrait être établie, une note de recouvrement complétementaire vous sera adressée.</p>
+            <p><strong style="font-weight:900;">Régime d'imposition:</strong> Réel <br>
+                <strong style="font-weight:900;">Service Impôt:</strong> UGE BZE
+            </p>
+
+            <br>
+            <br>
+
+            <div class="row">
+                <table class="display table nowrap border bordered" cellspacing="0" style="width:50%;height:30px;">
+                    <thead>
+                        <tr>
+                            <th width="20%">TOTAL HT</th>
+                            <th width="20%">MT Remise</th>
+                            <th width="20%">ACOMPTE</th>
+                            <th width="20%">NET A PAYER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="height:40px;">
+                            <td width="20%" style="text-align: right">{{ model.montant_ht|monetary }} {{ model.devise.symbole_devise }}</td>
+                            <td width="20%" style="text-align: right">{{ model.montant_taxe|monetary }} {{ model.devise.symbole_devise }}</td>
+                            <td width="20%" style="text-align: right">{{ model.montant_paye|monetary }} {{ model.devise.symbole_devise }}</td>
+                            <td width="20%" style="text-align: right">{{ model.montant|monetary }} {{ model.devise.symbole_devise }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
+                <p style="text-align: left;">
+                    <strong>Arrêté la présente facture à la somme de:</strong> {{ model.montant|monetary }} {{ model.devise.symbole_devise }}
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

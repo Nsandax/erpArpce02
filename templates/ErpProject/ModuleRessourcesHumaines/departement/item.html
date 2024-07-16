@@ -1,0 +1,152 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}{% block page %}
+   <div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_list_departement' %}">Liste des organisations</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_rh_add_departement" url_detail="module_rh_detail_departement" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row">
+    <button onclick="javascript:window.location.assign('{% url 'module_rh_update_departement' model.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 30%;">Modifier organisation</button> 
+    <button onclick="javascript:window.location.assign('{% url 'module_rh_list_departement' %}')"  class="theme-btn theme-btn-sm rounded" style="width: 15%;">Annuler</button>
+    <button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_poste_from_department' model.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">Créer un poste</button>
+    <!-- <button id="supprimer" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer</button> -->
+</div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Désignation :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.libelle }} </span>
+                </p>
+                <p class="fg-gray">
+                    Code :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.code }} </span>
+                </p>
+                    <p class="fg-gray">
+                            Responsable :<br>
+                            <span class="sub-alt-header fg-dark"> {{ model.responsable.nom_complet }} </span>
+                        </p>
+                        <p class="fg-gray">
+                            Label :<br>
+                            <span class="sub-alt-header fg-dark"> {{ model.get_label }} </span>
+                        </p>
+                    <p class="fg-gray">
+                            Organisation parente directe :<br>
+                            {% if model.unite_fonctionnelle == None %}
+                            <span class="sub-alt-header fg-dark"> Aucune </span>
+                            {% else %}
+                            <span class="sub-alt-header fg-dark"> {{ model.unite_fonctionnelle.libelle }} </span>
+                            {% endif %}
+                    </p>
+                    <p class="fg-gray">
+                        Description :<br>
+                        <span class="sub-alt-header fg-dark"> {{ model.description }} </span>
+                    </p>
+            </div>
+            
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-12">
+                <button onclick="javascript:window.location.assign('{% url 'module_rh_list_employe_of_departement' model.id %}')" class="button rounded primary chargement-au-click"> Liste des employés du département </button>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Postes</h2>
+                <table class="table border bordered">
+                    <thead>
+                        <tr>
+                            <th width="15%">Designation</th>
+                            <th width="15%">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in postes %}
+                            <tr class="table bordered border">
+                                    <td> <a class="lien chargement-au-click" href="{% url 'module_ressources_humaines_detail_poste_from_department' model.id item.id %}">{{ item.designation }}</a></td>
+                                <td> {{ item.description }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<script>
+    function supprimer() {
+        var id = '{{model.id}}'
+        //-------deux variables pour la suppression---------------------------------
+        var modele = "Model_Unite_fonctionnelle"
+        var the_url = "module_rh_list_departement"
+        //------- url de suppression ------------------------------------------------
+        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+        url = url.replace('100', id);
+        url = url.replace('nom_modele', modele);
+        url = url.replace('url_retour', the_url);
+        document.location.href = url;
+
+
+    }
+    $('#supprimer').on('click', function () {
+
+
+        Swal.fire({
+            title: 'Etes vous sure?',
+            text: "De vouloir supprimer cette item!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer();
+                Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+
+</script>
+<script>
+    //Script du droit supprimer
+    var lesactions = new Array();
+    var booleen = false;
+    {% for action in actions %}
+    lesactions.push({ droit: "{{ action.droit }}" });
+    {% endfor %}
+
+    $(document).ready(function () {
+
+        // Initialisation des sous-menus
+        $("#supprimer").hide();
+
+        for (var i = 1; i < lesactions.length; i++) {
+            act = lesactions[i];
+            if (act.droit === "CREER_RAPPORT") {
+                booleen = true;
+            }
+        }
+
+        if (booleen) {
+            $("#supprimer").show();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_home' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_factures' %}">Liste des factures</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_details_facture' facture.id %}">Facture N°{{ facture.numero_facture }}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+{% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  class="button small-button rounded primary" val="Valider"%}        <button onclick="javascript:window.location.assign('{% url 'module_achat_details_facture' facture.id %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+    </div>
+
+    <hr class="hr-ligne" />
+    
+    <br>
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <div class="row cells3 item-content" style="margin-top: 10px">
+        <div class="cell">
+            <form action="{% url 'module_achat_post_add_paiement' %}" method="POST"
+                data-role="validator"
+                data-show-required-state="false"
+                data-hint-mode="line"
+                data-hint-background="bg-red"
+                data-hint-color="fg-white"
+                data-hide-error="5000"
+                novalidate="novalidate"
+                data-on-error-input="notifyOnErrorInput"
+                data-show-error-hint="false">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+                <input name="ref" type="hidden" value="{{ facture.id }}" >
+                <div class="row">
+                    <label class="label">Date de reglement</label>
+                    <div id="input-date-prevue" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                        <input readonly type="text" name="date_paiement" readonly
+                            data-validate-func="required" 
+                            data-validate-hint="Précisez la date de reglement svp.">
+                        <div class="button"><span class="mif-calendar"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Devise</label>
+                    <div class="input-control text full-size">
+                        <select name="devise_id" id="devise_id" onchange="choix_devise()"
+                            data-validate-func="min" 
+                            data-validate-arg="1"
+                            data-validate-hint="Sélectionnez la devise svp.">
+                            <option value="0">Sélectionnez une devise</option>
+                            {% for item in devises %}
+                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Source de provenance de l'argent</label>
+                    <div class="input-control text full-size">
+                        <select name="source_paiement"
+                            data-validate-func="min" 
+                            data-validate-arg="1"
+                            data-validate-hint="Sélectionnez la source de provenance de l'argent svp.">
+                            <option value="0">Sélectionnez une source de provenance</option>
+                            <option value="1">Caisse</option>
+                            <option value="2">Banque</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Moyen de paiement</label>
+                    <div class="input-control text full-size">
+                        <select name="moyen_paiement"
+                            data-validate-func="min" 
+                            data-validate-arg="1"
+                            data-validate-hint="Sélectionnez un moyen de paiement svp.">
+                            <option value="0">Sélectionnez un moyen de paiement</option>
+                            {% for item in moyen_paiement %}
+                                <option value="{{ item.id }}"> {{ item.designation }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <label>Montant</label>
+                    <div class="input-control text full-size">
+                        <input type="text" name="montant"
+                            data-validate-func="required"
+                            data-validate-hint="Entrez le montant svp." />
+                        <span class="prepend-icon" style="margin-left:75%">
+                            <span style="margin-top: 1px;" class="sub-header place-right devise">{{ devise_ref.symbole_devise }}</span>
+                        </span>
+                    </div>
+                </div>            
+            </form>
+        </div>            
+    </div>
+    <script>
+        var deviseRef = "{{ devise_ref.symbole_devise }}";
+        var lesDevises = new Array();
+        {% for item in devises %}
+            lesDevises.push({ id: "{{ item.id }}", symbole_devise:"{{ item.symbole_devise }}" });
+        {% endfor %}
+
+        function choix_devise()
+        {
+            var id_devise = $("#devise_id").val();
+            if(id_devise == "0") deviseRef = "$";
+            else
+            {
+                for(var i = 0; i < lesDevises.length; i++)
+                {
+                    var devise = lesDevises[i];
+                    if(devise.id == id_devise)
+                    {
+                        deviseRef = devise.symbole_devise;
+                        $(".devise").text(deviseRef);
+                        break;
+                    }
+                }
+            }
+        }
+    </script>
+   
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressourceshumaines_list_emploi' employe.id %}">Liste des emplois</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_ressourceshumaines_add_emploi" url_detail="module_ressourceshumaines_detail_emploi" csrf_token=csrf_token module=module type_doc="" only %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_update_emploi' employe.id emploi.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;">Modifier</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_ressourceshumaines_list_emploi' employe.id %}')"  class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row padding20 no-padding-top no-padding-bottom" style="border-right: 1px solid #f7f5f5;">
+                                    <p>
+
+            Etablissement :
+                    <br>
+                    <span class="sub-alt-header">{{ emploi.etablissement }}</span>
+                    <br>
+                    <br>
+
+            Lieu :
+                    <br>
+                    <span class="sub-alt-header">{{ emploi.lieu }}</span>
+                    <br>
+                    <br>
+
+            Fonctions :
+                    <br>
+                    <span class="sub-alt-header">{{ emploi.fonctions }}</span>
+                    <br>
+                    <br>
+
+            Categorie socio-professionnelle :
+                    <br>
+                    <span class="sub-alt-header">{{ emploi.categorie_socio_professionnelle }}</span>
+                    <br>
+                    <br>
+
+            Date d'entree :
+                    <br>
+                    <span class="sub-alt-header">{{ emploi.date_entree }}</span>
+                    <br>
+                    <br>
+
+            Date de sortie :
+                    <br>
+                    <span class="sub-alt-header">{{ emploi.date_sortie }}</span>
+                    <br>
+                    <br>
+
+
+        </p>
+                                </div>
+                            </div>
+                        </div>
+
+           {% endblock %}}

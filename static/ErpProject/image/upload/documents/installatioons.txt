@@ -1,0 +1,12 @@
+pip install pytesseract
+pip install pdf2image
+pip install docx2txt
+pip install docx
+pip install python-docx
+pip install xlrd
+pip install django-elasticsearch-dsl==0.4.4
+pip install pip install django-celery-results
+pip install pytesseract
+pip install redis
+pip install urllib3
+pip install opencv-python

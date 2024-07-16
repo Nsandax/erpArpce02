@@ -1,0 +1,492 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+   <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_rubrique' %}">Liste des rubriques</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:window.location.assign('{% url 'module_payroll_update_rubrique' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button>
+        <button onclick="javascript:window.location.assign('{% url 'module_payroll_list_rubrique' %})" class="theme-btn theme-btn-sm rounded chargement-au-click">Annuler</button>
+        <button id="supprimer" class="button theme-btn-sm rounded danger chargement-au-click" style="margin-left: 5px">Supprimer</button>
+    </div>
+    {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_payroll_add_rubrique" url_detail="module_payroll_details_rubrique" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+    <div class="row item-content" style="margin-top: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Désignation  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Code:<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.code }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Référence  :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.reference }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Devise :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.devise.designation }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label class="input-control checkbox small-check full-size">
+                    <input name="apparait_dans_bulletin" id="apparait_dans_bulletin"  {% if model.apparait_dans_bulletin is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                    <span class="check"></span>
+                    <span class="caption">Apparaît sur le bulletin de paie</span>
+                </label>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    No d'Ordre :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.sequence }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Description :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.description }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="fg-gray">
+                    Type de Rubrique :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.value_type_rubrique }}</span>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label class="input-control checkbox small-check full-size">
+                    <input name="est_cumul" id="est_cumul"  {% if model.est_cumul is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                    <span class="check"></span>
+                    <span class="caption">Est cumul</span>
+                </label>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+            <div class="tabcontrol2" data-role="tabcontrol">
+                <ul class="tabs">
+                    <li class="active"><a href="#frame_rubrique">Règle salariale</a></li>
+					<li class=""><a href="#frame_comptabilite">Comptabilité</a></li>
+                </ul>
+
+                <div class="frames">
+                    <div class="frame" id="frame_rubrique" style="display: block;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Type de Formule :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.value_type_formule }}</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Type de Montant :<br>
+                                    <span class="sub-alt-header fg-dark"> {{ model.value_type_element }}</span>
+                                </p>
+                            </div>
+                            <div class="col-md-12">
+                                <br><hr><br>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p class="header">Formule</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="part_salariale_tab" class="table bordered no-margin" style="width:100%;">
+                                    <tr>
+                                        <th width="20%"></th>
+                                        <th width="20%">Nombre</th>
+                                        <th width="20%">Base</th>
+                                        <th width="20%">Taux(%)</th>
+                                        <th width="20%">Montant</th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label>Part salariale</label>
+                                        </td>
+                                        <td>
+                                            <div id="nombre_parsal" class="input-control text full-size" style="display: none">
+                                                <p class="fg-gray">
+                                                    <span class="sub-alt-header fg-dark">{% if model.nombre_parsal_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.nombre_parsal_const.id %}">{{ model.nombre_parsal_const.code }}</a>{% else %} {{ model.nombre_parsal }} {% endif %} </span>
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div id="base_parsal" class="input-control text full-size" style="display: none">
+                                                <p class="fg-gray">
+                                                    <span class="sub-alt-header fg-dark">{% if model.base_parsal_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.base_parsal_const.id %}">{{ model.base_parsal_const.code }}</a>{% else %} {{ model.base_parsal }} {% endif %} </span>
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div id="taux_parsal" class="input-control text full-size" style="display: none">
+                                                <p class="fg-gray">
+                                                    <span class="sub-alt-header fg-dark">{% if model.taux_parsal_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.taux_parsal_const.id %}">{{ model.taux_parsal_const.code }}</a>{% else %} {{ model.taux_parsal }} {% endif %} </span>
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div id="montant_parsal" class="input-control text full-size">
+                                                <p class="fg-gray">
+                                                    <span class="sub-alt-header fg-dark">{% if model.type_formule != 15 %} <strong>Résultat du Calcul</strong> {% else %} {% if model.montant_parsal_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.montant_parsal_const.id %}">{{ model.montant_parsal_const.code }}</a>{% else %} {{ model.montant_parsal }} {% endif %} {% endif %}</span>
+                                                </p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label>Saisie</label>
+                                        </td>
+                                        <td>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input class="saisie-checkbox" {% if model.nombre_est_modifiable is True %}{{ "checked" }}{% endif %} name="nombre_est_modifiable" id="nombre_est_modifiable"  type="checkbox"  disabled="disabled">
+                                                <span class="check"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input class="saisie-checkbox" {% if model.base_est_modifiable is True %}{{ "checked" }}{% endif %} name="base_est_modifiable" id="base_est_modifiable"  type="checkbox"  disabled="disabled">
+                                                <span class="check"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input class="saisie-checkbox" {% if model.taux_est_modifiable is True %}{{ "checked" }}{% endif %} name="taux_est_modifiable" id="taux_est_modifiable"  type="checkbox"  disabled="disabled">
+                                                <span class="check"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input class="saisie-checkbox" {% if model.montant_est_modifiable is True %}{{ "checked" }}{% endif %} name="montant_est_modifiable" id="montant_est_modifiable"  type="checkbox"  disabled="disabled">
+                                                <span class="check"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <table id="part_patronale_tab" class="table bordered no-margin" style="width:100%;display: none">
+                                    <tr>
+                                        <td width="20%"><label>Part patronale</label></td>
+                                        <td width="20%"></td>
+                                        <td width="20%"></td>
+                                        <td width="20%">
+                                            <div id="taux_parpat" class="input-control text full-size">
+                                                <p class="fg-gray">
+                                                    <span class="sub-alt-header fg-dark">{% if model.taux_parpat_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.taux_parpat_const.id %}">{{ model.taux_parpat_const.code }}</a>{% else %} {{ model.taux_parpat }} {% endif %} </span>
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td width="20%">
+                                            <div id="montant_parpat" class="input-control text full-size">
+                                                <p class="fg-gray">
+                                                    <span class="sub-alt-header fg-dark">{% if model.montant_parpat_is_const is True %} <a class="lien chargement-au-click" href="{% url 'module_payroll_details_constante' model.montant_parpat_const.id %}">{{ model.montant_parpat_const.code }}</a>  {% else %} {{ model.montant_parpat }} {% endif %} </span>
+                                                </p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label>Saisie</label>
+                                        </td>
+                                        <td>
+                                        </td>
+                                        <td>
+                                        </td>
+                                        <td>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input class="saisie-checkbox" {% if model.taux_pp_est_modifiable is True %}{{ "checked" }}{% endif %} name="taux_pp_est_modifiable" id="taux_pp_est_modifiable"  type="checkbox"  disabled="disabled">
+                                                <span class="check"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="input-control checkbox small-check full-size">
+                                                <input class="saisie-checkbox" {% if model.montant_pp_est_modifiable is True %}{{ "checked" }}{% endif %} name="montant_pp_est_modifiable" id="montant_pp_est_modifiable"  type="checkbox"  disabled="disabled">
+                                                <span class="check"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="frame" id="frame_comptabilite" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Compte débit :<br>
+                                    <span class="sub-alt-header fg-dark">{{ model.compte_debit.numero }} {{ model.compte_debit.designation }}</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="fg-gray">
+                                    Compte crébit :<br>
+                                    <span class="sub-alt-header fg-dark">{{ model.compte_credit.numero }} {{ model.compte_credit.designation }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script>
+        $(document).ready(function(){
+			var type_formule = "{{ model.type_formule }}";
+            console.log("type_formule: "+type_formule);
+            if(type_formule == "1"){
+                //(1, "Nombre x Base")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").show();
+                $("#taux_parsal").hide();
+
+            }else if (type_formule == "2"){
+                //(2, "Nombre x Taux")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").hide();
+                $("#taux_parsal").show();
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "3"){
+                //(3, "Nombre x Base x Taux")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").show();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "4"){
+                //(4, "Base x Taux")
+
+                $("#nombre_parsal").hide();
+                $("#base_parsal").show();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "5"){
+                //(5, "Nombre / Base")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").show();
+                $("#taux_parsal").hide();
+
+
+            }else if (type_formule == "6"){
+                //(6, "Nombre / Taux")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").hide();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "7"){
+                //(7, "Nombre / Base / Taux")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").show();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "8"){
+                //(8, "Base / Taux")
+
+                $("#nombre_parsal").hide();
+                $("#base_parsal").show();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "9"){
+                //(9, "Nombre / Base X Taux")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").show();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "10"){
+                //(10, "Nombre X Base / Taux")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").show();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "11"){
+                //(11, "Taux / Base")
+
+                $("#nombre_parsal").hide();
+                $("#base_parsal").show();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "12"){
+                //(12, "Taux / Nombre")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").hide();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "13"){
+                //(13, "Taux / Nombre / Base")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").show();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "14"){
+                //(14, "Taux / Nombre X Base")
+
+                $("#nombre_parsal").show();
+                $("#base_parsal").show();
+                $("#taux_parsal").show();
+
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#montant_parpat").hide();
+                }
+            }else if (type_formule == "15"){
+                //(15, "Montant fixe")
+
+                $("#nombre_parsal").hide();
+                $("#base_parsal").hide();
+                $("#taux_parsal").hide();
+                $("#montant_parsal").show();
+
+                var type_rubrique = "{{ model.type_rubrique }}";
+                if(type_rubrique == "2"){
+                    $("#part_patronale_tab").show();
+                    $("#taux_parpat").hide();
+                }
+            }
+		});
+	</script>
+
+<script>
+    function supprimer() {
+         var id = '{{model.id}}'
+         //-------deux variables pour la suppression---------------------------------
+         var modele = "Model_Rubrique"
+         var the_url = "module_payroll_list_rubrique"
+         //------- url de suppression ------------------------------------------------
+         url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+         url = url.replace('100', id);
+         url = url.replace('nom_modele', modele);
+         url = url.replace('url_retour', the_url);
+         document.location.href = url;
+
+
+     }
+     $('#supprimer').on('click', function () {
+
+
+         Swal.fire({
+             title: 'Etes vous sure?',
+             text: "De vouloir supprimer cette item!",
+             icon: 'warning',
+             showCancelButton: true,
+             confirmButtonColor: '#3085d6',
+             cancelButtonColor: '#d33',
+             confirmButtonText: 'Oui, Supprime le!'
+         }).then((result) => {
+             if (result.value) {
+                 supprimer();
+                 Swal.fire(
+                     'Supprimé!',
+
+                     'Votre Item est supprimé',
+                     'Avec Succes',
+                 )
+             }
+         })
+     })
+
+ </script>
+{% endblock %}

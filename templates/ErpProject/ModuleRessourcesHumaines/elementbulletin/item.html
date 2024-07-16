@@ -1,0 +1,177 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources humaines</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_ressources_humaines_list_element' %}">Liste des Eléments</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        <!--button onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_element' %}')" class="button rounded primary chargement-au-click">Modifier</button-->
+        <button class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 20%;" onclick="javascript:window.location.assign('{% url 'module_ressources_humaines_add_element' %}')" style="margin-left: 5px">Créer</button>
+		<center><h4 style="color:red; font-weight: bold;">ELEMENT DU BULLETIN</h4></center>
+	</div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    
+    <div class="row item-content" style="margin-top: 10px">
+        <!--p class="header">{{ model.designation }}</p-->
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Désignation :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.designation }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Référence :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.reference }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Type d'élément :<br>
+                    {% for item in types_element %}
+                        {% if item.id == model.type_element %}
+                            <span class="sub-alt-header fg-dark">{{ item.designation }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Categorie d'élément :<br>
+                    {% for item in categories_element %}
+                        {% if item.id == model.categorie_element %}
+                            <span class="sub-alt-header fg-dark">{{ item.designation }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Date de création :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.creation_date|date:"d/m/Y" }} </span>
+                </p>
+            </div>
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                    Auteur :<br>
+                    <span class="sub-alt-header fg-dark"> {{ model.auteur.nom_complet }} </span>
+                </p>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+            <div class="tabcontrol2" data-role="tabcontrol">
+                <ul class="tabs">
+                    <li class="active"><a href="#frame_regle_salariale">Règle salariale</a></li>
+					<li class=""><a href="#frame_comptabilite">Comptabilité</a></li>
+                </ul>
+                <div class="frames">
+                    <div class="frame" id="frame_regle_salariale" style="display: block;">                            
+                        <div class="row cells3">
+                            <div class="cell">
+                                <div class="row">
+                                    <p class="minor-header fg-gray">
+                                        Type de calcul :<br>
+                                        {% if model.type_calcul != None and model.type_calcul != 0 %}
+											{% for item in types_calcul %}
+												{% if item.id == model.type_calcul %}
+													<span class="sub-alt-header fg-dark">{{ item.designation }}</span>
+												{% endif %}
+											{% endfor %}
+                                        {% else %}
+                                            <span class="sub-alt-header fg-dark">-</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+								{% if model.type_calcul == 1 %}
+									<div class="row">
+										<p class="minor-header fg-gray">
+											Pourcentage basé sur :<br>
+											{% if model.type_resultat != None and model.type_resultat != "" %}
+												{% for item in types_resultat %}
+													{% if item.id == model.type_resultat %}
+														<span class="sub-alt-header fg-dark">{{ item.designation }}</span>
+													{% endif %}
+												{% endfor %}										
+											{% else %}
+												<span class="sub-alt-header fg-dark">-</span>
+											{% endif %}
+										</p>
+									</div>
+									<div class="row">
+										<p class="minor-header fg-gray">
+											Pourcentage (%) :<br>
+											{% if model.pourcentage != None and model.pourcentage != 0 %}
+												<span class="sub-alt-header fg-dark">{{ model.pourcentage }}</span>
+											{% else %}
+												<span class="sub-alt-header fg-dark">-</span>
+											{% endif %}
+										</p>
+									</div>
+								{% elif model.type_calcul == 2 %}
+									<div class="row">
+										<p class="minor-header fg-gray">
+											Montant fixe :<br>
+											{% if model.montant != None and model.montant != 0 %}
+												<span class="sub-alt-header fg-dark">{{ model.montant }}</span>
+											{% else %}
+												<span class="sub-alt-header fg-dark">-</span>
+											{% endif %}
+										</p>
+									</div>
+								{% elif model.type_calcul == 3 %}
+									<div class="row">
+										<p class="minor-header fg-gray">
+											Code calcul :<br>
+											{% if model.calcul != None and model.calcul != "" %}
+												<span class="sub-alt-header fg-dark">{{ model.calcul }}</span>
+											{% else %}
+												<span class="sub-alt-header fg-dark">-</span>
+											{% endif %}
+										</p>
+									</div>
+								{% elif model.type_calcul == 4 %}
+									<div class="row">
+										<p class="minor-header fg-gray">
+											Barême :<br>
+											{% if model.bareme != None and model.bareme != "" %}
+												<span class="sub-alt-header fg-dark">{{ model.bareme }}</span>
+											{% else %}
+												<span class="sub-alt-header fg-dark">-</span>
+											{% endif %}
+										</p>
+									</div>
+								{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="frame" id="frame_comptabilite" style="display: none;">
+                        <div class="row cells3">
+                            <div class="cell">
+                                <div class="row">
+                                    <p class="minor-header fg-gray">
+                                        Compte :<br>
+                                        {% if model.compte != None and model.compte != 0 %}
+                                            <span class="sub-alt-header fg-dark">{{ model.compte.designation }}</span>
+                                        {% else %}
+                                            <span class="sub-alt-header fg-dark">-</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>					
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,243 @@
+
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+    {%load static %}{% load humanize %}
+    {% load account_filters %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_achat_list_bon_reception' %}">Module Achat</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_achat_list_bon_reception' %}">Listes bons réceptions</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">12:45, Mercredi 23 Janvier 2019</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+            <div class="row">
+                {% if model.statut.est_initiale and model.is_actif %}
+                <div class="col-md-2">
+                    <button style="width: 150%;" onclick="javascript:window.location.assign('{% url 'module_achat_update_bon_reception' model.id %}')" class="theme-btn theme-btn-sm rounded">
+                        Modifier
+                    </button>
+                </div>
+                {% endif %}
+                <div class="col-md-1"></div>
+                {% if showbutton %}
+                <div class="col-md-2">
+                    <button style="width: 150%;" onclick="traiter({{model.id}})" class="theme-btn theme-btn-sm rounded">
+                        Traiter Duree vie
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            <br>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <!-- GESTION DU WORKFLOW -->
+            {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_achat_add_bon_reception" url_detail="module_achat_detail_bon_reception" csrf_token=csrf_token module=module type_doc="Bon commande" only %}
+            <!--FIN GESTION DU WORKFLOW-->
+            <!-- Appel de la fonction message -->
+            {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+            <br>
+
+            <div class="panel panel-default" style="border: none;">
+                    <div class="panel panel-body" style="background-color:white;">
+                      <div class="col-md-12">
+                        <div class="col-md-6">
+                            {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                        </div>
+                          <div class="col-md-6" style="text-align: right;">
+                               <h3>Bon de commande</h3>
+                                <button type="button" onclick="imprimer({{model.id}})" class="btn btn-default" style="background-color: #41435d;border:none;color: white;" >Imprimer</button>
+                                <h3 style="color: red; font-weight: bold">N° {{model.numero_reception}}</h3> <br>
+                                <h5 style="color: red; font-weight: bold">
+                                    {% if model.is_actif == False %}
+                                        Cloturé
+                                    {% endif %}
+                                </h5>
+                          </div>
+                           <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                             <div class="col-md-6">
+
+                                <p style="">
+                                    <strong>Nom du contact: </strong> <br>
+                                    <strong>Tél/Fax:</strong> <br>   <br>
+                                    <strong>Nom du fournisseur : </strong>{{model.fournisseur.nom_complet}}<br>
+                                    <strong>B.P : </strong> <br>
+                                    <strong>Email: </strong> {{model.fournisseur.email}} <br/>
+                                    <strong>Pays: </strong> <br>
+                                    <strong>Réf. du fournisseur : </strong> <br/>
+                                    <strong>Description des biens/services : </strong><br>
+
+                                    {% if model.est_groupe %}
+                                            {% for item in model.demandes_achat.all %}
+                                            <strong>Demande d'achat :  {{item}} </strong><br>
+                                            {% endfor %}
+
+                                    {% else %}
+                                        <strong>
+                                            Demande achat :
+                                            {% if model.demande_achat %}
+                                                <a class="lien chargement-au-click" href="{% url 'module_achat_detail_demande_achat' model.demande_achat.id %}">
+                                                    {{model.demande_achat}}
+                                                </a>
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </strong><br>
+                                    {% endif %}
+                                    <strong>Expression Besoin:
+                                        {% if model.demande_achat %}
+                                        <a class="lien chargement-au-click" href="{% url 'module_achat_detail_expression' model.demande_achat.expression.id %}">
+                                            {{model.demande_achat.expression.numero_expression}}
+                                        </a>
+                                        {% else %}
+                                                -
+                                        {% endif %}
+                                    </strong>
+                                </p>
+                            </div>
+                            <div  class="col-md-6" style="margin-bottom: 40px">
+                                <p style="float: right;">
+                                    <strong>Date du bon: </strong>{{model.date_prevue | date:"d/m/Y" }} <br>
+                                    <strong>Statut du bon : </strong>{{model.etat}} <br>
+                                    <strong>Demandé: : </strong> <br>
+                                    <strong>Fonction: </strong> <br>
+                                    <strong>Nature achat: </strong> <br/>
+                                    <strong>Modalité de réglement : </strong>{{model.condition_reglement.designation}}<br>
+                                    <strong>Duree de Vie : </strong>
+                                        {% if model.is_actif %}
+                                            {% if model.duree == 1 %}
+                                                6 Mois
+                                            {% else %}
+                                                12 Mois
+                                            {% endif %}
+                                        {% else %}
+                                            Cloturé
+                                        {% endif %}
+                                    <br>
+                                    <strong>Ligne(s) budgétaire(s) : </strong><br>
+                                        {% for item in lignes %}
+                                            <a class="lien chargement-au-click" href="{% url 'module_budget_detail_ligne_budgetaire' item.ligne_budgetaire.id %}">
+                                                {{item.ligne_budgetaire.code}}
+                                            </a>
+                                        <br>
+                                        {% endfor %}
+                                    <br>
+                                    <strong>Contrat : </strong><br>
+                                    <a class="lien chargement-au-click" href="{% url 'module_contrat_detail_contrat' model.contrat.id %}">
+                                        {{model.contrat.numero_reference}}
+                                    </a>
+                                </p>
+
+                            </div>
+
+                          <br> <br>
+
+                          <div class="col-md-12" >
+                                <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                                    <tr >
+                                        <td class="head" >#</td>
+                                        <td class="head">ARTICLE</td>
+                                        <td class="head">QUANTITE</td>
+                                        <td class="head">PRIX UNITAIRE</td>
+                                        <td class="head">TOTAL</td>
+                                    </tr>
+
+                                    {% for item in lignes %}
+                                        <tr>
+                                            <td class="td"></td>
+                                            <td class="td">{{ item.article.designation }}</td>
+                                            <td class="td"> {{item.quantite_demande}} </td>
+                                            <td class="td"><span class="monetary">{{ item.prix_unitaire |monetary}}</span></td>
+                                            <td class="td"><span class="monetary">{{ item.montant_total }} </span></td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </table>
+                          </div>
+
+                              <div  class="col-md-12" >
+                                    <h2 style="float: right; margin-top:35px; margin-bottom : 20px">TOTAL GENERAL : {{total|intcomma}} FCFA</h2>
+                              </div>
+
+                              <div  class="col-md-12"  style="margin-bottom: 15px">
+
+                                    <h2>Documents attachés</h2>
+                                    <hr>
+                                    <ol>
+                                        {% for item in documents %}
+                                            <li style="margin-bottom: 0.25em">
+                                                <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ol>
+                              </div>
+
+                          </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                function supprimer() {
+                    var id = '{{model.id}}'
+                    //-------deux variables pour la suppression---------------------------------
+                    var modele = "Model_Bon_reception"
+                    var the_url = "module_achat_list_bon_reception"
+                    // url de suppression ------------------------------------------------------
+                    url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+                    url = url.replace('100', id);
+                    url = url.replace('nom_modele', modele);
+                    url = url.replace('url_retour', the_url);
+                    document.location.href = url;
+
+
+                }
+                $('#supprimer').on('click', function () {
+
+
+                    Swal.fire({
+                        title: 'Etes vous sure?',
+                        text: "De vouloir supprimer cette item!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Oui, Supprime le!'
+                    }).then((result) => {
+                        if (result.value) {
+                            supprimer();
+                            Swal.fire(
+                                'Supprimé!',
+
+                                'Votre Item est supprimé',
+                                'Avec Succes',
+                            )
+                        }
+                    })
+                })
+
+            </script>
+            <script>
+                function imprimer(_id) {
+                    console.log('mon id '+_id)
+                    url = '{% url 'module_achat_printing_bon_commande' %}?ref=' + _id
+                    newwindow = window.open(url, '', '_blank, height = 9000, width = 9000');
+                    //newwindow.print()
+                }
+            </script>
+
+            <script>
+                function traiter(_id) {
+                    console.log('mon id '+_id)
+                    url = '{% url 'module_achat_get_detail_traitement' %}?ref=' + _id
+                    // newwindow = window.open(url, '', '_blank, height = 9000, width = 9000');
+                    document.location.href = url;
+                    //newwindow.print()
+                }
+            </script>
+{% endblock %}

@@ -1,0 +1,409 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="leaf" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+			<li><a class="chargement-au-click" href="{% url 'module_payroll_list_salarie' %}">Liste des salariés</a></li>
+			<li>{{ title }}</li>
+		</ul>
+	</div>
+    <div class="row">
+		<div class="col-md-2">
+			<button onclick="javascript:window.location.assign('{% url 'module_payroll_list_salarie' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="width: 100%;">Annuler</button>
+		</div>
+		<div class="col-md-2">
+			<button onclick="javascript:window.location.assign('{% url 'module_payroll_calcul_paie' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" style="width: 100%;">Bulletin calculé</button>
+		</div>
+	</div>
+	<hr class="hr-ligne">
+	<!-- Appel de la fonction message -->
+	{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+    <div class="row item-content" style="margin-top: 10px">
+		<div class="row">
+			<div class="col-md-6">
+				<p class="header shadow" style="height: 100px; width: 100px;">
+				{% if model.image != None and model.image != "" %}
+					<img src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+				{% else %}
+					<img src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+				{% endif %}
+				</p>
+			</div>
+		</div><br>
+		<p class="header">{{ model.nom_complet }}</p><br>
+		<div class="col-md-6">
+			<p class="minor-header fg-gray">
+				Lieu de travail :
+				<br>
+				{% if model.profilrh.lieu_travail != None and model.profilrh.lieu_travail != "" %}
+					<span class="sub-alt-header fg-dark">{{ model.profilrh.lieu_travail }}</span>
+				{% else %}
+					<span class="sub-alt-header lien leaf">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Tél. professionnel :
+				<br>
+				<span class="sub-alt-header fg-dark">{{ model.profilrh.phone_professionnel }}</span>
+				<br>
+				<br>
+				Adresse email :
+				<br>
+				{% if model.email != None and model.email != "" %}
+					<a href="mailto:{{ model.email }}" target="blank" class="sub-alt-header lien leaf">{{ model.email }}</a>
+				{% else %}
+					<span class="sub-alt-header lien leaf">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Matricule :
+				<br>
+				<span class="sub-alt-header fg-dark">{{ model.profilrh.matricule }}</span>
+				<br>
+				<br>
+				Poste :<br>
+				{% if model.poste != None and model.poste != 0 %}
+					<span class="sub-alt-header fg-dark"> {{ model.poste.designation }} </span>
+				{% else %}
+					<span class="sub-alt-header fg-dark">Attaché à aucun poste</span>
+				{% endif %}
+				<br>
+				<br>
+				Fonctions:<br>
+				{% for i in model.profilrh.fonctions.all %}
+					<span class="sub-alt-header fg-dark"> <ul><li>{{ i.designation }}
+
+					</li></ul></span>
+
+				{% endfor %}
+				<br>
+				Type de Structure salariale :<br>
+				{% if model.type_structure != None and model.type_structure != 0 %}
+					<span class="sub-alt-header fg-dark"> {{ model.type_structure.designation }} </span>
+				{% else %}
+					<span class="sub-alt-header fg-dark">Attaché à aucun type de structure</span>
+				{% endif %}
+			</p>
+		</div>
+		<div class="col-md-6">
+			<p class="minor-header fg-gray">
+				Grade :
+				<br>
+				{% if model.profilrh.grade != None and model.profilrh.grade != "" %}
+					<span class="sub-alt-header fg-dark">{{ model.profilrh.grade }}</span>
+				{% else %}
+					<span class="sub-alt-header fg-dark">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Sécurite Social :
+				<br>
+				{% if model.profilrh.numero_ss != None and model.profilrh.numero_ss != "" %}
+					<span class="sub-alt-header fg-dark">{{ model.profilrh.numero_ss }}</span>
+				{% else %}
+					<span class="sub-alt-header fg-dark">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Département :
+				<br>
+				{% if model.unite_fonctionnelle.libelle != None and model.unite_fonctionnelle.libelle != "" %}
+					<span class="sub-alt-header fg-dark">{{ model.unite_fonctionnelle.libelle }}</span>
+				{% else %}
+					<span class="sub-alt-header fg-dark">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Date d'engagement :
+				<br>
+				{% if model.profilrh.date_engagement != None and model.profilrh.date_engagement != "" %}
+					<span class="sub-alt-header fg-dark">{{ model.profilrh.date_engagement | date:"d/m/Y" }}</span>
+				{% else %}
+					<span class="sub-alt-header fg-dark">-</span>
+				{% endif %}
+				<br>
+				<br>
+				Niveau d'étude :
+				<br>
+				{% if model.profilrh.education != None and model.profilrh.education != "" %}
+					<span class="sub-alt-header fg-dark">{{ model.profilrh.education }}</span>
+				{% else %}
+					<span class="sub-alt-header fg-dark">-</span>
+				{% endif %}
+			</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="tabcontrol2" data-role="tabcontrol">
+			<ul class="tabs">
+				<li class="active"><a href="#frame_autres_informations">Situation Familiale</a></li>
+				<li class=""><a href="#frame_fourniture">Paramètre Banque</a></li>
+				<li class=""><a href="#frame_unite_achat">Documents</a></li>
+				<li class=""><a href="#frame_ayant_droit">Ayant-droits</a></li>
+			</ul>
+			<div class="frames">
+				<div class="frame" id="frame_autres_informations" style="display: block;">
+					<div class="row cells3">
+						<div class="cell">
+							<div class="row">
+								<p class="minor-header fg-gray">
+									Date de naissance :<br> {% if model.date_de_naissance != None and model.date_de_naissance != "" %}
+									<span class="sub-alt-header fg-dark">{{ model.date_de_naissance|slice:"10" }}</span>
+								{% else %}
+									<span class="sub-alt-header lien leaf">-</span>
+								{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">
+									Lieu de naissance :
+									<br>
+									{% if model.lieu_de_naissance != None and model.lieu_de_naissance != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.lieu_de_naissance }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">Nationalité :<br>
+								{% if model.profilrh.nationalite != None and model.profilrh.nationalite != "" %}
+									<span class="sub-alt-header fg-dark">{{ model.profilrh.nationalite }}</span>
+								{% else %}
+									<span class="sub-alt-header lien leaf">-</span>
+								{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">Séconde nationalité :<br>
+									{% if model.profilrh.seconde_nationalite != None and model.profilrh.seconde_nationalite != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.profilrh.seconde_nationalite }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">Niveau d'etude :<br>
+									{% if model.profilrh.education != None and model.profilrh.education != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.profilrh.education }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">N° Identification :<br>
+									{% if model.profilrh.numero_identification != None and model.profilrh.numero_identification != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.profilrh.numero_identification }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">N° Passeport :<br>
+									{% if model.profilrh.numero_passeport != None and model.profilrh.numero_passeport != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.profilrh.numero_passeport }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">Tél. personnel :<br>
+									{% if model.phone != None and model.phone != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.phone }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">
+									Lieu de naissance :
+									<br>
+									{% if model.lieu_de_naissance != None and model.lieu_de_naissance != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.lieu_de_naissance }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">
+									Genre :<br>
+									{% if model.sexe != None and model.sexe != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.sexe }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">Etat-civil :<br>
+									{% if model.profilrh.etat_civil != None and model.profilrh.etat_civil != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.profilrh.etat_civil }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">
+									Situation familiale :<br>
+									{% if model.profilrh.situation_famille != None and model.profilrh.situation_famille != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.profilrh.situation_famille }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">
+									Nombre d'enfants :<br>
+									{% if model.profilrh.dependant != None and model.profilrh.dependant != "" %}
+										<span class="sub-alt-header fg-dark">{{ model.profilrh.dependant }}</span>
+									{% else %}
+										<span class="sub-alt-header lien leaf">-</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="row">
+								<p class="minor-header fg-gray">
+									Adresse complète :<br>
+									<span class="sub-alt-header fg-dark">{{ model.adresse_complete }}</span><br><br>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="frame" id="frame_fourniture" style="display: none;">
+					<!-- New IDENTITE BANK UI -->
+					<div class="row">
+						<div class="col-md-12">
+							<table class="table no-margin">
+								<fieldset>
+									<legend>Relevé d'Identité Bancaire</legend>
+									<thead class="no-border">
+										<tr>
+											<th width="20%">Banque</th>
+											<th width="5%">Code Guichet</th>
+											<th width="20%">Num Compte</th>
+											<th width="5%">Clé RIB</th>
+											<th width="20%">Libéllé</th>
+											<th width="10%">IBAN</th>
+											<th width="10%">BIC</th>
+											<th width="10%">Répartition (en %)</th>
+										</tr>
+									</thead>
+
+									<tbody id="tbl_posts_bodyb">
+										{% for item_rib in ribs %}
+										<tr id="grpa-{{forloop.counter}}">
+											<td>
+												{{ item_rib.comptebanque.banque.designation }}
+											</td>
+											<td>
+												{{item_rib.code_guichet}}
+											</td>
+											<td>
+												{{item_rib.comptebanque.numero_compte}}
+											</td>
+											<td>
+												{{item_rib.cle_rib}}
+											</td>
+											<td>
+												{{item_rib.comptebanque.titulaire_compte}}
+											</td>
+											<td>
+												{{item_rib.iban}}
+											</td>
+											<td>
+												{{item_rib.bic}}
+											</td>
+											<td>
+												{{item_rib.comptebanque.repartition}}
+											</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</fieldset>
+							</table>
+						</div>
+					</div>
+					<br><br><br>
+					<div class="row">
+						<div class="col-md-5">
+							<p class="minor-header fg-gray">
+								Mode de paiement :
+								<br>
+								{% if model.mode_paiement != None and model.mode_paiement != "" %}
+									<span class="sub-alt-header fg-dark">{{ model.mode_paiement }}</span>
+								{% else %}
+									<span class="sub-alt-header fg-dark">-</span>
+								{% endif %}
+								<br>
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="frame" id="frame_unite_achat" style="display: none;">
+					<div class="row cells3">
+						<div class="cell">
+							<div class="row">
+								{% if documents.count == 0 %}
+								<p><span class="sub-alt-header fg-dark">Aucun document enregistré</span></p>
+								{% endif %}
+								<ol>
+									{% for item in documents %}
+									<li style="margin-bottom: 0.25em">
+										<a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+									</li>
+									{% endfor %}
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="frame" id="frame_ayant_droit" style="display: none;">
+					{% if dependants.count == 0 %}
+					<p><span class="sub-alt-header fg-dark">Aucun ayant-droit enregistré</span></p>
+					{% else %}
+					<table class="table dataTable striped border bordered" data-role="datatable" data-searching="true" style="width: 100%">
+						<thead>
+							<tr>
+								<th width="50%">Prénom & Nom</th>
+								<th width="25%">Lien de parenté</th>
+								<th width="25%">Date de naissance</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in dependants %}
+							<tr>
+								<td>
+									{{ item.nom_complet }}
+								</td>
+								<td>
+									{{ item.type_dependance }}
+								</td>
+								<td>
+									{{ item.date_naissance }}
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

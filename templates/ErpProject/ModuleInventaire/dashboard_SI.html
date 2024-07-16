@@ -1,0 +1,620 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+{%load static %}
+{% load inventaire_filter %}
+<style type="text/css">
+    body {
+        background-color: grey!important;
+    }
+    .btSh{
+        border-radius: 0px;
+        /* padding-right: 209px; */
+        margin-right: 10px;
+        margin-bottom: 0px;
+        margin-bottom: 3%;
+        /* display: flex; */
+        /* justify-content: center;*/
+     }
+     .f{
+         margin:2%;
+     }
+     .block_f{
+        margin-left: 0%;
+     }
+     .fond{
+        background-color: rgba(240, 240, 240, 0.3);
+        border-radius: 50px;
+        height: 50px;
+        width: 50px;
+        opacity:3.5;
+        float: right;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+     }
+
+
+</style>
+
+    <!-- Design Admin -->
+    <div class="row" style="padding-top:30px;">
+        <div class="col-lg-12">
+        <h2>Tableau de Bord</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <!--Notification-->
+            <div class="panel panel-default" style="border: none;">
+                        <div class="panel" style="background-color:#f5f5f5;border: none;"></div>
+                        {% if temp_notif_count > 0 %}
+                        <div class="col-md-12" style="padding: 10px;">
+                            {% for item in temp_notif_list %}
+                            <div class="col-md-4" style="padding: 10px;">
+                                <div style="">
+                                        <div class="mb-4 ">
+                                                <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                                    <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                                                <div style="padding: 10px;">
+                                                                <strong class="sub-header" style="margin: 10px;font-weight: 900;">Notification</strong>
+                                                                <small style="margin-right:50">{{item.notification.created_at}}</small>
+                                                                <button onclick="javascript:window.location.assign('{% url 'module_inventaire_notification' item.id %}')" type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" >
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                    <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                                    </div>
+                                                    <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                                                <p>
+                                                        {{item.notification.text}}<br>
+
+                                                        {% if item.notification.demande != None %}
+                                                        Etat: {{item.notification.demande.etat}}<br>
+                                                        {% endif %}
+
+                                                        {% if item.notification.bon_reception != None %}
+                                                        Etat: {{item.notification.bon_reception.etat}}<br>
+                                                        {% endif %}
+                                                                </p>
+
+                                                    </div>
+                                                        <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+                                                            <div style="padding: 15px;padding-top: 0px;">
+                                                                {% if item.type_action == "Link" %}
+                                                                    <button  class="btn rounded primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                                                        </div>
+                                                </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+            </div>
+            <!--END Notification-->
+
+            <!--Menu-->
+            <div class="Menu_Inventaire">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="panel panel-success" style="border-radius: 0px;border-bottom: none;background-color:#FF6A22;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div class="header_vente_stat" style="">Bon Tranfert</div>
+                                        <p style="font-weight: 800;font-size: 22px;font-family: gotham">{{NombreTranfert}}</p>
+                                    </div>
+                                    <div class="col-xs-3 text-right fond">
+                                        <span class="mif-stack" style="float: left;font-size:25px"></span>
+                                    </div>
+                                    <div>
+                                        <p style="float: left;font-size:80%;color:#fff;">Nombre des bon de transfert effectués</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success p2" style="border-radius: 0px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div class="header_vente_stat" style="">Nombre d'Inventaire</div>
+                                        <p style="font-weight: 800;font-size: 22px;font-family: gotham">{{NombreInventaire}}</p>
+                                    </div>
+                                    <div class="col-xs-3 text-right fond">
+                                        <span class="mif-calendar" style="float: left;font-size:25px"></span>
+                                    </div>
+                                    <div>
+                                        <p style="float: left;font-size:80%;color:#fff;">Nombre d'inventaire d'articles effectués</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success p3" style="border-radius: 0px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div class="header_vente_stat" style="">Sortie Matériel</div>
+                                        <p style="font-weight: 800;font-size: 22px;font-family: gotham">{{sortiMat}}</p>
+                                    </div>
+                                    <div class="col-xs-3 text-right fond">
+                                        <span class="mif-exit" style="float: left;font-size:25px"></span>
+                                    </div>
+                                    <div>
+                                        <p style="float: left;font-size:80%;color:#fff;">Nombre des Materiaux sorties en stock</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="panel panel-success p4" style="border-radius: 0px;border-bottom: none;">
+                            <div class="panel-heading" style="background-color: transparent;color: white;">
+                                <div class="row">
+                                    <div class="col-xs-7 text-left">
+                                        <div class="header_vente_stat" style="">Nombre d'Articles</div>
+                                        <p style="font-weight: 800;font-size: 22px;font-family: gotham">{{NombreArticle}}</p>
+                                    </div>
+                                    <div class="col-xs-3 text-right fond">
+                                        <span class="mif-database" style="font-size:25px"></span>
+                                    </div>
+                                    <div>
+                                        <p style="float: left;font-size:80%;color:#fff;">Le nombre des articles reservé en stock</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="background-color:#fff;">
+                    <div class="col-lg-12">
+                        <div class="panel" style="background-color:#f5f5f5;border: none;">
+                            <div class="col-md-12" style="padding: 10px;">
+                                <div>
+                                    <div class="mb-4">
+                                        <!-- Card Body -->
+                                        <div class="card-body">
+                                            <div class="chart-area item-dash" style="padding: 15px;background-color: white;">
+                                                <select onchange="choix_year()" class="champ" name="year" id="year" data-validate-func="min" data-validate-arg="1"
+                                                    data-validate-hint="Sélectionnez le responsable direct svp.">
+                                                    <option value="0">Sélectionnez une année</option>
+
+                                                {% for item in all_inventory %}
+                                                 <option value="{{item}}">{{item}}</option>
+                                                 {% endfor %}
+                                                </select>
+
+                                               <center> <p>Comparaison entre la Qantité demandée et fournie de ligne d'inventaire par mois de chaque année</p></center>
+                                                <canvas id="myChart" width="400" height="100"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" >
+                        <div class="col-md-8 item-dash" style="padding-bottom:5%;">
+                            <div class="col-lg-12" style="display: flex; align-items:center;margin-left:0px;margin-right:0px;height:40px;background-color: #6ACC95;margin-bottom:1%;">
+                                <span style="color:#fff;font-size:17px;font-weight:600;">Vue d'ensemble Inventaire</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="item-dash col-md-12" style="background-color: white;height: 250px;padding:10px;padding-top: 0px;">
+                                        <label style="font-weight: 900;display: flex;justify-content: center;">Operation en Stocks</label>
+                                        <hr>
+                                        <ul style="width: 100%;padding: 10px;padding-top: 2px;">
+                                            {% for item in OperationStock %}
+                                                <li>
+                                                    <strong style="font-weight: 600;">
+                                                        <a class="lien chargement-au-click" href="{% url 'module_inventaire_item_stock_emplacement' item.id %}">
+                                                            {{item.designation}}
+                                                        </a>
+                                                    </strong>
+                                                    <p style="float: right;font-size: 12px;color: grey;margin-bottom: 0px;">
+                                                        {{item.type}}
+                                                    </p>
+                                                    <p style="font-size: 11px;color: grey;display: flex; justify-content:space-between;">
+                                                        <span>{{item.reference}} </span>
+                                                        <span>{{item.sequence}} </span>
+                                                    </p>
+                                                </li>
+                                                {% empty %}
+                                                <li>Aucune donnée actuelletment</li>
+                                                {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="item-dash col-md-12" style="background-color: white;height: 250px;padding: 10px;padding-top: 0px;">
+                                         <label style="font-weight: 900;display:flex;justify-content: center;">Positionnement Articles</label>
+                                        <hr>
+                                        <ul style="width: 100%;padding: 2px;">
+                                            {% for item in Article %}
+                                            <li>
+                                            <strong style="font-weight: 600;font-size: 13px;">
+                                                <a class="lien chargement-au-click" href="{% url 'module_inventaire_details_article' item.id %}">
+                                                    {{item.designation}}
+                                                </a>
+                                            </strong>
+                                            <p style="float: right;font-size: 11px;color: grey;">
+                                                {{item.couloir}} / {{item.rayon}}
+                                            </p>
+                                            <p style="font-size: 11px;color: grey;">
+                                                {{item.creation_date | date:"d M Y"}}
+                                            </p>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                     </div>
+                                </div>
+                             </div>
+
+                        </div>
+                        <div class="col-md-3">
+                            <!-- <div class="calendar">
+                                <div class="calendar__picture">
+                                  <h2>29, Samedi</h2>
+                                  <h3>Decembre</h3>
+                                </div>
+                                <div class="calendar__date">
+                                  <div class="calendar__day">M</div>
+                                  <div class="calendar__day">T</div>
+                                  <div class="calendar__day">W</div>
+                                  <div class="calendar__day">T</div>
+                                  <div class="calendar__day">F</div>
+                                  <div class="calendar__day">S</div>
+                                  <div class="calendar__day">S</div>
+                                  <div class="calendar__number"></div>
+                                  <div class="calendar__number"></div>
+                                  <div class="calendar__number"></div>
+                                  <div class="calendar__number">1</div>
+                                  <div class="calendar__number">2</div>
+                                  <div class="calendar__number">3</div>
+                                  <div class="calendar__number">4</div>
+                                  <div class="calendar__number">5</div>
+                                  <div class="calendar__number">6</div>
+                                  <div class="calendar__number">7</div>
+                                  <div class="calendar__number">8</div>
+                                  <div class="calendar__number">9</div>
+                                  <div class="calendar__number">10</div>
+                                  <div class="calendar__number">11</div>
+                                  <div class="calendar__number">12</div>
+                                  <div class="calendar__number">13</div>
+                                  <div class="calendar__number">14</div>
+                                  <div class="calendar__number">15</div>
+                                  <div class="calendar__number">16</div>
+                                  <div class="calendar__number">17</div>
+                                  <div class="calendar__number calendar__number--current">18</div>
+                                  <div class="calendar__number">19</div>
+                                  <div class="calendar__number">20</div>
+                                  <div class="calendar__number">21</div>
+                                  <div class="calendar__number">22</div>
+                                  <div class="calendar__number">23</div>
+                                  <div class="calendar__number">24</div>
+                                  <div class="calendar__number">25</div>
+                                  <div class="calendar__number">26</div>
+                                  <div class="calendar__number">27</div>
+                                  <div class="calendar__number">28</div>
+                                  <div class="calendar__number">29</div>
+                                  <div class="calendar__number">30</div>
+                                </div>
+                              </div>
+                        </div> -->
+                    </div>
+
+                </div>
+                </div>
+            <!--Menu-->
+            </div>
+        </div>
+    </div>
+    <!-- End Design Admin -->
+
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+
+<script>
+    var ctx  ;
+    var myChart ;
+</script>
+
+<!-- <script>
+        var lesactions = new Array();
+		var booleen = false;
+		{% for action in actions %}
+		lesactions.push({droit:"{{ action.droit }}"});
+		{% endfor %}
+        console.log("les actions",lesactions)
+
+		$(document).ready(function() {
+
+				// Initialisation des sous-menus
+				 $("#vue_Admin").hide();
+				 $("#vue_User").hide();
+                 console.log("une action", lesactions)
+                 console.log("length",lesactions.length)
+
+                 thesize = lesactions.length
+
+
+				 for(var i = 0; i < thesize; i++){
+                    console.log("toza awa")
+					 act = lesactions[i];
+					if(act.droit==="CREER_RAPPORT")
+					{
+						 booleen = true;
+					}
+					}
+
+					if(booleen){
+						$("#vue_Admin").show();
+					}
+					else{
+                        console.log("here we are")
+						$("#vue_User").show();
+					}
+		});
+</script> -->
+
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            buttons: [{
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                }, {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                }, {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                }, {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        });
+    });
+</script>
+
+<script>
+    //console.log("******************************************", {{ fourni }})
+    var ctx = document.getElementById('myChart').getContext('2d');
+
+    var myChart1 = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            datasets: [{
+                label: 'Quantites demandés',
+                data:{{ listNumber}},
+
+                // this dataset is drawn below
+                order: 1,
+                backgroundColor: [
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)',
+                    'rgba(229, 229, 229, 0.2)'
+                ],
+                borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+                ],
+
+                borderWidth: 1
+            },
+
+            {
+                label: 'Quantites Fournies',
+                 data: {{ fourni }},
+
+                type: 'line',
+                // this dataset is drawn on top
+                order: 2,
+                backgroundColor : [
+                'rgba(255, 255, 255, 0.1)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+            }],
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+</script>
+<script>
+    function choix_year() {
+
+
+        var year = $("#year").val();
+
+        if (year != 0) {
+
+            $.get(
+                "{% url 'module_inventaire_jso_demande_fournie_de_bord' %}",
+                { year: year },
+                function (response) {
+                    console.log(response);
+                     var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            datasets: [{
+                                label: 'Quantites demandés',
+                                data: response[0],
+
+                        // this dataset is drawn below
+                        order: 1,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    },
+
+                        {
+                            label: 'Quantites Fournies',
+                            data: response[1],
+
+                type: 'line',
+                // this dataset is drawn on top
+                order: 2, backgroundColor: [
+                'rgba(255, 255, 255, 0.1)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+                borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+                borderWidth: 1
+            }],
+                            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+    });
+
+                    myChart1.destroy();
+                },
+                "json"
+            );
+        }
+        else{
+         myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            datasets: [{
+                                label: 'Quantites demandés',
+                                data: {{ listNumber }},
+
+                        // this dataset is drawn below
+                        order: 1,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    },
+
+                        {
+                            label: 'Quantites Fournies',
+                            data: {{ fourni }},
+
+                type: 'line',
+                    // this dataset is drawn on top
+                    order: 2, backgroundColor: [
+                        'rgba(255, 255, 255, 0.1)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                            borderWidth: 1
+            }],
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+    });
+
+        }
+
+    }
+</script>
+{% endblock %}

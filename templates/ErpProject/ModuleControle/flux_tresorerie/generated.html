@@ -1,0 +1,60 @@
+{% extends "ErpProject/ModuleControle/shared/layout.html" %}
+    {% block page %}
+        {%load static %}
+        {% load account_filters %}
+        <div class="row">
+            <ul class="breadcrumb">
+                <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+                <li><a class="chargement-au-click" href="{% url 'module_controle_tableau' %}">Module Controle</a></li>
+                <li>{{ title }}</li>
+            </ul>
+        </div>
+        <div class="row">
+            <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+            <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+            <button onclick="javascript:window.location.assign('{% url 'module_controle_generer_tresorerie' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Retour</button>
+        </div>
+        <form id="form" method="POST" action="{% url 'module_controle_post_imprimer_tresorerie' %}">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <input type="text" name="date_debut" value="{{ date_debut }}" style="display: none">
+            <input type="text" name="date_fin" value="{{ date_fin }}" style="display: none">
+            <input type="number" name="devise_id" value="{{ devise.id }}" style="display: none">
+        </form>
+        <hr class="hr-ligne">
+        <div id="divToPrint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <p class="align-center header">{{ title }}</p>
+            <div class="row">
+                <p>
+                    Période :<br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                    <br>
+                    <br>
+                    Devise :<br>
+                    <span class="sub-header">{{ devise.designation }}</span>
+                </p>
+            </div>
+            <br>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 950px">
+                <tr style="background-color:#91a7c3;color:#fff;font-weight:500">
+                    <td width="5%"  align="center"> REF </td>
+                    <td width="35%" align="center" colspan="2">LIBELLES</td>
+                    <td width="5%" align="center">NOTE</td>
+                    <td width="25%" align="center">Exercice au 31/12/N</td>
+                    <td width="25%" align="center">Exercice au 31/12/N-1</td>
+                </tr>
+                {% for item in donnees_flux_tresorerie %}
+                    <tr {% if item.est_total %} {% if item.reference == "ZA" or item.reference == "ZH" %}style="background-color:#7c984a;color:#fff!important;font-weight:300" {% elif item.reference == "ZB" or item.reference == "ZC" or item.reference == "ZF"%} style="background-color:#002060;color:#fff!important;font-weight:300"{% else %} style="background-color:#f2eee8;color:#000;font-weight:300" {% endif %}{% else %}{% if item.reference == "" %} style="background-color:#f1f1f1;color:#000;font-weight:500" {% endif %}{% endif %}>
+                        <td >{{ item.reference }}</td>
+                        <td >{{ item.libelle }}</td>
+                        <td >{{ item.lettre }}</td>
+                        <td >{{ item.note }}</td>
+                        <td align="right"> {% if item.balance_n == "0.00" %}  - {% else %}  {{ item.balance_n|monetary }} {% endif %}</td>
+                        <td align="right"> {% if item.balance_n1 == "0.00" %}  - {% else %}  {{ item.balance_n1|monetary }} {% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% include 'ErpProject/ErpBackOffice/widget/export_excel.html' with btn_id="btn_export" table_id="rapport" filename="flux_tresorerie" only %}
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{%load static %}
+<script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+<link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+
+
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row only-on-small-screen">
+        <h2 class="text-light no-margin-left">{{ title }}</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+        </div>
+        <div class="col-md-2">
+            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_comptabilite_tableau_de_bord' %}')" class="theme-btn theme-btn-sm rounded">
+                Annuler
+            </button>
+        </div>
+    </div>
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row item-content" style="margin-top: 10px">
+        <form id="form" method="POST"  action="{% url 'module_comptabilite_print_rapport_rapprochement' %}" onsubmit="target_popup(this)"
+            data-role="validator"
+            data-show-required-state="false"
+            data-hint-mode="line"
+            data-hint-background="bg-red"
+            data-hint-color="fg-white"
+            data-hide-error="5000"
+            novalidate="novalidate"
+            data-on-error-input="notifyOnErrorInput"
+            data-show-error-hint="false">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Numéro de compte bancaire :</label>
+                            <div class="input-control text full-size">
+                                <select class="chosen-select" name="compte_banque_id"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Selectionnez le compte bancaire svp"
+                                    >
+                                    <option value="0">Selectionnez un compte bancaire</option>
+                                   {% for item in comptes %}
+                                        <option value="{{ item.id }}">{{ item.numero_compte }} - {{item.banque.designation}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!--div class="col-md-6" >
+                            <label>Type d'extraction :</label>
+                            <div class="input-control select full-size">
+                                <select name="type_extraction" id="type_extraction"
+                                    data-validate-func="min"
+                                    data-validate-arg="1"
+                                    data-validate-hint="Sélectionnez la devise svp.">
+                                    <option value="1">Synthèse de trésorerie</option>
+                                </select>
+                            </div>
+                        </!--div-->
+                    <div class="col-md-6">
+                            <label>Date de début :</label>
+                            <div id="input-date-debut" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" name="date_debut" id="date_debut" readonly
+                                    data-validate-func="required"
+                                    data-validate-hint="Précisez la date de début svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Date de fin :</label>
+                            <div id="input-date-fin" class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                <input readonly type="text" name="date_fin" id="date_fin" readonly
+                                    data-validate-func="required"
+                                    data-validate-hint="Précisez la date de fin svp.">
+                                <div class="button"><span class="mif-calendar"></span></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+
+<script>
+
+$('form').on('submit', function(e) {
+ console.log("#########################################################")
+ /*launchDialogRapprochement("{% url 'module_comptabilite_print_rapport_rapprochement' %}")  */
+ var w = window.open('about:blank','Popup_Window','_blank, height = 9000, width = 9000');
+    this.target = 'Popup_Window';
+
+});
+
+</script>
+
+
+<script>
+    $(function() {
+  $('.chosen-select').chosen();
+  $('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+});
+</script>
+</script>
+
+{% endblock %}

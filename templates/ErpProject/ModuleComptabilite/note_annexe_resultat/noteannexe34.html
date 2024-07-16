@@ -1,0 +1,378 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+    {%load static %}
+    {% load account_filters %}
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link href="{% static 'ErpProject/css/printnote34.css' %}" rel="stylesheet">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Imprimer</button>
+        <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    </div>
+    <form id="form" method="POST" action="{% url 'module_comptabilite_imprimer_modele_34' %}">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+    </form>
+    <div id="rapport3" class="" style="padding: 10px;">
+      <table class="tg">
+        <colgroup>
+          <col style="width: 40%">
+          <col style="width: 21%">
+          <col style="width: 21%">
+          <col style="width: 18%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td class="tg-cnka" colspan="4">NOTE 34 : FICHE DE SYNTHESE DES PRINCIPAUX INDICATEURS FINANCIERS			<br><br></td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Désignation de l'entreprise :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Exercice clos le</td>
+              <td class="tg-cr4b">00/01/1900</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">SIGLE</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b">Duree(en mois)</td>
+              <td class="tg-cr4b">0</td>
+            </tr>
+            <tr>
+              <td class="tg-cr4b">Numéro d'Identification FISCAL :</td>
+              <td class="tg-cr4b">0</td>
+              <td class="tg-cr4b"></td>
+              <td class="tg-cr4b"></td>
+            </tr>
+            <tr>
+              <td class="tg-0di8">Libellés</td>
+              <td class="tg-0di8">Année <br>N</td>
+              <td class="tg-0di8">Année <br>N-1</td>
+              <td class="tg-0di8">Variation en %</td>
+            </tr>
+            <tr>
+              <td class="tg-rd2b">SOLDES INTERMEDIAIRES DE GESTION</td>
+              <td class="tg-gmla"></td>
+              <td class="tg-gmla"></td>
+              <td class="tg-gmla"></td>
+            </tr>
+            <tr>
+              <td class="tg-1do4">Chiffre d'affaires</td>
+              <td class="tg-gmla">765 921 650</td>
+              <td class="tg-gmla">765 921 650</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Marge commerciale</td>
+              <td class="tg-gmla">144 106 650</td>
+              <td class="tg-gmla">144 106 650</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-1do4">Valeur ajoutée</td>
+              <td class="tg-gmla">110 061 650</td>
+              <td class="tg-gmla">110 061 650</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Excédent brut d'exploitation (EBE)</td>
+              <td class="tg-gmla">65 561 650</td>
+              <td class="tg-gmla">65 561 650</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Résultat d'exploitation</td>
+              <td class="tg-gmla">50 101 650</td>
+              <td class="tg-gmla">50 101 650</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Résultat financier</td>
+              <td class="tg-gmla">1 080 000</td>
+              <td class="tg-gmla">1 080 000</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Résultat des activités ordinaires</td>
+              <td class="tg-gmla">51 181 650</td>
+              <td class="tg-gmla">51 181 650</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Résultat hors activités ordinaires</td>
+              <td class="tg-gmla">270 500</td>
+              <td class="tg-gmla">270 500</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Résultat net</td>
+              <td class="tg-lvth">33 149 897</td>
+              <td class="tg-lvth">33 149 897</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-dvid">DETERMINATION DE LA CAPACITE D'AUTOFINANCEMENT</td>
+              <td class="tg-eqfb"></td>
+              <td class="tg-eqfb"></td>
+              <td class="tg-eqfb"></td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">Excédent brut d'exploitation</td>
+              <td class="tg-gmla">65 561 650</td>
+              <td class="tg-gmla">65 561 650</td>
+              <td class="tg-gmla">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">- Valeurs comptables des cessions courantes d'immobilisations (654)</td>
+              <td class="tg-gmla">1 300 000</td>
+              <td class="tg-gmla">1 300 000</td>
+              <td class="tg-gmla">-</td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">+ Produits  des cessions courantes d'immobilisations (754)</td>
+              <td class="tg-gmla">1 225 000</td>
+              <td class="tg-gmla">1 225 000</td>
+              <td class="tg-gmla"></td>
+            </tr>
+            <tr>
+              <td class="tg-vtwr">= CAPACITE D'AUTOFINANCEMENT D'EXPLOITATION</td>
+              <td class="tg-2gew">65 636 650</td>
+              <td class="tg-2gew">65 636 650</td>
+              <td class="tg-2gew"></td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">+ Revenus financiers</td>
+              <td class="tg-gmla">1 300 000</td>
+              <td class="tg-gmla">1 300 000</td>
+              <td class="tg-gmla"></td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">+ Gains de change</td>
+              <td class="tg-gmla">1 500 000</td>
+              <td class="tg-gmla">1 500 000</td>
+              <td class="tg-gmla"></td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">+ Transferts de charges financières</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla">-</td>
+              <td class="tg-gmla"></td>
+            </tr>
+            <tr>
+              <td class="tg-cey4">+ Produits HAO</td>
+              <td class="tg-gmla">5 850 500</td>
+              <td class="tg-gmla">5 850 500</td>
+              <td class="tg-gmla"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">+ Transferts de charges HAO</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- Frais financiers</td>
+              <td class="tg-lvth">2 220 000</td>
+              <td class="tg-lvth">2 220 000</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- Pertes de change</td>
+              <td class="tg-lvth">500 000</td>
+              <td class="tg-lvth">500 000</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- Participations des travailleurs</td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- Impôts sur les résultats</td>
+              <td class="tg-lvth">18 302 253</td>
+              <td class="tg-lvth">18 302 253</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8">= CAPACITE D'AUTOFINANCEMENT GLOBALE (C.A.F.G.)</td>
+              <td class="tg-h2g2">54 264 897</td>
+              <td class="tg-h2g2">54 264 897</td>
+              <td class="tg-h2g2">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- Distributions de dividendes opérées durant l'exercice</td>
+              <td class="tg-lvth">34 000 000</td>
+              <td class="tg-lvth">34 000 000</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8">= AUTOFINANCEMENT</td>
+              <td class="tg-h2g2">20 264 897</td>
+              <td class="tg-h2g2">20 264 897</td>
+              <td class="tg-h2g2">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8" colspan="4">ANALYSE DE LA RENTABILITE</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Rentabilité économique = Résultat d’exploitation (a) /Capitaux propres + dettes financières*</td>
+              <td class="tg-lvth">0%</td>
+              <td class="tg-lvth">0%</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Rentabilité financière = Résultat net/Capitaux propres</td>
+              <td class="tg-lvth">23%</td>
+              <td class="tg-lvth">23%</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8" colspan="4">ANALYSE DE LA STRUCTURE  FINANCIERE</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">+ Capitaux propres et ressources assimilées</td>
+              <td class="tg-lvth">178 599 897</td>
+              <td class="tg-lvth">178 599 897</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">+ Dettes financières* et autres ressources assimilées (b)</td>
+              <td class="tg-lvth">22 800 000</td>
+              <td class="tg-lvth">22 800 000</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">= Ressources stables</td>
+              <td class="tg-qv16">201 399 897</td>
+              <td class="tg-qv16">201 399 897</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- Actif immobilisé (b)</td>
+              <td class="tg-lvth">133 073 500</td>
+              <td class="tg-lvth">133 073 500</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">= FONDS  DE ROULEMENT (1)</td>
+              <td class="tg-qv16">68 326 397</td>
+              <td class="tg-qv16">68 326 397</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">+ Actif circulant d'exploitation (b)</td>
+              <td class="tg-lvth">151 476 650</td>
+              <td class="tg-lvth">151 476 650</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- Passif circulant d'exploitation (b)</td>
+              <td class="tg-lvth">119 096 753</td>
+              <td class="tg-lvth">119 096 753</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">= BESOIN DE FINANCEMENT D'EXPLOITATION (2)</td>
+              <td class="tg-qv16">32 379 897</td>
+              <td class="tg-qv16">32 379 897</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">+ Actif circulant HAO (b)</td>
+              <td class="tg-lvth">0</td>
+              <td class="tg-lvth">0</td>
+              <td class="tg-lvth"></td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">- Passif circulant HAO (b)</td>
+              <td class="tg-lvth">6 449 500</td>
+              <td class="tg-lvth">6 449 500</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">= BESOIN DE FINANCEMENT HAO (3)</td>
+              <td class="tg-qv16">-6 449 500</td>
+              <td class="tg-qv16">-6 449 500</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">BESOIN DE FINANCEMENT  GLOBAL (4) = (2) + (3)</td>
+              <td class="tg-qv16">24 930 397</td>
+              <td class="tg-qv16">24 930 397</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">TRESORERIE NETTE (5) = (1) - (4)</td>
+              <td class="tg-qv16">42 396 000</td>
+              <td class="tg-qv16">42 396 000</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">CONTRÔLE : TRESORERIE NETTE = (TRESORERIE - ACTIF) - (TRESORERIE - PASSIF)</td>
+              <td class="tg-qv16">42 396 000</td>
+              <td class="tg-qv16">30 046 000</td>
+              <td class="tg-lvth">41%</td>
+            </tr>
+            <tr>
+              <td class="tg-q7e8" colspan="4">ANALYSE DE LA VARIATION DE LA TRESORERIE</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Flux de trésorerie des activités opérationnelles</td>
+              <td class="tg-lvth">49 925 397</td>
+              <td class="tg-lvth">89 015 000</td>
+              <td class="tg-lvth">-44%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">-Flux de trésorerie des activités d'investissement</td>
+              <td class="tg-lvth">5 155 000</td>
+              <td class="tg-lvth">23 545 000</td>
+              <td class="tg-lvth">-78%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">+Flux de trésorerie des activités de financement</td>
+              <td class="tg-lvth">-35 200 000</td>
+              <td class="tg-lvth">-4 100 000</td>
+              <td class="tg-lvth">759%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">= VARIATION DE LA TRESORERIE NETTE DE LA PERIODE</td>
+              <td class="tg-lvth">9 570 397</td>
+              <td class="tg-lvth">61 370 000</td>
+              <td class="tg-lvth">-84%</td>
+            </tr>
+            <tr>
+              <td class="tg-vtwr" colspan="4">ANALYSE DE LA VARIATION DE L’ENDETTEMENT FINANCIER  NET</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">Endettement financier brut (Dettes financières* + Trésorerie – passif</td>
+              <td class="tg-lvth">38 800 000</td>
+              <td class="tg-lvth">38 800 000</td>
+              <td class="tg-lvth">0%</td>
+            </tr>
+            <tr>
+              <td class="tg-x5q1">-Trésorerie - actif</td>
+              <td class="tg-lvth">59 196 000</td>
+              <td class="tg-lvth">46 846 000</td>
+              <td class="tg-lvth">26%</td>
+            </tr>
+            <tr>
+              <td class="tg-4o4u">= ENDETTEMENT FINANCIER  NET</td>
+              <td class="tg-wev4">-20 396 000</td>
+              <td class="tg-wev4">-8 046 000</td>
+              <td class="tg-wev4">153%</td>
+            </tr>
+            <tr>
+              <td class="tg-fa7u" colspan="4"><br><br>a) Résultat d'exploitation après impôts théorique sur le bénéfice. . <br>b) Les écarts de conversion doivent être éliminés afin de ramener les créances et les dettes concernées à leur valeur initiale dettes financières* : emprunts et dettes financières diverses + dettes de location acquisition<br></td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+    </div>
+    {% endblock %}

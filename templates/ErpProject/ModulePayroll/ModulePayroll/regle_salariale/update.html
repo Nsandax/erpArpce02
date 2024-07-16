@@ -1,0 +1,380 @@
+{% extends "ErpProject/ModulePayroll/shared/layout.html" %}
+{% block page %}
+{%load static %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_tableau_de_bord' %}">Module Payroll</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_payroll_list_regle_salariale' %}">Liste des règles salariales</a></li>
+			            <li><a class="chargement-au-click" href="{% url 'module_payroll_details_regle_salariale' model.id %}">{{ model.designation }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3>{{ title }}</h3>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row ">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_payroll_details_regle_salariale' model.id %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                    <form id="form" method="POST" action="{% url 'module_payroll_post_update_regle_salariale' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                        novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                        {% csrf_token %}
+                        <input id="submit" type="submit" style="display: none">
+						<input type="text"  id="ref" name="ref" value ="{{ model.id }}" style="display: none">
+                        <input type="text" id="isPopup" name = "isPopup" value="{{ isPopup }}" style="display: none">
+                        <input type="text"  id="myUrl" name = "myUrl" value = "" style="display: none">
+                        <input type="text"  id="parent" name = "parent" value = "" style="display: none">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Désignation</label>
+                                <div class="input-control text full-size">
+                                    <input value="{{ model.designation }}" type="text" name="designation"  id="designation"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez la désignation svp."/>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Code</label>
+                                <div class="input-control text full-size">
+                                    <input value="{{ model.code }}" type="text" name="code"  id="code"
+                                        data-validate-func="required"
+                                        data-validate-hint="Entrez le code svp."/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+							<div class="col-md-6">
+								<label>Categorie</label>
+								<div class="input-control text full-size">
+									<select name="categorie_id" id="categorie_id"
+										data-validate-func="min"
+										data-validate-arg="1"
+										data-validate-hint="Sélectionnez la catégorie svp.">
+										<option value="0">Sélectionnez une catégorie</option>
+										{% for item in categories %}
+											<option {% if model.categorie_id == item.id %}{{ "selected" }}{% endif %}  value="{{ item.id }}"> {{ item.designation }} </option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+                            <div class="col-md-6">
+                                <label>Devise</label>
+                                <div class="input-control text full-size">
+                                    <select name="devise_id" id="devise_id"
+                                        data-validate-func="min"
+                                        data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez la devise svp.">
+                                        <option value="0">Sélectionnez la devise</option>
+                                        {% for item in devises %}
+                                            <option {% if model.devise_id == item.id %}{{ "selected" }}{% endif %}  value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="input-control checkbox small-check full-size">
+                                    <input name="apparait_dans_bulletin" id="apparait_dans_bulletin"  {% if model.apparait_dans_bulletin is True %}{{ "checked" }}{% endif %} type="checkbox">
+                                    <span class="check"></span>
+                                    <span class="caption">Apparaît sur le bulletin de paie</span>
+                                </label>
+                            </div>
+							<div class="col-md-6">
+								<label>Sequence</label>
+								<div class="input-control text full-size">
+									<input value="{{ model.sequence }}" type="text" name="sequence" id="sequence" autocomplete="off" />
+								</div>
+							</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Description</label>
+                                <div class="input-control text full-size" style="min-height: 6.25rem !important;">
+                                    <textarea name="description" id="description">{{ model.description }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+						<div class="row" style="margin-top: 10px">
+							<div class="tabcontrol2" data-role="tabcontrol">
+								<ul class="tabs">
+									<li class="active"><a href="#frame_regle_salariale">Règle salariale</a></li>
+									<li class=""><a href="#frame_comptabilite">Comptabilité</a></li>
+								</ul>
+								<div class="frames">
+									<div class="frame" id="frame_regle_salariale" style="display: block;">
+										<div class="row">
+											<p class="header">Conditions</p>
+										</div>
+										<div class="row">
+											<div class="col-md-6">
+												<label>Condition basée sur</label>
+												<div class="input-control text full-size">
+													<select name="type_condition" id="type_condition">
+														{% for item in type_conditions %}
+															<option {% if model.type_condition == item.id %}{{ "selected" }}{% endif %}  value="{{ item.id }}"> {{ item.designation }} </option>
+														{% endfor %}
+													</select>
+												</div>
+											</div>
+										</div>
+										<div class="row plage" >
+											<div class="col-md-6">
+												<label>Plage basée sur</label>
+												<div class="input-control text full-size">
+													<input value="{{ model.plage_condition }}" type="text" name="plage_condition" id="plage_condition" autocomplete="off" />
+												</div>
+											</div>
+										</div>
+										<div class="row plage" >
+											<div class="col-md-6">
+												<label>Plage minimum</label>
+												<div class="input-control text full-size">
+													<input value="{{ model.plage_min_condition }}" type="text" name="plage_min_condition" id="plage_min_condition" autocomplete="off" />
+												</div>
+											</div>
+										</div>
+										<div class="row plage" >
+											<div class="col-md-6">
+												<label>Plage maximale</label>
+												<div class="input-control text full-size">
+													<input value="{{ model.plage_max_condition }}" type="text" name="plage_max_condition" id="plage_max_condition" autocomplete="off" />
+												</div>
+											</div>
+										</div>
+										<div class="row expression" >
+											<div class="col-md-6">
+												<label>Expression Python</label>
+												<div class="input-control text full-size">
+													<input value="{{ model.code_condition }}" type="text" name="code_condition" id="code_condition" autocomplete="off" />
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<p class="header">Calcul</p>
+										</div>
+										<div class="row">
+											<div class="col-md-6">
+												<label>Type de calcul</label>
+												<div class="input-control text full-size">
+													<select name="type_calcul" id="type_calcul">
+														{% for item in type_calculs %}
+															<option {% if model.type_calcul == item.id %}{{ "selected" }}{% endif %}  value="{{ item.id }}"> {{ item.designation }} </option>
+														{% endfor %}
+													</select>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-6">
+												<label>Quantité</label>
+												<div class="input-control text full-size">
+													<input value="{{ model.quantite }}" type="number" name="quantite" id="quantite" autocomplete="off" />
+												</div>
+											</div>
+										</div>
+										<div class="row fixe">
+											<div class="col-md-6">
+												<label>Montant fixe</label>
+												<div class="input-control text full-size">
+													<input value="{{ model.montant_fixe }}" type="text" name="montant_fixe" id="montant_fixe" autocomplete="off" />
+												</div>
+											</div>
+										</div>
+										<div class="row pourcentage" >
+											<div class="col-md-6">
+												<label>Pourcentage basé sur</label>
+												<div class="input-control text full-size">
+													<input value="{{ model.pourcentage_sur }}" type="text" name="pourcentage_sur" id="pourcentage_sur" autocomplete="off" />
+												</div>
+											</div>
+										</div>
+										<div class="row pourcentage">
+											<div class="col-md-6">
+												<label>Pourcentage (%)</label>
+												<div class="input-control text full-size" data-role="input">
+													<input value="{{ model.pourcentage }}" name="pourcentage" id="pourcentage" type="text">
+												</div>
+											</div>
+										</div>
+										<div class="row code" >
+											<div class="col-md-6">
+												<label>Code Python</label>
+												<div class="input-control text full-size">
+													<input value="{{ model.code_python }}" type="text" name="code_python" id="code_python" autocomplete="off" />
+												</div>
+											</div>
+										</div>
+										<div class="row bareme">
+											<div class="col-md-6">
+												<label>Barême</label>
+												<div class="input-control text full-size">
+													<select name="bareme_id" id="bareme_id">
+														<option value="0">Sélectionnez un barême</option>
+														{% for item in baremes %}
+															<option {% if model.bareme_id == item.id %}{{ "selected" }}{% endif %}  value="{{ item.id }}"> {{ item.designation }} </option>
+														{% endfor %}
+													</select>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="frame" id="frame_comptabilite" style="display: none;">
+										<div class="row">
+                                            <div class="col-md-6">
+                                                <label>Compte débit</label>
+                                                <div class="input-control text full-size">
+                                                    <select name="compte_debit_id" id="compte_debit_id" >
+                                                        <option value="0">Sélectionnez un compte</option>
+                                                        {% for item in comptes %}
+                                                            <option {% if model.compte_debit_id == item.id %}{{ "selected" }}{% endif %}  value="{{ item.id }}">{{ item.numero }} {{ item.designation }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>Compte crébit</label>
+                                                <div class="input-control text full-size">
+                                                    <select name="compte_credit_id" id="compte_credit_id" >
+                                                        <option value="0">Sélectionnez un compte</option>
+                                                        {% for item in comptes %}
+                                                            <option {% if model.compte_credit_id == item.id %}{{ "selected" }}{% endif %}  value="{{ item.id }}">{{ item.numero }} {{ item.designation }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script>
+		function initCondition(){
+			$("#plage_condition").val("contract.wage");
+			$("#plage_min_condition").val('0.00');
+			$("#plage_max_condition").val('0.00');
+			$("#code_condition").val("");
+		}
+		function initCalcul(){
+			$("#quantite").val("0");
+			$("#montant_fixe").val("0.00");
+			$("#pourcentage").val('');
+			$("#pourcentage_sur").val('');
+			$("#code_python").val('');
+			$("#bareme_id").val('0');
+		}
+        $(document).ready(function(){
+			var type_condition = "{{ model.type_condition }}";
+			if(type_condition == "aucun"){
+				$(".plage").hide();
+				$(".expression").hide();
+			}else if (type_condition == "plage"){
+				$(".plage").show();
+				$(".expression").hide();
+			}else if (type_condition == "code"){
+				$(".plage").hide();
+				$(".expression").show();
+			}
+			$("#type_condition").change(function() {
+				var type_condition = $("#type_condition").val();
+				if(type_condition == "aucun"){
+					$(".plage").hide();
+					$(".expression").hide();
+					initCondition();
+				}else if (type_condition == "plage"){
+					$(".plage").show();
+					$(".expression").hide();
+					initCondition();
+				}else if (type_condition == "code"){
+					$(".plage").hide();
+					$(".expression").show();
+					initCondition();
+				}
+			});
+
+			var type_calcul = "{{ model.type_calcul }}";
+			if(type_calcul == "1"){
+				$(".fixe").show();
+				$(".pourcentage").hide();
+				$(".code").hide();
+				$(".bareme").hide();
+			}else if (type_calcul == "2"){
+				$(".fixe").hide();
+				$(".pourcentage").show();
+				$(".code").hide();
+				$(".bareme").hide();
+			}else if (type_calcul == "3"){
+				$(".fixe").hide();
+				$(".pourcentage").hide();
+				$(".code").show();
+				$(".bareme").hide();
+			}else if (type_calcul == "4"){
+				$(".fixe").hide();
+				$(".pourcentage").hide();
+				$(".code").hide();
+				$(".bareme").show();
+			}else if (type_calcul == "5"){
+				$(".fixe").show();
+				$(".pourcentage").hide();
+				$(".code").hide();
+				$(".bareme").hide();
+			}
+
+			$("#type_calcul").change(function() {
+				var type_calcul = $("#type_calcul").val();
+				if(type_calcul == "1"){
+					$(".fixe").show();
+					$(".pourcentage").hide();
+					$(".code").hide();
+					$(".bareme").hide();
+
+					initCalcul();
+				}else if (type_calcul == "2"){
+					$(".fixe").hide();
+					$(".pourcentage").show();
+					$(".code").hide();
+					$(".bareme").hide();
+
+					initCalcul();
+				}else if (type_calcul == "3"){
+					$(".fixe").hide();
+					$(".pourcentage").hide();
+					$(".code").show();
+					$(".bareme").hide();
+
+					initCalcul();
+				}else if (type_calcul == "4"){
+					$(".fixe").hide();
+					$(".pourcentage").hide();
+					$(".code").hide();
+					$(".bareme").show();
+
+					initCalcul();
+				}else if (type_calcul == "5"){
+					$(".fixe").show();
+					$(".pourcentage").hide();
+					$(".code").hide();
+					$(".bareme").hide();
+
+					initCalcul();
+				}
+			});
+		});
+	</script>
+{% endblock %}

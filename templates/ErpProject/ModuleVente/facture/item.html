@@ -1,0 +1,523 @@
+<<<<<<< HEAD
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %}
+{% load account_filters %} 
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_factures_fournisseur' %}">Liste des factures fournisseurs</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_vente_add_facture_client" url_detail="module_vente_details_facture_client" csrf_token=csrf_token module=module type_doc="" only %}
+
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2> 
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">12:45, Mercredi 23 Janvier 2019</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+            <br>
+            <!-- GESTION DU WORKFLOW -->
+            <ul class="breadcrumbs2 small">
+                {% for item in historique %}
+                    <li>
+                        <a title="Employé : {{item.employe}} 
+Date : {{ item.timestamp|date:'M d, Y H:i'}}" href="#" style="{% if item.etape.designation == model.etat %}background: #9c28b1; {% endif %} hover: ba">{{item.etape.designation}}</a>
+
+                    </li>
+                {% endfor %}
+            </ul>              
+            <div>
+                {% for item in etapes_suivantes %}
+                    <!-- Ici on gère les différentes conditions de transition -->
+
+                    {% if item.condition.designation == "Link" %}
+                        <!-- Si Link, On rédige vers le lien rattaché   
+                        <script>
+                            window.location.assign("{{ item.condition.url }}")
+                        </script>
+                        -->
+                        <form method="POST" action="{% url item.url %}"
+                            data-role="validator">
+                            {% csrf_token %}                        
+                            <!-- Si Upload, On affiche le bouton  -->                                 
+                            <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                            <input type="hidden" name="doc_id" value="{{model.id}}">
+                            <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>     
+                        </form>
+                    
+                    {% elif item.condition.designation == "LinkParam" %}
+                        <!-- Si Link, On rédige vers le lien rattaché
+                        <script>
+                            window.location.assign("{{ item.condition.url }}")
+                        </script>
+                        -->
+                        <form method="POST" action="{% url item.url model.id %}"
+                            data-role="validator">
+                            {% csrf_token %}                        
+                            <!-- Si Upload, On affiche le bouton  -->                                 
+                            <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                            <input type="hidden" name="doc_id" value="{{model.id}}">
+                            <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>     
+                        </form>
+                    
+                    {% else %}
+                        <form method="POST" action="{% url 'module_vente_facture_workflow_post' %}"
+                            enctype="multipart/form-data"    
+                            data-role="validator">
+                            {% csrf_token %}                        
+                        
+                            {% if item.condition.designation == "Upload" %} 
+                                    <!-- Si Upload, On affiche le bouton  -->                                 
+                                    <input style="margin-bottom: 5px" type="file" name="file_upload" required="required">
+                                    <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                    <input type="hidden" name="doc_id" value="{{model.id}}">
+                                    <div>
+                                        <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>
+                                    </div>
+                                    
+                                </form>
+                            {% elif item.condition.designation == "Approval" %}
+                                <!-- Si Approval, On affiche le bouton  --> 
+                                <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                <input type="hidden" name="doc_id" value="{{model.id}}">
+                                <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>     
+                            
+                            {% elif item.condition.designation == "Budget" %}
+                                <!-- Si Budget, On affiche le bouton que pour le responsable du code budgetaire -->
+                                {% if model.ligne_budgetaire.responsable.id == utilisateur.id %}
+                                    <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                    <input type="hidden" name="doc_id" value="{{model.id}}">
+                                    <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>  
+                                {% endif %}
+                            {% elif item.condition.designation == "CodeBudget" %}
+                                <!-- Si CodeBudget, On affiche le bouton que pour le responsable d'un des codes budgetaires -->
+                                {% for code_budgetaire in model.codes_budgetaires.all %}
+                                    {% if code_budgetaire.responsable.id == utilisateur.id and signee == False %}
+                                        <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                        <input type="hidden" name="doc_id" value="{{model.id}}">
+                                        <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}} {{ code_budgetaire.code }}</button>  
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <!-- Si Responsible, On affiche le bouton que pour le responsable du departement du demandeur -->                                
+                                {% if model.demandeur.unite_fonctionnelle.responsable.id == utilisateur.id %}
+                                    <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                    <input type="hidden" name="doc_id" value="{{model.id}}">
+                                    <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>   
+                                {% endif %}
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                {% endfor %}
+            
+            </div>          
+            <!--FIN GESTION DU WORKFLOW-->   
+
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+            <br>
+            <div class="row">
+                <button onclick="javascript:window.location.assign('#')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button> 
+                <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_factures_fournisseur' %}')" class="button small-button rounded chargement-au-click">Annuler</button>
+                {% if model.est_soldee == False %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_paiement_facture_client' model.id %}')" class="button small-button rounded primary chargement-au-click">Ajouter un paiement</button>
+                {% endif %}   
+            </div>
+            <br>
+
+            <div class="panel panel-default" style="border: none;">                  
+                <div class="panel panel-body" style="background-color:white;">
+                    
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            {% if type_facture == "Bon" %}
+                                <h2>{{bon.fournisseur.nom_complet}}</h2>
+                                <p>{{bon.fournisseur.email}} <br> {{bon.fournisseur.phone}}</p>
+                                <p>{{bon.fournisseur.adresse_complete}}</p>
+                            {% else %}    
+                                <h2>{{model.fournisseur.nom_complet}}</h2>
+                                <p>{{model.fournisseur.email}} <br> {{bon.fournisseur.phone}}</p>
+                                <p>{{model.fournisseur.adresse_complete}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6" style="text-align: right;">
+                            <h4>Facture du fournisseur</h4>
+                            
+                            <form  method="POST" action="{% url 'module_achat_bon_reception_print' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value={{model.id}}>
+                                <button type="submit" class="btn btn-default" style="background-color: #41435d;border:none;color: white;" >Imprimer</button>
+                            </form>
+                            
+                            <h3 style="color: red; font-weight: bold">
+                                {% if model.numero_facture != None and model.numero_facture != "" %}
+                                    <span class="fg-dark">N° {{ model.numero_facture }}</span> 
+                                {% else %}
+                                    <span class="sub-alt-header fg-dark">N°  --</span> 
+                                {% endif %}
+                            </h3>
+                        </div>
+                        <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                            <div class="col-md-6">
+            
+                            <p style="">                
+                                <strong>Nom du client : </strong>ARPCE<br>
+                                <strong>Tél/Fax:</strong>  + 242 05 510 72 72<br> 
+                                <strong>B.P : </strong> <br>
+                                <strong>Email: </strong> contact@arpce.cg <br/>
+                                <strong>Pays: </strong> Brazzaville, R. Congo<br>
+                                <strong>Adresse: </strong> 91 bis Avenue de l'Amitié<br>
+                                <strong>Réf. du client : </strong> <br/>
+                                <strong>Description des biens/services : </strong> 
+                            </p>
+                        </div>
+                        <div  class="col-md-6" style="margin-bottom: 40px">
+                            <p style="float: right;">
+                                    <strong>Date facturation: </strong>{{model.date_facturation | date:"d/m/Y" }} <br>
+                                    <strong>Statut de la facture : </strong> Réceptionnée <br>                                   
+                                    <strong>Nature achat: </strong> <br/>
+                                    <strong>Ligne budgetaire : </strong>{{bon.ligne_budgetaire.designation}} <br>
+                                    <strong>Modalité de réglement : </strong>{{bon.condition_reglement.designation}}
+                            </p>                                 
+                        </div>
+                        <br> <br>                         
+                        <div class="col-md-12" >
+                            <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                                <thead>
+                                        <td class="head">ARTICLE</td>
+                                        <td class="head">QUANTITE</td>
+                                        <td class="head">PRIX UNITAIRE</td>
+                                        <td class="head">TOTAL</td>
+                                </thead>
+                                
+                                {% for ligne in lignes %}
+                                    <tr class="table bordered border">
+                                        <td class="td">{{ ligne.nom_article}}</td>
+                                        <td class="td">{{ ligne.quantite_demande }} {{ ligne.unite.symbole_unite }}</td>
+                                        <td class="td" align="right"><span class="monetary">{{ ligne.prix_unitaire |monetary}}</span> {{ bon.devise.symbole_devise }}</td>
+                                        <td class="td" align="right"><span class="monetary">{{ ligne.total }}</span>{{ bon.devise.symbole_devise }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tfoot>
+                                    <tr>
+                                        <td class="no-border">TOTAL</td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border" style="text-align:right;"><span class="monetary">{{ bon.prix_total |monetary}}</span> {{ bon.devise.symbole_devise }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="no-border">MONTANT PAYE</td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border" style="text-align:right;"><span class="monetary">{{ montant_paye |monetary}}</span> {{ bon.devise.symbole_devise }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="no-border">MONTANT RESTANT</td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border" style="text-align:right;"><span class="monetary">{{ montant_restant |monetary}}</span>{{ bon.devise.symbole_devise }}</td>
+                                    </tr> 
+                                </tfoot>                                
+                            </table>
+                        </div>                           
+                            <div class="col-md-12" >
+                                <h2 style="float: right; margin-top:35px; margin-bottom : 20px">TOTAL A PAYER : {% if type_facture == "Bon" %} {{ bon.prix_total }} {{ bon.devise.symbole_devise }} {% else %} {{ model.montant }} {{ model.devise.symbole_devise }} {% endif %} </h2>          
+                            </div>
+                            <div  class="col-md-12"  style="margin-bottom: 15px">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="minor-header fg-gray">
+                                            Document externe :<br> {% if bon.reference_document != None and bon.reference_document != "" %}
+                                            <span class="text-bold fg-dark">{{ bon.reference_document }}</span> {% else %}
+                                            <span class="text-bold fg-dark">-</span> {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <h2>Documents attachés</h2>
+                                    <hr>
+                                    <ol>
+                                        {% for item in documents %}
+                                            <li style="margin-bottom: 0.25em">
+                                                <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ol>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %} 
+=======
+{% extends "ErpProject/ModuleVente/shared/layout.html" %} {% block page %}
+{% load account_filters %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_tableau_de_bord' %}">Module Comptabilité</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_comptabilite_list_factures_fournisseur' %}">Liste des factures fournisseurs</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+
+    <div class="row" style="padding-top: 30px;">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">12:45, Mercredi 23 Janvier 2019</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+                <!-- Appel de la fonction message -->
+            {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+            <br>
+            <br>
+            <!-- GESTION DU WORKFLOW -->
+            <ul class="breadcrumbs2 small">
+                {% for item in historique %}
+                    <li>
+                        <a title="Employé : {{item.employe}}
+Date : {{ item.timestamp|date:'M d, Y H:i'}}" href="#" style="{% if item.etape.designation == model.etat %}background: #9c28b1; {% endif %} hover: ba">{{item.etape.designation}}</a>
+
+                    </li>
+                {% endfor %}
+            </ul>
+            <div>
+                {% for item in etapes_suivantes %}
+                    <!-- Ici on gère les différentes conditions de transition -->
+
+                    {% if item.condition.designation == "Link" %}
+                        <!-- Si Link, On rédige vers le lien rattaché
+                        <script>
+                            window.location.assign("{{ item.condition.url }}")
+                        </script>
+                        -->
+                        <form method="POST" action="{% url item.url %}"
+                            data-role="validator">
+                            {% csrf_token %}
+                            <!-- Si Upload, On affiche le bouton  -->
+                            <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                            <input type="hidden" name="doc_id" value="{{model.id}}">
+                            <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>
+                        </form>
+
+                    {% elif item.condition.designation == "LinkParam" %}
+                        <!-- Si Link, On rédige vers le lien rattaché
+                        <script>
+                            window.location.assign("{{ item.condition.url }}")
+                        </script>
+                        -->
+                        <form method="POST" action="{% url item.url model.id %}"
+                            data-role="validator">
+                            {% csrf_token %}
+                            <!-- Si Upload, On affiche le bouton  -->
+                            <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                            <input type="hidden" name="doc_id" value="{{model.id}}">
+                            <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>
+                        </form>
+
+                    {% else %}
+                        <form method="POST" action="{% url 'module_vente_facture_workflow_post' %}"
+                            enctype="multipart/form-data"
+                            data-role="validator">
+                            {% csrf_token %}
+
+                            {% if item.condition.designation == "Upload" %}
+                                    <!-- Si Upload, On affiche le bouton  -->
+                                    <input style="margin-bottom: 5px" type="file" name="file_upload" required="required">
+                                    <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                    <input type="hidden" name="doc_id" value="{{model.id}}">
+                                    <div>
+                                        <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>
+                                    </div>
+
+                                </form>
+                            {% elif item.condition.designation == "Approval" %}
+                                <!-- Si Approval, On affiche le bouton  -->
+                                <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                <input type="hidden" name="doc_id" value="{{model.id}}">
+                                <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>
+
+                            {% elif item.condition.designation == "Budget" %}
+                                <!-- Si Budget, On affiche le bouton que pour le responsable du code budgetaire -->
+                                {% if model.ligne_budgetaire.responsable.id == utilisateur.id %}
+                                    <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                    <input type="hidden" name="doc_id" value="{{model.id}}">
+                                    <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>
+                                {% endif %}
+                            {% elif item.condition.designation == "CodeBudget" %}
+                                <!-- Si CodeBudget, On affiche le bouton que pour le responsable d'un des codes budgetaires -->
+                                {% for code_budgetaire in model.codes_budgetaires.all %}
+                                    {% if code_budgetaire.responsable.id == utilisateur.id and signee == False %}
+                                        <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                        <input type="hidden" name="doc_id" value="{{model.id}}">
+                                        <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}} {{ code_budgetaire.code }}</button>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <!-- Si Responsible, On affiche le bouton que pour le responsable du departement du demandeur -->
+                                {% if model.demandeur.unite_fonctionnelle.responsable.id == utilisateur.id %}
+                                    <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                    <input type="hidden" name="doc_id" value="{{model.id}}">
+                                    <button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button>
+                                {% endif %}
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+            <!--FIN GESTION DU WORKFLOW-->
+
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+            <br>
+            <div class="row">
+                <button onclick="javascript:window.location.assign('#')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button>
+                <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_list_factures_fournisseur' %}')" class="button small-button rounded chargement-au-click">Annuler</button>
+                {% if model.est_soldee == False %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_comptabilite_add_paiement_facture_client' model.id %}')" class="button small-button rounded primary chargement-au-click">Ajouter un paiement</button>
+                {% endif %}
+            </div>
+            <br>
+
+            <div class="panel panel-default" style="border: none;">
+                <div class="panel panel-body" style="background-color:white;">
+
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            {% if type_facture == "Bon" %}
+                                <h2>{{bon.fournisseur.nom_complet}}</h2>
+                                <p>{{bon.fournisseur.email}} <br> {{bon.fournisseur.phone}}</p>
+                                <p>{{bon.fournisseur.adresse_complete}}</p>
+                            {% else %}
+                                <h2>{{model.fournisseur.nom_complet}}</h2>
+                                <p>{{model.fournisseur.email}} <br> {{bon.fournisseur.phone}}</p>
+                                <p>{{model.fournisseur.adresse_complete}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6" style="text-align: right;">
+                            <h4>Facture du fournisseur</h4>
+<<<<<<< HEAD
+                            
+                            <form  method="POST" action="{% url 'module_achat_bon_reception_print' %}">
+=======
+
+                            <form  method="POST" action="{% url 'module_achat_bon_reception_print' %}">
+>>>>>>> replic_message
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value={{model.id}}>
+                                <button type="submit" class="btn btn-default" style="background-color: #41435d;border:none;color: white;" >Imprimer</button>
+                            </form>
+
+                            <h3 style="color: red; font-weight: bold">
+                                {% if model.numero_facture != None and model.numero_facture != "" %}
+                                    <span class="fg-dark">N° {{ model.numero_facture }}</span>
+                                {% else %}
+                                    <span class="sub-alt-header fg-dark">N°  --</span>
+                                {% endif %}
+                            </h3>
+                        </div>
+                        <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+                            <div class="col-md-6">
+
+                            <p style="">
+                                <strong>Nom du client : </strong>ARPCE<br>
+                                <strong>Tél/Fax:</strong>  + 242 05 510 72 72<br>
+                                <strong>B.P : </strong> <br>
+                                <strong>Email: </strong> contact@arpce.cg <br/>
+                                <strong>Pays: </strong> Brazzaville, R. Congo<br>
+                                <strong>Adresse: </strong> 91 bis Avenue de l'Amitié<br>
+                                <strong>Réf. du client : </strong> <br/>
+                                <strong>Description des biens/services : </strong>
+                            </p>
+                        </div>
+                        <div  class="col-md-6" style="margin-bottom: 40px">
+                            <p style="float: right;">
+                                    <strong>Date facturation: </strong>{{model.date_facturation | date:"d/m/Y" }} <br>
+                                    <strong>Statut de la facture : </strong> Réceptionnée <br>
+                                    <strong>Nature achat: </strong> <br/>
+                                    <strong>Ligne budgetaire : </strong>{{bon.ligne_budgetaire.designation}} <br>
+                                    <strong>Modalité de réglement : </strong>{{bon.condition_reglement.designation}}
+                            </p>
+                        </div>
+                        <br> <br>
+                        <div class="col-md-12" >
+                            <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                                <thead>
+                                        <td class="head">ARTICLE</td>
+                                        <td class="head">QUANTITE</td>
+                                        <td class="head">PRIX UNITAIRE</td>
+                                        <td class="head">TOTAL</td>
+                                </thead>
+
+                                {% for ligne in lignes %}
+                                    <tr class="table bordered border">
+                                        <td class="td">{{ ligne.nom_article}}</td>
+                                        <td class="td">{{ ligne.quantite_demande }} {{ ligne.unite.symbole_unite }}</td>
+                                        <td class="td" align="right"><span class="monetary">{{ ligne.prix_unitaire |monetary}}</span> {{ bon.devise.symbole_devise }}</td>
+                                        <td class="td" align="right"><span class="monetary">{{ ligne.total }}</span>{{ bon.devise.symbole_devise }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tfoot>
+                                    <tr>
+                                        <td class="no-border">TOTAL</td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border" style="text-align:right;"><span class="monetary">{{ bon.prix_total |monetary}}</span> {{ bon.devise.symbole_devise }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="no-border">MONTANT PAYE</td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border" style="text-align:right;"><span class="monetary">{{ montant_paye |monetary}}</span> {{ bon.devise.symbole_devise }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="no-border">MONTANT RESTANT</td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border"></td>
+                                        <td class="no-border" style="text-align:right;"><span class="monetary">{{ montant_restant |monetary}}</span>{{ bon.devise.symbole_devise }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                            <div class="col-md-12" >
+                                <h2 style="float: right; margin-top:35px; margin-bottom : 20px">TOTAL A PAYER : {% if type_facture == "Bon" %} {{ bon.prix_total }} {{ bon.devise.symbole_devise }} {% else %} {{ model.montant }} {{ model.devise.symbole_devise }} {% endif %} </h2>
+                            </div>
+                            <div  class="col-md-12"  style="margin-bottom: 15px">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="minor-header fg-gray">
+                                            Document externe :<br> {% if bon.reference_document != None and bon.reference_document != "" %}
+                                            <span class="text-bold fg-dark">{{ bon.reference_document }}</span> {% else %}
+                                            <span class="text-bold fg-dark">-</span> {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <h2>Documents attachés</h2>
+                                    <hr>
+                                    <ol>
+                                        {% for item in documents %}
+                                            <li style="margin-bottom: 0.25em">
+                                                <a href="/static{{item.url_document}}"> <span class="fa fa-file"></span>  <span>{{item.description}} </span>  </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ol>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<<<<<<< HEAD
+    {% endblock %} 
+>>>>>>> SionMaster
+=======
+    {% endblock %}
+>>>>>>> replic_message

@@ -1,0 +1,86 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %}
+{% block page %}
+{%load static %}
+
+<div class="row " style="background-color: #f5f5f5;">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{title}}</h2>
+            <strong style="float: right;color: grey;opacity: 0.85;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color:floralwhite;opacity: 0.2"></div>
+
+            <div class="panel panel-default" style="border: none;">
+                <div id="export" class="panel panel-body"
+                    style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+
+                    <img src="{% static 'ErpProject\image\header_rapport_o.png'%}" alt=""
+                        style="width: 400px;height: 150px;">
+
+                    <br>
+                    <center>
+                        <h1>{{designation}}</h1>
+                    </center>
+                    <center>
+                        <h3>Etabli à la date du {{ model.date_operation|date:'d/m/Y' }}</h3>
+                    </center>
+                    <br>
+                    <br>
+
+
+                    <div class="row">
+
+                        <table class="display table nowrap border bordered" cellspacing="0" style="width:100%">
+                            <tbody>
+                                <tr>
+                                    <th>Date<br><br> </th>
+                                    <th>N° PC<br><br></th>
+                                    <th>Libéllé<br><br> </th>
+                                    <th>Facture <br><br></th>
+                                    <th>Type opération<br><br></th>
+                                    <th>Montant<br><br></th>
+
+                                </tr>
+                                {% for ligne in ligne_operation %}
+                                <tr>
+                                    <td>{{ligne.date_ligne_operation|date:'d/m/Y'}}</td>
+                                    <td>{{ligne.reference}}</td>
+                                    <td>{{ligne.libelle}}</td>
+                                    <td >{% if ligne.facture %} {{ligne.facture.numero_facture}} {% else %} - {% endif %}</td>
+                                    <td>{{ligne.value_type_operation}}</td>
+                                    <td  class="monetary">{{ligne.montant}}</td>
+
+
+                                </tr>
+                                {% endfor %}
+                                <tr>
+
+                                    <td>  </td>
+                                    <td> </td>
+                                    <td> </td>
+                                    <td>TOTAL DE LA PAGE :  </td>
+                                    <td class="monetary">{{model.solde}}</td>
+
+
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                    <script>
+                        $("#btnExport").click(function (e) {
+                            window.open('data:application/vnd.ms-excel,' + encodeURIComponent($('#export').html()));
+                            e.preventDefault();
+                        });
+                    </script>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

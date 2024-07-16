@@ -1,0 +1,53 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %}
+{% block page %}
+	{%load static %}
+    <ul class="breadcrumbs2 small">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_tableau_de_bord' %}">Module Achat</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_achat_list_fournisseurs' %}">Liste des fournisseurs</a></li>
+        <li>{{ title }}</li>
+    </ul>
+    <div class="row">
+        {% if can_update == True %}<button onclick="javascript:window.location.assign('{% url 'module_achat_update_fournisseur' model.id %}')" class="button small-button rounded primary chargement-au-click">Modifier</button>{% endif %}
+        {% if can_create == True %}<button class="button small-button rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_achat_add_fournisseur' %}')" style="margin-left: 5px">Créer</button>{% endif %}
+    </div>
+
+    <hr class="hr-ligne" />
+    <br>
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+    <div class="row item-content" style="margin-top: 10px">
+		<p class="header shadow" style="height: 100px; width: 100px;">
+		{% if model.image != None and model.image != "" %}
+			<img src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+		{% else %}
+			<img src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+		{% endif %}
+		</p>
+        <p class="header">{{ model.nom_complet }}</p>
+        <p class="minor-header fg-gray">
+            Adresse complète :
+            <br>
+            <span class="sub-alt-header fg-dark">{{ model.adresse_complete }}</span>
+            <br>
+            <br>
+            Adresse email :
+            <br>
+            {% if model.email != None and model.email != "" %}
+                <a href="mailto:{{ model.email }}" target="blank" class="sub-alt-header lien chargement-au-click">{{ model.email }}</a>
+            {% else %}
+                <span class="sub-alt-header lien chargement-au-click">-</span>
+            {% endif %}
+            <br>
+            <br>
+            Numéro de téléphone :
+            <br>
+            {% if model.phone != None and model.phone != "" %}
+                <span class="sub-alt-header fg-dark">{{ model.phone }}</span>
+            {% else %}
+                <span class="sub-alt-header lien chargement-au-click">-</span>
+            {% endif %}
+            <br>
+        </p>
+    </div>
+{% endblock %}

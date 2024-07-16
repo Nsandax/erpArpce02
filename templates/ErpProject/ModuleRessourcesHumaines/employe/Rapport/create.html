@@ -1,0 +1,60 @@
+{% extends "ErpProject/ModuleRessourcesHumaines/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_rh_tableau_de_bord' %}">Module Ressources Humaines</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div class="row">
+        <h2 class="text-light no-margin-left">{{ title }}</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider" %}
+        </div>
+        <div class="col-md-2">
+            <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_rh_tableau_de_bord' %}')" class="theme-btn theme-btn-sm rounded">
+                Annuler
+            </button>
+        </div>
+    </div>
+
+
+    <hr class="hr-ligne">
+    <!-- Appel de la fonction message -->
+        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <br>
+
+    <div class="row item-content" style="margin-top: 10px">
+        <form id="form" method="POST" action="{% url 'module_rh_post_generate_rapport_employe' %}"
+            data-role="validator"
+            data-show-required-state="false"
+            data-hint-mode="line"
+            data-hint-background="bg-red"
+            data-hint-color="fg-white"
+            data-hide-error="5000"
+            novalidate="novalidate"
+            data-on-error-input="notifyOnErrorInput"
+            data-show-error-hint="false">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Statut Ressource Humaine :</label>
+                    <div class="input-control text full-size">
+                        <select name="groupe_statut" id="groupe">
+                            <option value="">------------</option>
+                            <option value="0">Tous les statuts</option>
+                            {% for item in status %}
+                                <option value="{{ item.id }}"> Statut {{ item.designation }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

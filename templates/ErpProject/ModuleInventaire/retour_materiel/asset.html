@@ -1,0 +1,115 @@
+{% extends "ErpProject/ModuleInventaire/shared/layout.html" %}
+{% block page %}
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_inventaire_tableau_de_bord' %}">Module Inventaire</a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_list_transfert_internal' %}">Liste des bons de transfert</a></li>
+            <li><a class="leaf" href="{% url 'module_inventaire_details_transfert_internal' model.id %}">{{ title }}</a></li>
+            <li>Asset</li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>{{ title }}</h2>
+            <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            <div class="panel panel-default" >
+
+                <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                    <div class="row">
+                        <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} leaf">Valider</button>
+                        <button onclick="javascript:window.location.assign('{% url 'module_inventaire_add_retour_internal' %}')" class="theme-btn theme-btn-sm rounded leaf" style="margin-left: 5px">Annuler</button>
+                    </div>
+                    <hr class="hr-ligne">
+                    <!-- Appel de la fonction message -->
+                        {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                    <br>
+
+                    <div class="row item-content" style="margin-top: 10px">
+                        <form action="{% url 'module_inventaire_post_assetiser_retour_internal' %}"
+                            method="POST"
+                            data-role="validator"
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input type="hidden" name="ordre_id" value="{{ ordre_id }}">
+                            <input type="hidden" name="responsable_id" value="{{ responsable_id }}">
+                            <input type="hidden" name="agent_id" value="{{ agent_id }}">
+                            <input type="hidden" name="list_ligne_id" value="{{ list_ligne_id }}">
+                            <input type="hidden" name="list_quantite_fournie" value="{{ list_quantite_fournie }}">
+                            <input type="hidden" name="service_referent_id" value="{{ service_referent.id}}">
+                            {% for item in list_quantite_fournie %}
+                            <input type="hidden" name="quantite_fournie" value="{{ item }}">
+                            {% endfor %}
+
+                            <div class="row" style="margin-top: 20px">
+                                <div class="col-md-12">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="fg-gray">
+                                                Numéro du Retour Mat :<br>
+                                                <span class="fg-dark"> {{ model.numero_bon_retour }} </span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="fg-gray">
+                                                Service référent :<br>
+                                                <span class="fg-dark"> {{ service_referent.libelle }} </span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row">
+                                        <table class="table border bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th width="40%">Article</th>
+                                                    <th width="30%">Numero de série</th>
+                                                    <!--<th width="30%">Description</th>-->
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for ligne in lignes %}
+                                                <input type="hidden" name="ligne_id" value="{{ ligne.id }}">
+                                                    {% with ''|center:ligne.quantite_fournie as range %}
+                                                        {% for _ in range %}
+                                                            <tr class="table bordered border">
+                                                                <input name="article_id" type="hidden" value="{{ligne.article_identifiant}}">
+                                                                <td>{{ ligne.nom_article}}</td>
+                                                                <td class="no-padding-top no-padding-bottom">
+                                                                    <div class="input-control text full-size">
+                                                                        <input type="text" name="asset_id" id="asset_id" class="form-control" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez copleter le numero serie svp.">
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endwith %}
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    </script>
+
+{% endblock %}

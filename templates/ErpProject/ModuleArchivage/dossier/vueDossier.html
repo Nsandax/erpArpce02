@@ -1,0 +1,90 @@
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %}
+{% block page %}
+{%load static %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_index' %}">Module Dossier</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Lister contenu dossier {{model}}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+            <div class="col-md-3 " >
+                    <!-- <button onclick="javascript:window.location.assign('{% url 'module_archivage_add_dossier' %}')" class="button small-button rounded primary_color_{{ module.name|lower }} chargement-au-click" style="width: 100%;">Créer</button> -->
+            </div>
+            <div class="col-md-3">
+
+            </div>
+
+        </div>
+        <!-- {% if view == "list" %} -->
+
+
+
+        <!-- {% elif view == "kanban" %}
+        {%endif%} -->
+
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4"><img style="width: 40px;width: 40px; margin-right: 1%;" src="{%static 'ErpProject/image/archivage/open.png'%}" alt=""><img style="width: 20px;" src="{%static 'ErpProject/image/archivage/s.png'%}" alt="">
+            </div>
+            <div class="col-md-4" style="margin-left: -28%;"> <h2>{{model}}</h2></div>
+
+            </div>
+            <strong><hr></strong>
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-1"> </div>
+                    <div class="col-md-7" style="margin-left: -4%;"><strong>NOM</strong></div>
+                    <div class="col-md-2"><strong>DATE</strong></div>
+                    <div class="col-md-2"><strong>TAILLE</strong></div>
+                 </div>
+            <strong><hr></strong>
+                {%for document in model.dossier_fk_xjc.all %}
+                <div class="row" style="padding: 0.6%;">
+                    {% if ".JPG" in document.url_document|upper %}
+                    <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/jpg.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+                    {%elif ".PDF" in document.url_document|upper %}
+                    <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/pdf.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+                    {%elif ".DOC" in document.url_document|upper %}
+                    <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/doc.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+                    {%elif ".DOCX" in document.url_document|upper %}
+                    <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/doc.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+                    {%elif ".PPT" in document.url_document|upper %}
+                    <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/ppt.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+                    {%elif ".TXT" in document.url_document|upper %}
+                    <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/txt.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+                    {%elif ".XLSX" in document.url_document|upper %}
+                    <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/excel.png'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+                    {%else %}
+                    <div class="col-md-1"> <img src="{% static 'ErpProject/image/archivage/file_.svg'%}" style="margin-right: 10px;width: 22px;color: black;"></div>
+                    {%endif%}
+                    <div class="col-md-7" style="margin-left: -4%;"><a href="{% url 'module_archivage_detail_document' document.id %}" class="a-menu"><span style="color: black;">{{document.type_document}}</span> </a></div>
+                    <div class="col-md-2">{{document.created_at}}</div>
+                    <div class="col-md-2">{{document.taille}}</div>
+                   </div>
+
+                {%endfor%}
+            </div>
+        </div>
+
+
+        </div>
+
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+{% endblock %}

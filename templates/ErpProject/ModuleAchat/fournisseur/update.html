@@ -1,0 +1,551 @@
+{% extends "ErpProject/ModuleAchat/shared/layout.html" %} {% block page %} {%load static %}
+
+<div class="row">
+<ul class="breadcrumb">
+    <li><a><span class="mif-home"></span></a></li>
+    <li><a class="chargement-au-click" href="{% url 'module_achat_tableau_de_bord' %}">Module Achat</a></li>
+    <li><a class="chargement-au-click" href="{% url 'module_achat_list_fournisseurs' %}">Liste des fournisseurs</a></li>
+    <li><a class="chargement-au-click" href="{% url 'module_achat_details_fournisseur' model.id %}">{{ model.nom_complet }}</a></li>
+    <li>{{ title }}</li>
+</ul>
+</div>
+
+<div class="row">
+    <div class="col-md-2">
+        {% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit"  val="Valider"%}
+    </div>
+    <div class="col-md-2">
+        <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_achat_details_fournisseur' model.id %}')" class="theme-btn theme-btn-sm rounded">
+            Annuler
+        </button>
+    </div>
+</div>
+
+
+<!-- DIALOG POUR CAPTURE OU SELECTION PHOTO -->
+<div data-role="dialog" data-close-button="true" data-place="top-center" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialog">
+    <div id="dialog-buttons" class="row cells3 padding20" style="margin-top: 10px">
+        <div class="cells2">
+            <hr style="background-color: #f7f5f5;">
+            <div class="row cell">
+                <button onclick="openCapture()" class="button rounded danger" type="submit"><span class="mif-camera"></span> Prendre une photo</button>
+                <button class="button rounded warning" onclick="selectImage('#dialog')" style="margin-left: 5px"><span class="mif-image"></span> Sélectionner une image</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="capture-content" class="row padding20" style="margin-top: 10px; display: none;">
+        <div class="cells3">
+            <div id="my_camera"></div>
+            <div id="results"></div>
+            <hr style="background-color: #f7f5f5;">
+            <div class="row cell">
+                <button id="btn-active-camera" class="button rounded danger" onClick="configure()">Activer camera</button>
+                <button id="btn-take-camera" class="button rounded warning" onClick="take_snapshot()">Prendre la photo</button>
+                <button id="btn-save-camera" class="button rounded info" onClick="saveSnap()">Enregistrer</button>
+                <button id="btn-cancel-camera" class="button rounded" onClick="closeCapture()">Annuler</button>
+            </div>
+            <hr style="background-color: #f7f5f5;">
+        </div>
+    </div>
+</div>
+<!-- FIN DIALOG POUR CAPTURE OU SELECTION PHOTO -->
+<hr class="hr-ligne">
+<!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<br>
+
+
+<div class="row cells12 item-content" style="margin-top: 10px">
+
+    <form id="form" method="POST" action="{% url 'module_achat_post_update_fournisseur' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white"
+        data-hide-error="5000" novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+        {% csrf_token %}
+        <input id="submit" type="submit" style="display: none">
+        <input name="ref" type="hidden" value="{{ model.id }}">
+
+        <div class="row">
+            <div class="col-md-1">
+            <label class="input-control radio small-check">
+                        <input value="1" name="est_particulier" {% if model.est_particulier == True %}{{ "checked" }}{% endif %} type="radio">
+                        <span class="check"></span>
+                        <span class="caption">Particulier</span>
+                    </label>
+                </div>
+                    <div class="col-md-1">
+            <label class="input-control radio small-check" >
+                        <input value="0" name="est_particulier" {% if model.est_particulier == False %}{{ "checked" }}{% endif %} type="radio">
+                        <span class="check"></span>
+                        <span class="caption">Entreprise</span>
+                    </label>
+                </div>
+        </div>
+        <div class="row">
+            <table>
+                <div class="row">
+            <div class="col-md-6">
+                <input id="image_upload" name="image_upload" type="file" accept="image/*" style="display:none;">
+                        <div class="tile-container">
+                            <a onclick="$('input[id=image_upload]').click();" id="trigger-input-file" href="#" class="tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile">
+                                <div class="tile-content slide-up" >
+                                    <div class="slide" >
+                                    {% if model.image != None and model.image != "" %}
+                                        <img id="image_preview" src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                    {% else %}
+                                        <img id="image_preview" src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/">
+                                    {% endif %}
+
+                                        <!-- <img id="image_preview" src="{% static 'ErpProject/image/upload/personnes/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/"> -->
+                                    </div>
+
+                                    <div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+                                        <span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                </div>
+            </div>
+
+            </table>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Nom</label>
+                <div class="input-control text full-size" data-role="input">
+                    <input name="nom_complet" value="{{ model.nom_complet }}" type="text" data-validate-func="required" data-validate-hint="Entrez le nom du fournisseur !">
+                    <span class="input-state-error mif-warning"></span>
+                    <span class="input-state-success mif-checkmark"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label>Courriel</label>
+                <div class="input-control text full-size" data-role="input">
+                    <input name="email" value="{{ model.email }}" type="email" data-validate-func="email" data-validate-hint="Entrez une adresse email valide !">
+                    <span class="input-state-error mif-warning"></span>
+                    <span class="input-state-success mif-checkmark"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label>Téléphone</label>
+                <div class="input-control text full-size" data-role="input">
+                    <input name="phone" value="{{ model.phone }}" type="text">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Langue</label>
+                    <div class="input-control select full-size" data-role="input">
+                        <input name="langue" value="{{ model.langue }}" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label>Compte comptable</label>
+                <div class="input-control select full-size" data-role="input">
+                    <select name="compte_id">
+                        <option value="0">Sélectionnez un compte comptable</option>
+                        {% for item in comptes %}
+                            <option {% if model.compte_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}"> {{ item }}</option>
+                        {% endfor %}
+                            </select>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Adresse</label>
+                <div class="input-control select full-size" data-role="input">
+                    <select onchange="choix_pays()" id="choixPays">
+                        <option value="">Sélectionnez un pays</option>
+                        {% for item in pays %}
+                            <option value="{{ item.id }}">{{ item.designation }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="input-state-error mif-warning"></span>
+                    <span class="input-state-success mif-checkmark"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div  style="top: 1.55rem;" class="input-control select full-size" data-role="input">
+                    <select onchange="choix_province()" id="choixProvince">
+                        <option value="0">Sélectionnez un département</option>
+                    </select>
+                    <span class="input-state-error mif-warning"></span>
+                    <span class="input-state-success mif-checkmark"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-control select full-size" data-role="input">
+                    <select onchange="choix_ville()" id="choixVille">
+                        <option value="0">Sélectionnez une ville</option>
+                    </select>
+                    <span class="input-state-error mif-warning"></span>
+                    <span class="input-state-success mif-checkmark"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="input-control select full-size" data-role="input">
+                    <select name="commune_quartier_id" id="choixCommune">
+                        <option value="0">Sélectionnez un arrondissement</option>
+                    </select>
+                    <span class="input-state-error mif-warning"></span>
+                    <span class="input-state-success mif-checkmark"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-control text full-size" data-role="input">
+                    <input name="adresse" value="{{ model.adresse }}" type="text" placeholder="Rue...">
+                    <span class="input-state-error mif-warning"></span>
+                    <span class="input-state-success mif-checkmark"></span>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <!--div id="more">
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Catégorie</label>
+                    <div class="input-control select full-size" data-role="input">
+                        <select name="categorie_id">
+                            <option value="{{model.categorie}}">{{model.categorie}}</option>
+                            <option value="Fournisseur priviléger">Fournisseur priviléger</option>
+                            <option value="Fournisseur strategique">Fournisseur strategique</option>
+                            <option value="Fournisseur général">Fournisseur général</option>
+                            <option value="Fournisseur métier(Grossiste)">Fournisseur métier(Grossiste)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Civilité</label>
+                    <div class="input-control select full-size" data-role="input">
+                        <select name="civilite_id">
+                            <option value="{{model.civilite.id}}">{{model.civilite.designation}}</option>
+                            {% for civil in civilite %}
+                            <option value="{{civil.id}}">{{civil.designation}}</option>
+                           {%endfor%}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Langue</label>
+                    <div class="input-control select full-size" data-role="input">
+                        <select name="langue_id">
+                                                    <option value="0"></option>
+                                                </select>
+                    </div>
+                </div>
+            </div>
+
+        </div-->
+
+</div>
+
+</form>
+
+</div>
+<!-- JS POUR CAPTURE ET SELECTION D'UNE IMAGE -->
+<script type="text/javascript" src="{% static 'ErpProject/js/webcam.min.js' %}"></script>
+<script type="text/javascript">
+    // Configure a few settings and attach camera
+    function configure() {
+        $('#my_camera').css('display', 'block');
+        $('#results').css('display', 'none');
+        Webcam.set({
+            width: 320,
+            height: 240,
+            image_format: 'jpeg',
+            jpeg_quality: 90
+        });
+        Webcam.attach('#my_camera');
+        $("#btn-active-camera").prop('disabled', true);
+        $("#btn-take-camera").prop('disabled', false);
+        $("#btn-save-camera").prop('disabled', true);
+    }
+    // A button for taking snaps
+    function take_snapshot() {
+        $('#my_camera').css('display', 'none');
+        $('#results').css('display', 'block');
+        // take snapshot and get image data
+        Webcam.snap(function(data_uri) {
+            // display results in page
+            document.getElementById('results').innerHTML =
+                '<img id="imageprev" src="' + data_uri + '"/>';
+
+        });
+        Webcam.reset();
+        $("#btn-active-camera").prop('disabled', false);
+        $("#btn-take-camera").prop('disabled', true);
+        $("#btn-save-camera").prop('disabled', false);
+    }
+
+    function saveSnap() {
+        // Get base64 value from <img id='imageprev'> source
+        var base64image = document.getElementById("imageprev").src;
+        $('#image_preview').attr('src', base64image);
+        compresserImage(base64image);
+        closeCapture();
+        var dialog = $('#dialog').data('dialog');
+        dialog.close();
+        $("#btn-active-camera").prop('disabled', false);
+        $("#btn-take-camera").prop('disabled', true);
+        $("#btn-save-camera").prop('disabled', true);
+    }
+
+    function compresserImage(file) {
+        var img = document.createElement('img');
+        var newImageData = "";
+        var compress = 0.7;
+        //COMPRESS WHEN FILE SIZE IS MORE THAN 1 Mo
+        if (file.size > 1048576) {
+            compress = 0.3;
+        }
+        img.src = file;
+
+        img.onload = function() {
+            console.log("START ONLOAD");
+            var canvas = document.createElement('canvas');
+            canvas.width = this.naturalWidth;
+            canvas.height = this.naturalHeight;
+
+            var context = canvas.getContext("2d").drawImage(this, 0, 0);
+            newImageData = canvas.toDataURL("image/jpeg", compress);
+            console.log(newImageData);
+            document.getElementById('image_upload_string').value = newImageData;
+            //$('#image_upload_string').val("UN TEXT");
+        }
+    }
+
+    function selectChoice(id) {
+        var dialog = $(id).data('dialog');
+        dialog.open();
+    }
+
+    function openCapture() {
+        $('#capture-content').css('display', 'block');
+        $('#dialog-buttons').css('display', 'none');
+        $("#btn-active-camera").prop('disabled', false);
+        $("#btn-take-camera").prop('disabled', true);
+        $("#btn-save-camera").prop('disabled', true);
+    }
+
+    function closeCapture() {
+        $('#my_camera').css('display', 'none');
+        $('#results').css('display', 'none');
+        $('#capture-content').css('display', 'none');
+        $('#dialog-buttons').css('display', 'block');
+        $("#btn-active-camera").prop('disabled', false);
+        $("#btn-take-camera").prop('disabled', true);
+        $("#btn-save-camera").prop('disabled', true);
+    }
+
+    function selectImage(id) {
+        var dialog = $(id).data('dialog');
+        dialog.close();
+        $('input[id=image_upload]').click();
+    }
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#image_preview').attr('src', e.target.result);
+                compresserImage(e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+
+        }
+    }
+
+    $("#image_upload").change(function() {
+        readURL(this);
+    });
+</script>
+<!-- FIN JS POUR CAPTURE ET SELECTION D'UNE IMAGE -->
+
+
+<script>
+    function choix_pays() {
+        var idPays = $("#choixPays").val();
+
+        if (idPays != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'backoffice_list_places_filles' %}", {
+                    ref: idPays
+                },
+                function(response) {
+                    $("#choixProvince").children().remove();
+                    $("#choixProvince").append("<option value='0'>Sélectionnez un département</option>");
+                    console.log(response);
+                    for (var i = 0; i < response.length; i++) {
+                        var laProvince = response[i];
+
+                        var option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                        $("#choixProvince").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else supprimer_provinces();
+    }
+
+    function choix_province() {
+        var idProvince = $("#choixProvince").val();
+
+        if (idProvince != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'backoffice_list_places_filles' %}", {
+                    ref: idProvince
+                },
+                function(response) {
+                    $("#choixVille").children().remove();
+                    $("#choixVille").append("<option value='0'>Sélectionnez une ville</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laVille = response[i];
+
+                        var option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                        $("#choixVille").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else supprimer_villes();
+    }
+
+    function choix_ville() {
+        var idVille = $("#choixVille").val();
+
+        if (idVille != 0) {
+            showDialog("chargement");
+            $.get(
+                "{% url 'backoffice_list_places_filles' %}", {
+                    ref: idVille
+                },
+                function(response) {
+                    $("#choixCommune").children().remove();
+                    $("#choixCommune").append("<option value='0'>Sélectionnez un arrondissement</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var laCommune = response[i];
+
+                        var option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                        $("#choixCommune").append(option);
+                    }
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else supprimer_communes();
+    }
+
+    function supprimer_communes() {
+        $("#choixCommune").children().remove();
+        $("#choixCommune").append("<option value='0'>Sélectionnez un arrondissement</option>");
+    }
+
+    function supprimer_villes() {
+        $("#choixVille").children().remove();
+        $("#choixVille").append("<option value='0'>Sélectionnez une ville</option>");
+        supprimer_communes();
+    }
+
+    function supprimer_provinces() {
+        $("#choixProvince").children().remove();
+        $("#choixProvince").append("<option value='0'>Sélectionnez un département</option>");
+        supprimer_villes();
+    }
+
+    $(document).ready(function() {
+        $("#choixPays").val("{{ le_pays.id }}");
+
+        $.get(
+            "{% url 'backoffice_list_places_filles' %}", {
+                ref: "{{ le_pays.id }}"
+            },
+            function(response) {
+                $("#choixProvince").children().remove();
+                $("#choixProvince").append("<option value='0'>Sélectionnez un département</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laProvince = response[i];
+                    var option = "";
+                    if (laProvince.id == parseInt("{{ la_province.id }}")) {
+                        option = "<option selected value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+                    } else option = "<option value='" + laProvince.id + "'>" + laProvince.designation + "</option>";
+
+                    $("#choixProvince").append(option);
+                }
+            },
+            "json"
+        );
+
+        $.get(
+            "{% url 'backoffice_list_places_filles' %}", {
+                ref: "{{ la_province.id }}"
+            },
+            function(response) {
+                $("#choixVille").children().remove();
+                $("#choixVille").append("<option value='0'>Sélectionnez la ville</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laVille = response[i];
+                    var option = "";
+                    if (laVille.id == parseInt("{{ la_ville.id }}")) {
+                        option = "<option selected value='" + laVille.id + "'>" + laVille.designation + "</option>";
+                    } else option = "<option value='" + laVille.id + "'>" + laVille.designation + "</option>";
+
+                    $("#choixVille").append(option);
+                }
+            },
+            "json"
+        );
+
+        $.get(
+            "{% url 'backoffice_list_places_filles' %}", {
+                ref: "{{ la_ville.id }}"
+            },
+            function(response) {
+                $("#choixCommune").children().remove();
+                $("#choixCommune").append("<option value='0'>Sélectionnez la commune</option>");
+
+                for (var i = 0; i < response.length; i++) {
+                    var laCommune = response[i];
+                    var option = "";
+                    if (laCommune.id == parseInt("{{ la_commune.id }}")) {
+                        option = "<option selected value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+                    } else option = "<option value='" + laCommune.id + "'>" + laCommune.designation + "</option>";
+
+                    $("#choixCommune").append(option);
+                }
+            },
+            "json"
+        );
+    });
+</script>
+{% endblock %}
