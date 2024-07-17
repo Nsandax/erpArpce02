@@ -1,0 +1,26 @@
+*.pyc
+.vscode
+*.log
+/Database
+
+*.pyc
+.vscode
+*.log
+secure_files/
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+.env
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+static/ErpProject/css/fontawesome_5/svgs/brands/.goutputstream-AMMNC2

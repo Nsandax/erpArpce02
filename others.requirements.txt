@@ -1,0 +1,13 @@
+WeasyPrint==52
+xhtml2pdf
+openpyxl
+pyqrcodeng
+django_celery_results
+mssql-django==1.3
+pytesseract
+pdf2image
+xlrd
+docx2txt
+# docx (Deprecated for python 3)
+python-docx
+zip-files==0.4.1

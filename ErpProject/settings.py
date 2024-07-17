@@ -30,7 +30,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'hlql0wo@exguedc7l9i70whjljnrezz8r66@2o4v_*@)u^!js9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = False
+#DEBUG = False
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
@@ -68,7 +68,12 @@ INSTALLED_APPS = [
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': 'localhost:9200'
+        # Normal Config
+        # 'hosts': 'localhost:9200'
+
+        # Docker config
+        'hosts': 'elasticsearch_arpce:9200'
+
     },
 }
 
@@ -120,20 +125,25 @@ WSGI_APPLICATION = 'ErpProject.wsgi.application'
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    } 
 }'''
 
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
-        'NAME': 'BDD_ERP_ARPCE_V1',
-        'USER': 'sa',
+        'NAME': 'DB_ERP_NSDX_PREPROD',
+        'USER': 'dev',
         'PASSWORD': 'Password01',
-        'HOST': 'localhost',
-        'PORT': '',
 
+        # Arpce Config
+        'HOST': '10.17.1.130',
+
+        # Local Config
+        # 'HOST': 'localhost',
+
+        'PORT': '',
         'OPTIONS': {
-            'driver': 'ODBC Driver 13 for SQL Server',
+            'driver': 'ODBC Driver 17 for SQL Server',
         },
     },
 }

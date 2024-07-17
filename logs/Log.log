@@ -10376,3 +10376,13 @@ INFO :: autoreload :: 2024-07-16 23:55:42,158 :: D:\ARPCE\erparpcev1\erparpcev1\
 ###############################################################
 INFO :: autoreload :: 2024-07-16 23:55:45,293 :: Watching for file changes with StatReloader 
 ###############################################################
+INFO :: autoreload :: 2024-07-17 11:30:28,293 :: Watching for file changes with StatReloader 
+###############################################################
+INFO :: autoreload :: 2024-07-17 11:33:11,645 :: /erp/ErpProject/settings.py changed, reloading. 
+###############################################################
+INFO :: autoreload :: 2024-07-17 11:33:12,358 :: Watching for file changes with StatReloader 
+###############################################################
+INFO :: autoreload :: 2024-07-17 11:33:46,025 :: /erp/ErpProject/settings.py changed, reloading. 
+###############################################################
+INFO :: autoreload :: 2024-07-17 11:33:46,704 :: Watching for file changes with StatReloader 
+###############################################################

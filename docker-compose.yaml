@@ -1,0 +1,103 @@
+
+networks:
+  nsandax_arpce:
+    external: true
+
+services:
+############################# Django App ##############################
+  django:
+    build: .
+    container_name: erp_rc
+    image: erparpcev2:latest 
+    command: python3 manage.py runserver --insecure 0.0.0.0:${APP_PORT}
+    restart: always
+    environment:
+      DOCKER_CONTAINER : 1
+      # CELERY_RESULT_BACKEND : 'django-db'
+      CELERY_CACHE_BACKEND :  'django-cache'
+      CELERY_BROKER_URL : 'redis://redisserver:${REDDIS_PORT}'
+      CELERY_RESULT_BACKEND : 'redis://redisserver:${REDDIS_PORT}'
+      DEBUG : 'False'
+      ALLOWED_HOSTS: '["*"]'
+      
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.tls=true"
+      - "traefik.http.routers.django.rule=Host(`nsandax.arpce.cg`)"
+    volumes:
+      - .:/erp
+      - ./docker/erp/ssl:/etc/ssl
+    ports:
+      - "${APP_PORT}:8000"
+
+    networks:
+      - nsandax_arpce
+      
+
+########################### Redis ############################
+  rediserver:
+    container_name: redisserver
+    image: redis
+    restart: always
+    ports:
+      - ${REDDIS_PORT}:6379 
+    volumes:
+      - redisData02:/data
+    entrypoint: redis-server --appendonly yes
+    networks:
+      - nsandax_arpce
+
+########################### Celery Worker ############################
+  celery:
+    # container_name: celery_rc
+    image: erparpcev2:latest
+    restart: always
+    command: celery -A ErpProject worker -l info
+    volumes:
+      - .:/data
+      - ./docker/erp/ssl:/etc/ssl
+      
+    environment:
+        DOCKER_CONTAINER : 1
+        # CELERY_RESULT_BACKEND : 'django-db'
+        CELERY_CACHE_BACKEND :  'django-cache'
+        CELERY_BROKER_URL : 'redis://redisserver:6379'
+        CELERY_RESULT_BACKEND : 'redis://redisserver:6379'
+        DEBUG : 'True'
+        ALLOWED_HOSTS: '["*"]'
+    
+    depends_on:
+        - django
+        - rediserver
+
+    networks:
+        - nsandax_arpce        
+########################### Elastic Search ############################
+
+  elasticsearch:
+    container_name: elasticsearch_arpce
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.16
+    restart: always
+    environment:
+      discovery.type: "single-node"
+      bootstrap.memory_lock: "true"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      xpack.security.enabled: "false"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+        - esData01:/usr/share/elasticsearch/data
+    ports:
+      - ${ES_PORT}:9200
+      - ${ES_PORT_TWO}:9300
+    networks:
+    - nsandax_arpce
+  
+volumes:
+  redisData02: {}
+  esData01: {}
+  appDatav01 : {}
+  celeryData04: {}
+  cubearpceData002: {}
